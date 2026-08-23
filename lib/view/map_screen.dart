@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class FavoriteScreen extends StatelessWidget {
-  const FavoriteScreen({super.key});
+class MapScreen extends StatelessWidget {
+  const MapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Favorite"),
+      body: Text("Map Screen")
     );
   }
 }

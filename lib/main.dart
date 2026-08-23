@@ -1,5 +1,5 @@
 import 'package:final_project/model/property.dart';
-import 'package:final_project/view/home_screen.dart';
+import 'package:final_project/widget/bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,10 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-     home: HomeScreen(
-      properties: propertyList,
-     )
+      home: BottomNav(properties: propertyList),
     );
   }
 }
-
