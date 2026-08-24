@@ -1,8 +1,8 @@
 import 'package:final_project/model/property.dart';
-import 'package:final_project/view/home_screen.dart';
-import 'package:final_project/view/interested_sent_screen.dart';
-import 'package:final_project/view/map_screen.dart';
-import 'package:final_project/view/properties_detail_screen.dart';
+import 'package:final_project/view/renter/home_screen.dart';
+import 'package:final_project/view/renter/interested_sent_screen.dart';
+import 'package:final_project/view/renter/map_screen.dart';
+import 'package:final_project/view/renter/properties_detail_screen.dart';
 import 'package:flutter/material.dart';
 
 class BottomNav extends StatefulWidget {
