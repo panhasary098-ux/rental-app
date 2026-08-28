@@ -22,7 +22,7 @@ class LoginScreen extends StatelessWidget {
             children: [
               SizedBox(height: 55),
 
-              // LOGO
+              // Logo
               Center(
                 child: Container(
                   width: 70,
@@ -64,7 +64,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 40),
 
-              // EMAIL
+              // Email
               Text(
                 "Email",
                 style: TextStyle(
@@ -112,7 +112,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 20),
 
-              // PASSWORD
+              // Password
               Text(
                 "Password",
                 style: TextStyle(
@@ -191,7 +191,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 8),
 
-              // LOGIN BUTTON
+              // Login button
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -220,7 +220,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 28),
 
-              // OR
+              
               Row(
                 children: [
                   Expanded(child: Divider(color: Color(0xFFE5E7EB))),
@@ -243,7 +243,7 @@ class LoginScreen extends StatelessWidget {
 
               SizedBox(height: 22),
 
-              // SOCIAL LOGIN
+              // Social login buttons
               Row(
                 children: [
                   Expanded(
@@ -251,7 +251,9 @@ class LoginScreen extends StatelessWidget {
                       height: 54,
 
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          controller.loginWithGoogle();
+                        },
 
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -310,7 +312,9 @@ class LoginScreen extends StatelessWidget {
                       height: 54,
 
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                           controller.loginWithFacebook();
+                        },
 
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,

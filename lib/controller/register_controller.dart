@@ -35,14 +35,19 @@ class RegisterController extends GetxController {
     String email = emailController.text.trim();
     String phone = phoneController.text.trim();
     String password = passwordController.text.trim();
-    String confirmPAssword = confirmPasswordController.text.trim();
+    String confirmPassword = confirmPasswordController.text.trim();
 
     if (name.isEmpty ||
         email.isEmpty ||
         phone.isEmpty ||
         password.isEmpty ||
-        confirmPAssword.isEmpty) {
+        confirmPassword.isEmpty) {
       Get.snackbar("Missing Information", "Please fill in all fields");
+      return;
+    }
+
+    if (password != confirmPassword) {
+      Get.snackbar("Password Error", "Passwords do not match");
       return;
     }
 
@@ -53,22 +58,38 @@ class RegisterController extends GetxController {
       );
       return;
     }
-     try {
+
+    try {
       isLoading.value = true;
 
-      UserCredential userCredential =
-          await authService.registerWithEmail(
+      UserCredential userCredential = await authService.registerWithEmail(
         email: email,
         password: password,
       );
 
-      await userCredential.user?.updateDisplayName(name);
+      User? user = userCredential.user;
 
-      print("Firebase UID: ${userCredential.user?.uid}");
+      if (user == null) {
+        throw Exception("Firebase user was not created");
+      }
+
+      await user.updateDisplayName(name);
+
+      String role = selectedRole.value == "Renter" ? "renter" : "house_owner";
+
+      await authService.saveUserToLaravel(
+        firebaseUid: user.uid,
+        name: name,
+        email: email,
+        phone: phone,
+        role: role,
+      );
+
+      print("Firebase UID: ${user.uid}");
       print("Name: $name");
       print("Email: $email");
       print("Phone: $phone");
-      print("Role: ${selectedRole.value}");
+      print("Role: $role");
 
       Get.snackbar(
         "Success",
@@ -93,15 +114,9 @@ class RegisterController extends GetxController {
         message = e.message ?? "Registration failed";
       }
 
-      Get.snackbar(
-        "Registration Failed",
-        message,
-      );
+      Get.snackbar("Registration Failed", message);
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        e.toString(),
-      );
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }

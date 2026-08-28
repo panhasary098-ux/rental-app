@@ -36,6 +36,7 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                        
                         TextSpan(
                           text: "Near",
                           style: TextStyle(

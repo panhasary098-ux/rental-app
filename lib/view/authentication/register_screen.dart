@@ -286,7 +286,7 @@ class RegisterScreen extends StatelessWidget {
 
               SizedBox(height: 18),
 
-              // CONFIRM PASSWORD
+              // Confirm password
               buildLabel("Confirm Password"),
 
               SizedBox(height: 8),
@@ -317,7 +317,7 @@ class RegisterScreen extends StatelessWidget {
 
               SizedBox(height: 28),
 
-              // REGISTER BUTTON
+              // Register
               SizedBox(
                 width: double.infinity,
                 height: 54,

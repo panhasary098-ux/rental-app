@@ -1,4 +1,6 @@
-import 'package:final_project/view/auth/login_screen.dart';
+import 'package:final_project/view/admin/admin_dashboard_screen.dart';
+import 'package:final_project/view/authentication/login_screen.dart';
+import 'package:final_project/widget/admin_bottom_nav.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +20,9 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       //home: BottomNav(properties: propertyList),
-      home: LoginScreen()
+       home: LoginScreen()
+     // home: AdminDashboardScreen()
+     // home: AdminBottomNav()
     );
   }
 }
