@@ -1,5 +1,8 @@
 import 'package:final_project/model/property.dart';
+import 'package:final_project/view/renter/filter_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/state_manager.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Property> properties;
@@ -102,6 +105,50 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              SizedBox(height: 20),
+
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+
+                    hintText: 'Search Property name....',
+
+                    filled: true,
+                    fillColor: Colors.white,
+
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+
+                    // Filter button
+                    suffixIcon: Tooltip(
+                      waitDuration: const Duration(milliseconds: 500),
+                      showDuration: const Duration(seconds: 2),
+                      preferBelow: false,
+                      message: "Filter",
+                      child: IconButton(
+                        onPressed: () {
+                          Get.to(() => FilterScreen());
+                        },
+                        icon: const Icon(Icons.tune),
+                      ),
+                    ),
+                  ),
+                ),
               ),
 
               SizedBox(height: 20),
