@@ -22,6 +22,7 @@ class RegisterController extends GetxController {
     selectedRole.value = role;
   }
 
+
   void togglePassword() {
     hidePassword.value = !hidePassword.value;
   }
