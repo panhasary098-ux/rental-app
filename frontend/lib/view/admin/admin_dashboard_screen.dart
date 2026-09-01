@@ -54,13 +54,13 @@ class AdminDashboardScreen extends StatelessWidget {
                     height: 46,
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFEAF7F0),
+                      color: Colors.green,
                       shape: BoxShape.circle,
                     ),
 
                     child: Icon(
                       Icons.admin_panel_settings_outlined,
-                      color: Color(0xFF198754),
+                      color: Colors.white,
                       size: 25,
                     ),
                   ),
@@ -89,7 +89,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       value: "1,248",
                       icon: Icons.people_outline_rounded,
                       iconColor: Color(0xFF2563EB),
-                      iconBackground: Color(0xFFEFF6FF),
+                      iconBackground: Color.fromARGB(255, 165, 204, 255),
                     ),
                   ),
 
@@ -101,7 +101,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       value: "356",
                       icon: Icons.home_work_outlined,
                       iconColor: Color(0xFF198754),
-                      iconBackground: Color(0xFFEAF7F0),
+                      iconBackground: Color.fromARGB(255, 206, 255, 229),
                     ),
                   ),
                 ],
@@ -118,7 +118,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       value: "24",
                       icon: Icons.pending_actions_outlined,
                       iconColor: Color(0xFFD97706),
-                      iconBackground: Color(0xFFFFF8E1),
+                      iconBackground: Color.fromARGB(255, 253, 229, 148),
                     ),
                   ),
 
@@ -130,7 +130,7 @@ class AdminDashboardScreen extends StatelessWidget {
                       value: "8",
                       icon: Icons.block_outlined,
                       iconColor: Color(0xFFDC2626),
-                      iconBackground: Color(0xFFFFECEC),
+                      iconBackground: Color.fromARGB(255, 255, 208, 208),
                     ),
                   ),
                 ],
@@ -163,8 +163,8 @@ class AdminDashboardScreen extends StatelessWidget {
                     child: Text(
                       "View all",
                       style: TextStyle(
-                        color: Color(0xFF198754),
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
                       ),
                     ),
                   ),
@@ -417,7 +417,7 @@ class AdminDashboardScreen extends StatelessWidget {
                     ),
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFFFF8E1),
+                      color: Color.fromARGB(255, 247, 126, 51),
 
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -425,9 +425,9 @@ class AdminDashboardScreen extends StatelessWidget {
                     child: Text(
                       "Pending Verification",
                       style: TextStyle(
-                        color: Color(0xFFD97706),
+                        color: Colors.white,
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -577,14 +577,14 @@ class AdminDashboardScreen extends StatelessWidget {
               height: 48,
 
               decoration: BoxDecoration(
-                color: Color(0xFFEAF7F0),
+                color: Colors.green.withOpacity(0.9),
 
                 borderRadius: BorderRadius.circular(14),
               ),
 
               child: Icon(
                 icon,
-                color: Color(0xFF198754),
+                color: Colors.white,
                 size: 24,
               ),
             ),

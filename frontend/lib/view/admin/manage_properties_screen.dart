@@ -144,7 +144,7 @@ class _ManagePropertiesScreenState
                     borderRadius:
                         BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: Color(0xFF167A3E),
+                      color: Colors.green,
                     ),
                   ),
                 ),
@@ -194,7 +194,7 @@ class _ManagePropertiesScreenState
 
                       decoration: BoxDecoration(
                         color: selected
-                            ? Color(0xFF167A3E)
+                            ? Colors.green
                             : Colors.white,
 
                         borderRadius:
@@ -202,7 +202,7 @@ class _ManagePropertiesScreenState
 
                         border: Border.all(
                           color: selected
-                              ? Color(0xFF167A3E)
+                              ? Colors.green
                               : Color(0xFFD6DBD8),
                         ),
                       ),
@@ -467,11 +467,11 @@ class _ManagePropertiesScreenState
                   style:
                       OutlinedButton.styleFrom(
                     backgroundColor:
-                        Color(0xFF167A3E),
+                        Colors.green,
                         foregroundColor: Colors.white,
 
                     side: BorderSide(
-                      color: Color(0xFF167A3E),
+                      color: Colors.green,
                     ),
 
                     shape:
@@ -519,17 +519,17 @@ class _ManagePropertiesScreenState
     Color textColor;
 
     if (status == "Available") {
-      backgroundColor = Color(0xFFDCEFE3);
-      textColor = Color(0xFF167A3E);
+      backgroundColor = Color.fromARGB(255, 230, 255, 239);
+      textColor = Colors.green;
     } else if (status == "Rented") {
-      backgroundColor = Color(0xFFDCE8F8);
-      textColor = Color(0xFF1D4F91);
+      backgroundColor = Color.fromARGB(255, 207, 228, 255);
+      textColor = Colors.blue;
     } else if (status == "Pending") {
-      backgroundColor = Color(0xFFFFF3CD);
-      textColor = Color(0xFF9A6700);
+      backgroundColor = Color.fromARGB(255, 255, 249, 227);
+      textColor = Color(0xFFD97706);
     } else {
-      backgroundColor = Color(0xFFFADDDD);
-      textColor = Color(0xFFB42318);
+      backgroundColor = Color.fromARGB(255, 255, 227, 227);
+      textColor = Colors.red;
     }
 
     return Container(

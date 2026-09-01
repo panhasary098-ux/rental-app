@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: Color(0xFF198754),
+                    color: Colors.green,
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Icon(
@@ -103,7 +103,7 @@ class LoginScreen extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: Color(0xFF198754),
+                      color: Colors.green,
                       width: 1.5,
                     ),
                   ),
@@ -163,7 +163,7 @@ class LoginScreen extends StatelessWidget {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: Color(0xFF198754),
+                        color: Colors.green,
                         width: 1.5,
                       ),
                     ),
@@ -182,7 +182,7 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     "Forgot password?",
                     style: TextStyle(
-                      color: Color(0xFF198754),
+                      color: Colors.green,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -202,7 +202,7 @@ class LoginScreen extends StatelessWidget {
                   },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF198754),
+                    backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     elevation: 0,
 
@@ -372,7 +372,7 @@ class LoginScreen extends StatelessWidget {
                     child: Text(
                       "Register",
                       style: TextStyle(
-                        color: Color(0xFF198754),
+                        color: Colors.green,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

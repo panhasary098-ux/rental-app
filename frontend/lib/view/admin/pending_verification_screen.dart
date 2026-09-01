@@ -38,10 +38,10 @@ class PendingVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF3F5F4),
+      backgroundColor: Color.fromARGB(255, 236, 242, 239),
 
       appBar: AppBar(
-        backgroundColor: Color(0xFFF3F5F4),
+        backgroundColor: Color.fromARGB(255, 236, 242, 239),
         elevation: 0,
 
         leading: IconButton(
@@ -78,11 +78,18 @@ class PendingVerificationScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFFFFF3CD),
+                  color:  Color(0xFFD97706),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Color(0xFFE7C75F),
-                  ),
+                  // border: Border.all(
+                  //   color: Color.fromARGB(255, 208, 207, 204),
+                  // ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color.fromARGB(255, 239, 238, 238),
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
                 ),
                 child: Row(
                   children: [
@@ -90,15 +97,15 @@ class PendingVerificationScreen extends StatelessWidget {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: Color(0xFFF5D77A),
+                       color: Color.fromARGB(255, 253, 229, 148),
                         borderRadius: BorderRadius.circular(13),
                         border: Border.all(
-                          color: Color(0xFFE3BE45),
+                          color: Color.fromARGB(255, 223, 188, 72),
                         ),
                       ),
                       child: Icon(
                         Icons.pending_actions_rounded,
-                        color: Color(0xFF9A6700),
+                        color: Color(0xFFD97706),
                         size: 25,
                       ),
                     ),
@@ -114,7 +121,7 @@ class PendingVerificationScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF111827),
+                              color: Colors.white,
                             ),
                           ),
 
@@ -124,7 +131,7 @@ class PendingVerificationScreen extends StatelessWidget {
                             "Review property and owner documents before approval.",
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF4B5563),
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -296,7 +303,7 @@ class PendingVerificationScreen extends StatelessWidget {
                         ),
 
                         decoration: BoxDecoration(
-                          color: Color(0xFFFFF3CD),
+                          color: Color.fromARGB(255, 255, 249, 227),
                           borderRadius: BorderRadius.circular(20),
                         ),
 
@@ -305,7 +312,7 @@ class PendingVerificationScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF9A6700),
+                            color: Color.fromARGB(255, 247, 126, 51),
                           ),
                         ),
                       ),
@@ -331,7 +338,7 @@ class PendingVerificationScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF167A3E),
+                          color: Colors.green,
                         ),
                       ),
 
@@ -468,7 +475,7 @@ class PendingVerificationScreen extends StatelessWidget {
                 },
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF167A3E),
+                  backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   elevation: 0,
 

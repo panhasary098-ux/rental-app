@@ -150,4 +150,5 @@ class AuthService {
   User? getCurrentUser() {
     return auth.currentUser;
   }
+
 }

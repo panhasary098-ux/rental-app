@@ -20,120 +20,103 @@ class LoginController extends GetxController {
     hidePassword.value = !hidePassword.value;
   }
 
-Future<void> login() async {
-  String email = emailController.text.trim();
-  String password = passwordController.text.trim();
+  Future<void> login() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    Get.snackbar(
-      "Missing Information",
-      "Please enter your email and password",
-    );
-    return;
-  }
-
-  try {
-    isLoading.value = true;
-
-    UserCredential userCredential =
-        await authService.loginWithEamil(
-      email: email,
-      password: password,
-    );
-
-    User? firebaseUser = userCredential.user;
-
-    if (firebaseUser == null) {
-      throw Exception("Firebase user not found");
-    }
-
-    Map<String, dynamic> userData =
-        await authService.getUserFromLaravel(
-      firebaseUser.uid,
-    );
-
-    String role = userData["role"];
-    String status = userData["status"];
-
-    print("UID: ${firebaseUser.uid}");
-    print("Role: $role");
-    print("Status: $status");
-
-    if (status == "suspended") {
-      await authService.logout();
-
+    if (email.isEmpty || password.isEmpty) {
       Get.snackbar(
-        "Account Suspended",
-        "Your account has been suspended",
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+        "Missing Information",
+        "Please enter your email and password",
       );
-
       return;
     }
 
-    Get.snackbar(
-      "Success",
-      "Login successful",
-      snackPosition: SnackPosition.TOP,
-      duration: Duration(seconds: 2),
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+    try {
+      isLoading.value = true;
 
-    if (role == "admin") {
-      Get.offAll(
-        () => AdminBottomNav(),
+      UserCredential userCredential = await authService.loginWithEamil(
+        email: email,
+        password: password,
       );
-    } else if (role == "house_owner") {
-      Get.offAll(
-        () => OwnerHomeScreen(),
+      
+      User? firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
+        throw Exception("Firebase user not found");
+      }
+
+      Map<String, dynamic> userData = await authService.getUserFromLaravel(
+        firebaseUser.uid,
       );
-    } else if (role == "renter") {
-      Get.offAll(
-        () => HomeScreen(properties: propertyList,),
-      );
-    } else {
-      await authService.logout();
+
+      String role = userData["role"];
+      String status = userData["status"];
+
+      print("UID: ${firebaseUser.uid}");
+      print("Role: $role");
+      print("Status: $status");
+
+      if (status == "suspended") {
+        await authService.logout();
+
+        Get.snackbar(
+          "Account Suspended",
+          "Your account has been suspended",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+
+        return;
+      }
 
       Get.snackbar(
-        "Role Error",
-        "User role is not recognized",
+        "Success",
+        "Login successful",
+        snackPosition: SnackPosition.TOP,
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
       );
-    }
-  } on FirebaseAuthException catch (e) {
-    String message = "Login failed";
 
-    if (e.code == "invalid-email") {
-      message = "Please enter a valid email";
-    } else if (e.code == "user-not-found") {
-      message = "No account found with this email";
-    } else if (e.code == "wrong-password") {
-      message = "Incorrect password";
-    } else if (e.code == "invalid-credential") {
-      message = "Incorrect email or password";
-    } else if (e.code == "user-disabled") {
-      message = "This account has been disabled";
-    } else {
-      message = e.message ?? "Unable to login";
-    }
+      if (role == "admin") {
+        Get.offAll(() => AdminBottomNav());
+      } else if (role == "house_owner") {
+        Get.offAll(() => OwnerHomeScreen());
+      } else if (role == "renter") {
+        Get.offAll(() => HomeScreen(properties: propertyList));
+      } else {
+        await authService.logout();
 
-    Get.snackbar(
-      "Login Failed",
-      message,
-    );
-  } catch (e) {
-    Get.snackbar(
-      "Error",
-      e.toString(),
-    );
-  } finally {
-    isLoading.value = false;
+        Get.snackbar("Role Error", "User role is not recognized");
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = "Login failed";
+
+      if (e.code == "invalid-email") {
+        message = "Please enter a valid email";
+      } else if (e.code == "user-not-found") {
+        message = "No account found with this email";
+      } else if (e.code == "wrong-password") {
+        message = "Incorrect password";
+      } else if (e.code == "invalid-credential") {
+        message = "Incorrect email or password";
+      } else if (e.code == "user-disabled") {
+        message = "This account has been disabled";
+      } else {
+        message = e.message ?? "Unable to login";
+      }
+
+      Get.snackbar("Login Failed", message);
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
-// Google
+  // Google
   Future<void> loginWithGoogle() async {
     try {
       isLoading.value = true;
@@ -161,40 +144,38 @@ Future<void> login() async {
   }
 
   Future<void> loginWithFacebook() async {
-  try {
-    isLoading.value = true;
+    try {
+      isLoading.value = true;
 
-    UserCredential userCredential =
-        await authService.loginWithFacebook();
+      UserCredential userCredential = await authService.loginWithFacebook();
 
-    Get.snackbar(
-      "Success",
-      "Facebook login successful",
-      snackPosition: SnackPosition.TOP,
-    );
+      Get.snackbar(
+        "Success",
+        "Facebook login successful",
+        snackPosition: SnackPosition.TOP,
+      );
 
-    print("UID: ${userCredential.user?.uid}");
-    print("Name: ${userCredential.user?.displayName}");
-    print("Email: ${userCredential.user?.email}");
-
-  } on FirebaseAuthException catch (e) {
-    Get.snackbar(
-      "Facebook Login Failed",
-      e.message ?? "Unable to login with Facebook",
-      snackPosition: SnackPosition.TOP,
-    );
-  } catch (e) {
-    Get.snackbar(
-      "Facebook Login Failed",
-      e.toString(),
-      snackPosition: SnackPosition.TOP,
-    );
-  } finally {
-    isLoading.value = false;
+      print("UID: ${userCredential.user?.uid}");
+      print("Name: ${userCredential.user?.displayName}");
+      print("Email: ${userCredential.user?.email}");
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        "Facebook Login Failed",
+        e.message ?? "Unable to login with Facebook",
+        snackPosition: SnackPosition.TOP,
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Facebook Login Failed",
+        e.toString(),
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
-// Forgot password
+  // Forgot password
   Future<void> forgotPassword() async {
     String email = emailController.text.trim();
 

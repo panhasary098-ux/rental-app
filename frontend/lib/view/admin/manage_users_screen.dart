@@ -104,10 +104,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         ),
       ),
 
-      body: SafeArea(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            // SUMMARY
+            // Summary
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
               child: Row(
@@ -187,7 +187,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             SizedBox(height: 15),
 
-            // FILTERS
+            // Filterss
             SizedBox(
               height: 42,
               child: ListView.separated(
@@ -219,7 +219,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                       decoration: BoxDecoration(
                         color: selected
-                            ? Color(0xFF198754)
+                            ? Colors.green
                             : Colors.white,
 
                         borderRadius: BorderRadius.circular(20),

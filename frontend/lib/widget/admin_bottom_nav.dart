@@ -36,8 +36,8 @@ class AdminBottomNav extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
 
-          selectedItemColor: Color(0xFF198754),
-          unselectedItemColor: Color(0xFF9CA3AF),
+          selectedItemColor: Colors.green,
+          unselectedItemColor: Color.fromARGB(255, 14, 14, 15),
 
           selectedLabelStyle: TextStyle(
             fontWeight: FontWeight.w600,
