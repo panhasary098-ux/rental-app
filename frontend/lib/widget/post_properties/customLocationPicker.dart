@@ -63,8 +63,8 @@ class PropertyLocationPicker extends StatelessWidget {
 
               child: const Icon(
                 Icons.location_on_outlined,
-                //color: primaryColor,
-                color: Colors.red,
+                color: primaryColor,
+                //color: Colors.red,
               ),
             ),
 

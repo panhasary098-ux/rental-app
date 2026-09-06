@@ -9,6 +9,7 @@ import 'package:final_project/widget/post_properties/customFurnishedSelector.dar
 import 'package:final_project/widget/post_properties/customHouseDetail.dart';
 import 'package:final_project/widget/post_properties/customImagePicker.dart';
 import 'package:final_project/widget/post_properties/customLocationPicker.dart';
+import 'package:final_project/widget/post_properties/customSingleImagePicker.dart';
 import 'package:final_project/widget/post_properties/customStatusDropdown.dart';
 import 'package:final_project/widget/post_properties/customTextFormField.dart';
 import 'package:final_project/widget/post_properties/inputTitle.dart';
@@ -33,7 +34,6 @@ class PostHouseStep2 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
         // ======================================================
         // HEADER
@@ -44,7 +44,6 @@ class PostHouseStep2 extends StatelessWidget {
               onPressed: () {
                 controller.currentStep.value = 1;
               },
-
               icon: const Icon(
                 Icons.arrow_back_ios_new,
                 color: primaryColor,
@@ -70,7 +69,6 @@ class PostHouseStep2 extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
                 const Text(
                   "Input your house information",
@@ -287,95 +285,72 @@ class PostHouseStep2 extends StatelessWidget {
                 FacilitiesSelector(),
 
                 const SizedBox(height: 15),
-
+                VerificationTitle(),
                 // ==================================================
-                // IMAGES
+                // PROPERTY IMAGES
                 // ==================================================
-                customInputTitle(title: "Images"),
+                customInputTitle(title: "Property Images"),
 
                 const SizedBox(height: 5),
 
-                Imagepicker(
-                  onTap: () {
-                    controller.pickImages();
-                  },
+                Obx(
+                  () => Imagepicker(
+                    title: "Add property photos",
+                    subtitle: "Tap to select property images",
+                    icon: Icons.add_photo_alternate_outlined,
+
+                    images: controller.selectedImages.toList(),
+
+                    onRemove: (index) {
+                      controller.removeImage(index);
+                    },
+
+                    onTap: () {
+                      controller.pickImages();
+                    },
+                  ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 15),
+                customInputTitle(title: "National ID"),
+                const SizedBox(height: 5),
 
-                // ==================================================
-                // SELECTED IMAGES
-                // ==================================================
-                Obx(() {
-                  if (controller.selectedImages.isEmpty) {
-                    return const SizedBox();
-                  }
+                // const SizedBox(height: 5),
+                Obx(
+                  () => SingleImagePicker(
+                    title: "Upload National ID",
+                    subtitle: "Tap to select your National ID",
+                    icon: Icons.badge_outlined,
+                    image: controller.nationalIdImage.value,
+                    onTap: () {
+                      controller.pickNationalIdImage();
+                    },
+                    onRemove: () {
+                      controller.removeNationalIdImage();
+                    },
+                  ),
+                ),
 
-                  return SizedBox(
-                    height: 100,
+                const SizedBox(height: 15),
 
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
+                customInputTitle(title: "Ownership Document"),
 
-                      itemCount: controller.selectedImages.length,
+                const SizedBox(height: 5),
 
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(width: 10);
-                      },
-
-                      itemBuilder: (context, index) {
-                        final image = controller.selectedImages[index];
-
-                        return Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-
-                              child: Image.file(
-                                File(image.path),
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-
-                            // ============================================
-                            // REMOVE IMAGE BUTTON
-                            // ============================================
-                            Positioned(
-                              top: 4,
-                              right: 4,
-
-                              child: GestureDetector(
-                                onTap: () {
-                                  controller.removeImage(index);
-                                },
-
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-
-                                  decoration: BoxDecoration(
-                                    color: primaryColor.withOpacity(0.85),
-
-                                    shape: BoxShape.circle,
-                                  ),
-
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 15,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                }),
-
-                const SizedBox(height: 20),
+                Obx(
+                  () => SingleImagePicker(
+                    title: "Upload Ownership Document",
+                    subtitle: "Tap to select proof of ownership",
+                    icon: Icons.description_outlined,
+                    image: controller.ownershipDocumentImage.value,
+                    onTap: () {
+                      controller.pickOwnershipDocumentImage();
+                    },
+                    onRemove: () {
+                      controller.removeOwnershipDocumentImage();
+                    },
+                  ),
+                ),
               ],
             ),
           ),
@@ -401,6 +376,37 @@ Widget CustomHousedetail() {
 
         child: Text(
           "HOUSE DETAILS",
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+
+      Expanded(
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
+      ),
+    ],
+  );
+}
+
+// ======================================================
+// VERIFICATION DOCUMENT SECTION TITLE
+// ======================================================
+
+Widget VerificationTitle() {
+  return Row(
+    children: [
+      Expanded(
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
+      ),
+
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+
+        child: Text(
+          "VERIFICATION DOCUMENTS",
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,

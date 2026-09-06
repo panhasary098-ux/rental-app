@@ -175,7 +175,7 @@ class _SelectLocationScreenState extends State<SelectLocationScreen> {
                       position: selectedPosition!,
 
                       icon: BitmapDescriptor.defaultMarkerWithHue(
-                        BitmapDescriptor.hueAzure,
+                        BitmapDescriptor.hueRed,
                       ),
                     ),
                   },

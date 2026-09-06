@@ -23,7 +23,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF4FCFE),
 
       body: IndexedStack(
         index: selectedIndex,
@@ -35,117 +35,61 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
         ],
       ),
 
-      bottomNavigationBar: Container(
-        height: 76,
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          indicatorColor: const Color(0xFF90E0EF),
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(color: Color(0xFF03045E), size: 25);
+            }
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+            return IconThemeData(
+              color: const Color(0xFF03045E).withOpacity(0.45),
+              size: 24,
+            );
+          }),
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                color: Color(0xFF03045E),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              );
+            }
 
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.16),
-              blurRadius: 14,
-              offset: Offset(0, -3),
-            ),
-          ],
+            return TextStyle(
+              color: const Color(0xFF03045E).withOpacity(0.50),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            );
+          }),
         ),
-
-        child: SafeArea(
-          top: false,
-
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-
-            children: [
-              buildNavItem(
-                icon: Icons.home_rounded,
-                label: "Home",
-                index: 0,
-              ),
-
-              buildNavItem(
-                icon: Icons.home_work_outlined,
-                label: "Properties",
-                index: 1,
-              ),
-
-              buildNavItem(
-                icon: Icons.add_home_work_outlined,
-                label: "Post",
-                index: 2,
-              ),
-
-              buildNavItem(
-                icon: Icons.person_outline_rounded,
-                label: "Account",
-                index: 3,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // BOTTOM NAV ITEM
-  Widget buildNavItem({
-    required IconData icon,
-    required String label,
-    required int index,
-  }) {
-    bool selected = selectedIndex == index;
-
-    return InkWell(
-      onTap: () {
-        changePage(index);
-      },
-
-      child: SizedBox(
-        width: 78,
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 5,
-              ),
-
-              decoration: BoxDecoration(
-                color: selected
-                    ? Color(0xFFE8E9FF)
-                    : Colors.transparent,
-
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              child: Icon(
-                icon,
-                size: 24,
-
-                color: selected
-                    ? Color(0xFF03045E)
-                    : Color(0xFF98A2B3),
-              ),
+        child: NavigationBar(
+          height: 70,
+          backgroundColor: Colors.white,
+          elevation: 5,
+          selectedIndex: selectedIndex,
+          onDestinationSelected: changePage,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
+              label: 'Home',
             ),
-
-            SizedBox(height: 3),
-
-            Text(
-              label,
-
-              style: TextStyle(
-                fontSize: 10.5,
-
-                fontWeight:
-                    selected ? FontWeight.bold : FontWeight.w500,
-
-                color: selected
-                    ? Color(0xFF03045E)
-                    : Color(0xFF98A2B3),
-              ),
+            NavigationDestination(
+              icon: Icon(Icons.home_work_outlined),
+              selectedIcon: Icon(Icons.home_work_rounded),
+              label: 'Properties',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.add_home_work_outlined),
+              selectedIcon: Icon(Icons.add_home_work_rounded),
+              label: 'Post',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: 'Account',
             ),
           ],
         ),
@@ -177,11 +121,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
                   shape: BoxShape.circle,
                 ),
 
-                child: Icon(
-                  icon,
-                  size: 36,
-                  color: Color(0xFF03045E),
-                ),
+                child: Icon(icon, size: 36, color: Color(0xFF03045E)),
               ),
 
               SizedBox(height: 18),
@@ -201,10 +141,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
               Text(
                 subtitle,
 
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF7D8990),
-                ),
+                style: TextStyle(fontSize: 13, color: Color(0xFF7D8990)),
               ),
             ],
           ),
