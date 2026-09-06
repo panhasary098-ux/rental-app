@@ -5,13 +5,20 @@ import 'package:final_project/view/renter/map_screen.dart';
 import 'package:final_project/view/renter/properties_detail_screen.dart';
 import 'package:flutter/material.dart';
 
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color highlightColor = const Color.fromARGB(255, 2, 216, 253);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color backgroundColor = Color(0xFFF4FCFE);
+const Color lightSecondaryColor = Color(0xFFE6F9FC);
+
 class BottomNav extends StatefulWidget {
   final List<Property> properties;
 
-  const BottomNav({
-    super.key,
-    required this.properties,
-  });
+  const BottomNav({super.key, required this.properties});
 
   @override
   State<BottomNav> createState() => _BottomNavState();
@@ -23,58 +30,108 @@ class _BottomNavState extends State<BottomNav> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      HomeScreen(
-        properties: widget.properties,
-      ),
-      MapScreen(),
-      FavoriteScreen(),
-      PropertyScreen(),
+      HomeScreen(properties: widget.properties),
+      const MapScreen(),
+      const FavorithScreen(),
+      const PropertyScreen(),
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
+
       body: screens[selectedIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (value) {
-          setState(() {
-            selectedIndex = value;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            selectedIcon: Icon(
-              Icons.home,
-              color: Colors.green,
+
+      // ======================================================
+      // BOTTOM NAVIGATION
+      // ======================================================
+      bottomNavigationBar: NavigationBarTheme(
+        data: NavigationBarThemeData(
+          // Selected icon background
+          indicatorColor: secondaryColor,
+
+          // Navigation icons
+          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const IconThemeData(color: primaryColor, size: 25);
+            }
+
+            return IconThemeData(
+              color: primaryColor.withOpacity(0.45),
+              size: 24,
+            );
+          }),
+
+          // Navigation text
+          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+            if (states.contains(WidgetState.selected)) {
+              return const TextStyle(
+                color: primaryColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              );
+            }
+
+            return TextStyle(
+              color: primaryColor.withOpacity(0.50),
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            );
+          }),
+        ),
+
+        child: NavigationBar(
+          height: 70,
+
+          backgroundColor: Colors.white,
+
+          elevation: 5,
+
+          selectedIndex: selectedIndex,
+
+          onDestinationSelected: (value) {
+            setState(() {
+              selectedIndex = value;
+            });
+          },
+
+          destinations: const [
+            // ==================================================
+            // HOME
+            // ==================================================
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home_rounded),
+              label: 'Home',
             ),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.map),
-            selectedIcon: Icon(
-              Icons.map,
-              color: Colors.green,
+
+            // ==================================================
+            // MAP
+            // ==================================================
+            NavigationDestination(
+              icon: Icon(Icons.map_outlined),
+              selectedIcon: Icon(Icons.map_rounded),
+              label: 'Map',
             ),
-            label: 'Map',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite),
-            selectedIcon: Icon(
-              Icons.favorite,
-              color: Colors.green,
+
+            // ==================================================
+            // SAVE
+            // ==================================================
+            NavigationDestination(
+              icon: Icon(Icons.favorite_border_rounded),
+              selectedIcon: Icon(Icons.favorite_rounded),
+              label: 'Save',
             ),
-            label: 'Save',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            selectedIcon: Icon(
-              Icons.person,
-              color: Colors.green,
+
+            // ==================================================
+            // ACCOUNT
+            // ==================================================
+            NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded),
+              selectedIcon: Icon(Icons.person_rounded),
+              label: 'Account',
             ),
-            label: 'Account',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

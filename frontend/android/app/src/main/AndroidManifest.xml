@@ -5,6 +5,11 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+        //google map
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCQW_7paY5OFe_CdnJM0sNOV8f0kH3WE5Y"/>
+
         <!-- Facebook App ID -->
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"

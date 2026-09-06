@@ -6,6 +6,7 @@ class Facilities {
   bool balcony;
   bool kitchen;
   bool swimmingPool;
+  bool elevator;
 
   Facilities({
     this.wifi = false,
@@ -15,5 +16,6 @@ class Facilities {
     this.balcony = false,
     this.kitchen = false,
     this.swimmingPool = false,
+    this.elevator = false,
   });
 }

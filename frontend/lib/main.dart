@@ -1,4 +1,8 @@
+import 'package:final_project/model/property.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
+import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
+import 'package:final_project/view/house_owner/post_property/post_step1.dart';
+import 'package:final_project/widget/bottom_nav.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,10 +29,11 @@ class MyApp extends StatelessWidget {
       // Testing screens if needed later:
       // home: AdminDashboardScreen(),
       // home: AdminBottomNav(),
-      // home: BottomNav(properties: propertyList),
+      // home: BottomNav(properties: properties),
       // home: FilterScreen(),
       // home: HomeScreen(),
       // home: PostStep1(),
+      //home: Postpropertyscreen(),
     );
   }
 }
