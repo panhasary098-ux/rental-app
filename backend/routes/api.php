@@ -14,3 +14,8 @@ Route::get('/users/firebase/{firebaseUid}', [
     'getByFirebaseUid'
 ]);
 
+Route::middleware('firebase.auth')->get('me', [UserController::class, 'me']);
+
+Route::post('/auth/social-sync', [UserController::class, 'socialSync']);
+
+Route::post('/auth/social-register', [UserController::class, 'createSocialUser']);

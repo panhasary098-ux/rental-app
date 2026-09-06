@@ -38,26 +38,28 @@ class PendingVerificationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 236, 242, 239),
+      backgroundColor: Color(0xFFF7FAF8),
 
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 236, 242, 239),
+        backgroundColor: Color(0xFFF7FAF8),
         elevation: 0,
+        scrolledUnderElevation: 0,
 
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
+
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
           ),
         ),
 
         title: Text(
           "Pending Verification",
           style: TextStyle(
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -69,43 +71,45 @@ class PendingVerificationScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            // PENDING SUMMARY
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,
               ),
+
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.all(16),
+
                 decoration: BoxDecoration(
-                  color:  Color(0xFFD97706),
+                  color: Colors.white,
+
                   borderRadius: BorderRadius.circular(16),
-                  // border: Border.all(
-                  //   color: Color.fromARGB(255, 208, 207, 204),
-                  // ),
+
                   boxShadow: [
                     BoxShadow(
-                      color: Color.fromARGB(255, 239, 238, 238),
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
+                      color: Color(0xFF1F2923).withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
                     ),
                   ],
                 ),
+
                 child: Row(
                   children: [
                     Container(
-                      width: 46,
-                      height: 46,
+                      width: 48,
+                      height: 48,
+
                       decoration: BoxDecoration(
-                       color: Color.fromARGB(255, 253, 229, 148),
+                        color: Color(0xFFF59E0B),
                         borderRadius: BorderRadius.circular(13),
-                        border: Border.all(
-                          color: Color.fromARGB(255, 223, 188, 72),
-                        ),
                       ),
+
                       child: Icon(
                         Icons.pending_actions_rounded,
-                        color: Color(0xFFD97706),
+                        color: Colors.white,
                         size: 25,
                       ),
                     ),
@@ -115,13 +119,15 @@ class PendingVerificationScreen extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           Text(
                             "${pendingProperties.length} submissions waiting",
+
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Color(0xFF1F2923),
                             ),
                           ),
 
@@ -129,12 +135,38 @@ class PendingVerificationScreen extends StatelessWidget {
 
                           Text(
                             "Review property and owner documents before approval.",
+
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.white,
+                              height: 1.35,
+                              color: Color(0xFF68756D),
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                    SizedBox(width: 8),
+
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 11,
+                        vertical: 6,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFFF3D6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+
+                      child: Text(
+                        pendingProperties.length.toString(),
+
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFD97706),
+                        ),
                       ),
                     ),
                   ],
@@ -142,50 +174,70 @@ class PendingVerificationScreen extends StatelessWidget {
               ),
             ),
 
-            // Search
+            // SEARCH
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 8,
               ),
+
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search property or owner",
+
                   hintStyle: TextStyle(
-                    color: Color(0xFF6B7280),
+                    color: Color(0xFF94A099),
+                    fontSize: 14,
                   ),
 
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xFF4B5563),
+                    color: Color(0xFF68756D),
                   ),
 
-                  suffixIcon: Icon(
-                    Icons.tune_rounded,
-                    color: Color(0xFF167A3E),
+                  suffixIcon: Container(
+                    margin: EdgeInsets.all(8),
+
+                    decoration: BoxDecoration(
+                      color: Color(0xFF90E0EF).withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+
+                    child: Icon(
+                      Icons.tune_rounded,
+                      color: Color(0xFF03045E),
+                      size: 20,
+                    ),
                   ),
 
                   filled: true,
                   fillColor: Colors.white,
 
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 14,
+                  ),
+
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
+
                     borderSide: BorderSide(
-                      color: Color(0xFFD6DBD8),
+                      color: Color(0xFFE1E9E4),
                     ),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
+
                     borderSide: BorderSide(
-                      color: Color(0xFFD6DBD8),
+                      color: Color(0xFFE1E9E4),
                     ),
                   ),
 
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
+
                     borderSide: BorderSide(
-                      color: Color(0xFF167A3E),
+                      color: Color(0xFF03045E),
                       width: 1.5,
                     ),
                   ),
@@ -195,7 +247,7 @@ class PendingVerificationScreen extends StatelessWidget {
 
             SizedBox(height: 5),
 
-            // Property list
+            // PROPERTY LIST
             Expanded(
               child: ListView.separated(
                 padding: EdgeInsets.fromLTRB(
@@ -225,7 +277,9 @@ class PendingVerificationScreen extends StatelessWidget {
     );
   }
 
-  Widget buildPropertyCard(Map<String, dynamic> property) {
+  Widget buildPropertyCard(
+    Map<String, dynamic> property,
+  ) {
     return InkWell(
       onTap: () {
         // NEXT SCREEN
@@ -236,17 +290,27 @@ class PendingVerificationScreen extends StatelessWidget {
         // );
       },
 
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
 
       child: Container(
         padding: EdgeInsets.all(12),
 
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
+
+          borderRadius: BorderRadius.circular(16),
+
           border: Border.all(
-            color: Color(0xFFD6DBD8),
+            color: Color(0xFFE1E9E4),
           ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.035),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
 
         child: Column(
@@ -255,13 +319,16 @@ class PendingVerificationScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                // Property image
+                // PROPERTY IMAGE
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
+
                   child: Image.network(
                     property["image"],
+
                     width: 105,
                     height: 105,
+
                     fit: BoxFit.cover,
 
                     errorBuilder: (
@@ -274,13 +341,14 @@ class PendingVerificationScreen extends StatelessWidget {
                         height: 105,
 
                         decoration: BoxDecoration(
-                          color: Color(0xFFDCEFE3),
-                          borderRadius: BorderRadius.circular(14),
+                          color: Color(0xFF90E0EF).withOpacity(0.25),
+
+                          borderRadius: BorderRadius.circular(12),
                         ),
 
                         child: Icon(
                           Icons.home_work_outlined,
-                          color: Color(0xFF167A3E),
+                          color: Color(0xFF03045E),
                           size: 35,
                         ),
                       );
@@ -295,7 +363,7 @@ class PendingVerificationScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
-                      // Status
+                      // STATUS
                       Container(
                         padding: EdgeInsets.symmetric(
                           horizontal: 9,
@@ -303,17 +371,36 @@ class PendingVerificationScreen extends StatelessWidget {
                         ),
 
                         decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 255, 249, 227),
+                          color: Color(0xFFFFF3D6),
                           borderRadius: BorderRadius.circular(20),
                         ),
 
-                        child: Text(
-                          "Pending Verification",
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color.fromARGB(255, 247, 126, 51),
-                          ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+
+                              decoration: BoxDecoration(
+                                color: Color(0xFFD97706),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+
+                            SizedBox(width: 5),
+
+                            Text(
+                              "Pending Verification",
+
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -321,13 +408,14 @@ class PendingVerificationScreen extends StatelessWidget {
 
                       Text(
                         property["title"],
+
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
 
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF111827),
+                          color: Color(0xFF1F2923),
                         ),
                       ),
 
@@ -335,10 +423,11 @@ class PendingVerificationScreen extends StatelessWidget {
 
                       Text(
                         property["price"],
+
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.green,
+                          color: Color(0xFF03045E),
                         ),
                       ),
 
@@ -349,7 +438,7 @@ class PendingVerificationScreen extends StatelessWidget {
                           Icon(
                             Icons.location_on_outlined,
                             size: 15,
-                            color: Color(0xFF4B5563),
+                            color: Color(0xFF68756D),
                           ),
 
                           SizedBox(width: 4),
@@ -357,12 +446,13 @@ class PendingVerificationScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               property["location"],
+
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
 
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF4B5563),
+                                color: Color(0xFF68756D),
                               ),
                             ),
                           ),
@@ -377,13 +467,13 @@ class PendingVerificationScreen extends StatelessWidget {
             SizedBox(height: 14),
 
             Divider(
-              color: Color(0xFFD6DBD8),
+              color: Color(0xFFE8EEEA),
               height: 1,
             ),
 
             SizedBox(height: 13),
 
-            // Owner
+            // OWNER
             Row(
               children: [
                 Container(
@@ -391,13 +481,13 @@ class PendingVerificationScreen extends StatelessWidget {
                   height: 38,
 
                   decoration: BoxDecoration(
-                    color: Color(0xFFDCEFE3),
+                    color: Color(0xFF90E0EF).withOpacity(0.25),
                     shape: BoxShape.circle,
                   ),
 
                   child: Icon(
                     Icons.person_outline,
-                    color: Color(0xFF167A3E),
+                    color: Color(0xFF03045E),
                     size: 20,
                   ),
                 ),
@@ -411,8 +501,9 @@ class PendingVerificationScreen extends StatelessWidget {
                     children: [
                       Text(
                         "House Owner",
+
                         style: TextStyle(
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF94A099),
                           fontSize: 11,
                         ),
                       ),
@@ -421,8 +512,9 @@ class PendingVerificationScreen extends StatelessWidget {
 
                       Text(
                         property["owner"],
+
                         style: TextStyle(
-                          color: Color(0xFF374151),
+                          color: Color(0xFF526058),
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -433,11 +525,13 @@ class PendingVerificationScreen extends StatelessWidget {
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
+
                   children: [
                     Text(
                       "Submitted",
+
                       style: TextStyle(
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF94A099),
                         fontSize: 11,
                       ),
                     ),
@@ -446,9 +540,11 @@ class PendingVerificationScreen extends StatelessWidget {
 
                     Text(
                       property["submitted"],
+
                       style: TextStyle(
-                        color: Color(0xFF4B5563),
+                        color: Color(0xFF68756D),
                         fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -458,7 +554,7 @@ class PendingVerificationScreen extends StatelessWidget {
 
             SizedBox(height: 14),
 
-            // Review
+            // REVIEW BUTTON
             SizedBox(
               width: double.infinity,
               height: 46,
@@ -471,11 +567,12 @@ class PendingVerificationScreen extends StatelessWidget {
                   //     property: property,
                   //   ),
                   // );
+
                   Get.to(() => PropertyReviewScreen());
                 },
 
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF03045E),
                   foregroundColor: Colors.white,
                   elevation: 0,
 
@@ -486,6 +583,7 @@ class PendingVerificationScreen extends StatelessWidget {
 
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+
                   children: [
                     Icon(
                       Icons.fact_check_outlined,
@@ -496,6 +594,7 @@ class PendingVerificationScreen extends StatelessWidget {
 
                     Text(
                       "Review Submission",
+
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),

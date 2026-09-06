@@ -1,4 +1,7 @@
+import 'package:final_project/model/property.dart';
 import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/view/house_owner/owner_home_screen.dart';
+import 'package:final_project/view/renter/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,7 +24,6 @@ class RegisterController extends GetxController {
   void selectRole(String role) {
     selectedRole.value = role;
   }
-
 
   void togglePassword() {
     hidePassword.value = !hidePassword.value;
@@ -86,6 +88,12 @@ class RegisterController extends GetxController {
         role: role,
       );
 
+      if (selectedRole.value == "Renter") {
+        Get.offAll(() => HomeScreen(properties: propertyList));
+      } else if (selectedRole.value == "House Owner") {
+        Get.offAll(() => OwnerHomeScreen());
+      }
+
       print("Firebase UID: ${user.uid}");
       print("Name: $name");
       print("Email: $email");
@@ -101,7 +109,7 @@ class RegisterController extends GetxController {
         colorText: Colors.white,
       );
 
-      Get.back();
+      
     } on FirebaseAuthException catch (e) {
       String message = "Registration failed";
 

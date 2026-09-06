@@ -15,6 +15,7 @@ class RegisterScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Color(0xFFF8FAF9),
         elevation: 0,
+        toolbarHeight: 45,
 
         leading: IconButton(
           onPressed: () {
@@ -30,64 +31,68 @@ class RegisterScreen extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 24),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+
+          padding: EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 4,
+          ),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
+              // LOGO
               Center(
                 child: Container(
-                  width: 64,
-                  height: 64,
+                  width: 56,
+                  height: 56,
 
                   decoration: BoxDecoration(
-                    color: Color(0xFF198754),
-                    borderRadius: BorderRadius.circular(18),
+                    color: Color(0xFF03045E),
+                    borderRadius: BorderRadius.circular(16),
                   ),
 
                   child: Icon(
                     Icons.home_rounded,
                     color: Colors.white,
-                    size: 34,
+                    size: 30,
                   ),
                 ),
               ),
 
-              SizedBox(height: 22),
+              SizedBox(height: 12),
 
+              // TITLE
               Center(
                 child: Text(
                   "Create Account",
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF111827),
                   ),
                 ),
               ),
 
-              SizedBox(height: 8),
+              SizedBox(height: 4),
 
               Center(
                 child: Text(
                   "Join our trusted rental community.",
-                  style: TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6B7280),
+                  ),
                 ),
               ),
 
-              SizedBox(height: 30),
+              SizedBox(height: 18),
 
               // ROLE
-              Text(
-                "Register as",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
-                ),
-              ),
+              buildLabel("Register as"),
 
-              SizedBox(height: 10),
+              SizedBox(height: 7),
 
               Obx(
                 () => Row(
@@ -99,46 +104,61 @@ class RegisterScreen extends StatelessWidget {
                         },
 
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
 
                           decoration: BoxDecoration(
                             color: controller.selectedRole.value == "Renter"
-                                ? Color(0xFFEAF7F0)
+                                ? Color(0xFF03045E)
                                 : Colors.white,
 
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
 
                             border: Border.all(
                               color: controller.selectedRole.value == "Renter"
-                                  ? Color(0xFF198754)
+                                  ? Color(0xFF03045E)
                                   : Color(0xFFE5E7EB),
 
                               width: 1.5,
                             ),
+
+                            boxShadow:
+                                controller.selectedRole.value == "Renter"
+                                    ? [
+                                        BoxShadow(
+                                          color: Color(0xFF03045E)
+                                              .withOpacity(0.12),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ]
+                                    : [],
                           ),
 
                           child: Column(
                             children: [
                               Icon(
                                 Icons.search_rounded,
-                                size: 28,
+                                size: 23,
 
                                 color: controller.selectedRole.value == "Renter"
-                                    ? Color(0xFF198754)
+                                    ? Colors.white
                                     : Color(0xFF6B7280),
                               ),
 
-                              SizedBox(height: 6),
+                              SizedBox(height: 3),
 
                               Text(
                                 "Renter",
                                 style: TextStyle(
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
 
                                   color:
                                       controller.selectedRole.value == "Renter"
-                                      ? Color(0xFF198754)
-                                      : Color(0xFF374151),
+                                          ? Colors.white
+                                          : Color(0xFF374151),
                                 ),
                               ),
                             ],
@@ -147,7 +167,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 12),
+                    SizedBox(width: 10),
 
                     Expanded(
                       child: GestureDetector(
@@ -156,51 +176,66 @@ class RegisterScreen extends StatelessWidget {
                         },
 
                         child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
 
                           decoration: BoxDecoration(
                             color:
                                 controller.selectedRole.value == "House Owner"
-                                ? Color(0xFFEAF7F0)
-                                : Colors.white,
+                                    ? Color(0xFF03045E)
+                                    : Colors.white,
 
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
 
                             border: Border.all(
                               color:
                                   controller.selectedRole.value == "House Owner"
-                                  ? Color(0xFF198754)
-                                  : Color(0xFFE5E7EB),
+                                      ? Color(0xFF03045E)
+                                      : Color(0xFFE5E7EB),
 
                               width: 1.5,
                             ),
+
+                            boxShadow:
+                                controller.selectedRole.value == "House Owner"
+                                    ? [
+                                        BoxShadow(
+                                          color: Color(0xFF03045E)
+                                              .withOpacity(0.12),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ]
+                                    : [],
                           ),
 
                           child: Column(
                             children: [
                               Icon(
                                 Icons.home_work_outlined,
-                                size: 28,
+                                size: 23,
 
                                 color:
                                     controller.selectedRole.value ==
-                                        "House Owner"
-                                    ? Color(0xFF198754)
-                                    : Color(0xFF6B7280),
+                                            "House Owner"
+                                        ? Colors.white
+                                        : Color(0xFF6B7280),
                               ),
 
-                              SizedBox(height: 6),
+                              SizedBox(height: 3),
 
                               Text(
                                 "House Owner",
                                 style: TextStyle(
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w600,
 
                                   color:
                                       controller.selectedRole.value ==
-                                          "House Owner"
-                                      ? Color(0xFF198754)
-                                      : Color(0xFF374151),
+                                              "House Owner"
+                                          ? Colors.white
+                                          : Color(0xFF374151),
                                 ),
                               ),
                             ],
@@ -212,12 +247,12 @@ class RegisterScreen extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 14),
 
-              // NAME
+              // Name
               buildLabel("Full Name"),
 
-              SizedBox(height: 8),
+              SizedBox(height: 5),
 
               buildField(
                 controller: controller.nameController,
@@ -225,12 +260,12 @@ class RegisterScreen extends StatelessWidget {
                 icon: Icons.person_outline,
               ),
 
-              SizedBox(height: 18),
+              SizedBox(height: 10),
 
-              // EMAIL
+              // Email
               buildLabel("Email"),
 
-              SizedBox(height: 8),
+              SizedBox(height: 5),
 
               buildField(
                 controller: controller.emailController,
@@ -239,12 +274,12 @@ class RegisterScreen extends StatelessWidget {
                 keyboardType: TextInputType.emailAddress,
               ),
 
-              SizedBox(height: 18),
+              SizedBox(height: 10),
 
-              // PHONE
+              // Phone
               buildLabel("Phone Number"),
 
-              SizedBox(height: 8),
+              SizedBox(height: 5),
 
               buildField(
                 controller: controller.phoneController,
@@ -253,12 +288,12 @@ class RegisterScreen extends StatelessWidget {
                 keyboardType: TextInputType.phone,
               ),
 
-              SizedBox(height: 18),
+              SizedBox(height: 10),
 
-              // PASSWORD
+              // Password
               buildLabel("Password"),
 
-              SizedBox(height: 8),
+              SizedBox(height: 5),
 
               Obx(
                 () => TextField(
@@ -278,18 +313,20 @@ class RegisterScreen extends StatelessWidget {
                         controller.hidePassword.value
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
+
+                        size: 21,
                       ),
                     ),
                   ),
                 ),
               ),
 
-              SizedBox(height: 18),
+              SizedBox(height: 10),
 
-              // Confirm password
+              // Confirm pass
               buildLabel("Confirm Password"),
 
-              SizedBox(height: 8),
+              SizedBox(height: 5),
 
               Obx(
                 () => TextField(
@@ -309,52 +346,73 @@ class RegisterScreen extends StatelessWidget {
                         controller.hideConfirmPassword.value
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
+
+                        size: 21,
                       ),
                     ),
                   ),
                 ),
               ),
 
-              SizedBox(height: 28),
+              SizedBox(height: 16),
 
-              // Register
-              SizedBox(
-                width: double.infinity,
-                height: 54,
+              // Register button
+              Obx(
+                () => SizedBox(
+                  width: double.infinity,
+                  height: 52,
 
-                child: ElevatedButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          controller.register();
-                        },
+                  child: ElevatedButton(
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
+                            controller.register();
+                          },
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF198754),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF03045E),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(13),
+                      ),
                     ),
-                  ),
 
-                  child: Text(
-                    "Create Account",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    child: controller.isLoading.value
+                        ? SizedBox(
+                            width: 22,
+                            height: 22,
+
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            "Create Account",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 4),
 
+              // Login
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
 
                 children: [
                   Text(
                     "Already have an account?",
-                    style: TextStyle(color: Color(0xFF6B7280)),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
 
                   TextButton(
@@ -365,7 +423,8 @@ class RegisterScreen extends StatelessWidget {
                     child: Text(
                       "Login",
                       style: TextStyle(
-                        color: Color(0xFF198754),
+                        fontSize: 13,
+                        color: Color(0xFF03045E),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -373,7 +432,7 @@ class RegisterScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 8),
             ],
           ),
         ),
@@ -384,7 +443,12 @@ class RegisterScreen extends StatelessWidget {
   Widget buildLabel(String text) {
     return Text(
       text,
-      style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF374151)),
+
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF374151),
+      ),
     );
   }
 
@@ -398,7 +462,10 @@ class RegisterScreen extends StatelessWidget {
       controller: controller,
       keyboardType: keyboardType,
 
-      decoration: inputDecoration(hint: hint, icon: icon),
+      decoration: inputDecoration(
+        hint: hint,
+        icon: icon,
+      ),
     );
   }
 
@@ -410,26 +477,52 @@ class RegisterScreen extends StatelessWidget {
     return InputDecoration(
       hintText: hint,
 
-      prefixIcon: Icon(icon, color: Color(0xFF6B7280)),
+      hintStyle: TextStyle(
+        fontSize: 14,
+        color: Color(0xFF9CA3AF),
+      ),
+
+      prefixIcon: Icon(
+        icon,
+        color: Color(0xFF6B7280),
+        size: 21,
+      ),
 
       suffixIcon: suffix,
 
       filled: true,
       fillColor: Colors.white,
 
+      isDense: true,
+
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 14,
+        vertical: 14,
+      ),
+
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(12),
+
+        borderSide: BorderSide(
+          color: Color(0xFFE5E7EB),
+        ),
       ),
 
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(12),
+
+        borderSide: BorderSide(
+          color: Color(0xFFE5E7EB),
+        ),
       ),
 
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Color(0xFF198754), width: 1.5),
+        borderRadius: BorderRadius.circular(12),
+
+        borderSide: BorderSide(
+          color: Color(0xFF03045E),
+          width: 1.5,
+        ),
       ),
     );
   }

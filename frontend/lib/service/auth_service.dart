@@ -10,7 +10,7 @@ class AuthService {
 
   String baseUrl = "http://10.0.2.2:8000/api";
 
-  // Register
+  // Register  
   Future<UserCredential> registerWithEmail({
     required String email,
     required String password,
@@ -141,6 +141,108 @@ class AuthService {
     return await auth.signInWithCredential(credential);
   }
 
+ Future<Map<String, dynamic>> getMe() async {
+  User? user = auth.currentUser;
+
+  if (user == null) {
+    throw Exception("Firebase user not found");
+  }
+
+  String? token = await user.getIdToken();
+
+  final response = await http.get(
+    Uri.parse("$baseUrl/me"),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Accept": "application/json",
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+
+    return data["user"];
+  }
+
+  if (response.statusCode == 403) {
+    final data = jsonDecode(response.body);
+
+    throw Exception(data["message"] ?? "Access forbidden");
+  }
+
+  if (response.statusCode == 401) {
+    final data = jsonDecode(response.body);
+
+    throw Exception(data["message"] ?? "Unauthorized");
+  }
+
+  throw Exception("Failed to get user: ${response.body}");
+}
+
+
+Future<Map<String, dynamic>> checkSocialUser() async {
+  User? user = auth.currentUser;
+
+  if (user == null) {
+    throw Exception("Firebase user not found");
+  }
+
+  String? token = await user.getIdToken();
+
+  final response = await http.post(
+    Uri.parse("$baseUrl/auth/social-sync"),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+    },
+  );
+
+  Map<String, dynamic> data = jsonDecode(response.body);
+
+  if (response.statusCode == 200) {
+    return data;
+  }
+
+  throw Exception(
+    data["message"] ?? "Failed to check social user",
+  );
+}
+
+
+Future<Map<String, dynamic>> createSocialUser(String role) async {
+  User? user = auth.currentUser;
+
+  if (user == null) {
+    throw Exception("Firebase user not found");
+  }
+
+  String? token = await user.getIdToken();
+
+  final response = await http.post(
+    Uri.parse("$baseUrl/auth/social-register"),
+    headers: {
+      "Authorization": "Bearer $token",
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "role": role,
+    }),
+  );
+
+  Map<String, dynamic> data = jsonDecode(response.body);
+
+  if (response.statusCode == 200 ||
+      response.statusCode == 201) {
+    return data["user"];
+  }
+
+  throw Exception(
+    data["message"] ?? "Failed to create social user",
+  );
+}
+
   // Logout
   Future<void> logout() async {
     await auth.signOut();
@@ -150,5 +252,4 @@ class AuthService {
   User? getCurrentUser() {
     return auth.currentUser;
   }
-
 }

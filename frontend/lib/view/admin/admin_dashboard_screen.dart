@@ -10,7 +10,7 @@ class AdminDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF7F9F8),
+      backgroundColor: Color(0xFFF7FAF8),
 
       body: SafeArea(
         child: SingleChildScrollView(
@@ -20,42 +20,57 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
+              // HEADER
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
-                    children: [
-                      Text(
-                        "Admin Dashboard",
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF111827),
+                      children: [
+                        Text(
+                          "Admin Dashboard",
+
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1F2923),
+                          ),
                         ),
-                      ),
 
-                      SizedBox(height: 5),
+                        SizedBox(height: 5),
 
-                      Text(
-                        "Manage and verify rental listings.",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6B7280),
+                        Text(
+                          "Manage and verify rental listings.",
+
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF68756D),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
 
+                  SizedBox(width: 15),
+
                   Container(
-                    width: 46,
-                    height: 46,
+                    width: 48,
+                    height: 48,
 
                     decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
+                      color: Color(0xFF03045E),
+                      borderRadius: BorderRadius.circular(15),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color(0xFF03045E).withOpacity(0.18),
+                          blurRadius: 12,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
 
                     child: Icon(
@@ -69,15 +84,8 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 28),
 
-
-              Text(
-                "Overview",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
-                ),
-              ),
+              // OVERVIEW
+              buildSectionTitle("Overview"),
 
               SizedBox(height: 14),
 
@@ -87,9 +95,10 @@ class AdminDashboardScreen extends StatelessWidget {
                     child: buildStatCard(
                       title: "Total Users",
                       value: "1,248",
+                      subtitle: "Registered accounts",
                       icon: Icons.people_outline_rounded,
-                      iconColor: Color(0xFF2563EB),
-                      iconBackground: Color.fromARGB(255, 165, 204, 255),
+                      iconColor: Color(0xFF3B82F6),
+                      iconBackground: Color(0xFFEFF6FF),
                     ),
                   ),
 
@@ -99,9 +108,11 @@ class AdminDashboardScreen extends StatelessWidget {
                     child: buildStatCard(
                       title: "Properties",
                       value: "356",
+                      subtitle: "Rental listings",
                       icon: Icons.home_work_outlined,
-                      iconColor: Color(0xFF198754),
-                      iconBackground: Color.fromARGB(255, 206, 255, 229),
+                      iconColor: Color(0xFF03045E),
+                      iconBackground:
+                          Color(0xFF90E0EF).withOpacity(0.35),
                     ),
                   ),
                 ],
@@ -109,16 +120,16 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-
               Row(
                 children: [
                   Expanded(
                     child: buildStatCard(
                       title: "Pending",
                       value: "24",
-                      icon: Icons.pending_actions_outlined,
+                      subtitle: "Needs verification",
+                      icon: Icons.pending_actions_rounded,
                       iconColor: Color(0xFFD97706),
-                      iconBackground: Color.fromARGB(255, 253, 229, 148),
+                      iconBackground: Color(0xFFFFF3D6),
                     ),
                   ),
 
@@ -128,9 +139,10 @@ class AdminDashboardScreen extends StatelessWidget {
                     child: buildStatCard(
                       title: "Suspended",
                       value: "8",
+                      subtitle: "Restricted accounts",
                       icon: Icons.block_outlined,
                       iconColor: Color(0xFFDC2626),
-                      iconBackground: Color.fromARGB(255, 255, 208, 208),
+                      iconBackground: Color(0xFFFEF2F2),
                     ),
                   ),
                 ],
@@ -138,18 +150,13 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 30),
 
-              // Pending verification
+              // PENDING VERIFICATION
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                 children: [
-                  Text(
+                  buildSectionTitle(
                     "Pending Verification",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
-                    ),
                   ),
 
                   TextButton(
@@ -160,12 +167,29 @@ class AdminDashboardScreen extends StatelessWidget {
                       controller.changePage(1);
                     },
 
-                    child: Text(
-                      "View all",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Color(0xFF03045E),
+                    ),
+
+                    child: Row(
+                      children: [
+                        Text(
+                          "View all",
+
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF03045E),
+                          ),
+                        ),
+
+                        SizedBox(width: 3),
+
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 17,
+                          color: Color(0xFF03045E),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -173,7 +197,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 8),
 
-                // Pendeing property 1
+              // PENDING PROPERTY 1
               buildPendingPropertyCard(
                 title: "Modern Room Near University",
                 owner: "Dara Sok",
@@ -181,6 +205,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 date: "24 Aug 2026",
                 image:
                     "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+
                 onTap: () {
                   Get.to(
                     () => PropertyReviewScreen(),
@@ -190,7 +215,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // Pending property 2
+              // PENDING PROPERTY 2
               buildPendingPropertyCard(
                 title: "Affordable Student Apartment",
                 owner: "Sophea Lim",
@@ -198,6 +223,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 date: "23 Aug 2026",
                 image:
                     "https://images.unsplash.com/photo-1502672023488-70e25813eb80",
+
                 onTap: () {
                   Get.to(
                     () => PropertyReviewScreen(),
@@ -207,19 +233,14 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 30),
 
-              //Quick management
-              Text(
+              // QUICK MANAGEMENT
+              buildSectionTitle(
                 "Quick Management",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
-                ),
               ),
 
               SizedBox(height: 14),
 
-              // Property verification
+              // PROPERTY VERIFICATION
               buildManagementButton(
                 title: "Property Verification",
                 subtitle:
@@ -236,7 +257,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // Manage properties
+              // MANAGE PROPERTIES
               buildManagementButton(
                 title: "Manage Properties",
                 subtitle:
@@ -253,7 +274,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // Manage users
+              // MANAGE USERS
               buildManagementButton(
                 title: "Manage Users",
                 subtitle:
@@ -274,65 +295,114 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // Status card
+  // SECTION TITLE
+  Widget buildSectionTitle(String title) {
+    return Text(
+      title,
+
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1F2923),
+      ),
+    );
+  }
+
+  // STATUS CARD
   Widget buildStatCard({
     required String title,
     required String value,
+    required String subtitle,
     required IconData icon,
     required Color iconColor,
     required Color iconBackground,
   }) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.all(15),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
 
         border: Border.all(
-          color: Color(0xFFE5E7EB),
+          color: Color(0xFFE1E9E4),
         ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF1F2923).withOpacity(0.035),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Container(
-            width: 42,
-            height: 42,
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
 
-            decoration: BoxDecoration(
-              color: iconBackground,
-              borderRadius: BorderRadius.circular(12),
-            ),
+                decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(11),
+                ),
 
-            child: Icon(
-              icon,
-              color: iconColor,
-              size: 22,
-            ),
+                child: Icon(
+                  icon,
+                  color: iconColor,
+                  size: 21,
+                ),
+              ),
+
+              SizedBox(width: 10),
+
+              Expanded(
+                child: Text(
+                  title,
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF68756D),
+                  ),
+                ),
+              ),
+            ],
           ),
 
-          SizedBox(height: 14),
+          SizedBox(height: 16),
 
           Text(
             value,
+
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 27,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
+              color: Color(0xFF1F2923),
+              height: 1,
             ),
           ),
 
-          SizedBox(height: 4),
+          SizedBox(height: 7),
 
           Text(
-            title,
+            subtitle,
+
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+
             style: TextStyle(
-              fontSize: 13,
-              color: Color(0xFF6B7280),
+              fontSize: 10.5,
+              color: Color(0xFF94A099),
             ),
           ),
         ],
@@ -340,7 +410,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // Pending property card
+  // PENDING PROPERTY CARD
   Widget buildPendingPropertyCard({
     required String title,
     required String owner,
@@ -352,7 +422,7 @@ class AdminDashboardScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
 
       child: Container(
         padding: EdgeInsets.all(12),
@@ -360,23 +430,31 @@ class AdminDashboardScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
 
           border: Border.all(
-            color: Color(0xFFE5E7EB),
+            color: Color(0xFFE1E9E4),
           ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.03),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
 
         child: Row(
           children: [
-            // Property image
+            // PROPERTY IMAGE
             ClipRRect(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
 
               child: Image.network(
                 image,
 
-                width: 90,
+                width: 88,
                 height: 100,
 
                 fit: BoxFit.cover,
@@ -387,14 +465,14 @@ class AdminDashboardScreen extends StatelessWidget {
                   stackTrace,
                 ) {
                   return Container(
-                    width: 90,
+                    width: 88,
                     height: 100,
 
-                    color: Color(0xFFEAF7F0),
+                    color: Color(0xFF90E0EF).withOpacity(0.25),
 
                     child: Icon(
                       Icons.home_work_outlined,
-                      color: Color(0xFF198754),
+                      color: Color(0xFF03045E),
                       size: 30,
                     ),
                   );
@@ -409,32 +487,50 @@ class AdminDashboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  // Status
+                  // PENDING STATUS
                   Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
+                      horizontal: 8,
+                      vertical: 4,
                     ),
 
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 247, 126, 51),
-
+                      color: Color(0xFFFFF3D6),
                       borderRadius: BorderRadius.circular(20),
                     ),
 
-                    child: Text(
-                      "Pending Verification",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD97706),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+
+                        SizedBox(width: 5),
+
+                        Text(
+                          "Pending",
+
+                          style: TextStyle(
+                            color: Color(0xFFB45309),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
                   SizedBox(height: 7),
 
-                  // Title
+                  // TITLE
                   Text(
                     title,
 
@@ -442,21 +538,21 @@ class AdminDashboardScreen extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
 
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
+                      color: Color(0xFF1F2923),
                     ),
                   ),
 
-                  SizedBox(height: 5),
+                  SizedBox(height: 6),
 
-                  // Owner
+                  // OWNER
                   Row(
                     children: [
                       Icon(
                         Icons.person_outline,
                         size: 14,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF68756D),
                       ),
 
                       SizedBox(width: 4),
@@ -469,8 +565,8 @@ class AdminDashboardScreen extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
 
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            fontSize: 11.5,
+                            color: Color(0xFF68756D),
                           ),
                         ),
                       ),
@@ -479,13 +575,13 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   SizedBox(height: 4),
 
-                  // Location
+                  // LOCATION
                   Row(
                     children: [
                       Icon(
                         Icons.location_on_outlined,
                         size: 14,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF68756D),
                       ),
 
                       SizedBox(width: 4),
@@ -498,32 +594,33 @@ class AdminDashboardScreen extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
 
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6B7280),
+                            fontSize: 11.5,
+                            color: Color(0xFF68756D),
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  SizedBox(height: 4),
+                  SizedBox(height: 5),
 
-                  // Date
+                  // DATE
                   Row(
                     children: [
                       Icon(
                         Icons.calendar_today_outlined,
-                        size: 13,
-                        color: Color(0xFF9CA3AF),
+                        size: 12,
+                        color: Color(0xFF94A099),
                       ),
 
                       SizedBox(width: 5),
 
                       Text(
                         date,
+
                         style: TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF9CA3AF),
+                          fontSize: 10.5,
+                          color: Color(0xFF94A099),
                         ),
                       ),
                     ],
@@ -534,9 +631,20 @@ class AdminDashboardScreen extends StatelessWidget {
 
             SizedBox(width: 5),
 
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF9CA3AF),
+            Container(
+              width: 32,
+              height: 32,
+
+              decoration: BoxDecoration(
+                color: Color(0xFF90E0EF).withOpacity(0.25),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFF03045E),
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -544,8 +652,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // Management Button
-
+  // MANAGEMENT BUTTON
   Widget buildManagementButton({
     required String title,
     required String subtitle,
@@ -566,26 +673,33 @@ class AdminDashboardScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
 
           border: Border.all(
-            color: Color(0xFFE5E7EB),
+            color: Color(0xFFE1E9E4),
           ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.025),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
 
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 46,
+              height: 46,
 
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.9),
-
-                borderRadius: BorderRadius.circular(14),
+                color: Color(0xFF90E0EF).withOpacity(0.30),
+                borderRadius: BorderRadius.circular(13),
               ),
 
               child: Icon(
                 icon,
-                color: Colors.white,
-                size: 24,
+                color: Color(0xFF03045E),
+                size: 23,
               ),
             ),
 
@@ -598,10 +712,11 @@ class AdminDashboardScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
+
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
+                      color: Color(0xFF1F2923),
                     ),
                   ),
 
@@ -609,18 +724,31 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   Text(
                     subtitle,
+
                     style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF6B7280),
+                      fontSize: 11.5,
+                      height: 1.3,
+                      color: Color(0xFF68756D),
                     ),
                   ),
                 ],
               ),
             ),
 
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF9CA3AF),
+            Container(
+              width: 32,
+              height: 32,
+
+              decoration: BoxDecoration(
+                color: Color(0xFF90E0EF).withOpacity(0.20),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: Color(0xFF03045E),
+                size: 20,
+              ),
             ),
           ],
         ),

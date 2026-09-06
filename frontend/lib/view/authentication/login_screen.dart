@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                   width: 70,
                   height: 70,
                   decoration: BoxDecoration(
-                    color: Colors.green,
+                    color: Color(0xFF03045E),
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Icon(
@@ -58,7 +58,10 @@ class LoginScreen extends StatelessWidget {
                 child: Text(
                   "Find a trusted place that feels like home.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color(0xFF6B7280),
+                  ),
                 ),
               ),
 
@@ -92,18 +95,22 @@ class LoginScreen extends StatelessWidget {
 
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide(
-                      color: Colors.green,
+                      color: Color(0xFF03045E),
                       width: 1.5,
                     ),
                   ),
@@ -152,18 +159,22 @@ class LoginScreen extends StatelessWidget {
 
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+                      borderSide: BorderSide(
+                        color: Color(0xFFE5E7EB),
+                      ),
                     ),
 
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: BorderSide(color: Color(0xFFE5E7EB)),
+                      borderSide: BorderSide(
+                        color: Color(0xFFE5E7EB),
+                      ),
                     ),
 
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: BorderSide(
-                        color: Colors.green,
+                        color: Color(0xFF03045E),
                         width: 1.5,
                       ),
                     ),
@@ -182,7 +193,7 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     "Forgot password?",
                     style: TextStyle(
-                      color: Colors.green,
+                      color: Color(0xFF03045E),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -197,12 +208,14 @@ class LoginScreen extends StatelessWidget {
                 height: 54,
 
                 child: ElevatedButton(
-                  onPressed: () {
-                    controller.login();
-                  },
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () {
+                          controller.login();
+                        },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: Color(0xFF03045E),
                     foregroundColor: Colors.white,
                     elevation: 0,
 
@@ -213,20 +226,27 @@ class LoginScreen extends StatelessWidget {
 
                   child: Text(
                     "Login",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
 
               SizedBox(height: 28),
 
-              
               Row(
                 children: [
-                  Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                  Expanded(
+                    child: Divider(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
 
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 14),
+
                     child: Text(
                       "OR",
                       style: TextStyle(
@@ -237,7 +257,11 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
 
-                  Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                  Expanded(
+                    child: Divider(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
                 ],
               ),
 
@@ -258,7 +282,9 @@ class LoginScreen extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,
 
-                          side: BorderSide(color: Color(0xFFE5E7EB)),
+                          side: BorderSide(
+                            color: Color(0xFFE5E7EB),
+                          ),
 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -313,13 +339,15 @@ class LoginScreen extends StatelessWidget {
 
                       child: OutlinedButton(
                         onPressed: () {
-                           controller.loginWithFacebook();
+                          controller.loginWithFacebook();
                         },
 
                         style: OutlinedButton.styleFrom(
                           backgroundColor: Colors.white,
 
-                          side: BorderSide(color: Color(0xFFE5E7EB)),
+                          side: BorderSide(
+                            color: Color(0xFFE5E7EB),
+                          ),
 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
@@ -361,7 +389,9 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   Text(
                     "Don't have an account?",
-                    style: TextStyle(color: Color(0xFF6B7280)),
+                    style: TextStyle(
+                      color: Color(0xFF6B7280),
+                    ),
                   ),
 
                   TextButton(
@@ -372,7 +402,7 @@ class LoginScreen extends StatelessWidget {
                     child: Text(
                       "Register",
                       style: TextStyle(
-                        color: Colors.green,
+                        color: Color(0xFF03045E),
                         fontWeight: FontWeight.bold,
                       ),
                     ),

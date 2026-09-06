@@ -11,12 +11,7 @@ class ManageUsersScreen extends StatefulWidget {
 class _ManageUsersScreenState extends State<ManageUsersScreen> {
   String selectedFilter = "All";
 
-  List<String> filters = [
-    "All",
-    "Renter",
-    "House Owner",
-    "Suspended",
-  ];
+  List<String> filters = ["All", "Renter", "House Owner", "Suspended"];
 
   List<Map<String, dynamic>> users = [
     {
@@ -78,19 +73,21 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 233, 235, 234),
+      backgroundColor: Color(0xFFF7FAF8),
 
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 233, 235, 234),
+        backgroundColor: Color(0xFFF7FAF8),
         elevation: 0,
+        scrolledUnderElevation: 0,
 
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
+
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
           ),
         ),
 
@@ -99,17 +96,18 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
           ),
         ),
       ),
 
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Column(
           children: [
-            // Summary
+            // SUMMARY
             Padding(
               padding: EdgeInsets.fromLTRB(20, 10, 20, 5),
+
               child: Row(
                 children: [
                   Expanded(
@@ -117,6 +115,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       "Renters",
                       getRoleCount("Renter").toString(),
                       Icons.person_outline_rounded,
+                      Color(0xFF3B82F6),
+                      Color(0xFFEFF6FF),
                     ),
                   ),
 
@@ -127,6 +127,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       "Owners",
                       getRoleCount("House Owner").toString(),
                       Icons.home_work_outlined,
+                      Color(0xFF03045E),
+                      Color(0xFF90E0EF).withOpacity(0.30),
                     ),
                   ),
 
@@ -137,6 +139,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       "Suspended",
                       getSuspendedCount().toString(),
                       Icons.block_rounded,
+                      Color(0xFFDC2626),
+                      Color(0xFFFEF2F2),
                     ),
                   ),
                 ],
@@ -148,36 +152,40 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             // SEARCH
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
+
               child: TextField(
                 decoration: InputDecoration(
                   hintText: "Search user",
 
+                  hintStyle: TextStyle(color: Color(0xFF94A099), fontSize: 14),
+
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Color(0xFF6B7280),
+                    color: Color(0xFF68756D),
                   ),
 
                   filled: true,
                   fillColor: Colors.white,
 
+                  contentPadding: EdgeInsets.symmetric(vertical: 14),
+
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
+
+                    borderSide: BorderSide(color: Color(0xFFE1E9E4)),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
+
+                    borderSide: BorderSide(color: Color(0xFFE1E9E4)),
                   ),
 
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
+
                     borderSide: BorderSide(
-                      color: Color(0xFF198754),
+                      color: Color(0xFF03045E),
                       width: 1.5,
                     ),
                   ),
@@ -187,11 +195,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             SizedBox(height: 15),
 
-            // Filterss
+            // FILTERS
             SizedBox(
               height: 42,
+
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
+
                 padding: EdgeInsets.symmetric(horizontal: 20),
 
                 itemCount: filters.length,
@@ -202,6 +212,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                 itemBuilder: (context, index) {
                   String filter = filters[index];
+
                   bool selected = selectedFilter == filter;
 
                   return GestureDetector(
@@ -218,25 +229,33 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       ),
 
                       decoration: BoxDecoration(
-                        color: selected
-                            ? Colors.green
-                            : Colors.white,
+                        color: selected ? Color(0xFF03045E) : Colors.white,
 
                         borderRadius: BorderRadius.circular(20),
 
                         border: Border.all(
                           color: selected
-                              ? Color(0xFF198754)
-                              : Color(0xFFE5E7EB),
+                              ? Color(0xFF03045E)
+                              : Color(0xFFE1E9E4),
                         ),
+
+                        boxShadow: selected
+                            ? [
+                                BoxShadow(
+                                  color: Color(0xFF03045E).withOpacity(0.12),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 3),
+                                ),
+                              ]
+                            : [],
                       ),
 
                       child: Text(
                         filter,
+
                         style: TextStyle(
-                          color: selected
-                              ? Colors.white
-                              : Color(0xFF6B7280),
+                          color: selected ? Colors.white : Color(0xFF68756D),
+
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
                         ),
@@ -253,20 +272,40 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Expanded(
               child: filteredUsers.isEmpty
                   ? Center(
-                      child: Text(
-                        "No users found",
-                        style: TextStyle(
-                          color: Color(0xFF6B7280),
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+
+                            decoration: BoxDecoration(
+                              color: Color(0xFF90E0EF).withOpacity(0.25),
+                              shape: BoxShape.circle,
+                            ),
+
+                            child: Icon(
+                              Icons.person_search_outlined,
+                              color: Color(0xFF03045E),
+                              size: 28,
+                            ),
+                          ),
+
+                          SizedBox(height: 12),
+
+                          Text(
+                            "No users found",
+                            style: TextStyle(
+                              color: Color(0xFF68756D),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : ListView.separated(
-                      padding: EdgeInsets.fromLTRB(
-                        20,
-                        10,
-                        20,
-                        25,
-                      ),
+                      padding: EdgeInsets.fromLTRB(20, 10, 20, 25),
 
                       itemCount: filteredUsers.length,
 
@@ -275,9 +314,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       },
 
                       itemBuilder: (context, index) {
-                        return buildUserCard(
-                          filteredUsers[index],
-                        );
+                        return buildUserCard(filteredUsers[index]);
                       },
                     ),
             ),
@@ -291,19 +328,26 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     String title,
     String value,
     IconData icon,
+    Color iconColor,
+    Color iconBackground,
   ) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 14,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 14),
 
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Color(0xFFE5E7EB),
-        ),
+
+        border: Border.all(color: Color(0xFFE1E9E4)),
+
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF1F2923).withOpacity(0.03),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
 
       child: Column(
@@ -313,15 +357,11 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             height: 38,
 
             decoration: BoxDecoration(
-              color: Color(0xFFEAF7F0),
+              color: iconBackground,
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(
-              icon,
-              color: Color(0xFF198754),
-              size: 20,
-            ),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
 
           SizedBox(height: 9),
@@ -331,7 +371,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF111827),
+              color: Color(0xFF1F2923),
             ),
           ),
 
@@ -339,9 +379,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
           Text(
             title,
+            maxLines: 1,
+
             style: TextStyle(
               fontSize: 11,
-              color: Color(0xFF6B7280),
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF68756D),
             ),
           ),
         ],
@@ -349,10 +392,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
-  Widget buildUserCard(
-    Map<String, dynamic> user,
-  ) {
+  Widget buildUserCard(Map<String, dynamic> user) {
     bool isSuspended = user["status"] == "Suspended";
+
     bool isOwner = user["role"] == "House Owner";
 
     return InkWell(
@@ -360,18 +402,25 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         showUserDetails(user);
       },
 
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(16),
 
       child: Container(
         padding: EdgeInsets.all(15),
 
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
 
-          border: Border.all(
-            color: Color(0xFFE5E7EB),
-          ),
+          borderRadius: BorderRadius.circular(16),
+
+          border: Border.all(color: Color(0xFFE1E9E4)),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.03),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
 
         child: Column(
@@ -387,8 +436,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                   decoration: BoxDecoration(
                     color: isSuspended
-                        ? Color(0xFFFFECEC)
-                        : Color(0xFFEAF7F0),
+                        ? Color(0xFFFEF2F2)
+                        : Color(0xFF90E0EF).withOpacity(0.25),
 
                     shape: BoxShape.circle,
                   ),
@@ -398,9 +447,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                         ? Icons.home_work_outlined
                         : Icons.person_outline_rounded,
 
-                    color: isSuspended
-                        ? Color(0xFFDC2626)
-                        : Color(0xFF198754),
+                    color: isSuspended ? Color(0xFFDC2626) : Color(0xFF03045E),
 
                     size: 25,
                   ),
@@ -418,17 +465,16 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                           Expanded(
                             child: Text(
                               user["name"],
+
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF111827),
+                                color: Color(0xFF1F2923),
                               ),
                             ),
                           ),
 
-                          buildStatusBadge(
-                            user["status"],
-                          ),
+                          buildStatusBadge(user["status"]),
                         ],
                       ),
 
@@ -436,9 +482,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                       Text(
                         user["email"],
+
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF6B7280),
+                          color: Color(0xFF68756D),
                         ),
                       ),
 
@@ -449,16 +496,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                           Icon(
                             Icons.phone_outlined,
                             size: 14,
-                            color: Color(0xFF9CA3AF),
+                            color: Color(0xFF94A099),
                           ),
 
                           SizedBox(width: 4),
 
                           Text(
                             user["phone"],
+
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF6B7280),
+                              color: Color(0xFF68756D),
                             ),
                           ),
                         ],
@@ -471,23 +519,19 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             SizedBox(height: 14),
 
-            Divider(
-              height: 1,
-              color: Color(0xFFE5E7EB),
-            ),
+            Divider(height: 1, color: Color(0xFFE8EEEA)),
 
             SizedBox(height: 12),
 
             Row(
               children: [
+                // ROLE
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 
                   decoration: BoxDecoration(
-                    color: Color(0xFFF3F4F6),
+                    color: Color(0xFF90E0EF).withOpacity(0.16),
+
                     borderRadius: BorderRadius.circular(20),
                   ),
 
@@ -497,18 +541,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                         isOwner
                             ? Icons.home_work_outlined
                             : Icons.person_outline,
+
                         size: 14,
-                        color: Color(0xFF6B7280),
+                        color: Color(0xFF03045E),
                       ),
 
                       SizedBox(width: 5),
 
                       Text(
                         user["role"],
+
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF4B5563),
+                          color: Color(0xFF03045E),
                         ),
                       ),
                     ],
@@ -519,21 +565,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   SizedBox(width: 8),
 
                   Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFEAF7F0),
+                      color: Color(0xFF90E0EF).withOpacity(0.20),
+
                       borderRadius: BorderRadius.circular(20),
                     ),
 
                     child: Text(
                       "${user["properties"]} Properties",
+
                       style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF198754),
+                        color: Color(0xFF03045E),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -542,9 +587,20 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
                 Spacer(),
 
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: Color(0xFF9CA3AF),
+                Container(
+                  width: 30,
+                  height: 30,
+
+                  decoration: BoxDecoration(
+                    color: Color(0xFF90E0EF).withOpacity(0.20),
+                    shape: BoxShape.circle,
+                  ),
+
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    color: Color(0xFF03045E),
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -558,207 +614,216 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     bool active = status == "Active";
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 5,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
 
       decoration: BoxDecoration(
-        color: active
-            ? Color(0xFFEAF7F0)
-            : Color(0xFFFFECEC),
+        color: active ? Colors.green.withOpacity(0.10) : Color(0xFFFEF2F2),
 
         borderRadius: BorderRadius.circular(20),
       ),
 
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w600,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
 
-          color: active
-              ? Color(0xFF198754)
-              : Color(0xFFDC2626),
-        ),
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+
+            decoration: BoxDecoration(
+              color: active ? Colors.green : Color(0xFFDC2626),
+
+              shape: BoxShape.circle,
+            ),
+          ),
+
+          SizedBox(width: 5),
+
+          Text(
+            status,
+
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+
+              color: active ? Colors.green : Color(0xFFDC2626),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  void showUserDetails(
-    Map<String, dynamic> user,
-  ) {
+  void showUserDetails(Map<String, dynamic> user) {
     bool isSuspended = user["status"] == "Suspended";
 
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          14,
-          20,
-          25,
-        ),
+        constraints: BoxConstraints(maxHeight: Get.height * 0.85),
+
+        padding: EdgeInsets.fromLTRB(20, 14, 20, 25),
 
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
 
         child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          top: false,
 
-            children: [
-              Container(
-                width: 45,
-                height: 5,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
 
-                decoration: BoxDecoration(
-                  color: Color(0xFFD1D5DB),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              children: [
+                Container(
+                  width: 45,
+                  height: 5,
 
-              SizedBox(height: 22),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFD1D9D4),
 
-              Container(
-                width: 65,
-                height: 65,
-
-                decoration: BoxDecoration(
-                  color: Color(0xFFEAF7F0),
-                  shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
 
-                child: Icon(
-                  user["role"] == "House Owner"
-                      ? Icons.home_work_outlined
-                      : Icons.person_outline_rounded,
+                SizedBox(height: 22),
 
-                  size: 30,
-                  color: Color(0xFF198754),
+                Container(
+                  width: 65,
+                  height: 65,
+
+                  decoration: BoxDecoration(
+                    color: isSuspended
+                        ? Color(0xFFFEF2F2)
+                        : Color(0xFF90E0EF).withOpacity(0.25),
+
+                    shape: BoxShape.circle,
+                  ),
+
+                  child: Icon(
+                    user["role"] == "House Owner"
+                        ? Icons.home_work_outlined
+                        : Icons.person_outline_rounded,
+
+                    size: 30,
+
+                    color: isSuspended ? Color(0xFFDC2626) : Color(0xFF03045E),
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 12),
+                SizedBox(height: 12),
 
-              Text(
-                user["name"],
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
+                Text(
+                  user["name"],
+
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2923),
+                  ),
                 ),
-              ),
 
-              SizedBox(height: 5),
+                SizedBox(height: 5),
 
-              Text(
-                user["role"],
-                style: TextStyle(
-                  color: Color(0xFF6B7280),
-                ),
-              ),
+                Text(user["role"], style: TextStyle(color: Color(0xFF68756D))),
 
-              SizedBox(height: 22),
+                SizedBox(height: 22),
 
-              buildDetailRow(
-                Icons.email_outlined,
-                "Email",
-                user["email"],
-              ),
+                buildDetailRow(Icons.email_outlined, "Email", user["email"]),
 
-              buildDetailRow(
-                Icons.phone_outlined,
-                "Phone",
-                user["phone"],
-              ),
+                buildDetailRow(Icons.phone_outlined, "Phone", user["phone"]),
 
-              buildDetailRow(
-                Icons.shield_outlined,
-                "Account Status",
-                user["status"],
-              ),
-
-              if (user["role"] == "House Owner")
                 buildDetailRow(
-                  Icons.home_work_outlined,
-                  "Submitted Properties",
-                  user["properties"].toString(),
+                  Icons.shield_outlined,
+                  "Account Status",
+                  user["status"],
                 ),
 
-              SizedBox(height: 18),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Get.back();
-
-                    confirmAccountAction(user);
-                  },
-
-                  icon: Icon(
-                    isSuspended
-                        ? Icons.restart_alt_rounded
-                        : Icons.block_rounded,
+                if (user["role"] == "House Owner")
+                  buildDetailRow(
+                    Icons.home_work_outlined,
+                    "Submitted Properties",
+                    user["properties"].toString(),
                   ),
 
-                  label: Text(
-                    isSuspended
-                        ? "Restore Account"
-                        : "Suspend Account",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                SizedBox(height: 18),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Get.back();
+
+                      confirmAccountAction(user);
+                    },
+
+                    icon: Icon(
+                      isSuspended
+                          ? Icons.restart_alt_rounded
+                          : Icons.block_rounded,
                     ),
-                  ),
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isSuspended
-                        ? Color(0xFF198754)
-                        : Color(0xFFDC2626),
+                    label: Text(
+                      isSuspended ? "Restore Account" : "Suspend Account",
 
-                    foregroundColor: Colors.white,
-                    elevation: 0,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isSuspended
+                          ? Color(0xFF03045E)
+                          : Color(0xFFDC2626),
+
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
+
+      isScrollControlled: true,
     );
   }
 
-  Widget buildDetailRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+  Widget buildDetailRow(IconData icon, String title, String value) {
     return Container(
       margin: EdgeInsets.only(bottom: 10),
+
       padding: EdgeInsets.all(13),
 
       decoration: BoxDecoration(
-        color: Color(0xFFF8FAF9),
+        color: Color(0xFFF7FAF8),
+
         borderRadius: BorderRadius.circular(13),
+
+        border: Border.all(color: Color(0xFFE8EEEA)),
       ),
 
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: Color(0xFF198754),
+          Container(
+            width: 36,
+            height: 36,
+
+            decoration: BoxDecoration(
+              color: Color(0xFF90E0EF).withOpacity(0.20),
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: Icon(icon, size: 19, color: Color(0xFF03045E)),
           ),
 
           SizedBox(width: 12),
@@ -770,20 +835,19 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF9CA3AF),
-                  ),
+
+                  style: TextStyle(fontSize: 11, color: Color(0xFF94A099)),
                 ),
 
                 SizedBox(height: 2),
 
                 Text(
                   value,
+
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF374151),
+                    color: Color(0xFF526058),
                   ),
                 ),
               ],
@@ -794,23 +858,21 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     );
   }
 
-  void confirmAccountAction(
-    Map<String, dynamic> user,
-  ) {
+  void confirmAccountAction(Map<String, dynamic> user) {
     bool isSuspended = user["status"] == "Suspended";
 
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        backgroundColor: Colors.white,
+
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
         title: Text(
-          isSuspended
-              ? "Restore Account?"
-              : "Suspend Account?",
+          isSuspended ? "Restore Account?" : "Suspend Account?",
+
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: Color(0xFF1F2923),
           ),
         ),
 
@@ -818,9 +880,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           isSuspended
               ? "This user will be able to use their account again."
               : "This user will be restricted from using the platform.",
-          style: TextStyle(
-            color: Color(0xFF6B7280),
-          ),
+
+          style: TextStyle(color: Color(0xFF68756D)),
         ),
 
         actions: [
@@ -829,27 +890,19 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               Get.back();
             },
 
-            child: Text(
-              "Cancel",
-              style: TextStyle(
-                color: Color(0xFF6B7280),
-              ),
-            ),
+            child: Text("Cancel", style: TextStyle(color: Color(0xFF68756D))),
           ),
 
           ElevatedButton(
             onPressed: () {
               setState(() {
-                user["status"] =
-                    isSuspended ? "Active" : "Suspended";
+                user["status"] = isSuspended ? "Active" : "Suspended";
               });
 
               Get.back();
 
               Get.snackbar(
-                isSuspended
-                    ? "Account Restored"
-                    : "Account Suspended",
+                isSuspended ? "Account Restored" : "Account Suspended",
 
                 isSuspended
                     ? "${user["name"]}'s account is active again."
@@ -858,7 +911,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 snackPosition: SnackPosition.TOP,
 
                 backgroundColor: isSuspended
-                    ? Color(0xFF198754)
+                    ? Color(0xFF03045E)
                     : Color(0xFFDC2626),
 
                 colorText: Colors.white,
@@ -867,16 +920,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
             style: ElevatedButton.styleFrom(
               backgroundColor: isSuspended
-                  ? Color(0xFF198754)
+                  ? Color(0xFF03045E)
                   : Color(0xFFDC2626),
 
               foregroundColor: Colors.white,
               elevation: 0,
             ),
 
-            child: Text(
-              isSuspended ? "Restore" : "Suspend",
-            ),
+            child: Text(isSuspended ? "Restore" : "Suspend"),
           ),
         ],
       ),
@@ -884,14 +935,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   }
 
   int getRoleCount(String role) {
-    return users
-        .where((user) => user["role"] == role)
-        .length;
+    return users.where((user) => user["role"] == role).length;
   }
 
   int getSuspendedCount() {
-    return users
-        .where((user) => user["status"] == "Suspended")
-        .length;
+    return users.where((user) => user["status"] == "Suspended").length;
   }
 }

@@ -20,24 +20,27 @@ class PropertyReviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF3F5F4),
+      backgroundColor: Color(0xFFF7FAF8),
 
       appBar: AppBar(
-        backgroundColor: Color(0xFFF3F5F4),
+        backgroundColor: Color(0xFFF7FAF8),
         elevation: 0,
+        scrolledUnderElevation: 0,
+
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
           ),
         ),
+
         title: Text(
           "Review Submission",
           style: TextStyle(
-            color: Color(0xFF111827),
+            color: Color(0xFF1F2923),
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -57,25 +60,34 @@ class PropertyReviewScreen extends StatelessWidget {
                 padding: EdgeInsets.all(15),
 
                 decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 252, 225, 128),
+                  color: Colors.white,
+
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Color.fromARGB(255, 248, 199, 23)),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF1F2923).withOpacity(0.05),
+                      blurRadius: 12,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
                 ),
 
                 child: Row(
                   children: [
                     Container(
-                      width: 45,
-                      height: 45,
+                      width: 46,
+                      height: 46,
 
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 255, 200, 1),
+                        color: Color(0xFFF59E0B),
                         borderRadius: BorderRadius.circular(12),
                       ),
 
                       child: Icon(
                         Icons.pending_actions_rounded,
-                        color: const Color.fromARGB(255, 173, 107, 7),
+                        color: Colors.white,
+                        size: 24,
                       ),
                     ),
 
@@ -84,13 +96,15 @@ class PropertyReviewScreen extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+
                         children: [
                           Text(
                             "Pending Verification",
+
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF111827),
+                              color: Color(0xFF1F2923),
                             ),
                           ),
 
@@ -98,23 +112,49 @@ class PropertyReviewScreen extends StatelessWidget {
 
                           Text(
                             "Review all property and identity documents carefully.",
+
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF4B5563),
+                              height: 1.35,
+                              color: Color(0xFF68756D),
                             ),
                           ),
                         ],
+                      ),
+                    ),
+
+                    SizedBox(width: 8),
+
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 11,
+                        vertical: 6,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFFF3D6),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+
+                      child: Text(
+                        "Pending",
+
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFD97706),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 24),
+              SizedBox(height: 22),
 
               // PROPERTY IMAGE
               ClipRRect(
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(16),
 
                 child: Image.network(
                   property["image"],
@@ -126,11 +166,11 @@ class PropertyReviewScreen extends StatelessWidget {
                     return Container(
                       width: double.infinity,
                       height: 220,
-                      color: Color(0xFFDCEFE3),
+                      color: Color(0xFF90E0EF).withOpacity(0.25),
 
                       child: Icon(
                         Icons.home_work_outlined,
-                        color: Color(0xFF167A3E),
+                        color: Color(0xFF03045E),
                         size: 55,
                       ),
                     );
@@ -145,7 +185,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
+                  color: Color(0xFF1F2923),
                 ),
               ),
 
@@ -156,7 +196,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF167A3E),
+                  color: Color(0xFF03045E),
                 ),
               ),
 
@@ -167,7 +207,7 @@ class PropertyReviewScreen extends StatelessWidget {
                   Icon(
                     Icons.location_on_outlined,
                     size: 18,
-                    color: Color(0xFF4B5563),
+                    color: Color(0xFF68756D),
                   ),
 
                   SizedBox(width: 5),
@@ -175,14 +215,18 @@ class PropertyReviewScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       property["location"],
-                      style: TextStyle(fontSize: 14, color: Color(0xFF4B5563)),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF68756D),
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 26),
 
+              // PROPERTY INFORMATION
               buildSectionTitle("Property Information"),
 
               SizedBox(height: 12),
@@ -221,8 +265,9 @@ class PropertyReviewScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 26),
 
+              // DESCRIPTION
               buildSectionTitle("Description"),
 
               SizedBox(height: 12),
@@ -235,7 +280,17 @@ class PropertyReviewScreen extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
 
-                  border: Border.all(color: Color(0xFFD6DBD8)),
+                  border: Border.all(
+                    color: Color(0xFFE1E9E4),
+                  ),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0xFF1F2923).withOpacity(0.025),
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
 
                 child: Text(
@@ -243,14 +298,14 @@ class PropertyReviewScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     height: 1.5,
-                    color: Color(0xFF4B5563),
+                    color: Color(0xFF68756D),
                   ),
                 ),
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 26),
 
-              // OWNER
+              // OWNER INFORMATION
               buildSectionTitle("House Owner Information"),
 
               SizedBox(height: 12),
@@ -281,19 +336,28 @@ class PropertyReviewScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 26),
 
               // DOCUMENTS
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  buildSectionTitle("Verification Documents"),
+                  Expanded(
+                    child: buildSectionTitle(
+                      "Verification Documents",
+                    ),
+                  ),
+
+                  SizedBox(width: 10),
 
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFFFF3CD),
+                      color: Color(0xFF90E0EF).withOpacity(0.20),
                       borderRadius: BorderRadius.circular(20),
                     ),
 
@@ -302,7 +366,7 @@ class PropertyReviewScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF9A6700),
+                        color: Color(0xFF03045E),
                       ),
                     ),
                   ),
@@ -316,6 +380,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 title: "National ID",
                 subtitle: "Owner identity verification",
                 icon: Icons.badge_outlined,
+
                 onTap: () {
                   showDocumentPreview(
                     title: "National ID",
@@ -331,6 +396,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 title: "Property Ownership Document",
                 subtitle: "Ownership / rental authorization evidence",
                 icon: Icons.description_outlined,
+
                 onTap: () {
                   showDocumentPreview(
                     title: "Property Ownership Document",
@@ -339,10 +405,20 @@ class PropertyReviewScreen extends StatelessWidget {
                 },
               ),
 
-              SizedBox(height: 25),
+              SizedBox(height: 26),
 
               // CHECKLIST
               buildSectionTitle("Verification Checklist"),
+
+              SizedBox(height: 5),
+
+              Text(
+                "Confirm each item before making a decision.",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF94A099),
+                ),
+              ),
 
               SizedBox(height: 12),
 
@@ -358,11 +434,15 @@ class PropertyReviewScreen extends StatelessWidget {
 
               SizedBox(height: 10),
 
-              buildChecklistItem("Property details appear valid and complete"),
+              buildChecklistItem(
+                "Property details appear valid and complete",
+              ),
 
               SizedBox(height: 10),
 
-              buildChecklistItem("Submitted property images are appropriate"),
+              buildChecklistItem(
+                "Submitted property images are appropriate",
+              ),
             ],
           ),
         ),
@@ -375,7 +455,19 @@ class PropertyReviewScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          border: Border(top: BorderSide(color: Color(0xFFD6DBD8))),
+          border: Border(
+            top: BorderSide(
+              color: Color(0xFFE1E9E4),
+            ),
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.05),
+              blurRadius: 14,
+              offset: Offset(0, -4),
+            ),
+          ],
         ),
 
         child: SafeArea(
@@ -383,47 +475,30 @@ class PropertyReviewScreen extends StatelessWidget {
 
           child: Row(
             children: [
+              // REJECT
               Expanded(
                 child: SizedBox(
                   height: 52,
 
-                  child: OutlinedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       showRejectDialog();
                     },
 
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Color(0xFFB42318),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 20,
+                    ),
 
-                      side: BorderSide(color: Color(0xFFB42318)),
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                    label: Text(
+                      "Reject",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    child: Text(
-                      "Reject",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(width: 12),
-
-              Expanded(
-                child: SizedBox(
-                  height: 52,
-
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showApproveDialog();
-                    },
-
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF167A3E),
+                      backgroundColor: Color(0xFFDC2626),
                       foregroundColor: Colors.white,
                       elevation: 0,
 
@@ -431,10 +506,42 @@ class PropertyReviewScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
+                  ),
+                ),
+              ),
 
-                    child: Text(
+              SizedBox(width: 12),
+
+              // APPROVE
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      showApproveDialog();
+                    },
+
+                    icon: Icon(
+                      Icons.check_rounded,
+                      size: 20,
+                    ),
+
+                    label: Text(
                       "Approve",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF03045E),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
@@ -452,12 +559,14 @@ class PropertyReviewScreen extends StatelessWidget {
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
-        color: Color(0xFF111827),
+        color: Color(0xFF1F2923),
       ),
     );
   }
 
-  Widget buildInfoCard({required List<Widget> children}) {
+  Widget buildInfoCard({
+    required List<Widget> children,
+  }) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16),
@@ -466,14 +575,30 @@ class PropertyReviewScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: Color(0xFFD6DBD8)),
+        border: Border.all(
+          color: Color(0xFFE1E9E4),
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFF1F2923).withOpacity(0.025),
+            blurRadius: 10,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
 
-      child: Column(children: children),
+      child: Column(
+        children: children,
+      ),
     );
   }
 
-  Widget buildInfoRow(IconData icon, String title, String value) {
+  Widget buildInfoRow(
+    IconData icon,
+    String title,
+    String value,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -483,11 +608,15 @@ class PropertyReviewScreen extends StatelessWidget {
           height: 38,
 
           decoration: BoxDecoration(
-            color: Color(0xFFDCEFE3),
+            color: Color(0xFF90E0EF).withOpacity(0.20),
             borderRadius: BorderRadius.circular(10),
           ),
 
-          child: Icon(icon, size: 20, color: Color(0xFF167A3E)),
+          child: Icon(
+            icon,
+            size: 20,
+            color: Color(0xFF03045E),
+          ),
         ),
 
         SizedBox(width: 12),
@@ -499,7 +628,10 @@ class PropertyReviewScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF94A099),
+                ),
               ),
 
               SizedBox(height: 3),
@@ -509,7 +641,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF374151),
+                  color: Color(0xFF526058),
                 ),
               ),
             ],
@@ -521,9 +653,14 @@ class PropertyReviewScreen extends StatelessWidget {
 
   Widget buildDivider() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 13),
+      padding: EdgeInsets.symmetric(
+        vertical: 13,
+      ),
 
-      child: Divider(height: 1, color: Color(0xFFD6DBD8)),
+      child: Divider(
+        height: 1,
+        color: Color(0xFFE8EEEA),
+      ),
     );
   }
 
@@ -535,7 +672,6 @@ class PropertyReviewScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-
       borderRadius: BorderRadius.circular(16),
 
       child: Container(
@@ -545,7 +681,17 @@ class PropertyReviewScreen extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
 
-          border: Border.all(color: Color(0xFFD6DBD8)),
+          border: Border.all(
+            color: Color(0xFFE1E9E4),
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF1F2923).withOpacity(0.025),
+              blurRadius: 10,
+              offset: Offset(0, 3),
+            ),
+          ],
         ),
 
         child: Row(
@@ -555,11 +701,14 @@ class PropertyReviewScreen extends StatelessWidget {
               height: 48,
 
               decoration: BoxDecoration(
-                color: Color(0xFFDCEFE3),
+                color: Color(0xFF90E0EF).withOpacity(0.20),
                 borderRadius: BorderRadius.circular(13),
               ),
 
-              child: Icon(icon, color: Color(0xFF167A3E)),
+              child: Icon(
+                icon,
+                color: Color(0xFF03045E),
+              ),
             ),
 
             SizedBox(width: 13),
@@ -574,7 +723,7 @@ class PropertyReviewScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
+                      color: Color(0xFF1F2923),
                     ),
                   ),
 
@@ -582,13 +731,31 @@ class PropertyReviewScreen extends StatelessWidget {
 
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Color(0xFF4B5563)),
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.35,
+                      color: Color(0xFF68756D),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            Icon(Icons.visibility_outlined, color: Color(0xFF167A3E)),
+            Container(
+              width: 36,
+              height: 36,
+
+              decoration: BoxDecoration(
+                color: Color(0xFF90E0EF).withOpacity(0.20),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.visibility_outlined,
+                color: Color(0xFF03045E),
+                size: 19,
+              ),
+            ),
           ],
         ),
       ),
@@ -603,7 +770,9 @@ class PropertyReviewScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: Color(0xFFD6DBD8)),
+        border: Border.all(
+          color: Color(0xFFE1E9E4),
+        ),
       ),
 
       child: Row(
@@ -613,13 +782,13 @@ class PropertyReviewScreen extends StatelessWidget {
             height: 30,
 
             decoration: BoxDecoration(
-              color: Color(0xFFDCEFE3),
+              color: Color(0xFF90E0EF).withOpacity(0.25),
               shape: BoxShape.circle,
             ),
 
             child: Icon(
               Icons.check_rounded,
-              color: Color(0xFF167A3E),
+              color: Color(0xFF03045E),
               size: 18,
             ),
           ),
@@ -629,7 +798,11 @@ class PropertyReviewScreen extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 13, color: Color(0xFF374151)),
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                color: Color(0xFF526058),
+              ),
             ),
           ),
         ],
@@ -637,7 +810,10 @@ class PropertyReviewScreen extends StatelessWidget {
     );
   }
 
-  void showDocumentPreview({required String title, required IconData icon}) {
+  void showDocumentPreview({
+    required String title,
+    required IconData icon,
+  }) {
     Get.bottomSheet(
       Container(
         padding: EdgeInsets.all(20),
@@ -645,7 +821,9 @@ class PropertyReviewScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(24),
+          ),
         ),
 
         child: SafeArea(
@@ -658,7 +836,7 @@ class PropertyReviewScreen extends StatelessWidget {
                 height: 5,
 
                 decoration: BoxDecoration(
-                  color: Color(0xFF9CA3AF),
+                  color: Color(0xFFD1D9D4),
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -672,11 +850,14 @@ class PropertyReviewScreen extends StatelessWidget {
                     height: 46,
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFDCEFE3),
+                      color: Color(0xFF90E0EF).withOpacity(0.20),
                       borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(icon, color: Color(0xFF167A3E)),
+                    child: Icon(
+                      icon,
+                      color: Color(0xFF03045E),
+                    ),
                   ),
 
                   SizedBox(width: 12),
@@ -687,7 +868,7 @@ class PropertyReviewScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF111827),
+                        color: Color(0xFF1F2923),
                       ),
                     ),
                   ),
@@ -701,23 +882,41 @@ class PropertyReviewScreen extends StatelessWidget {
                 height: 230,
 
                 decoration: BoxDecoration(
-                  color: Color(0xFFE7EAE8),
+                  color: Color(0xFFF3F7F4),
                   borderRadius: BorderRadius.circular(16),
+
+                  border: Border.all(
+                    color: Color(0xFFE1E9E4),
+                  ),
                 ),
 
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(icon, size: 55, color: Color(0xFF6B7280)),
+                    Container(
+                      width: 70,
+                      height: 70,
 
-                    SizedBox(height: 10),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF90E0EF).withOpacity(0.20),
+                        shape: BoxShape.circle,
+                      ),
+
+                      child: Icon(
+                        icon,
+                        size: 34,
+                        color: Color(0xFF03045E),
+                      ),
+                    ),
+
+                    SizedBox(height: 12),
 
                     Text(
                       "Document preview",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF4B5563),
+                        color: Color(0xFF526058),
                       ),
                     ),
 
@@ -725,7 +924,10 @@ class PropertyReviewScreen extends StatelessWidget {
 
                     Text(
                       "Real uploaded document will appear here.",
-                      style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF94A099),
+                      ),
                     ),
                   ],
                 ),
@@ -743,7 +945,7 @@ class PropertyReviewScreen extends StatelessWidget {
                   },
 
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF167A3E),
+                    backgroundColor: Color(0xFF03045E),
                     foregroundColor: Colors.white,
                     elevation: 0,
 
@@ -754,7 +956,9 @@ class PropertyReviewScreen extends StatelessWidget {
 
                   child: Text(
                     "Close",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -768,7 +972,11 @@ class PropertyReviewScreen extends StatelessWidget {
   void showApproveDialog() {
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
 
         title: Row(
           children: [
@@ -777,25 +985,34 @@ class PropertyReviewScreen extends StatelessWidget {
               height: 42,
 
               decoration: BoxDecoration(
-                color: Color(0xFFDCEFE3),
+                color: Color(0xFF90E0EF).withOpacity(0.25),
                 shape: BoxShape.circle,
               ),
 
-              child: Icon(Icons.check_rounded, color: Color(0xFF167A3E)),
+              child: Icon(
+                Icons.check_rounded,
+                color: Color(0xFF03045E),
+              ),
             ),
 
             SizedBox(width: 12),
 
             Text(
               "Approve Property",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2923),
+              ),
             ),
           ],
         ),
 
         content: Text(
           "Are you sure you want to approve this property submission?",
-          style: TextStyle(color: Color(0xFF4B5563)),
+          style: TextStyle(
+            color: Color(0xFF68756D),
+          ),
         ),
 
         actions: [
@@ -804,7 +1021,12 @@ class PropertyReviewScreen extends StatelessWidget {
               Get.back();
             },
 
-            child: Text("Cancel", style: TextStyle(color: Color(0xFF4B5563))),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Color(0xFF68756D),
+              ),
+            ),
           ),
 
           ElevatedButton(
@@ -815,13 +1037,13 @@ class PropertyReviewScreen extends StatelessWidget {
                 "Approved",
                 "Property approved successfully.",
                 snackPosition: SnackPosition.TOP,
-                backgroundColor: Color(0xFF167A3E),
+                backgroundColor: Color(0xFF03045E),
                 colorText: Colors.white,
               );
             },
 
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF167A3E),
+              backgroundColor: Color(0xFF03045E),
               foregroundColor: Colors.white,
               elevation: 0,
             ),
@@ -834,15 +1056,45 @@ class PropertyReviewScreen extends StatelessWidget {
   }
 
   void showRejectDialog() {
-    TextEditingController reasonController = TextEditingController();
+    TextEditingController reasonController =
+        TextEditingController();
 
     Get.dialog(
       AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.white,
 
-        title: Text(
-          "Reject Property",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+
+        title: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+
+              decoration: BoxDecoration(
+                color: Color(0xFFFEF2F2),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.close_rounded,
+                color: Color(0xFFDC2626),
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            Text(
+              "Reject Property",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Color(0xFF1F2923),
+              ),
+            ),
+          ],
         ),
 
         content: Column(
@@ -852,7 +1104,10 @@ class PropertyReviewScreen extends StatelessWidget {
           children: [
             Text(
               "Provide a reason for rejecting this submission.",
-              style: TextStyle(color: Color(0xFF4B5563), fontSize: 13),
+              style: TextStyle(
+                color: Color(0xFF68756D),
+                fontSize: 13,
+              ),
             ),
 
             SizedBox(height: 14),
@@ -864,13 +1119,36 @@ class PropertyReviewScreen extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: "Enter rejection reason",
 
+                hintStyle: TextStyle(
+                  color: Color(0xFF94A099),
+                ),
+
                 filled: true,
-                fillColor: Color(0xFFF3F5F4),
+                fillColor: Color(0xFFF7FAF8),
 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
 
-                  borderSide: BorderSide(color: Color(0xFFD6DBD8)),
+                  borderSide: BorderSide(
+                    color: Color(0xFFE1E9E4),
+                  ),
+                ),
+
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+
+                  borderSide: BorderSide(
+                    color: Color(0xFFE1E9E4),
+                  ),
+                ),
+
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+
+                  borderSide: BorderSide(
+                    color: Color(0xFFDC2626),
+                    width: 1.5,
+                  ),
                 ),
               ),
             ),
@@ -883,7 +1161,12 @@ class PropertyReviewScreen extends StatelessWidget {
               Get.back();
             },
 
-            child: Text("Cancel", style: TextStyle(color: Color(0xFF4B5563))),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Color(0xFF68756D),
+              ),
+            ),
           ),
 
           ElevatedButton(
@@ -904,13 +1187,13 @@ class PropertyReviewScreen extends StatelessWidget {
                 "Rejected",
                 "Property submission rejected.",
                 snackPosition: SnackPosition.TOP,
-                backgroundColor: Color(0xFFB42318),
+                backgroundColor: Color(0xFFDC2626),
                 colorText: Colors.white,
               );
             },
 
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFB42318),
+              backgroundColor: Color(0xFFDC2626),
               foregroundColor: Colors.white,
               elevation: 0,
             ),
