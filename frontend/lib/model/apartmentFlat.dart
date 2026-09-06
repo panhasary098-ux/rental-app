@@ -17,6 +17,8 @@ class ApartmentFlat extends Property {
     required super.status,
     required super.contact,
     required super.images,
+    required super.nationalIDImage,
+    required super.ownerShipImage,
     required super.facilities,
     super.furnished,
 

@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+const Color ownerPrimaryColor = Color(0xFF03045E);
+const Color ownerBackgroundColor = Color(0xFFF4FCFE);
+const Color ownerLightSecondaryColor = Color(0xFFE6F9FC);
+
 class OwnerHomeScreen extends StatelessWidget {
   OwnerHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: ownerBackgroundColor,
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            18,
-            18,
-            18,
-            30,
-          ),
+          padding: EdgeInsets.fromLTRB(18, 18, 18, 30),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,7 +176,7 @@ class OwnerHomeScreen extends StatelessWidget {
           height: 48,
 
           decoration: BoxDecoration(
-            color: Color(0xFFE8E9FF),
+            color: ownerLightSecondaryColor,
             shape: BoxShape.circle,
           ),
 
@@ -213,10 +212,7 @@ class OwnerHomeScreen extends StatelessWidget {
 
               Text(
                 "House Owner",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF7D8990),
-                ),
+                style: TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
               ),
             ],
           ),
@@ -230,9 +226,7 @@ class OwnerHomeScreen extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(13),
 
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.25),
-            ),
+            border: Border.all(color: Colors.grey.withOpacity(0.25)),
           ),
 
           child: Icon(
@@ -322,10 +316,7 @@ class OwnerHomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
 
               child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -336,11 +327,7 @@ class OwnerHomeScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
 
                   children: [
-                    Icon(
-                      Icons.add_rounded,
-                      size: 20,
-                      color: Color(0xFF03045E),
-                    ),
+                    Icon(Icons.add_rounded, size: 20, color: Color(0xFF03045E)),
 
                     SizedBox(width: 6),
 
@@ -426,18 +413,13 @@ class OwnerHomeScreen extends StatelessWidget {
     required Color iconColor,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 14,
-        horizontal: 5,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 5),
 
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.20),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.20)),
 
         boxShadow: [
           BoxShadow(
@@ -459,11 +441,7 @@ class OwnerHomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(
-              icon,
-              size: 20,
-              color: iconColor,
-            ),
+            child: Icon(icon, size: 20, color: iconColor),
           ),
 
           SizedBox(height: 8),
@@ -484,10 +462,7 @@ class OwnerHomeScreen extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
 
-            style: TextStyle(
-              fontSize: 9.5,
-              color: Color(0xFF7D8990),
-            ),
+            style: TextStyle(fontSize: 9.5, color: Color(0xFF7D8990)),
           ),
         ],
       ),
@@ -511,7 +486,7 @@ class OwnerHomeScreen extends StatelessWidget {
         height: 100,
 
         decoration: BoxDecoration(
-          color: Color(0xFFE8E9FF),
+          color: ownerLightSecondaryColor,
           borderRadius: BorderRadius.circular(16),
         ),
 
@@ -519,18 +494,12 @@ class OwnerHomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            Icon(
-              icon,
-              size: 28,
-              color: Color(0xFF03045E),
-            ),
+            Icon(icon, size: 28, color: Color(0xFF03045E)),
 
             SizedBox(height: 8),
 
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 5,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 5),
 
               child: Text(
                 title,
@@ -570,9 +539,7 @@ class OwnerHomeScreen extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.22),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.22)),
 
         boxShadow: [
           BoxShadow(
@@ -698,10 +665,7 @@ class OwnerHomeScreen extends StatelessWidget {
 
                     InkWell(
                       onTap: () {
-                        showStatusBottomSheet(
-                          title,
-                          rentalStatus,
-                        );
+                        showStatusBottomSheet(title, rentalStatus);
                       },
 
                       borderRadius: BorderRadius.circular(10),
@@ -715,9 +679,7 @@ class OwnerHomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
 
-                          border: Border.all(
-                            color: Color(0xFF2563EB),
-                          ),
+                          border: Border.all(color: Color(0xFF2563EB)),
                         ),
 
                         child: Row(
@@ -758,15 +720,9 @@ class OwnerHomeScreen extends StatelessWidget {
   // BADGE
   // =========================================================
 
-  Widget buildBadge(
-    String text,
-    Color color,
-  ) {
+  Widget buildBadge(String text, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 5,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
@@ -788,25 +744,15 @@ class OwnerHomeScreen extends StatelessWidget {
   // CHANGE AVAILABILITY BOTTOM SHEET
   // =========================================================
 
-  void showStatusBottomSheet(
-    String propertyName,
-    String currentStatus,
-  ) {
+  void showStatusBottomSheet(String propertyName, String currentStatus) {
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          12,
-          20,
-          28,
-        ),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 28),
 
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
 
         child: Column(
@@ -841,10 +787,7 @@ class OwnerHomeScreen extends StatelessWidget {
 
             Text(
               propertyName,
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7D8990),
-              ),
+              style: TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
             ),
 
             SizedBox(height: 20),
@@ -902,16 +845,12 @@ class OwnerHomeScreen extends StatelessWidget {
         padding: EdgeInsets.all(15),
 
         decoration: BoxDecoration(
-          color: selected
-              ? color.withOpacity(0.08)
-              : Colors.white,
+          color: selected ? color.withOpacity(0.08) : Colors.white,
 
           borderRadius: BorderRadius.circular(16),
 
           border: Border.all(
-            color: selected
-                ? color
-                : Colors.grey.withOpacity(0.30),
+            color: selected ? color : Colors.grey.withOpacity(0.30),
           ),
         ),
 
@@ -926,11 +865,7 @@ class OwnerHomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                color: color,
-                size: 22,
-              ),
+              child: Icon(icon, color: color, size: 22),
             ),
 
             SizedBox(width: 12),
@@ -953,20 +888,13 @@ class OwnerHomeScreen extends StatelessWidget {
 
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF7D8990),
-                    ),
+                    style: TextStyle(fontSize: 11, color: Color(0xFF7D8990)),
                   ),
                 ],
               ),
             ),
 
-            if (selected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: color,
-              ),
+            if (selected) Icon(Icons.check_circle_rounded, color: color),
           ],
         ),
       ),

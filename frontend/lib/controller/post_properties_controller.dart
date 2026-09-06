@@ -55,6 +55,10 @@ class PostPropertyController extends GetxController {
   final ImagePicker picker = ImagePicker();
   final RxList<XFile> selectedImages = <XFile>[].obs;
 
+  final Rxn<XFile> nationalIdImage = Rxn<XFile>();
+
+  final Rxn<XFile> ownershipDocumentImage = Rxn<XFile>();
+
   @override
   void onClose() {
     nameController.dispose();
@@ -79,5 +83,33 @@ class PostPropertyController extends GetxController {
 
   void removeImage(int index) {
     selectedImages.removeAt(index);
+  }
+
+  // national ID
+
+  Future<void> pickNationalIdImage() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      nationalIdImage.value = image;
+    }
+  }
+
+  void removeNationalIdImage() {
+    nationalIdImage.value = null;
+  }
+
+  // ownership
+
+  Future<void> pickOwnershipDocumentImage() async {
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      ownershipDocumentImage.value = image;
+    }
+  }
+
+  void removeOwnershipDocumentImage() {
+    ownershipDocumentImage.value = null;
   }
 }

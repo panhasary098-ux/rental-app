@@ -4,11 +4,7 @@ class LocationInputCard extends StatelessWidget {
   final String? address;
   final VoidCallback onTap;
 
-  const LocationInputCard({
-    super.key,
-    this.address,
-    required this.onTap,
-  });
+  const LocationInputCard({super.key, this.address, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +14,7 @@ class LocationInputCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -50,15 +43,11 @@ class LocationInputCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    hasLocation
-                        ? address!
-                        : "Select property location",
+                    hasLocation ? address! : "Select property location",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: hasLocation
-                          ? Colors.black87
-                          : Colors.black54,
+                      color: hasLocation ? Colors.black87 : Colors.black54,
                     ),
                   ),
 
@@ -68,21 +57,14 @@ class LocationInputCard extends StatelessWidget {
                     hasLocation
                         ? "Selected location"
                         : "Choose the exact spot on map",
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black45,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black45),
                   ),
                 ],
               ),
             ),
 
             // Arrow
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.black38,
-              size: 26,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.black38, size: 26),
           ],
         ),
       ),

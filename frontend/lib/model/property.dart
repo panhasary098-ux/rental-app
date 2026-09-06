@@ -14,6 +14,8 @@ class Property {
   String status;
   String contact;
   List<String> images;
+  String nationalIDImage;
+  String ownerShipImage;
   Facilities facilities;
   bool furnished;
 
@@ -27,6 +29,8 @@ class Property {
     required this.status,
     required this.contact,
     required this.images,
+    required this.nationalIDImage,
+    required this.ownerShipImage,
     required this.facilities,
     this.furnished = false,
   });
@@ -51,6 +55,12 @@ final List<Property> properties = [
       "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
       "https://i.pinimg.com/1200x/cb/0b/5b/cb0b5b2810179b9c1260648cd9230304.jpg",
     ],
+
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -84,6 +94,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/736x/13/61/de/1361deb9f2833ca90045fdee3a8bff8d.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -113,6 +127,11 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/1200x/6a/17/d3/6a17d3982fe119f3c1110a65417fc5dc.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -146,6 +165,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/1200x/f5/b5/23/f5b52328776ad50ad5842bdecf853bdb.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -180,6 +203,10 @@ final List<Property> properties = [
       "https://i.pinimg.com/736x/92/0e/59/920e59c3ae27b635ee75a20d17d79864.jpg",
       "https://i.pinimg.com/736x/0f/d3/42/0fd3425d2b92ccb9dafbf70a5a49d964.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -212,6 +239,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/1200x/33/bc/54/33bc54d67db0899605a57439fe03a5ba.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: false,
@@ -240,6 +271,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/736x/86/89/e1/8689e109a09f53d97cb91369c4217bd5.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -271,6 +306,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/1200x/50/3e/83/503e838a83d1f2bcdd499b9814b2050e.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
@@ -304,6 +343,10 @@ final List<Property> properties = [
     images: [
       "https://i.pinimg.com/1200x/26/10/70/261070a7a4519aebd064e35ba16a10ad.jpg",
     ],
+    nationalIDImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
+    ownerShipImage:
+        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
     facilities: Facilities(
       wifi: true,
       parking: true,
