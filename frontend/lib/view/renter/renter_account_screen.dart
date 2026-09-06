@@ -1,3 +1,5 @@
+import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/view/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,12 +32,7 @@ class RenterAccountScreen extends StatelessWidget {
         top: false,
 
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            18,
-            8,
-            18,
-            24,
-          ),
+          padding: EdgeInsets.fromLTRB(18, 8, 18, 24),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,9 +122,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                   borderRadius: BorderRadius.circular(16),
 
-                  border: Border.all(
-                    color: Colors.grey.withOpacity(0.25),
-                  ),
+                  border: Border.all(color: Colors.grey.withOpacity(0.25)),
 
                   boxShadow: [
                     BoxShadow(
@@ -193,9 +188,7 @@ class RenterAccountScreen extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(22),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.4),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.4)),
 
         boxShadow: [
           BoxShadow(
@@ -225,10 +218,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                   shape: BoxShape.circle,
 
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 4,
-                  ),
+                  border: Border.all(color: Colors.white, width: 4),
 
                   boxShadow: [
                     BoxShadow(
@@ -265,10 +255,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                     shape: BoxShape.circle,
 
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 3,
-                    ),
+                    border: Border.all(color: Colors.white, width: 3),
                   ),
 
                   child: Icon(
@@ -310,10 +297,7 @@ class RenterAccountScreen extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: Color(0xFF68756D),
-                  ),
+                  style: TextStyle(fontSize: 12.5, color: Color(0xFF68756D)),
                 ),
 
                 SizedBox(height: 3),
@@ -321,19 +305,13 @@ class RenterAccountScreen extends StatelessWidget {
                 Text(
                   "012 345 678",
 
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: Color(0xFF68756D),
-                  ),
+                  style: TextStyle(fontSize: 12.5, color: Color(0xFF68756D)),
                 ),
 
                 SizedBox(height: 9),
 
                 Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
 
                   decoration: BoxDecoration(
                     color: Color(0xFF90E0EF).withOpacity(0.40),
@@ -377,30 +355,19 @@ class RenterAccountScreen extends StatelessWidget {
               // Edit profile later
             },
 
-            icon: Icon(
-              Icons.edit_outlined,
-              size: 15,
-            ),
+            icon: Icon(Icons.edit_outlined, size: 15),
 
             label: Text(
               "Edit",
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
             ),
 
             style: OutlinedButton.styleFrom(
               foregroundColor: Color(0xFF03045E),
 
-              padding: EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 9,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
 
-              side: BorderSide(
-                color: Colors.grey.withOpacity(0.4),
-              ),
+              side: BorderSide(color: Colors.grey.withOpacity(0.4)),
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -426,9 +393,7 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // MENU CARD
-  Widget buildMenuCard({
-    required List<Widget> children,
-  }) {
+  Widget buildMenuCard({required List<Widget> children}) {
     return Container(
       width: double.infinity,
 
@@ -437,9 +402,7 @@ class RenterAccountScreen extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.4),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.4)),
 
         boxShadow: [
           BoxShadow(
@@ -451,9 +414,7 @@ class RenterAccountScreen extends StatelessWidget {
         ],
       ),
 
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -470,10 +431,7 @@ class RenterAccountScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
 
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
 
         child: Row(
           children: [
@@ -488,11 +446,7 @@ class RenterAccountScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                size: 22,
-                color: Color(0xFF03045E),
-              ),
+              child: Icon(icon, size: 22, color: Color(0xFF03045E)),
             ),
 
             SizedBox(width: 13),
@@ -521,10 +475,7 @@ class RenterAccountScreen extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
 
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      color: Color(0xFF7D8990),
-                    ),
+                    style: TextStyle(fontSize: 11.5, color: Color(0xFF7D8990)),
                   ),
                 ],
               ),
@@ -544,10 +495,7 @@ class RenterAccountScreen extends StatelessWidget {
   // DIVIDER
   Widget buildDivider() {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 70,
-        right: 16,
-      ),
+      padding: EdgeInsets.only(left: 70, right: 16),
 
       child: Divider(
         height: 1,
@@ -563,30 +511,13 @@ class RenterAccountScreen extends StatelessWidget {
       AlertDialog(
         backgroundColor: Colors.white,
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
-        titlePadding: EdgeInsets.fromLTRB(
-          22,
-          22,
-          22,
-          0,
-        ),
+        titlePadding: EdgeInsets.fromLTRB(22, 22, 22, 0),
 
-        contentPadding: EdgeInsets.fromLTRB(
-          22,
-          12,
-          22,
-          20,
-        ),
+        contentPadding: EdgeInsets.fromLTRB(22, 12, 22, 20),
 
-        actionsPadding: EdgeInsets.fromLTRB(
-          16,
-          0,
-          16,
-          16,
-        ),
+        actionsPadding: EdgeInsets.fromLTRB(16, 0, 16, 16),
 
         title: Row(
           children: [
@@ -623,11 +554,7 @@ class RenterAccountScreen extends StatelessWidget {
         content: Text(
           "Are you sure you want to log out of your account?",
 
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.4,
-            color: Color(0xFF68756D),
-          ),
+          style: TextStyle(fontSize: 13, height: 1.4, color: Color(0xFF68756D)),
         ),
 
         actions: [
@@ -636,24 +563,39 @@ class RenterAccountScreen extends StatelessWidget {
               Get.back();
             },
 
-            style: TextButton.styleFrom(
-              foregroundColor: Color(0xFF68756D),
-            ),
+            style: TextButton.styleFrom(foregroundColor: Color(0xFF68756D)),
 
             child: Text(
               "Cancel",
 
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
 
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
+              try {
+                await AuthService().logout();
 
-              // Connect logout later
+                Get.offAll(() => LoginScreen());
+
+                Get.snackbar(
+                  "Logged Out",
+                  "You have been logged out successfully",
+                  snackPosition: SnackPosition.TOP,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              } catch (e) {
+                Get.snackbar(
+                  "Logout Failed",
+                  e.toString(),
+                  snackPosition: SnackPosition.TOP,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+              }
             },
 
             style: ElevatedButton.styleFrom(
@@ -661,10 +603,7 @@ class RenterAccountScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               elevation: 0,
 
-              padding: EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 11,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 11),
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -674,9 +613,7 @@ class RenterAccountScreen extends StatelessWidget {
             child: Text(
               "Log out",
 
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],

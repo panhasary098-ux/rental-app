@@ -27,7 +27,7 @@ class Postpropertyscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
 
       // ======================================================
       // APP BAR
@@ -43,7 +43,7 @@ class Postpropertyscreen extends StatelessWidget {
         ),
 
         centerTitle: true,
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.white,
         elevation: 0,
 
         iconTheme: const IconThemeData(color: primaryColor),

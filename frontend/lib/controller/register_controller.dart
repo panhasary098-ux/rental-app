@@ -1,8 +1,7 @@
 import 'package:final_project/model/property.dart';
 import 'package:final_project/service/auth_service.dart';
-import 'package:final_project/view/house_owner/owner_home_screen.dart';
-import 'package:final_project/view/renter/home_screen.dart';
 import 'package:final_project/widget/bottom_nav.dart';
+import 'package:final_project/widget/owner_bottom_nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -92,7 +91,7 @@ class RegisterController extends GetxController {
       if (selectedRole.value == "Renter") {
         Get.offAll(() =>BottomNav(properties: properties));
       } else if (selectedRole.value == "House Owner") {
-        Get.offAll(() => OwnerHomeScreen());
+        Get.offAll(() => OwnerBottomNav());
       }
 
       print("Firebase UID: ${user.uid}");

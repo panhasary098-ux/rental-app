@@ -1,3 +1,5 @@
+import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/view/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,12 +32,7 @@ class OwnerAccountScreen extends StatelessWidget {
         top: false,
 
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            18,
-            8,
-            18,
-            24,
-          ),
+          padding: EdgeInsets.fromLTRB(18, 8, 18, 24),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,32 +133,22 @@ class OwnerAccountScreen extends StatelessWidget {
                     showLogoutDialog();
                   },
 
-                  icon: Icon(
-                    Icons.logout_rounded,
-                    size: 22,
-                  ),
+                  icon: Icon(Icons.logout_rounded, size: 22),
 
                   label: Text(
                     "Log out",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
 
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
 
-                    backgroundColor:
-                         Colors.white,
+                    backgroundColor: Colors.white,
 
-                    side: BorderSide(
-                      color: Colors.grey.withOpacity(0.4),
-                    ),
+                    side: BorderSide(color: Colors.grey.withOpacity(0.4)),
 
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
@@ -185,9 +172,7 @@ class OwnerAccountScreen extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(22),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.4),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.4)),
 
         boxShadow: [
           BoxShadow(
@@ -202,8 +187,7 @@ class OwnerAccountScreen extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               // PROFILE PHOTO
@@ -216,25 +200,19 @@ class OwnerAccountScreen extends StatelessWidget {
                     height: 88,
 
                     decoration: BoxDecoration(
-                      color: Color(0xFF90E0EF)
-                          .withOpacity(0.40),
+                      color: Color(0xFF90E0EF).withOpacity(0.40),
 
                       shape: BoxShape.circle,
 
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 4,
-                      ),
+                      border: Border.all(color: Colors.white, width: 4),
 
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey
-                              .withOpacity(0.20),
+                          color: Colors.grey.withOpacity(0.20),
 
                           blurRadius: 10,
 
-                          offset:
-                              Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ],
                     ),
@@ -246,11 +224,9 @@ class OwnerAccountScreen extends StatelessWidget {
 
                       style: TextStyle(
                         fontSize: 28,
-                        fontWeight:
-                            FontWeight.bold,
+                        fontWeight: FontWeight.bold,
 
-                        color:
-                            Color(0xFF03045E),
+                        color: Color(0xFF03045E),
                       ),
                     ),
                   ),
@@ -264,15 +240,11 @@ class OwnerAccountScreen extends StatelessWidget {
                       height: 33,
 
                       decoration: BoxDecoration(
-                        color:
-                            Color(0xFF03045E),
+                        color: Color(0xFF03045E),
 
                         shape: BoxShape.circle,
 
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 3,
-                        ),
+                        border: Border.all(color: Colors.white, width: 3),
                       ),
 
                       child: Icon(
@@ -290,24 +262,20 @@ class OwnerAccountScreen extends StatelessWidget {
               // OWNER INFORMATION
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Text(
                       "Sophea Lim",
 
                       maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
                       style: TextStyle(
                         fontSize: 20,
-                        fontWeight:
-                            FontWeight.bold,
+                        fontWeight: FontWeight.bold,
 
-                        color:
-                            Color(0xFF03045E),
+                        color: Color(0xFF03045E),
                       ),
                     ),
 
@@ -317,13 +285,11 @@ class OwnerAccountScreen extends StatelessWidget {
                       "sophea@gmail.com",
 
                       maxLines: 1,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
 
                       style: TextStyle(
                         fontSize: 12.5,
-                        color:
-                            Color(0xFF68756D),
+                        color: Color(0xFF68756D),
                       ),
                     ),
 
@@ -334,40 +300,32 @@ class OwnerAccountScreen extends StatelessWidget {
 
                       style: TextStyle(
                         fontSize: 12.5,
-                        color:
-                            Color(0xFF68756D),
+                        color: Color(0xFF68756D),
                       ),
                     ),
 
                     SizedBox(height: 9),
 
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 6,
                       ),
 
                       decoration: BoxDecoration(
-                        color: Color(0xFF90E0EF)
-                            .withOpacity(0.40),
+                        color: Color(0xFF90E0EF).withOpacity(0.40),
 
-                        borderRadius:
-                            BorderRadius.circular(
-                          20,
-                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
 
                       child: Row(
-                        mainAxisSize:
-                            MainAxisSize.min,
+                        mainAxisSize: MainAxisSize.min,
 
                         children: [
                           Icon(
                             Icons.home_rounded,
                             size: 15,
-                            color:
-                                Color(0xFF03045E),
+                            color: Color(0xFF03045E),
                           ),
 
                           SizedBox(width: 5),
@@ -377,11 +335,9 @@ class OwnerAccountScreen extends StatelessWidget {
 
                             style: TextStyle(
                               fontSize: 11,
-                              fontWeight:
-                                  FontWeight.w600,
+                              fontWeight: FontWeight.w600,
 
-                              color:
-                                  Color(0xFF03045E),
+                              color: Color(0xFF03045E),
                             ),
                           ),
                         ],
@@ -399,38 +355,22 @@ class OwnerAccountScreen extends StatelessWidget {
                   // Edit profile later
                 },
 
-                icon: Icon(
-                  Icons.edit_outlined,
-                  size: 15,
-                ),
+                icon: Icon(Icons.edit_outlined, size: 15),
 
                 label: Text(
                   "Edit",
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                 ),
 
                 style: OutlinedButton.styleFrom(
-                  foregroundColor:
-                      Color(0xFF03045E),
+                  foregroundColor: Color(0xFF03045E),
 
-                  padding:
-                      EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 9,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 9),
 
-                  side: BorderSide(
-                    color: Colors.grey.withOpacity(0.4),
-                  ),
+                  side: BorderSide(color: Colors.grey.withOpacity(0.4)),
 
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
@@ -476,15 +416,12 @@ class OwnerAccountScreen extends StatelessWidget {
     required IconData icon,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 10,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 10),
 
       child: Column(
         children: [
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
 
             children: [
               Text(
@@ -499,24 +436,13 @@ class OwnerAccountScreen extends StatelessWidget {
 
               SizedBox(width: 4),
 
-              Icon(
-                icon,
-                size: 18,
-                color: Color(0xFF03045E),
-              ),
+              Icon(icon, size: 18, color: Color(0xFF03045E)),
             ],
           ),
 
           SizedBox(height: 3),
 
-          Text(
-            label,
-
-            style: TextStyle(
-              fontSize: 11,
-              color: Color(0xFF7D8990),
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 11, color: Color(0xFF7D8990))),
         ],
       ),
     );
@@ -536,9 +462,7 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // MENU CARD
-  Widget buildMenuCard({
-    required List<Widget> children,
-  }) {
+  Widget buildMenuCard({required List<Widget> children}) {
     return Container(
       width: double.infinity,
 
@@ -547,9 +471,7 @@ class OwnerAccountScreen extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.4),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.4)),
 
         boxShadow: [
           BoxShadow(
@@ -561,9 +483,7 @@ class OwnerAccountScreen extends StatelessWidget {
         ],
       ),
 
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -581,10 +501,7 @@ class OwnerAccountScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
 
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 12,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
 
         child: Row(
           children: [
@@ -594,18 +511,12 @@ class OwnerAccountScreen extends StatelessWidget {
               height: 44,
 
               decoration: BoxDecoration(
-                color: Color(0xFF90E0EF)
-                    .withOpacity(0.30),
+                color: Color(0xFF90E0EF).withOpacity(0.30),
 
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                size: 22,
-                color: Color(0xFF03045E),
-              ),
+              child: Icon(icon, size: 22, color: Color(0xFF03045E)),
             ),
 
             SizedBox(width: 13),
@@ -613,8 +524,7 @@ class OwnerAccountScreen extends StatelessWidget {
             // TEXT
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Text(
@@ -622,11 +532,9 @@ class OwnerAccountScreen extends StatelessWidget {
 
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight:
-                          FontWeight.bold,
+                      fontWeight: FontWeight.bold,
 
-                      color:
-                          Color(0xFF03045E),
+                      color: Color(0xFF03045E),
                     ),
                   ),
 
@@ -636,15 +544,9 @@ class OwnerAccountScreen extends StatelessWidget {
                     subtitle,
 
                     maxLines: 1,
-                    overflow:
-                        TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis,
 
-                    style: TextStyle(
-                      fontSize: 11.5,
-
-                      color:
-                          Color(0xFF7D8990),
-                    ),
+                    style: TextStyle(fontSize: 11.5, color: Color(0xFF7D8990)),
                   ),
                 ],
               ),
@@ -652,18 +554,12 @@ class OwnerAccountScreen extends StatelessWidget {
 
             if (value != null)
               Padding(
-                padding:
-                    EdgeInsets.only(right: 8),
+                padding: EdgeInsets.only(right: 8),
 
                 child: Text(
                   value,
 
-                  style: TextStyle(
-                    fontSize: 12,
-
-                    color:
-                        Color(0xFF68756D),
-                  ),
+                  style: TextStyle(fontSize: 12, color: Color(0xFF68756D)),
                 ),
               ),
 
@@ -681,10 +577,7 @@ class OwnerAccountScreen extends StatelessWidget {
   // DIVIDER
   Widget buildDivider() {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 70,
-        right: 16,
-      ),
+      padding: EdgeInsets.only(left: 70, right: 16),
 
       child: Divider(
         height: 1,
@@ -700,10 +593,7 @@ class OwnerAccountScreen extends StatelessWidget {
       AlertDialog(
         backgroundColor: Colors.white,
 
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(18),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
 
         title: Text(
           "Log out",
@@ -717,9 +607,7 @@ class OwnerAccountScreen extends StatelessWidget {
         content: Text(
           "Are you sure you want to log out?",
 
-          style: TextStyle(
-            color: Color(0xFF68756D),
-          ),
+          style: TextStyle(color: Color(0xFF68756D)),
         ),
 
         actions: [
@@ -728,42 +616,51 @@ class OwnerAccountScreen extends StatelessWidget {
               Get.back();
             },
 
-            child: Text(
-              "Cancel",
-
-              style: TextStyle(
-                color: Color(0xFF68756D),
-              ),
-            ),
+            child: Text("Cancel", style: TextStyle(color: Color(0xFF68756D))),
           ),
 
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
+              try {
+                await AuthService().logout();
 
-              // Connect logout later
+                Get.offAll(() => LoginScreen());
+
+                Get.snackbar(
+                  "Logged Out",
+                  "You have been logged out successfully",
+                  snackPosition: SnackPosition.TOP,
+                  backgroundColor: Colors.green,
+                  colorText: Colors.white,
+                );
+              } catch (e) {
+                Get.snackbar(
+                  "Logout Failed",
+                  e.toString(),
+                  snackPosition: SnackPosition.TOP,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
+              }
             },
 
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  Color(0xFFDC2626),
+              backgroundColor: Color(0xFFDC2626),
 
               foregroundColor: Colors.white,
 
               elevation: 0,
 
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
 
             child: Text(
               "Log out",
 
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ],
