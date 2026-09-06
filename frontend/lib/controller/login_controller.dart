@@ -3,6 +3,7 @@ import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/view/house_owner/owner_home_screen.dart';
 import 'package:final_project/view/renter/home_screen.dart';
 import 'package:final_project/widget/admin_bottom_nav.dart';
+import 'package:final_project/widget/bottom_nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,6 +25,7 @@ class LoginController extends GetxController {
     if (isLoading.value) {
       return;
     }
+
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
@@ -86,11 +88,14 @@ class LoginController extends GetxController {
       } else if (role == "house_owner") {
         Get.offAll(() => OwnerHomeScreen());
       } else if (role == "renter") {
-        //Get.offAll(() => HomeScreen(properties: propertyList));
+        Get.offAll(() => BottomNav(properties: properties));
       } else {
         await authService.logout();
 
-        Get.snackbar("Role Error", "User role is not recognized");
+        Get.snackbar(
+          "Role Error",
+          "User role is not recognized",
+        );
       }
     } on FirebaseAuthException catch (e) {
       String message = "Login failed";
@@ -109,9 +114,15 @@ class LoginController extends GetxController {
         message = e.message ?? "Unable to login";
       }
 
-      Get.snackbar("Login Failed", message);
+      Get.snackbar(
+        "Login Failed",
+        message,
+      );
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      Get.snackbar(
+        "Error",
+        e.toString(),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -166,15 +177,19 @@ class LoginController extends GetxController {
         } else if (role == "house_owner") {
           Get.offAll(() => OwnerHomeScreen());
         } else if (role == "renter") {
-          Get.offAll(() => HomeScreen(properties: propertyList));
+          Get.offAll(() =>BottomNav(properties: properties));
         } else {
           await authService.logout();
 
-          Get.snackbar("Role Error", "User role is not recognized");
+          Get.snackbar(
+            "Role Error",
+            "User role is not recognized",
+          );
         }
 
         return;
       }
+
       showSocialRoleDialog();
     } on FirebaseAuthException catch (e) {
       Get.snackbar(
@@ -182,7 +197,10 @@ class LoginController extends GetxController {
         e.message ?? "Unable to login with google",
       );
     } catch (e) {
-      Get.snackbar("Google Login Failed", e.toString());
+      Get.snackbar(
+        "Google Login Failed",
+        e.toString(),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -191,7 +209,10 @@ class LoginController extends GetxController {
   void showSocialRoleDialog() {
     Get.dialog(
       AlertDialog(
-        title: Text("Choose Account Type", textAlign: TextAlign.center),
+        title: Text(
+          "Choose Account Type",
+          textAlign: TextAlign.center,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -213,12 +234,17 @@ class LoginController extends GetxController {
                 width: double.infinity,
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.search, color: Colors.green),
+                    Icon(
+                      Icons.search,
+                      color: Colors.green,
+                    ),
 
                     SizedBox(width: 14),
 
@@ -233,9 +259,12 @@ class LoginController extends GetxController {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+
                           Text(
                             "Find a property to rent",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -258,12 +287,17 @@ class LoginController extends GetxController {
                 width: double.infinity,
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(
+                    color: Colors.grey.shade300,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.home_work_outlined, color: Colors.green),
+                    Icon(
+                      Icons.home_work_outlined,
+                      color: Colors.green,
+                    ),
 
                     SizedBox(width: 14),
 
@@ -278,9 +312,12 @@ class LoginController extends GetxController {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+
                           Text(
                             "List and manage your properties",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -298,7 +335,12 @@ class LoginController extends GetxController {
 
               await authService.logout();
             },
-            child: Text("Cancel", style: TextStyle(color: Colors.grey)),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
           ),
         ],
       ),
@@ -328,7 +370,7 @@ class LoginController extends GetxController {
       if (userRole == "house_owner") {
         Get.offAll(() => OwnerHomeScreen());
       } else if (userRole == "renter") {
-        Get.offAll(() => HomeScreen(properties: propertyList));
+        Get.offAll(() => BottomNav(properties: properties));
       }
     } catch (e) {
       await authService.logout();
@@ -402,7 +444,7 @@ class LoginController extends GetxController {
         } else if (role == "house_owner") {
           Get.offAll(() => OwnerHomeScreen());
         } else if (role == "renter") {
-          Get.offAll(() => HomeScreen(properties: propertyList));
+          Get.offAll(() => BottomNav(properties: properties));
         }
 
         return;
@@ -423,7 +465,10 @@ class LoginController extends GetxController {
     } catch (e) {
       print("Facebook flow error: $e");
 
-      Get.snackbar("Facebook Login Failed", e.toString());
+      Get.snackbar(
+        "Facebook Login Failed",
+        e.toString(),
+      );
     } finally {
       isLoading.value = false;
     }
@@ -434,11 +479,16 @@ class LoginController extends GetxController {
     String email = emailController.text.trim();
 
     if (email.isEmpty) {
-      Get.snackbar("Email required", "Please enter your email first");
+      Get.snackbar(
+        "Email required",
+        "Please enter your email first",
+      );
       return;
     }
+
     try {
       await authService.resetPassword(email);
+
       Get.snackbar(
         "Email sent",
         "Check your email to reset your password",
@@ -446,7 +496,10 @@ class LoginController extends GetxController {
         backgroundColor: Colors.green,
       );
     } on FirebaseAuthException catch (e) {
-      Get.snackbar("Error", e.message ?? "Unable to send reset email");
+      Get.snackbar(
+        "Error",
+        e.message ?? "Unable to send reset email",
+      );
     }
   }
 

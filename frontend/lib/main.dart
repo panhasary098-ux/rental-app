@@ -1,8 +1,4 @@
-import 'package:final_project/model/property.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
-import 'package:final_project/view/house_owner/house_owner_account_screen.dart';
-import 'package:final_project/view/renter/renter_account_screen.dart';
-import 'package:final_project/widget/admin_bottom_nav.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

@@ -3,6 +3,7 @@ import 'package:final_project/view/renter/home_screen.dart';
 import 'package:final_project/view/renter/interested_sent_screen.dart';
 import 'package:final_project/view/renter/map_screen.dart';
 import 'package:final_project/view/renter/properties_detail_screen.dart';
+import 'package:final_project/view/renter/renter_account_screen.dart';
 import 'package:flutter/material.dart';
 
 // ======================================================
@@ -33,7 +34,7 @@ class _BottomNavState extends State<BottomNav> {
       HomeScreen(properties: widget.properties),
       const MapScreen(),
       const FavorithScreen(),
-      const PropertyScreen(),
+      RenterAccountScreen(),
     ];
 
     return Scaffold(
