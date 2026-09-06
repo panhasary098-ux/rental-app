@@ -17,4 +17,7 @@ class User extends Model
         'role',
         'status',
     ];
+    public function properties(){
+        return $this->hasMany(Property::class, 'owner_id');
+    }
 }
