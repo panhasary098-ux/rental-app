@@ -42,6 +42,12 @@ dependencies:
   flutter_facebook_auth: ^7.2.0
   http: ^1.5.0
   flutter_image_slideshow: ^0.1.6
+  image_picker: ^1.1.2
+  google_maps_flutter: ^2.18.0
+  geocoding: ^5.0.0
+  
+
+  
 
 dev_dependencies:
   flutter_test:

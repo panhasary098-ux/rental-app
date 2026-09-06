@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color backgroundColor = Color(0xFFF4FCFE);
+const Color lightSecondaryColor = Color(0xFFE6F9FC);
+
 class PropertyDetailScreen extends StatefulWidget {
   const PropertyDetailScreen({super.key});
 
@@ -10,10 +19,11 @@ class PropertyDetailScreen extends StatefulWidget {
 
 class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   int currentIndex = 1;
+
   List<String> images = [
-    "https://i.pinimg.com/736x/ea/5c/43/ea5c43affdd542481ab2862014027f12.jpg",
-    "https://i.pinimg.com/736x/ea/5c/43/ea5c43affdd542481ab2862014027f12.jpg",
-    "https://i.pinimg.com/736x/ea/5c/43/ea5c43affdd542481ab2862014027f12.jpg",
+    "https://i.pinimg.com/1200x/6a/17/d3/6a17d3982fe119f3c1110a65417fc5dc.jpg",
+    "https://i.pinimg.com/1200x/50/3e/83/503e838a83d1f2bcdd499b9814b2050e.jpg",
+    "https://i.pinimg.com/1200x/f5/b5/23/f5b52328776ad50ad5842bdecf853bdb.jpg",
   ];
 
   List<Map<String, dynamic>> mainInfo = [
@@ -34,6 +44,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     {"icon": Icons.chair_outlined, "text": "Furnished"},
     {"icon": Icons.elevator_outlined, "text": "Elevator-24h"},
   ];
+
   List<Map<String, dynamic>> floors = [
     {"floor": 1, "available": true},
     {"floor": 2, "available": true},
@@ -58,50 +69,55 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //backgroundColor: Color.fromARGB(255, 233, 235, 234),
+      backgroundColor: backgroundColor,
+
+      // ======================================================
+      // APP BAR
+      // ======================================================
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 233, 235, 234),
-        title: Center(
-          child: Text(
-            "View detail info ",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+
+        iconTheme: const IconThemeData(color: primaryColor),
+
+        title: const Text(
+          "View detail info",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: primaryColor,
           ),
         ),
       ),
+
       body: Column(
         children: [
+          // ======================================================
+          // IMAGE SLIDESHOW
+          // ======================================================
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
+
             child: ClipRRect(
-              // borderRadius: BorderRadius.only(
-              //   topLeft: Radius.circular(25),
-              //   topRight: Radius.circular(25),
-              // ),
               child: Stack(
                 children: [
                   SizedBox(
                     height: 300,
                     width: double.infinity,
 
-                    // child: CarouselSlider(
-                    //   items: images.map((imag) {
-                    //     return SizedBox.expand(
-                    //       child: Image.network(imag, fit: BoxFit.cover),
-                    //     );
-                    //   }).toList(),
-                    //   options: CarouselOptions(
-                    //     height: 300,
-
-                    //     autoPlay: true,
-                    //     autoPlayInterval: const Duration(seconds: 3),
-                    //     autoPlayAnimationDuration: const Duration(
-                    //       milliseconds: 500,
-                    //     ),
-                    //     enlargeCenterPage: false,
-                    //     viewportFraction: 1.0,
-                    //   ),
-                    // ),
                     child: ImageSlideshow(
+                      width: double.infinity,
+                      height: 280,
+
+                      initialPage: 0,
+
+                      indicatorColor: primaryColor,
+                      indicatorBackgroundColor: Colors.white70,
+
+                      autoPlayInterval: 3000,
+                      isLoop: true,
+
                       children: images.map((imag) {
                         return SizedBox.expand(
                           child: Image.network(imag, fit: BoxFit.cover),
@@ -110,19 +126,23 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     ),
                   ),
 
+                  // Favorite button
                   Positioned(
                     top: 10,
                     right: 10,
-                    child: CircleAvatar(
-                      backgroundColor: Color.fromARGB(255, 58, 58, 58),
-                      child: IconButton(
-                        onPressed: () {},
 
-                        icon: Icon(
-                          Icons.favorite_border,
-                          size: 25,
-                          color: Colors.white,
-                        ),
+                    child: Container(
+                      width: 36,
+                      height: 36,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+
+                      child: Icon(
+                        Icons.favorite_border_rounded,
+                        color: primaryColor,
                       ),
                     ),
                   ),
@@ -131,175 +151,221 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
 
-          //--------------------------------------------------------
-          //                    Property Infor
-          //--------------------------------------------------------
+          // ======================================================
+          // PROPERTY INFO
+          // ======================================================
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16),
+                padding: const EdgeInsets.only(left: 16, right: 16),
+
                 child: SizedBox(
                   width: double.infinity,
+
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 10),
 
+                    children: [
+                      const SizedBox(height: 10),
+
+                      // ==================================================
+                      // NAME + AVAILABLE
+                      // ==================================================
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                         children: [
-                          Text(
-                            "BaliN3-Apartment",
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: Color(0xFF35B64A),
-                              fontWeight: FontWeight.w900,
+                          const Expanded(
+                            child: Text(
+                              "BaliN3-Apartment",
+
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: primaryColor,
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                           ),
+
+                          const SizedBox(width: 10),
+
                           Container(
                             height: 28,
-                            width: 90,
+
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
 
                             decoration: BoxDecoration(
-                              color: Colors.orange[700],
+                              color: primaryColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
 
-                                children: [
-                                  Icon(
-                                    Icons.check_circle,
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+
+                              children: [
+                                Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 15,
+                                ),
+
+                                SizedBox(width: 4),
+
+                                Text(
+                                  "Available",
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    size: 15,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  Text(
-                                    "Available",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
 
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
+
+                      // ==================================================
+                      // LOCATION + PRICE
+                      // ==================================================
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              //Location
-                              // Text(
-                              //   "Chrouy jongvaa, PhnomPenh",
-                              //   style: TextStyle(
-                              //     color: Colors.black54,
-                              //     fontSize: 15,
-                              //     fontWeight: FontWeight.w800,
-                              //   ),
-                              // ),
-                              // SizedBox(height: 10),
 
-                              //distance
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    size: 20,
-                                  ),
-                                  Text(
-                                    "Chrouy jong vaa, Phnom Penh",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.black.withValues(
-                                        alpha: 0.7,
-                                      ),
-                                      fontWeight: FontWeight.w700,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_outlined,
+                                      color: primaryColor,
+                                      size: 20,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.near_me_outlined,
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    size: 20,
-                                  ),
-                                  Text(
-                                    "8Km from your location",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      color: Colors.black.withValues(
-                                        alpha: 0.7,
+
+                                    const SizedBox(width: 3),
+
+                                    Expanded(
+                                      child: Text(
+                                        "Chrouy jong vaa, Phnom Penh",
+
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black.withOpacity(0.65),
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
-                                      fontWeight: FontWeight.w700,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                  ],
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.near_me_outlined,
+                                      color: primaryColor,
+                                      size: 20,
+                                    ),
+
+                                    const SizedBox(width: 3),
+
+                                    Expanded(
+                                      child: Text(
+                                        "8Km from your location",
+
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.black.withOpacity(0.65),
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
+
+                          const SizedBox(width: 10),
 
                           Row(
                             children: [
-                              Text(
+                              const Text(
                                 "\$150",
                                 style: TextStyle(
                                   fontSize: 23,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.orange[800],
+                                  fontWeight: FontWeight.w800,
+                                  color: primaryColor,
                                 ),
                               ),
-                              Text(
+
+                              const Text(
                                 "/Month",
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF35B64A),
+                                  color: primaryColor,
                                 ),
                               ),
                             ],
                           ),
                         ],
                       ),
-                      SizedBox(height: 20),
 
-                      //*******  Main infor Scroll
+                      const SizedBox(height: 20),
+
+                      // ==================================================
+                      // MAIN INFO
+                      // ==================================================
                       Container(
-                        height: 2,
+                        height: 1,
                         width: double.infinity,
-                        color: Colors.black12,
+                        color: secondaryColor.withOpacity(0.6),
                       ),
 
-                      Container(
-                        height: 40,
+                      SizedBox(
+                        height: 45,
 
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                           crossAxisAlignment: CrossAxisAlignment.center,
+
                           children: List.generate(mainInfo.length, (index) {
                             return Row(
                               children: [
-                                Icon(mainInfo[index]["icon"], size: 15),
-                                SizedBox(width: 5),
+                                Icon(
+                                  mainInfo[index]["icon"],
+                                  size: 16,
+                                  color: primaryColor,
+                                ),
+
+                                const SizedBox(width: 5),
+
                                 Text(
                                   mainInfo[index]["text"],
-                                  style: TextStyle(fontSize: 13),
+
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             );
@@ -308,99 +374,115 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       ),
 
                       Container(
-                        height: 2,
+                        height: 1,
                         width: double.infinity,
-                        color: Colors.black12,
+                        color: secondaryColor.withOpacity(0.6),
                       ),
 
-                      //Main infor Scroll*******
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                      //*****Floor
+                      // ==================================================
+                      // FLOOR
+                      // ==================================================
                       Row(
                         children: [
-                          Text(
-                            "Floor ",
+                          const Text(
+                            "Floor",
                             style: TextStyle(
                               fontSize: 17,
                               fontWeight: FontWeight.w800,
+                              color: primaryColor,
                             ),
                           ),
 
                           IconButton(
                             onPressed: floorList,
+
                             icon: Icon(
                               showFloor
                                   ? Icons.keyboard_arrow_up
                                   : Icons.keyboard_arrow_down,
+
                               size: 25,
+                              color: primaryColor,
                             ),
                           ),
                         ],
                       ),
 
-                      // Container(
-                      //   height: 2,
-                      //   width: double.infinity,
-
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.black12,
-                      //     boxShadow: [
-                      //       BoxShadow(
-                      //         color: Colors.black.withValues(alpha: 0.1),
-                      //         blurRadius: 8,
-                      //         spreadRadius: ,
-                      //         offset: const Offset(0, 8),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
                       Visibility(
                         visible: showFloor,
+
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16, right: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+
                           child: Container(
                             height: 200,
+
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+
+                              border: Border.all(
+                                color: secondaryColor.withOpacity(0.5),
+                              ),
+                            ),
+
                             child: SingleChildScrollView(
                               child: Column(
                                 children: floors.map((item) {
                                   return Column(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(8),
+
                                         child: Row(
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.apartment,
                                               size: 20,
-                                              color: Colors.teal[700],
+                                              color: primaryColor,
                                             ),
-                                            SizedBox(width: 5),
+
+                                            const SizedBox(width: 5),
+
                                             Text(
                                               "${item["floor"]} Floor",
-                                              style: TextStyle(fontSize: 15),
+
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                color: primaryColor,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                            Spacer(),
+
+                                            const Spacer(),
 
                                             Text(
                                               item["available"]
-                                                  ? "${"Available"}"
-                                                  : "${"Not available"}",
+                                                  ? "Available"
+                                                  : "Not available",
+
                                               style: TextStyle(
                                                 fontSize: 15,
 
+                                                fontWeight: item["available"]
+                                                    ? FontWeight.w600
+                                                    : FontWeight.w400,
+
                                                 color: item["available"]
-                                                    ? Colors.orange[900]
-                                                    : Colors.black54,
+                                                    ? primaryColor
+                                                    : Colors.black45,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
+
                                       Container(
                                         height: 1,
                                         width: double.infinity,
-                                        color: Colors.black26,
+                                        color: secondaryColor.withOpacity(0.4),
                                       ),
                                     ],
                                   );
@@ -411,73 +493,93 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         ),
                       ),
 
-                      // Container(
-                      //   height: 2,
-                      //   width: double.infinity,
-                      //   color: Colors.black12,
-                      // ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 15),
 
-                      //*******description
-                      Text(
+                      // ==================================================
+                      // DESCRIPTION
+                      // ==================================================
+                      const Text(
                         "About this place",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
+                          color: primaryColor,
                         ),
                       ),
-                      SizedBox(height: 5),
 
-                      Text(
-                        "Clean and modern apartment in a safe area, close to school, local markets and food shapes",
-                        style: TextStyle(fontSize: 13, color: Colors.black87),
+                      const SizedBox(height: 5),
+
+                      const Text(
+                        "Clean and modern apartment in a safe area, "
+                        "close to school, local markets and food shapes",
+
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.black87,
+                          height: 1.5,
+                        ),
                       ),
 
-                      //*****Floor
+                      const SizedBox(height: 15),
 
-                      //description*******
-                      SizedBox(height: 15),
-
-                      //********Facilites
-                      Text(
+                      // ==================================================
+                      // FACILITIES
+                      // ==================================================
+                      const Text(
                         "Facilities",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
+                          color: primaryColor,
                         ),
                       ),
 
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
                       SizedBox(
-                        height: 60,
+                        height: 65,
+
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: facilities.length,
+
                           itemBuilder: (context, index) {
                             final item = facilities[index];
+
                             return Container(
                               height: 60,
 
                               decoration: BoxDecoration(
+                                color: lightSecondaryColor,
+
                                 borderRadius: BorderRadius.circular(13),
-                                border: Border.all(color: Colors.black26),
-                                //color: const Color.fromARGB(255, 245, 245, 245),
+
+                                border: Border.all(color: secondaryColor),
                               ),
+
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                 ),
+
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
 
                                   children: [
-                                    Icon(item["icon"], size: 20),
+                                    Icon(
+                                      item["icon"],
+                                      size: 20,
+                                      color: primaryColor,
+                                    ),
+
+                                    const SizedBox(height: 3),
+
                                     Text(
                                       item["text"],
-                                      style: TextStyle(
+
+                                      style: const TextStyle(
                                         fontSize: 13,
-                                        color: Colors.black87,
+                                        color: primaryColor,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -486,11 +588,14 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               ),
                             );
                           },
+
                           separatorBuilder: (context, index) {
                             return const SizedBox(width: 12);
                           },
                         ),
                       ),
+
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -499,88 +604,100 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           ),
         ],
       ),
+
+      // ======================================================
+      // BOTTOM BUTTONS
+      // ======================================================
       bottomNavigationBar: Container(
         height: 90,
+
         decoration: BoxDecoration(
+          color: Colors.white,
+
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: primaryColor.withOpacity(0.10),
               blurRadius: 10,
               spreadRadius: 1,
               offset: const Offset(0, -2),
             ),
           ],
-          color: Colors.white,
         ),
+
         child: Padding(
           padding: const EdgeInsets.only(
-            left: 16.0,
+            left: 16,
             right: 16,
             top: 20,
             bottom: 20,
           ),
+
           child: Row(
             children: [
+              // ==================================================
+              // VIEW MAP
+              // ==================================================
               Expanded(
                 child: TextButton(
                   onPressed: () {},
 
                   style: TextButton.styleFrom(
-                    foregroundColor: Color.fromARGB(255, 42, 177, 64),
-                    //backgroundColor: const Color(0xFFECFDF5),
-                    backgroundColor: const Color.fromARGB(255, 220, 252, 237),
-                    //side: BorderSide(color: Color(0xFF35B64A), width: 1.5),
+                    foregroundColor: primaryColor,
+                    backgroundColor: lightSecondaryColor,
+
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-
-                    // text + icon color
                   ),
 
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.map_outlined, size: 23),
-                        Text(
-                          "View in map",
-                          style: TextStyle(fontWeight: FontWeight.w800),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
 
-                          //style: TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                      ],
-                    ),
+                    children: [
+                      Icon(Icons.map_outlined, size: 23),
+
+                      SizedBox(width: 5),
+
+                      Text(
+                        "View in map",
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              SizedBox(width: 10),
+
+              const SizedBox(width: 10),
+
+              // ==================================================
+              // CONTACT
+              // ==================================================
               Expanded(
                 child: TextButton(
                   onPressed: () {},
 
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color.fromARGB(255, 30, 94, 233),
-                    //backgroundColor: const Color(0xFFEFF6FF),
-                    backgroundColor: const Color.fromARGB(255, 221, 235, 252),
+                    foregroundColor: Colors.white,
+                    backgroundColor: primaryColor,
 
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-
-                    // text + icon color
                   ),
 
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.person_outline_rounded, size: 23),
-                        Text(
-                          "Context",
-                          style: TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                      ],
-                    ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+
+                    children: [
+                      Icon(Icons.person_outline_rounded, size: 23),
+
+                      SizedBox(width: 5),
+
+                      Text(
+                        "Context",
+                        style: TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ],
                   ),
                 ),
               ),

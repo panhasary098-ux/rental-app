@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color lightSecondaryColor = Color(0xFFE6F9FC);
+
 class StepNumber extends StatefulWidget {
   final int currentStep;
 
-  const StepNumber({super.key, required this.currentStep});
+  const StepNumber({
+    super.key,
+    required this.currentStep,
+  });
 
   @override
   State<StepNumber> createState() => _StepNumberState();
@@ -35,81 +46,106 @@ class _StepNumberState extends State<StepNumber> {
   void didUpdateWidget(covariant StepNumber oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.currentStep == 1 && widget.currentStep == 2) {
+    // Step 1 → Step 2
+    if (oldWidget.currentStep == 1 &&
+        widget.currentStep == 2) {
       animateToStep2();
     }
 
-    if (oldWidget.currentStep == 2 && widget.currentStep == 1) {
+    // Step 2 → Step 1
+    if (oldWidget.currentStep == 2 &&
+        widget.currentStep == 1) {
       animateBackToStep1();
     }
 
-    if (oldWidget.currentStep == 2 && widget.currentStep == 3) {
+    // Step 2 → Step 3
+    if (oldWidget.currentStep == 2 &&
+        widget.currentStep == 3) {
       animateToStep3();
     }
 
-    if (oldWidget.currentStep == 3 && widget.currentStep == 2) {
+    // Step 3 → Step 2
+    if (oldWidget.currentStep == 3 &&
+        widget.currentStep == 2) {
       animateBackToStep2();
     }
   }
 
+  // ======================================================
+  // FORWARD ANIMATION
+  // ======================================================
+
   Future<void> animateToStep2() async {
-    // First animate line 1 → 2
+    // First fill line 1 → 2
     setState(() {
       line1Progress = 1;
     });
 
-    // Wait until line animation finishes
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    );
 
     if (!mounted) return;
 
-    // Then turn number 2 blue
+    // Then activate step 2
     setState(() {
       step2Active = true;
     });
   }
 
   Future<void> animateToStep3() async {
+    // First fill line 2 → 3
     setState(() {
       line2Progress = 1;
     });
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    );
 
     if (!mounted) return;
 
+    // Then activate step 3
     setState(() {
       step3Active = true;
     });
   }
 
+  // ======================================================
+  // BACKWARD ANIMATION
+  // ======================================================
+
   Future<void> animateBackToStep1() async {
-    // First turn step 2 gray
+    // First deactivate step 2
     setState(() {
       step2Active = false;
     });
 
-    await Future.delayed(const Duration(milliseconds: 180));
+    await Future.delayed(
+      const Duration(milliseconds: 180),
+    );
 
     if (!mounted) return;
 
-    // Then shrink the blue line
+    // Then shrink line
     setState(() {
       line1Progress = 0;
     });
   }
 
   Future<void> animateBackToStep2() async {
-    // First turn step 2 gray
+    // First deactivate step 3
     setState(() {
       step3Active = false;
     });
 
-    await Future.delayed(const Duration(milliseconds: 180));
+    await Future.delayed(
+      const Duration(milliseconds: 180),
+    );
 
     if (!mounted) return;
 
-    // Then shrink the blue line
+    // Then shrink line
     setState(() {
       line2Progress = 0;
     });
@@ -119,33 +155,91 @@ class _StepNumberState extends State<StepNumber> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Step 1
-        _circle(number: "1", active: true),
+        // ==================================================
+        // STEP 1
+        // ==================================================
+
+        _circle(
+          number: "1",
+          active: true,
+        ),
 
         // Line 1 → 2
-        Expanded(child: _animatedLine(progress: line1Progress)),
+        Expanded(
+          child: _animatedLine(
+            progress: line1Progress,
+          ),
+        ),
 
-        // Step 2
-        _circle(number: "2", active: step2Active),
+        // ==================================================
+        // STEP 2
+        // ==================================================
+
+        _circle(
+          number: "2",
+          active: step2Active,
+        ),
 
         // Line 2 → 3
-        Expanded(child: _animatedLine(progress: line2Progress)),
+        Expanded(
+          child: _animatedLine(
+            progress: line2Progress,
+          ),
+        ),
 
-        // Step 3
-        _circle(number: "3", active: step3Active),
+        // ==================================================
+        // STEP 3
+        // ==================================================
+
+        _circle(
+          number: "3",
+          active: step3Active,
+        ),
       ],
     );
   }
 
-  Widget _circle({required String number, required bool active}) {
+  // ======================================================
+  // STEP CIRCLE
+  // ======================================================
+
+  Widget _circle({
+    required String number,
+    required bool active,
+  }) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: 25,
-      height: 25,
+      duration: const Duration(
+        milliseconds: 200,
+      ),
+
+      width: 28,
+      height: 28,
 
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: active ? Colors.lightBlue : Colors.grey.shade300,
+
+        // Active = Navy
+        // Inactive = Light cyan
+        color: active
+            ? primaryColor
+            : lightSecondaryColor,
+
+        border: Border.all(
+          color: active
+              ? primaryColor
+              : secondaryColor,
+          width: 1.3,
+        ),
+
+        boxShadow: active
+            ? [
+                BoxShadow(
+                  color: primaryColor.withOpacity(0.18),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [],
       ),
 
       alignment: Alignment.center,
@@ -153,118 +247,57 @@ class _StepNumberState extends State<StepNumber> {
       child: Text(
         number,
         style: TextStyle(
-          color: active ? Colors.white : Colors.black54,
+          color: active
+              ? Colors.white
+              : primaryColor.withOpacity(0.55),
           fontSize: 12,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
   }
 
-  Widget _animatedLine({required double progress}) {
+  // ======================================================
+  // ANIMATED LINE
+  // ======================================================
+
+  Widget _animatedLine({
+    required double progress,
+  }) {
     return Stack(
       alignment: Alignment.centerLeft,
-      children: [
-        // Gray line
-        Container(height: 3, color: Colors.grey.shade300),
 
-        // Blue animated line
+      children: [
+        // ==================================================
+        // INACTIVE LINE
+        // ==================================================
+
+        Container(
+          height: 3,
+          color: secondaryColor.withOpacity(0.45),
+        ),
+
+        // ==================================================
+        // ACTIVE ANIMATED LINE
+        // ==================================================
+
         AnimatedFractionallySizedBox(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(
+            milliseconds: 500,
+          ),
+
           curve: Curves.easeInOut,
+
           alignment: Alignment.centerLeft,
 
           widthFactor: progress,
 
-          child: Container(height: 3, color: Colors.lightBlue),
+          child: Container(
+            height: 3,
+            color: primaryColor,
+          ),
         ),
       ],
     );
   }
 }
-
-// Widget stepNumber({
-//   required Color Num1,
-//   required Color contNum1,
-//   required Color line1,
-//   required Color Num2,
-//   required Color contNum2,
-//   required Color line2,
-//   required Color Num3,
-//   required Color contNum3,
-// }) {
-//   return Row(
-//     mainAxisAlignment: MainAxisAlignment.center,
-//     children: [
-//       //num1
-//       Container(
-//         height: 25,
-//         width: 25,
-//         decoration: BoxDecoration(
-//           color: contNum1,
-//           borderRadius: BorderRadius.circular(15),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.1),
-//               blurRadius: 12,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         child: Center(
-//           child: Text(
-//             "1",
-//             style: TextStyle(fontWeight: FontWeight.w700, color: Num1),
-//           ),
-//         ),
-//       ),
-//       Container(height: 3, width: 80, color: line1),
-
-//       // num2
-//       Container(
-//         height: 25,
-//         width: 25,
-//         decoration: BoxDecoration(
-//           color: contNum2,
-//           borderRadius: BorderRadius.circular(15),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.1),
-//               blurRadius: 12,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         child: Center(
-//           child: Text(
-//             "2",
-//             style: TextStyle(fontWeight: FontWeight.w700, color: Num2),
-//           ),
-//         ),
-//       ),
-//       Container(height: 3, width: 80, color: line2),
-
-//       //num3
-//       Container(
-//         height: 25,
-//         width: 25,
-//         decoration: BoxDecoration(
-//           color: contNum3,
-//           borderRadius: BorderRadius.circular(15),
-//           boxShadow: [
-//             BoxShadow(
-//               color: Colors.black.withOpacity(0.1),
-//               blurRadius: 12,
-//               offset: const Offset(0, 4),
-//             ),
-//           ],
-//         ),
-//         child: Center(
-//           child: Text(
-//             "3",
-//             style: TextStyle(fontWeight: FontWeight.w700, color: Num3),
-//           ),
-//         ),
-//       ),
-//     ],
-//   );
-// }

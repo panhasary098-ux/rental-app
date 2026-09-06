@@ -1,15 +1,20 @@
 import 'package:final_project/controller/post_properties_controller.dart';
 import 'package:final_project/widget/post_properties/customTypeContainer.dart';
-import 'package:final_project/widget/stepNumber.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:get/utils.dart';
+import 'package:get/get.dart';
+
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color backgroundColor = Color(0xFFF4FCFE);
+const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PostStep1 extends StatelessWidget {
   PostStep1({super.key});
+
   final PostPropertyController controller = Get.find<PostPropertyController>();
 
   final List<Map<String, dynamic>> types = [
@@ -32,46 +37,74 @@ class PostStep1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      color: backgroundColor,
 
-      child: Column(
-        children: [
-          const Text(
-            "What type of property are you posting?",
-            style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
 
-          const SizedBox(height: 30),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
 
-          Expanded(
-            child: ListView.separated(
-              itemCount: types.length,
+          children: [
+            const SizedBox(height: 50),
 
-              itemBuilder: (context, index) {
-                final item = types[index];
-
-                return Obx(() {
-                  final bool isSelected = controller.selectIndex.value == index;
-
-                  return customTypeContainer(
-                    icon: item["icon"],
-                    nameType: item["name"],
-                    description: item["description"],
-                    isSeleted: isSelected,
-                    onPressed: () {
-                      controller.selectIndex.value = index;
-                    },
-                  );
-                });
-              },
-
-              separatorBuilder: (context, index) {
-                return const SizedBox(height: 20);
-              },
+            // ======================================================
+            // TITLE
+            // ======================================================
+            const Text(
+              "What type of property are you posting?",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: primaryColor,
+                height: 1.3,
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(height: 8),
+
+            const Text(
+              "Choose the property type that best matches your listing.",
+              style: TextStyle(fontSize: 14, color: Colors.black45),
+            ),
+
+            const SizedBox(height: 30),
+
+            // ======================================================
+            // PROPERTY TYPES
+            // ======================================================
+            Expanded(
+              child: ListView.separated(
+                itemCount: types.length,
+
+                itemBuilder: (context, index) {
+                  final item = types[index];
+
+                  return Obx(() {
+                    final bool isSelected =
+                        controller.selectIndex.value == index;
+
+                    return customTypeContainer(
+                      icon: item["icon"],
+                      nameType: item["name"],
+                      description: item["description"],
+                      isSeleted: isSelected,
+
+                      onPressed: () {
+                        controller.selectIndex.value = index;
+                      },
+                    );
+                  });
+                },
+
+                separatorBuilder: (context, index) {
+                  return const SizedBox(height: 20);
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

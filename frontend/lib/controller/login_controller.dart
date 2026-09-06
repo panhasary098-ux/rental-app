@@ -86,7 +86,7 @@ class LoginController extends GetxController {
       } else if (role == "house_owner") {
         Get.offAll(() => OwnerHomeScreen());
       } else if (role == "renter") {
-        Get.offAll(() => HomeScreen(properties: propertyList));
+        //Get.offAll(() => HomeScreen(properties: propertyList));
       } else {
         await authService.logout();
 

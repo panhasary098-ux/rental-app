@@ -1,8 +1,18 @@
 import 'package:final_project/model/property.dart';
 import 'package:final_project/view/renter/filter_screen.dart';
+import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
+
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color backgroundColor = Color(0xFFF4FCFE);
+const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class HomeScreen extends StatelessWidget {
   final List<Property> properties;
@@ -12,10 +22,12 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 250, 250),
+      backgroundColor: backgroundColor,
+
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -25,36 +37,22 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(Icons.menu_rounded, size: 27),
-                  ),
-
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Stay",
-                          style: TextStyle(
-                            color: Color(0xFF171717),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        
-                        TextSpan(
-                          text: "Near",
-                          style: TextStyle(
-                            color: Color(0xFF35B64A),
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    icon: Icon(
+                      Icons.menu_rounded,
+                      size: 27,
+                      color: primaryColor,
                     ),
                   ),
 
+                  appName(),
+
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(Icons.notifications_none_rounded, size: 27),
+                    icon: Icon(
+                      Icons.notifications_none_rounded,
+                      size: 27,
+                      color: primaryColor,
+                    ),
                   ),
                 ],
               ),
@@ -62,240 +60,27 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 25),
 
               // Main heading
-              Text(
-                "Find a place",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF171717),
-                ),
-              ),
+              headline(),
 
-              Row(
-                children: [
-                  Text(
-                    "near your ",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF171717),
-                    ),
-                  ),
-                  Text(
-                    "school",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  Text(
-                    " or ",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF171717),
-                    ),
-                  ),
-                  Text(
-                    "work",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF35B64A),
-                    ),
-                  ),
-                ],
-              ),
               SizedBox(height: 20),
 
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
-
-                    hintText: 'Search Property name....',
-
-                    filled: true,
-                    fillColor: Colors.white,
-
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-
-                    // Filter button
-                    suffixIcon: Tooltip(
-                      waitDuration: const Duration(milliseconds: 500),
-                      showDuration: const Duration(seconds: 2),
-                      preferBelow: false,
-                      message: "Filter",
-                      child: IconButton(
-                        onPressed: () {
-                          Get.to(() => FilterScreen());
-                        },
-                        icon: const Icon(Icons.tune),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              searchBox(),
 
               SizedBox(height: 20),
 
               // Location
-              Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(17),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.location_on_outlined, color: Color(0xFF35B64A)),
-                    SizedBox(width: 10),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Near",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                          SizedBox(height: 3),
-                          Text(
-                            "Phnom Penh",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Icon(Icons.chevron_right_rounded, color: Colors.black),
-                  ],
-                ),
-              ),
+              filterLocation(),
 
               SizedBox(height: 12),
 
               // Budget + Filters
               Row(
                 children: [
-                  Expanded(
-                    child: Container(
-                      height: 67,
-                      padding: EdgeInsets.symmetric(horizontal: 13),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(17),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
-                            blurRadius: 10,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.account_balance_wallet_outlined, size: 24),
-                          SizedBox(width: 9),
-
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Budget",
-                                style: TextStyle(
-                                  color: Color(0xFF6F6F6F),
-                                  fontSize: 11,
-                                ),
-                              ),
-                              SizedBox(height: 3),
-                              Text(
-                                "Price range",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  Expanded(child: filterPrice()),
 
                   SizedBox(width: 12),
 
-                  Expanded(
-                    child: Container(
-                      height: 67,
-                      padding: EdgeInsets.symmetric(horizontal: 13),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(17),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
-                            blurRadius: 10,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.home_outlined, size: 24),
-                          SizedBox(width: 9),
-
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Filters",
-                                style: TextStyle(
-                                  color: Color(0xFF6F6F6F),
-                                  fontSize: 11,
-                                ),
-                              ),
-                              SizedBox(height: 3),
-                              Text(
-                                "Rooms",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  Expanded(child: filterType()),
                 ],
               ),
 
@@ -307,7 +92,11 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     "Recommended for you",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
                   ),
 
                   TextButton(
@@ -315,7 +104,7 @@ class HomeScreen extends StatelessWidget {
                     child: Text(
                       "See all",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: primaryColor,
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
                       ),
@@ -331,134 +120,160 @@ class HomeScreen extends StatelessWidget {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: properties.length,
+
                 itemBuilder: (context, index) {
                   final property = properties[index];
 
                   return Container(
                     width: 300,
                     margin: EdgeInsets.only(bottom: 15),
+
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(18),
+
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 12,
-                          color: Colors.black.withOpacity(0.08),
+                          color: primaryColor.withOpacity(0.08),
                           offset: Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Image
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(18),
-                              ),
-                              child: Image.network(
-                                property.imageUrl,
-                                height: 170,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
 
-                            // Match percentage
-                            Positioned(
-                              top: 12,
-                              right: 48,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 6,
-                                  horizontal: 9,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  "${property.matchPercent.toInt()}% Match",
-                                  style: TextStyle(
-                                    color: Color(0xFF29983B),
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
+                    child: InkWell(
+                      onTap: () {
+                        Get.to(PropertyDetailScreen());
+                      },
 
-                            // Favorite
-                            Positioned(
-                              top: 10,
-                              right: 10,
-                              child: Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.favorite_border_rounded,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        // Property information
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(14, 10, 14, 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Image
+                          Stack(
                             children: [
-                              Text(
-                                property.title,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              ClipRRect(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(18),
+                                ),
+
+                                child: Image.network(
+                                  property.images[0],
+                                  height: 190,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
 
-                              SizedBox(height: 5),
+                              // Favorite
+                              Positioned(
+                                top: 10,
+                                right: 10,
 
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on_outlined,
-                                    size: 15,
-                                    color: Colors.grey,
+                                child: Container(
+                                  width: 36,
+                                  height: 36,
+
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
                                   ),
-                                  SizedBox(width: 3),
 
-                                  Text(
-                                    "${property.distance} km · Phnom Penh",
+                                  child: Icon(
+                                    Icons.favorite_border_rounded,
+                                    color: primaryColor,
+                                  ),
+                                ),
+                              ),
+
+                              Positioned(
+                                top: 10,
+                                left: 10,
+
+                                child: Container(
+                                  height: 22,
+
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+
+                                  decoration: BoxDecoration(
+                                    color: secondaryColor,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+
+                                  alignment: Alignment.center,
+
+                                  child: const Text(
+                                    "Available",
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: primaryColor,
                                       fontSize: 12,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                ],
-                              ),
-
-                              SizedBox(height: 5),
-
-                              Text(
-                                "\$${property.price.toInt()} / month",
-                                style: TextStyle(
-                                  color: Color(0xFF35B64A),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+
+                          // Property information
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(14, 10, 14, 10),
+
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  property.name,
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+
+                                SizedBox(height: 5),
+
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on_outlined,
+                                      size: 15,
+                                      color: primaryColor,
+                                    ),
+
+                                    SizedBox(width: 3),
+
+                                    Expanded(
+                                      child: Text(
+                                        "${property.location.address} ",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Colors.black54,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                SizedBox(height: 5),
+
+                                Text(
+                                  "\$${property.price.toInt()} / month",
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -469,4 +284,352 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// ======================================================
+// APP NAME
+// ======================================================
+
+Widget appName() {
+  return RichText(
+    text: TextSpan(
+      children: [
+        TextSpan(
+          text: "Joul",
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        TextSpan(
+          text: "Now",
+          style: TextStyle(
+            color: const Color.fromARGB(255, 2, 216, 253),
+            //color: const Color.fromARGB(255, 75, 223, 243),
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// ======================================================
+// HEADLINE
+// ======================================================
+
+Widget headline() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        "Find a place",
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: primaryColor,
+        ),
+      ),
+
+      Row(
+        children: [
+          Text(
+            "near your ",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: primaryColor,
+            ),
+          ),
+
+          Text(
+            "school",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: const Color.fromARGB(255, 2, 216, 253),
+            ),
+          ),
+
+          Text(
+            " or ",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: primaryColor,
+            ),
+          ),
+
+          Text(
+            "work",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: const Color.fromARGB(255, 2, 216, 253),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+// ======================================================
+// SEARCH BOX
+// ======================================================
+
+Widget searchBox() {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(10),
+
+      boxShadow: [
+        BoxShadow(
+          color: primaryColor.withOpacity(0.08),
+          blurRadius: 8,
+          spreadRadius: 1,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+
+    child: TextFormField(
+      style: TextStyle(color: primaryColor),
+
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.search, color: primaryColor),
+
+        hintText: 'Search Property name....',
+
+        hintStyle: TextStyle(color: Colors.black38),
+
+        filled: true,
+        fillColor: Colors.white,
+
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(10),
+        ),
+
+        // Filter button
+        suffixIcon: Tooltip(
+          waitDuration: const Duration(milliseconds: 500),
+          showDuration: const Duration(seconds: 2),
+          preferBelow: false,
+          message: "Filter",
+
+          child: IconButton(
+            onPressed: () {
+              Get.to(() => FilterScreen());
+            },
+
+            icon: const Icon(Icons.tune, color: primaryColor),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+// ======================================================
+// LOCATION FILTER
+// ======================================================
+
+Widget filterLocation() {
+  return Container(
+    padding: EdgeInsets.all(15),
+
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+
+      boxShadow: [
+        BoxShadow(
+          color: primaryColor.withOpacity(0.08),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+
+    child: Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+
+          decoration: BoxDecoration(
+            color: lightSecondaryColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+
+          child: Icon(Icons.location_on_outlined, color: primaryColor),
+        ),
+
+        SizedBox(width: 10),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Near", style: TextStyle(fontSize: 12, color: Colors.grey)),
+
+              SizedBox(height: 3),
+
+              Text(
+                "Phnom Penh",
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Icon(Icons.chevron_right_rounded, color: primaryColor),
+      ],
+    ),
+  );
+}
+
+// ======================================================
+// PRICE FILTER
+// ======================================================
+
+Widget filterPrice() {
+  return Container(
+    height: 67,
+    padding: EdgeInsets.symmetric(horizontal: 13),
+
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+
+      boxShadow: [
+        BoxShadow(
+          color: primaryColor.withOpacity(0.07),
+          blurRadius: 10,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+
+    child: Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+
+          decoration: BoxDecoration(
+            color: lightSecondaryColor,
+            borderRadius: BorderRadius.circular(9),
+          ),
+
+          child: Icon(
+            Icons.account_balance_wallet_outlined,
+            size: 22,
+            color: primaryColor,
+          ),
+        ),
+
+        SizedBox(width: 9),
+
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Budget",
+                style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
+              ),
+
+              SizedBox(height: 3),
+
+              Text(
+                "Price range",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// ======================================================
+// PROPERTY TYPE FILTER
+// ======================================================
+
+Widget filterType() {
+  return Container(
+    height: 67,
+    padding: EdgeInsets.symmetric(horizontal: 13),
+
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+
+      boxShadow: [
+        BoxShadow(
+          color: primaryColor.withOpacity(0.07),
+          blurRadius: 10,
+          offset: Offset(0, 3),
+        ),
+      ],
+    ),
+
+    child: Row(
+      children: [
+        Container(
+          width: 36,
+          height: 36,
+
+          decoration: BoxDecoration(
+            color: lightSecondaryColor,
+            borderRadius: BorderRadius.circular(9),
+          ),
+
+          child: Icon(Icons.home_outlined, size: 23, color: primaryColor),
+        ),
+
+        SizedBox(width: 9),
+
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Filters",
+                style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
+              ),
+
+              SizedBox(height: 3),
+
+              Text(
+                "Rooms",
+                style: TextStyle(
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
