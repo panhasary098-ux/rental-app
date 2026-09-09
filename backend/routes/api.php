@@ -19,3 +19,8 @@ Route::middleware('firebase.auth')->get('me', [UserController::class, 'me']);
 Route::post('/auth/social-sync', [UserController::class, 'socialSync']);
 
 Route::post('/auth/social-register', [UserController::class, 'createSocialUser']);
+
+Route::middleware('firebase.auth')->post(
+    '/profile-image',
+    [UserController::class, 'updateProfileImage']
+);

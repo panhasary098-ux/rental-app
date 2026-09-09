@@ -16,6 +16,7 @@ class User extends Model
         'phone',
         'role',
         'status',
+        'profile_image',
     ];
     public function properties(){
         return $this->hasMany(Property::class, 'owner_id');

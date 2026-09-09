@@ -21,8 +21,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-
-      // Keep your authentication flow as the starting screen
       //home: LoginScreen(),
       //home: OwnerAccountScreen()
       //home: RenterAccountScreen(),

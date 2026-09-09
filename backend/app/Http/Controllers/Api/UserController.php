@@ -1,65 +1,67 @@
-<?php 
- 
-namespace App\Http\Controllers\Api; 
- 
-use App\Http\Controllers\Controller; 
-use App\Models\User; 
-use Illuminate\Http\Request; 
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Kreait\Firebase\Contract\Auth;
- 
-class UserController extends Controller 
-{ 
-    public function store(Request $request){ 
-        $request->validate([ 
-            'firebase_uid' => 'required|string|unique:users,firebase_uid', 
-            'name' =>'required|string', 
-            'email' => 'required|email|unique:users,email', 
-            'phone' => 'nullable|string', 
-            'role' => 'required|in:renter,house_owner', 
-        ]); 
- 
-        $user = User::create([ 
-            'firebase_uid' => $request->firebase_uid, 
-            'name' => $request->name, 
-            'email' => $request->email, 
-            'phone' => $request->phone, 
-            'role' => $request->role, 
-            'status' => 'active', 
-        ]); 
- 
-        return response()->json([ 
-            'success' =>true, 
-            'message' =>'User created successfully', 
-            'user' =>$user, 
-        ], 201); 
-    } 
 
-    public function getByFirebaseUid($firebaseUid) 
-    { 
-        $user = User::where('firebase_uid', $firebaseUid)->first(); 
- 
-        if (!$user) { 
-            return response()->json([ 
-                'success' => false, 
-                'message' => 'User not found', 
-            ], 404); 
-        } 
- 
-        return response()->json([ 
-            'success' => true, 
-            'user' => $user, 
-        ]); 
-    } 
- 
-    public function me(Request $request){ 
-        $user =$request->user(); 
+class UserController extends Controller
+{
+    public function store(Request $request)
+    {
+        $request->validate([
+            'firebase_uid' => 'required|string|unique:users,firebase_uid',
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string',
+            'role' => 'required|in:renter,house_owner',
+        ]);
 
-        return response()->json([ 
-            'success' =>true, 
-            'message' =>"Get authenticated user successfully", 
-            'user' =>$user, 
-        ], 200); 
-    } 
+        $user = User::create([
+            'firebase_uid' => $request->firebase_uid,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'role' => $request->role,
+            'status' => 'active',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User created successfully',
+            'user' => $user,
+        ], 201);
+    }
+
+    public function getByFirebaseUid($firebaseUid)
+    {
+        $user = User::where('firebase_uid', $firebaseUid)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Get authenticated user successfully",
+            'user' => $user,
+        ], 200);
+    }
 
 
     public function socialSync(Request $request, Auth $auth)
@@ -100,7 +102,6 @@ class UserController extends Controller
                 'exists' => false,
                 'message' => 'Please select your account type',
             ], 200);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -178,12 +179,34 @@ class UserController extends Controller
                 'message' => 'Account created successfully',
                 'user' => $user,
             ], 201);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or expired authentication token',
             ], 401);
         }
+    }
+
+    public function updateProfileImage(Request $request)
+    {
+        $request->validate([
+            'profile_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        $user = $request->user();
+
+        $path = $request->file('profile_image')->store(
+            'profile_images',
+            'public'
+        );
+
+        $user->profile_image = $path;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile image updated successfully',
+            'profile_image' => asset('storage/' . $path),
+        ], 200);
     }
 }
