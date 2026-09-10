@@ -21,15 +21,28 @@ class StepNumber extends StatefulWidget {
 }
 
 class _StepNumberState extends State<StepNumber> {
+  // ======================================================
+  // LINE PROGRESS
+  // ======================================================
+
   double line1Progress = 0;
   double line2Progress = 0;
+  double line3Progress = 0;
+
+  // ======================================================
+  // ACTIVE STEPS
+  // ======================================================
 
   bool step2Active = false;
   bool step3Active = false;
+  bool step4Active = false;
 
   @override
   void initState() {
     super.initState();
+
+    // If screen starts from a later step,
+    // show previous lines/steps as completed.
 
     if (widget.currentStep >= 2) {
       line1Progress = 1;
@@ -40,34 +53,73 @@ class _StepNumberState extends State<StepNumber> {
       line2Progress = 1;
       step3Active = true;
     }
+
+    if (widget.currentStep >= 4) {
+      line3Progress = 1;
+      step4Active = true;
+    }
   }
+
+  // ======================================================
+  // DETECT STEP CHANGES
+  // ======================================================
 
   @override
   void didUpdateWidget(covariant StepNumber oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Step 1 → Step 2
+    // ==================================================
+    // STEP 1 → STEP 2
+    // ==================================================
+
     if (oldWidget.currentStep == 1 &&
         widget.currentStep == 2) {
       animateToStep2();
     }
 
-    // Step 2 → Step 1
+    // ==================================================
+    // STEP 2 → STEP 1
+    // ==================================================
+
     if (oldWidget.currentStep == 2 &&
         widget.currentStep == 1) {
       animateBackToStep1();
     }
 
-    // Step 2 → Step 3
+    // ==================================================
+    // STEP 2 → STEP 3
+    // ==================================================
+
     if (oldWidget.currentStep == 2 &&
         widget.currentStep == 3) {
       animateToStep3();
     }
 
-    // Step 3 → Step 2
+    // ==================================================
+    // STEP 3 → STEP 2
+    // ==================================================
+
     if (oldWidget.currentStep == 3 &&
         widget.currentStep == 2) {
       animateBackToStep2();
+    }
+
+    // ==================================================
+    // STEP 3 → STEP 4
+    // ==================================================
+
+    if (oldWidget.currentStep == 3 &&
+        widget.currentStep == 4) {
+      animateToStep4();
+    }
+
+    // ==================================================
+    // STEP 4 → STEP 3
+    // ==================================================
+
+    if (oldWidget.currentStep == 4 &&
+        widget.currentStep == 3) {
+      animateBackToStep3();
     }
   }
 
@@ -76,7 +128,7 @@ class _StepNumberState extends State<StepNumber> {
   // ======================================================
 
   Future<void> animateToStep2() async {
-    // First fill line 1 → 2
+    // Fill line 1 → 2
     setState(() {
       line1Progress = 1;
     });
@@ -87,14 +139,14 @@ class _StepNumberState extends State<StepNumber> {
 
     if (!mounted) return;
 
-    // Then activate step 2
+    // Activate Step 2
     setState(() {
       step2Active = true;
     });
   }
 
   Future<void> animateToStep3() async {
-    // First fill line 2 → 3
+    // Fill line 2 → 3
     setState(() {
       line2Progress = 1;
     });
@@ -105,9 +157,27 @@ class _StepNumberState extends State<StepNumber> {
 
     if (!mounted) return;
 
-    // Then activate step 3
+    // Activate Step 3
     setState(() {
       step3Active = true;
+    });
+  }
+
+  Future<void> animateToStep4() async {
+    // Fill line 3 → 4
+    setState(() {
+      line3Progress = 1;
+    });
+
+    await Future.delayed(
+      const Duration(milliseconds: 500),
+    );
+
+    if (!mounted) return;
+
+    // Activate Step 4
+    setState(() {
+      step4Active = true;
     });
   }
 
@@ -116,7 +186,7 @@ class _StepNumberState extends State<StepNumber> {
   // ======================================================
 
   Future<void> animateBackToStep1() async {
-    // First deactivate step 2
+    // Deactivate Step 2
     setState(() {
       step2Active = false;
     });
@@ -127,14 +197,14 @@ class _StepNumberState extends State<StepNumber> {
 
     if (!mounted) return;
 
-    // Then shrink line
+    // Shrink line 1
     setState(() {
       line1Progress = 0;
     });
   }
 
   Future<void> animateBackToStep2() async {
-    // First deactivate step 3
+    // Deactivate Step 3
     setState(() {
       step3Active = false;
     });
@@ -145,11 +215,33 @@ class _StepNumberState extends State<StepNumber> {
 
     if (!mounted) return;
 
-    // Then shrink line
+    // Shrink line 2
     setState(() {
       line2Progress = 0;
     });
   }
+
+  Future<void> animateBackToStep3() async {
+    // Deactivate Step 4
+    setState(() {
+      step4Active = false;
+    });
+
+    await Future.delayed(
+      const Duration(milliseconds: 180),
+    );
+
+    if (!mounted) return;
+
+    // Shrink line 3
+    setState(() {
+      line3Progress = 0;
+    });
+  }
+
+  // ======================================================
+  // UI
+  // ======================================================
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +287,22 @@ class _StepNumberState extends State<StepNumber> {
           number: "3",
           active: step3Active,
         ),
+
+        // Line 3 → 4
+        Expanded(
+          child: _animatedLine(
+            progress: line3Progress,
+          ),
+        ),
+
+        // ==================================================
+        // STEP 4
+        // ==================================================
+
+        _circle(
+          number: "4",
+          active: step4Active,
+        ),
       ],
     );
   }
@@ -218,8 +326,6 @@ class _StepNumberState extends State<StepNumber> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
 
-        // Active = Navy
-        // Inactive = Light cyan
         color: active
             ? primaryColor
             : lightSecondaryColor,
@@ -246,11 +352,14 @@ class _StepNumberState extends State<StepNumber> {
 
       child: Text(
         number,
+
         style: TextStyle(
           color: active
               ? Colors.white
               : primaryColor.withOpacity(0.55),
+
           fontSize: 12,
+
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -268,19 +377,13 @@ class _StepNumberState extends State<StepNumber> {
       alignment: Alignment.centerLeft,
 
       children: [
-        // ==================================================
-        // INACTIVE LINE
-        // ==================================================
-
+        // Inactive line
         Container(
           height: 3,
           color: secondaryColor.withOpacity(0.45),
         ),
 
-        // ==================================================
-        // ACTIVE ANIMATED LINE
-        // ==================================================
-
+        // Active line
         AnimatedFractionallySizedBox(
           duration: const Duration(
             milliseconds: 500,

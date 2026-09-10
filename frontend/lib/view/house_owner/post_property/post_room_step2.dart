@@ -1,9 +1,13 @@
 import 'package:final_project/controller/post_properties_controller.dart';
+import 'package:final_project/model/location.dart';
+import 'package:final_project/view/house_owner/post_property/select_location_screen.dart';
 import 'package:final_project/widget/post_properties/customDescriptionTFF.dart';
 import 'package:final_project/widget/post_properties/customFacilitiesSelector.dart';
 import 'package:final_project/widget/post_properties/customFurnishedSelector.dart';
+import 'package:final_project/widget/post_properties/customImagePicker.dart';
 import 'package:final_project/widget/post_properties/customLocationPicker.dart';
 import 'package:final_project/widget/post_properties/customRoomDetail.dart';
+import 'package:final_project/widget/post_properties/customSingleImagePicker.dart';
 import 'package:final_project/widget/post_properties/customStatusDropdown.dart';
 import 'package:final_project/widget/post_properties/customTextFormField.dart';
 import 'package:final_project/widget/post_properties/inputTitle.dart';
@@ -27,6 +31,7 @@ class PostRoomStep2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // ======================================================
         // HEADER
@@ -64,7 +69,7 @@ class PostRoomStep2 extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Input your Room information:",
+                  "Input your room information",
                   style: TextStyle(fontSize: 15, color: Colors.black45),
                 ),
 
@@ -112,8 +117,20 @@ class PostRoomStep2 extends StatelessWidget {
                 Obx(
                   () => PropertyLocationPicker(
                     address: controller.address.value,
-                    onTap: () {
-                      // Later: open map screen
+
+                    onTap: () async {
+                      final PropertyLocation? location =
+                          await Get.to<PropertyLocation>(
+                            () => const SelectLocationScreen(),
+                          );
+
+                      if (location != null) {
+                        controller.address.value = location.address;
+
+                        controller.latitude.value = location.latitude;
+
+                        controller.longitude.value = location.longitude;
+                      }
                     },
                   ),
                 ),
@@ -160,6 +177,7 @@ class PostRoomStep2 extends StatelessWidget {
                 Obx(
                   () => CustomStatusDropdown(
                     value: controller.status.value,
+
                     onChanged: (value) {
                       controller.status.value = value;
                     },
@@ -187,12 +205,12 @@ class PostRoomStep2 extends StatelessWidget {
                 // ==================================================
                 // ROOM DETAIL TITLE
                 // ==================================================
-                CustomApartFlatdetail(),
+                CustomRoomDetailTitle(),
 
                 const SizedBox(height: 10),
 
                 // ==================================================
-                // ROOM DETAIL
+                // ROOM DETAILS
                 // ==================================================
                 Obx(
                   () => RoomDetail(
@@ -200,21 +218,16 @@ class PostRoomStep2 extends StatelessWidget {
 
                     availableFloors: controller.roomAvailableFloors,
 
-                    // ==============================================
-                    // TOTAL FLOOR +
-                    // ==============================================
+                    // Total floor +
                     onFloorIncrease: () {
                       controller.roomTotalFloor.value++;
                     },
 
-                    // ==============================================
-                    // TOTAL FLOOR -
-                    // ==============================================
+                    // Total floor -
                     onFloorDecrease: () {
                       if (controller.roomTotalFloor.value > 1) {
                         controller.roomTotalFloor.value--;
 
-                        // Remove floors that no longer exist
                         controller.roomAvailableFloors.removeWhere(
                           (floor) => floor > controller.roomTotalFloor.value,
                         );
@@ -231,132 +244,131 @@ class PostRoomStep2 extends StatelessWidget {
 
                           decoration: const BoxDecoration(
                             color: backgroundColor,
+
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(20),
                             ),
                           ),
 
                           child: Obx(
-                            () => Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                // ====================================
-                                // TITLE
-                                // ====================================
-                                const Text(
-                                  "Select Available Floors",
-                                  style: TextStyle(
-                                    color: primaryColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
+                            () => SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Select Available Floors",
+                                    style: TextStyle(
+                                      color: primaryColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
 
-                                const SizedBox(height: 15),
+                                  const SizedBox(height: 15),
 
-                                // ====================================
-                                // FLOOR OPTIONS
-                                // ====================================
-                                Wrap(
-                                  spacing: 10,
-                                  runSpacing: 10,
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
 
-                                  children: List.generate(
-                                    controller.roomTotalFloor.value,
-                                    (index) {
-                                      final int floor = index + 1;
+                                    children: List.generate(
+                                      controller.roomTotalFloor.value,
+                                      (index) {
+                                        final int floor = index + 1;
 
-                                      final bool isSelected = controller
-                                          .roomAvailableFloors
-                                          .contains(floor);
+                                        final bool isSelected = controller
+                                            .roomAvailableFloors
+                                            .contains(floor);
 
-                                      return ChoiceChip(
-                                        label: Text("Floor $floor"),
+                                        return ChoiceChip(
+                                          label: Text("Floor $floor"),
 
-                                        selected: isSelected,
+                                          selected: isSelected,
 
-                                        onSelected: (selected) {
-                                          if (selected) {
-                                            controller.roomAvailableFloors.add(
-                                              floor,
-                                            );
-                                          } else {
-                                            controller.roomAvailableFloors
-                                                .remove(floor);
-                                          }
-                                        },
+                                          onSelected: (selected) {
+                                            if (selected) {
+                                              if (!controller
+                                                  .roomAvailableFloors
+                                                  .contains(floor)) {
+                                                controller.roomAvailableFloors
+                                                    .add(floor);
 
-                                        // ============================
-                                        // THEME COLORS
-                                        // ============================
-                                        selectedColor: secondaryColor,
+                                                controller.roomAvailableFloors
+                                                    .sort();
+                                              }
+                                            } else {
+                                              controller.roomAvailableFloors
+                                                  .remove(floor);
+                                            }
+                                          },
 
-                                        backgroundColor: Colors.white,
+                                          selectedColor: secondaryColor,
 
-                                        side: BorderSide(
-                                          color: isSelected
-                                              ? primaryColor
-                                              : secondaryColor.withOpacity(0.7),
+                                          backgroundColor: Colors.white,
 
-                                          width: isSelected ? 1.3 : 1,
-                                        ),
+                                          side: BorderSide(
+                                            color: isSelected
+                                                ? primaryColor
+                                                : secondaryColor.withOpacity(
+                                                    0.7,
+                                                  ),
+                                            width: isSelected ? 1.3 : 1,
+                                          ),
 
-                                        labelStyle: TextStyle(
-                                          color: primaryColor,
+                                          labelStyle: TextStyle(
+                                            color: primaryColor,
 
-                                          fontWeight: isSelected
-                                              ? FontWeight.w700
-                                              : FontWeight.w500,
-                                        ),
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ),
 
-                                        checkmarkColor: primaryColor,
+                                          checkmarkColor: primaryColor,
+
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 48,
+
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColor,
+                                        foregroundColor: Colors.white,
+                                        elevation: 0,
 
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-
-                                const SizedBox(height: 20),
-
-                                // ====================================
-                                // DONE BUTTON
-                                // ====================================
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 48,
-
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Get.back();
-                                    },
-
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColor,
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
-
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                    ),
 
-                                    child: const Text(
-                                      "Done",
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
+                                      child: const Text(
+                                        "Done",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -367,7 +379,7 @@ class PostRoomStep2 extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 15),
+                const SizedBox(height: 20),
 
                 // ==================================================
                 // FURNISHED
@@ -398,6 +410,67 @@ class PostRoomStep2 extends StatelessWidget {
                 FacilitiesSelector(),
 
                 const SizedBox(height: 20),
+
+                // ==================================================
+                // VERIFICATION
+                // ==================================================
+                VerificationTitle(),
+
+                const SizedBox(height: 15),
+
+                // ==================================================
+                // PROPERTY IMAGES
+                // ==================================================
+                customInputTitle(title: "Property Images"),
+
+                const SizedBox(height: 5),
+
+                Obx(
+                  () => Imagepicker(
+                    title: "Add property photos",
+                    subtitle: "Tap to select property images",
+                    icon: Icons.add_photo_alternate_outlined,
+
+                    images: controller.selectedImages.toList(),
+
+                    onRemove: (index) {
+                      controller.removeImage(index);
+                    },
+
+                    onTap: () {
+                      controller.pickImages();
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // ==================================================
+                // OWNERSHIP DOCUMENT
+                // ==================================================
+                customInputTitle(title: "Ownership Document"),
+
+                const SizedBox(height: 5),
+
+                Obx(
+                  () => SingleImagePicker(
+                    title: "Upload Ownership Document",
+                    subtitle: "Tap to select proof of ownership",
+                    icon: Icons.description_outlined,
+
+                    image: controller.ownershipDocumentImage.value,
+
+                    onTap: () {
+                      controller.pickOwnershipDocumentImage();
+                    },
+
+                    onRemove: () {
+                      controller.removeOwnershipDocumentImage();
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -408,10 +481,10 @@ class PostRoomStep2 extends StatelessWidget {
 }
 
 // ======================================================
-// ROOM DETAIL SECTION TITLE
+// ROOM DETAIL TITLE
 // ======================================================
 
-Widget CustomApartFlatdetail() {
+Widget CustomRoomDetailTitle() {
   return Row(
     children: [
       Expanded(
@@ -423,6 +496,37 @@ Widget CustomApartFlatdetail() {
 
         child: Text(
           "ROOM DETAIL",
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+
+      Expanded(
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
+      ),
+    ],
+  );
+}
+
+// ======================================================
+// VERIFICATION DOCUMENT TITLE
+// ======================================================
+
+Widget VerificationTitle() {
+  return Row(
+    children: [
+      Expanded(
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
+      ),
+
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+
+        child: Text(
+          "VERIFICATION DOCUMENTS",
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,

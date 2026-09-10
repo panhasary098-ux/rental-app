@@ -241,6 +241,7 @@ class AuthService {
 
     String? token = await firebaseUser.getIdToken();
 
+
     final response = await http.get(
       Uri.parse("$baseUrl/me"),
       headers: {"Accept": "application/json", "Authorization": "Bearer $token"},

@@ -75,6 +75,7 @@ class PostHouseStep2 extends StatelessWidget {
                   style: TextStyle(fontSize: 15, color: Colors.black45),
                 ),
 
+                
                 const SizedBox(height: 15),
 
                 // ==================================================
@@ -311,25 +312,25 @@ class PostHouseStep2 extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 15),
-                customInputTitle(title: "National ID"),
-                const SizedBox(height: 5),
-
+                // const SizedBox(height: 15),
+                // customInputTitle(title: "National ID"),
                 // const SizedBox(height: 5),
-                Obx(
-                  () => SingleImagePicker(
-                    title: "Upload National ID",
-                    subtitle: "Tap to select your National ID",
-                    icon: Icons.badge_outlined,
-                    image: controller.nationalIdImage.value,
-                    onTap: () {
-                      controller.pickNationalIdImage();
-                    },
-                    onRemove: () {
-                      controller.removeNationalIdImage();
-                    },
-                  ),
-                ),
+
+                // // const SizedBox(height: 5),
+                // Obx(
+                //   () => SingleImagePicker(
+                //     title: "Upload National ID",
+                //     subtitle: "Tap to select your National ID",
+                //     icon: Icons.badge_outlined,
+                //     image: controller.nationalIdImage.value,
+                //     onTap: () {
+                //       controller.pickNationalIdImage();
+                //     },
+                //     onRemove: () {
+                //       controller.removeNationalIdImage();
+                //     },
+                //   ),
+                // ),
 
                 const SizedBox(height: 15),
 

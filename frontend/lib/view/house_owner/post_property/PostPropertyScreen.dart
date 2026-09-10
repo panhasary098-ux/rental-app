@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:final_project/controller/post_properties_controller.dart';
 import 'package:final_project/view/house_owner/post_property/post_apart_step2.dart';
 import 'package:final_project/view/house_owner/post_property/post_house_step2.dart';
+import 'package:final_project/view/house_owner/post_property/post_payment_step4.dart';
 import 'package:final_project/view/house_owner/post_property/post_review_step3.dart';
 import 'package:final_project/view/house_owner/post_property/post_room_step2.dart';
 import 'package:final_project/view/house_owner/post_property/post_step1.dart';
@@ -34,7 +33,7 @@ class Postpropertyscreen extends StatelessWidget {
       // ======================================================
       appBar: AppBar(
         title: const Text(
-          "Post Your Property",
+          "Submit Your Property",
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w900,
@@ -62,7 +61,7 @@ class Postpropertyscreen extends StatelessWidget {
             // ==================================================
             Obx(
               () => Padding(
-                padding: const EdgeInsets.only(left: 50, right: 50),
+                padding: const EdgeInsets.symmetric(horizontal: 35),
 
                 child: StepNumber(currentStep: controller.currentStep.value),
               ),
@@ -77,27 +76,133 @@ class Postpropertyscreen extends StatelessWidget {
               child: Obx(() => changeSteps(controller.currentStep.value)),
             ),
 
+            const SizedBox(height: 10),
+
             // ==================================================
             // BOTTOM BUTTONS
             // ==================================================
             Obx(() {
               final int step = controller.currentStep.value;
 
-              final bool isStep1 = step == 1;
-
               final bool hasSelectedType = controller.selectIndex.value != null;
 
-              final bool canContinue = !isStep1 || hasSelectedType;
+              // ==================================================
+              // STEP 4 - PAYMENT
+              // ==================================================
+
+              if (step == 4) {
+                return Row(
+                  children: [
+                    // ============================================
+                    // BACK
+                    // ============================================
+                    Expanded(
+                      child: SizedBox(
+                        height: 50,
+
+                        child: OutlinedButton(
+                          onPressed: controller.isSubmitting.value
+                              ? null
+                              : () {
+                                  controller.currentStep.value = 3;
+                                },
+
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: primaryColor,
+
+                            side: const BorderSide(
+                              color: primaryColor,
+                              width: 1.5,
+                            ),
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+
+                          child: const Text(
+                            "Back",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // ============================================
+                    // FINAL SUBMIT
+                    // ============================================
+                    Expanded(
+                      child: SizedBox(
+                        height: 50,
+
+                        child: ElevatedButton(
+                          onPressed: controller.isSubmitting.value
+                              ? null
+                              : () async {
+                                  final bool success = await controller
+                                      .submitProperty();
+
+                                  if (success) {
+                                    Get.back();
+                                  }
+                                },
+
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+
+                            foregroundColor: Colors.white,
+
+                            disabledBackgroundColor: secondaryColor.withOpacity(
+                              0.55,
+                            ),
+
+                            elevation: 0,
+
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+
+                          child: controller.isSubmitting.value
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  "Submit Property",
+                                  textAlign: TextAlign.center,
+
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
 
               // ==================================================
-              // STEP 3
+              // STEP 3 - REVIEW
               // ==================================================
 
               if (step == 3) {
                 return Row(
                   children: [
                     // ============================================
-                    // EDIT BUTTON
+                    // EDIT
                     // ============================================
                     Expanded(
                       child: SizedBox(
@@ -137,7 +242,7 @@ class Postpropertyscreen extends StatelessWidget {
                     const SizedBox(width: 12),
 
                     // ============================================
-                    // SUBMIT BUTTON
+                    // CONTINUE TO PAYMENT
                     // ============================================
                     Expanded(
                       child: SizedBox(
@@ -145,11 +250,12 @@ class Postpropertyscreen extends StatelessWidget {
 
                         child: ElevatedButton(
                           onPressed: () {
-                            // TODO: Publish property
+                            controller.currentStep.value = 4;
                           },
 
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,
+
                             foregroundColor: Colors.white,
 
                             elevation: 0,
@@ -160,11 +266,11 @@ class Postpropertyscreen extends StatelessWidget {
                           ),
 
                           child: const Text(
-                            "Submit for Review",
+                            "Continue to Payment",
                             textAlign: TextAlign.center,
 
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -184,16 +290,37 @@ class Postpropertyscreen extends StatelessWidget {
                 height: 50,
 
                 child: ElevatedButton(
-                  onPressed: canContinue
-                      ? () {
-                          controller.currentStep.value++;
-                        }
-                      : null,
+                  onPressed: step == 1 && !hasSelectedType
+                      ? null
+                      : () {
+                          // ======================================
+                          // STEP 1 → STEP 2
+                          // ======================================
+
+                          if (step == 1) {
+                            controller.currentStep.value = 2;
+
+                            return;
+                          }
+
+                          // ======================================
+                          // STEP 2 → STEP 3
+                          // ======================================
+
+                          if (step == 2) {
+                            final bool isValid = controller.validateStep2();
+
+                            if (isValid) {
+                              controller.currentStep.value = 3;
+                            }
+
+                            return;
+                          }
+                        },
 
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
 
-                    // Disabled button
                     disabledBackgroundColor: secondaryColor.withOpacity(0.55),
 
                     foregroundColor: Colors.white,
@@ -227,13 +354,16 @@ class Postpropertyscreen extends StatelessWidget {
   Widget changeSteps(int step) {
     switch (step) {
       case 1:
-        return PostStep1(key: ValueKey(1));
+        return PostStep1(key: const ValueKey(1));
 
       case 2:
         return changeType(controller.selectIndex.value);
 
       case 3:
-        return const PostReviewStep3(key: ValueKey(3));
+        return PostReviewStep3(key: const ValueKey(3));
+
+      case 4:
+        return PostPaymentStep4(key: const ValueKey(4));
 
       default:
         return const SizedBox();
@@ -247,13 +377,13 @@ class Postpropertyscreen extends StatelessWidget {
   Widget changeType(int? typeIndex) {
     switch (typeIndex) {
       case 0:
-        return PostHouseStep2();
+        return PostHouseStep2(key: const ValueKey("house"));
 
       case 1:
-        return PostApartStep2();
+        return PostApartStep2(key: const ValueKey("apartment"));
 
       case 2:
-        return PostRoomStep2();
+        return PostRoomStep2(key: const ValueKey("room"));
 
       default:
         return const SizedBox();

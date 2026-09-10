@@ -53,7 +53,7 @@ class PostStep1 extends StatelessWidget {
             // TITLE
             // ======================================================
             const Text(
-              "What type of property are you posting?",
+              "What type of property are you submitting?",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -65,7 +65,7 @@ class PostStep1 extends StatelessWidget {
             const SizedBox(height: 8),
 
             const Text(
-              "Choose the property type that best matches your listing.",
+              "Choose the property type that best matches your properties.",
               style: TextStyle(fontSize: 14, color: Colors.black45),
             ),
 

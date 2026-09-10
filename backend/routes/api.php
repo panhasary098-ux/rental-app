@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PropertyController;
 use Illuminate\Http\Request;
 
 Route::post('/users', [
@@ -14,13 +15,27 @@ Route::get('/users/firebase/{firebaseUid}', [
     'getByFirebaseUid'
 ]);
 
-Route::middleware('firebase.auth')->get('me', [UserController::class, 'me']);
+Route::middleware('firebase.auth')->get(
+    '/me',
+    [UserController::class, 'me']
+);
 
-Route::post('/auth/social-sync', [UserController::class, 'socialSync']);
+Route::post(
+    '/auth/social-sync',
+    [UserController::class, 'socialSync']
+);
 
-Route::post('/auth/social-register', [UserController::class, 'createSocialUser']);
+Route::post(
+    '/auth/social-register',
+    [UserController::class, 'createSocialUser']
+);
 
 Route::middleware('firebase.auth')->post(
     '/profile-image',
     [UserController::class, 'updateProfileImage']
+);
+
+Route::middleware('firebase.auth')->post(
+    '/properties',
+    [PropertyController::class, 'store']
 );

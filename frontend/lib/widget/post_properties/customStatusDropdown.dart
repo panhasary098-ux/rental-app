@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 
-// ======================================================
-// APP COLORS
-// ======================================================
-
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
-const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class CustomStatusDropdown extends StatelessWidget {
   final String? value;
@@ -58,7 +53,6 @@ class CustomStatusDropdown extends StatelessWidget {
             vertical: 14,
           ),
 
-          // Status icon
           prefixIcon: Icon(
             Icons.access_time_rounded,
             color: primaryColor,
@@ -81,17 +75,12 @@ class CustomStatusDropdown extends StatelessWidget {
 
         items: const [
           DropdownMenuItem(
-            value: "Available now",
-            child: Text("Available now"),
+            value: "available",
+            child: Text("Available"),
           ),
 
           DropdownMenuItem(
-            value: "Available soon",
-            child: Text("Available soon"),
-          ),
-
-          DropdownMenuItem(
-            value: "Rented",
+            value: "rented",
             child: Text("Rented"),
           ),
         ],

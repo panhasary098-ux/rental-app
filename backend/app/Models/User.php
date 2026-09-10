@@ -17,8 +17,21 @@ class User extends Model
         'role',
         'status',
         'profile_image',
+        'national_id_path',
     ];
-    public function properties(){
+
+    public function properties()
+    {
         return $this->hasMany(Property::class, 'owner_id');
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    public function verificationReviews()
+    {
+        return $this->hasMany(VerificationReview::class, 'admin_id');
     }
 }

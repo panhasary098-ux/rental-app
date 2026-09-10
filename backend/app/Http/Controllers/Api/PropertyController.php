@@ -1,0 +1,423 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Property;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class PropertyController extends Controller
+{
+    public function store(Request $request)
+    {
+        $user = $request->user();
+
+        // ======================================================
+        // ONLY HOUSE OWNER CAN SUBMIT
+        // ======================================================
+
+        if (!$user || $user->role !== 'house_owner') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only house owners can submit properties',
+            ], 403);
+        }
+
+        // ======================================================
+        // VALIDATION
+        // ======================================================
+
+        $validated = $request->validate([
+
+            // --------------------------------------------------
+            // MAIN PROPERTY INFORMATION
+            // --------------------------------------------------
+
+            'name' => 'required|string|max:255',
+
+            'property_type' =>
+                'required|in:house,room,apartment',
+
+            'size' => 'required|numeric|min:0.01',
+
+            'price' => 'required|numeric|min:0.01',
+
+            'description' => 'required|string',
+
+            'contact' => 'required|string|max:255',
+
+            'furnished' => 'required|boolean',
+
+            // --------------------------------------------------
+            // LOCATION
+            // --------------------------------------------------
+
+            'address' => 'required|string|max:255',
+
+            'latitude' =>
+                'required|numeric|between:-90,90',
+
+            'longitude' =>
+                'required|numeric|between:-180,180',
+
+            // --------------------------------------------------
+            // PROPERTY DETAILS
+            // --------------------------------------------------
+
+            'bedrooms' =>
+                'nullable|integer|min:0',
+
+            'bathrooms' =>
+                'nullable|integer|min:0',
+
+            'total_floor' =>
+                'required|integer|min:1',
+
+            'rental_status' =>
+                'required|in:available,rented',
+
+            // --------------------------------------------------
+            // FACILITIES
+            // --------------------------------------------------
+
+            'facilities' => 'nullable|array',
+
+            'facilities.wifi' =>
+                'nullable|boolean',
+
+            'facilities.parking' =>
+                'nullable|boolean',
+
+            'facilities.air_conditioning' =>
+                'nullable|boolean',
+
+            'facilities.pet_allowed' =>
+                'nullable|boolean',
+
+            'facilities.balcony' =>
+                'nullable|boolean',
+
+            'facilities.kitchen' =>
+                'nullable|boolean',
+
+            'facilities.swimming_pool' =>
+                'nullable|boolean',
+
+            'facilities.elevator' =>
+                'nullable|boolean',
+
+            // --------------------------------------------------
+            // AVAILABLE FLOORS
+            // --------------------------------------------------
+
+            'available_floors' =>
+                'nullable|array',
+
+            'available_floors.*' =>
+                'integer|min:1',
+
+            // --------------------------------------------------
+            // PROPERTY IMAGES
+            // --------------------------------------------------
+
+            'property_images' =>
+                'required|array|min:1',
+
+            'property_images.*' =>
+                'image|mimes:jpg,jpeg,png,webp|max:5120',
+
+            // --------------------------------------------------
+            // OWNERSHIP DOCUMENT
+            // --------------------------------------------------
+
+            'ownership_document' =>
+                'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+
+            // --------------------------------------------------
+            // PAYMENT
+            // --------------------------------------------------
+
+            'transaction_reference' =>
+                'nullable|string|max:255',
+
+            'payment_proof' =>
+                'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        // ======================================================
+        // VALIDATE AVAILABLE FLOORS
+        // ======================================================
+
+        if (
+            in_array(
+                $validated['property_type'],
+                ['room', 'apartment']
+            )
+        ) {
+            $availableFloors =
+                $validated['available_floors'] ?? [];
+
+            if (empty($availableFloors)) {
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'Please select at least one available floor.',
+                ], 422);
+            }
+
+            foreach ($availableFloors as $floor) {
+                if ($floor > $validated['total_floor']) {
+                    return response()->json([
+                        'success' => false,
+                        'message' =>
+                            'Available floor cannot be higher than total floors.',
+                    ], 422);
+                }
+            }
+
+            // Remove duplicate floor numbers
+            $validated['available_floors'] =
+                array_values(
+                    array_unique($availableFloors)
+                );
+        }
+
+        // ======================================================
+        // PAYMENT AMOUNT
+        // Laravel decides the fee.
+        // Flutter does NOT decide the fee.
+        // ======================================================
+
+        $paymentAmount = match (
+            $validated['property_type']
+        ) {
+            'house' => 50.00,
+            'apartment' => 40.00,
+            'room' => 30.00,
+        };
+
+        // ======================================================
+        // DATABASE TRANSACTION
+        // ======================================================
+
+        $property = DB::transaction(function () use (
+            $validated,
+            $request,
+            $user,
+            $paymentAmount
+        ) {
+
+            // ==================================================
+            // 1. CREATE PROPERTY
+            // ==================================================
+
+            $property = Property::create([
+                'owner_id' => $user->id,
+
+                'name' =>
+                    $validated['name'],
+
+                'property_type' =>
+                    $validated['property_type'],
+
+                'size' =>
+                    $validated['size'],
+
+                'price' =>
+                    $validated['price'],
+
+                'description' =>
+                    $validated['description'],
+
+                'contact' =>
+                    $validated['contact'],
+
+                'furnished' =>
+                    $validated['furnished'],
+
+                'address' =>
+                    $validated['address'],
+
+                'latitude' =>
+                    $validated['latitude'],
+
+                'longitude' =>
+                    $validated['longitude'],
+
+                'bedrooms' =>
+                    $validated['bedrooms'] ?? null,
+
+                'bathrooms' =>
+                    $validated['bathrooms'] ?? null,
+
+                'total_floor' =>
+                    $validated['total_floor'],
+
+                'rental_status' =>
+                    $validated['rental_status'],
+
+                // Waiting for admin
+                'verification_status' => 'pending',
+
+                // Not visible to renter yet
+                'post_status' => 'unpublished',
+            ]);
+
+            // ==================================================
+            // 2. CREATE FACILITIES
+            // ==================================================
+
+            $facilities =
+                $validated['facilities'] ?? [];
+
+            $property->facilities()->create([
+                'wifi' =>
+                    $facilities['wifi'] ?? false,
+
+                'parking' =>
+                    $facilities['parking'] ?? false,
+
+                'air_conditioning' =>
+                    $facilities['air_conditioning'] ?? false,
+
+                'pet_allowed' =>
+                    $facilities['pet_allowed'] ?? false,
+
+                'balcony' =>
+                    $facilities['balcony'] ?? false,
+
+                'kitchen' =>
+                    $facilities['kitchen'] ?? false,
+
+                'swimming_pool' =>
+                    $facilities['swimming_pool'] ?? false,
+
+                'elevator' =>
+                    $facilities['elevator'] ?? false,
+            ]);
+
+            // ==================================================
+            // 3. CREATE AVAILABLE FLOORS
+            // ==================================================
+
+            if (
+                in_array(
+                    $validated['property_type'],
+                    ['room', 'apartment']
+                )
+            ) {
+                foreach (
+                    $validated['available_floors']
+                    as $floor
+                ) {
+                    $property
+                        ->availableFloors()
+                        ->create([
+                            'floor_number' => $floor,
+                        ]);
+                }
+            }
+
+            // ==================================================
+            // 4. STORE PROPERTY IMAGES
+            // ==================================================
+
+            foreach (
+                $request->file('property_images')
+                as $index => $image
+            ) {
+                $path = $image->store(
+                    'property_images',
+                    'public'
+                );
+
+                $property->images()->create([
+                    'image_path' => $path,
+
+                    // First image = cover
+                    'is_cover' => $index === 0,
+
+                    'sort_order' => $index + 1,
+                ]);
+            }
+
+            // ==================================================
+            // 5. STORE OWNERSHIP DOCUMENT
+            // ==================================================
+
+            $ownershipPath =
+                $request
+                    ->file('ownership_document')
+                    ->store(
+                        'property_documents'
+                    );
+
+            $property->document()->create([
+                'ownership_document_path' =>
+                    $ownershipPath,
+            ]);
+
+            // ==================================================
+            // 6. STORE PAYMENT PROOF
+            // ==================================================
+
+            $paymentProofPath =
+                $request
+                    ->file('payment_proof')
+                    ->store(
+                        'payment_proofs'
+                    );
+
+            // ==================================================
+            // 7. CREATE PAYMENT
+            // ==================================================
+
+            $property->payment()->create([
+                // Amount determined by Laravel
+                'amount' => $paymentAmount,
+
+                'transaction_reference' =>
+                    $validated[
+                        'transaction_reference'
+                    ] ?? null,
+
+                'payment_proof_path' =>
+                    $paymentProofPath,
+
+                // Admin has not checked payment yet
+                'payment_status' => 'pending',
+
+                'paid_at' => null,
+            ]);
+
+            return $property;
+        });
+
+        // ======================================================
+        // LOAD RELATIONSHIPS
+        // ======================================================
+
+        $property->load([
+            'images',
+            'facilities',
+            'availableFloors',
+            'document',
+            'payment',
+        ]);
+
+        // ======================================================
+        // RESPONSE
+        // ======================================================
+
+        return response()->json([
+            'success' => true,
+
+            'message' =>
+                'Property submitted successfully and is waiting for admin review',
+
+            'property' => $property,
+
+        ], 201);
+    }
+}
