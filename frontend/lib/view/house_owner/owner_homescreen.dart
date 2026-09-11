@@ -15,91 +15,43 @@ class OwnerHomeScreen extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(18, 18, 18, 30),
+          padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-
             children: [
+              // ==================================================
               // HEADER
+              // ==================================================
               buildHeader(),
 
-              SizedBox(height: 22),
+              const SizedBox(height: 22),
 
+              // ==================================================
               // HERO
+              // ==================================================
               buildHeroCard(),
 
-              SizedBox(height: 22),
+              const SizedBox(height: 20),
 
-              // SUMMARY
+              // ==================================================
+              // SUMMARY GRID
+              // ==================================================
               buildSummarySection(),
+              const SizedBox(height: 10),
 
-              SizedBox(height: 26),
-
-              // QUICK ACTIONS TITLE
-              Text(
-                "Quick Actions",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF03045E),
-                ),
-              ),
-
-              SizedBox(height: 14),
-
-              // QUICK ACTIONS
-              Row(
-                children: [
-                  Expanded(
-                    child: buildQuickAction(
-                      icon: Icons.add_home_work_outlined,
-                      title: "Post Property",
-                      onTap: () {
-                        // Navigate to Post Property later
-                      },
-                    ),
-                  ),
-
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: buildQuickAction(
-                      icon: Icons.home_work_outlined,
-                      title: "My Properties",
-                      onTap: () {
-                        // Navigate to My Properties later
-                      },
-                    ),
-                  ),
-
-                  SizedBox(width: 12),
-
-                  Expanded(
-                    child: buildQuickAction(
-                      icon: Icons.bar_chart_rounded,
-                      title: "View Reports",
-                      onTap: () {
-                        
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 28),
-
+              // ==================================================
               // RECENT PROPERTIES TITLE
+              // ==================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Text(
+                  const Text(
                     "Recent Properties",
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF03045E),
+                      color: ownerPrimaryColor,
                     ),
                   ),
 
@@ -107,11 +59,10 @@ class OwnerHomeScreen extends StatelessWidget {
                     onPressed: () {
                       // Navigate to My Properties later
                     },
-
-                    child: Text(
+                    child: const Text(
                       "See all",
                       style: TextStyle(
-                        color: Color(0xFF03045E),
+                        color: ownerPrimaryColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -119,9 +70,11 @@ class OwnerHomeScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
+              // ==================================================
               // PROPERTY 1
+              // ==================================================
               buildPropertyCard(
                 image:
                     "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
@@ -132,9 +85,11 @@ class OwnerHomeScreen extends StatelessWidget {
                 verificationStatus: "Approved",
               ),
 
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
 
+              // ==================================================
               // PROPERTY 2
+              // ==================================================
               buildPropertyCard(
                 image:
                     "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
@@ -145,9 +100,11 @@ class OwnerHomeScreen extends StatelessWidget {
                 verificationStatus: "Approved",
               ),
 
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
 
+              // ==================================================
               // PROPERTY 3
+              // ==================================================
               buildPropertyCard(
                 image:
                     "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
@@ -174,37 +131,33 @@ class OwnerHomeScreen extends StatelessWidget {
         Container(
           width: 48,
           height: 48,
-
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: ownerLightSecondaryColor,
             shape: BoxShape.circle,
           ),
-
           alignment: Alignment.center,
-
-          child: Text(
+          child: const Text(
             "DS",
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF03045E),
+              color: ownerPrimaryColor,
             ),
           ),
         ),
 
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
 
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-
             children: [
               Text(
                 "Hello, Dara Sok",
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF03045E),
+                  color: ownerPrimaryColor,
                 ),
               ),
 
@@ -221,17 +174,14 @@ class OwnerHomeScreen extends StatelessWidget {
         Container(
           width: 42,
           height: 42,
-
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(13),
-
             border: Border.all(color: Colors.grey.withOpacity(0.25)),
           ),
-
-          child: Icon(
+          child: const Icon(
             Icons.notifications_none_rounded,
-            color: Color(0xFF03045E),
+            color: ownerPrimaryColor,
           ),
         ),
       ],
@@ -249,8 +199,7 @@ class OwnerHomeScreen extends StatelessWidget {
 
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-
-        image: DecorationImage(
+        image: const DecorationImage(
           image: NetworkImage(
             "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
           ),
@@ -259,7 +208,7 @@ class OwnerHomeScreen extends StatelessWidget {
       ),
 
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
 
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
@@ -267,10 +216,9 @@ class OwnerHomeScreen extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
-
             colors: [
-              Color(0xFF03045E).withOpacity(0.95),
-              Color(0xFF03045E).withOpacity(0.60),
+              ownerPrimaryColor.withOpacity(0.95),
+              ownerPrimaryColor.withOpacity(0.60),
               Colors.transparent,
             ],
           ),
@@ -281,7 +229,7 @@ class OwnerHomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            Text(
+            const Text(
               "Manage Your\nProperties with\nEase",
               style: TextStyle(
                 fontSize: 24,
@@ -291,13 +239,13 @@ class OwnerHomeScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             SizedBox(
               width: 230,
-
               child: Text(
-                "Post, track and manage your rental properties all in one place.",
+                "Post, track and manage your rental "
+                "properties all in one place.",
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.white.withOpacity(0.85),
@@ -306,7 +254,7 @@ class OwnerHomeScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             InkWell(
               onTap: () {
@@ -316,18 +264,20 @@ class OwnerHomeScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(30),
 
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
 
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
                 ),
 
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
-
                   children: [
-                    Icon(Icons.add_rounded, size: 20, color: Color(0xFF03045E)),
+                    Icon(Icons.add_rounded, size: 20, color: ownerPrimaryColor),
 
                     SizedBox(width: 6),
 
@@ -336,7 +286,7 @@ class OwnerHomeScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF03045E),
+                        color: ownerPrimaryColor,
                       ),
                     ),
                   ],
@@ -350,60 +300,62 @@ class OwnerHomeScreen extends StatelessWidget {
   }
 
   // =========================================================
-  // SUMMARY
+  // SUMMARY GRID
   // =========================================================
 
   Widget buildSummarySection() {
-    return Row(
+    return GridView.count(
+      crossAxisCount: 2,
+
+      shrinkWrap: true,
+
+      physics: const NeverScrollableScrollPhysics(),
+
+      crossAxisSpacing: 12,
+
+      mainAxisSpacing: 12,
+
+      childAspectRatio: 2.15,
+
       children: [
-        Expanded(
-          child: buildSummaryCard(
-            icon: Icons.home_rounded,
-            number: "5",
-            title: "Total",
-            iconBackground: Color(0xFFE6F0FF),
-            iconColor: Color(0xFF2563EB),
-          ),
+        buildSummaryCard(
+          icon: Icons.home_rounded,
+          number: "5",
+          title: "Total",
+          iconBackground: const Color(0xFFE6F0FF),
+          iconColor: const Color(0xFF2563EB),
         ),
 
-        SizedBox(width: 10),
-
-        Expanded(
-          child: buildSummaryCard(
-            icon: Icons.schedule_rounded,
-            number: "1",
-            title: "Pending",
-            iconBackground: Color(0xFFFFF1D6),
-            iconColor: Color(0xFFF59E0B),
-          ),
+        buildSummaryCard(
+          icon: Icons.schedule_rounded,
+          number: "1",
+          title: "Pending",
+          iconBackground: const Color(0xFFFFF1D6),
+          iconColor: const Color(0xFFF59E0B),
         ),
 
-        SizedBox(width: 10),
-
-        Expanded(
-          child: buildSummaryCard(
-            icon: Icons.check_circle_rounded,
-            number: "3",
-            title: "Available",
-            iconBackground: Color(0xFFE6F7EE),
-            iconColor: Color(0xFF16A34A),
-          ),
+        buildSummaryCard(
+          icon: Icons.check_circle_rounded,
+          number: "3",
+          title: "Available",
+          iconBackground: const Color(0xFFE6F7EE),
+          iconColor: const Color(0xFF16A34A),
         ),
 
-        SizedBox(width: 10),
-
-        Expanded(
-          child: buildSummaryCard(
-            icon: Icons.key_rounded,
-            number: "1",
-            title: "Rented",
-            iconBackground: Color(0xFFFFE8E8),
-            iconColor: Color(0xFFDC2626),
-          ),
+        buildSummaryCard(
+          icon: Icons.key_rounded,
+          number: "1",
+          title: "Rented",
+          iconBackground: const Color(0xFFFFE8E8),
+          iconColor: const Color(0xFFDC2626),
         ),
       ],
     );
   }
+
+  // =========================================================
+  // SUMMARY CARD
+  // =========================================================
 
   Widget buildSummaryCard({
     required IconData icon,
@@ -413,56 +365,72 @@ class OwnerHomeScreen extends StatelessWidget {
     required Color iconColor,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: Colors.grey.withOpacity(0.20)),
+        borderRadius: BorderRadius.circular(18),
+
+        border: Border.all(color: Colors.grey.withOpacity(0.18)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 8,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
 
-      child: Column(
+      child: Row(
         children: [
+          // ICON
           Container(
-            width: 38,
-            height: 38,
+            width: 48,
+            height: 48,
 
             decoration: BoxDecoration(
               color: iconBackground,
-              borderRadius: BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(14),
             ),
 
-            child: Icon(icon, size: 20, color: iconColor),
+            child: Icon(icon, size: 24, color: iconColor),
           ),
 
-          SizedBox(height: 8),
+          const SizedBox(width: 13),
 
-          Text(
-            number,
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF03045E),
+          // NUMBER + TITLE
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  number,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    color: ownerPrimaryColor,
+                  ),
+                ),
+
+                const SizedBox(height: 1),
+
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF7D8990),
+                  ),
+                ),
+              ],
             ),
-          ),
-
-          SizedBox(height: 2),
-
-          Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-
-            style: TextStyle(fontSize: 9.5, color: Color(0xFF7D8990)),
           ),
         ],
       ),
@@ -472,52 +440,6 @@ class OwnerHomeScreen extends StatelessWidget {
   // =========================================================
   // QUICK ACTION
   // =========================================================
-
-  Widget buildQuickAction({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-
-      child: Container(
-        height: 100,
-
-        decoration: BoxDecoration(
-          color: ownerLightSecondaryColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Icon(icon, size: 28, color: Color(0xFF03045E)),
-
-            SizedBox(height: 8),
-
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF03045E),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // =========================================================
   // PROPERTY CARD
@@ -533,10 +455,12 @@ class OwnerHomeScreen extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(10),
+
+      padding: const EdgeInsets.all(10),
 
       decoration: BoxDecoration(
         color: Colors.white,
+
         borderRadius: BorderRadius.circular(18),
 
         border: Border.all(color: Colors.grey.withOpacity(0.22)),
@@ -545,7 +469,7 @@ class OwnerHomeScreen extends StatelessWidget {
           BoxShadow(
             color: Colors.grey.withOpacity(0.10),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -573,15 +497,16 @@ class OwnerHomeScreen extends StatelessWidget {
 
                 child: buildBadge(
                   rentalStatus,
+
                   rentalStatus == "Available"
-                      ? Color(0xFF16A34A)
-                      : Color(0xFFDC2626),
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFFDC2626),
                 ),
               ),
             ],
           ),
 
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Column(
@@ -593,18 +518,20 @@ class OwnerHomeScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         title,
+
                         maxLines: 1,
+
                         overflow: TextOverflow.ellipsis,
 
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF03045E),
+                          color: ownerPrimaryColor,
                         ),
                       ),
                     ),
 
-                    Icon(
+                    const Icon(
                       Icons.more_vert_rounded,
                       size: 20,
                       color: Color(0xFF667085),
@@ -612,25 +539,27 @@ class OwnerHomeScreen extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
 
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_outlined,
                       size: 14,
                       color: Color(0xFF7D8990),
                     ),
 
-                    SizedBox(width: 3),
+                    const SizedBox(width: 3),
 
                     Expanded(
                       child: Text(
                         location,
+
                         maxLines: 1,
+
                         overflow: TextOverflow.ellipsis,
 
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 11,
                           color: Color(0xFF7D8990),
                         ),
@@ -639,29 +568,31 @@ class OwnerHomeScreen extends StatelessWidget {
                   ],
                 ),
 
-                SizedBox(height: 7),
+                const SizedBox(height: 7),
 
                 Text(
                   price,
-                  style: TextStyle(
+
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF03045E),
+                    color: ownerPrimaryColor,
                   ),
                 ),
 
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 Row(
                   children: [
                     buildBadge(
                       verificationStatus,
+
                       verificationStatus == "Approved"
-                          ? Color(0xFF2563EB)
-                          : Color(0xFFF59E0B),
+                          ? const Color(0xFF2563EB)
+                          : const Color(0xFFF59E0B),
                     ),
 
-                    Spacer(),
+                    const Spacer(),
 
                     InkWell(
                       onTap: () {
@@ -671,7 +602,7 @@ class OwnerHomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
 
                       child: Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 7,
                         ),
@@ -679,10 +610,10 @@ class OwnerHomeScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
 
-                          border: Border.all(color: Color(0xFF2563EB)),
+                          border: Border.all(color: const Color(0xFF2563EB)),
                         ),
 
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize.min,
 
                           children: [
@@ -722,15 +653,17 @@ class OwnerHomeScreen extends StatelessWidget {
 
   Widget buildBadge(String text, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
+
         borderRadius: BorderRadius.circular(20),
       ),
 
       child: Text(
         text,
+
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w600,
@@ -747,9 +680,9 @@ class OwnerHomeScreen extends StatelessWidget {
   void showStatusBottomSheet(String propertyName, String currentStatus) {
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.fromLTRB(20, 12, 20, 28),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
 
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
 
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -757,6 +690,7 @@ class OwnerHomeScreen extends StatelessWidget {
 
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
@@ -767,58 +701,69 @@ class OwnerHomeScreen extends StatelessWidget {
 
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.30),
+
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-            Text(
+            const Text(
               "Change Availability",
+
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF03045E),
+                color: ownerPrimaryColor,
               ),
             ),
 
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
 
             Text(
               propertyName,
-              style: TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
+
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             buildStatusOption(
               icon: Icons.check_circle_outline_rounded,
+
               title: "Available",
+
               subtitle: "This property is currently open for rent",
-              color: Color(0xFF16A34A),
+
+              color: const Color(0xFF16A34A),
+
               selected: currentStatus == "Available",
 
               onTap: () {
                 Get.back();
 
-                // Update property to Available later
+                // Update property later
               },
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             buildStatusOption(
               icon: Icons.key_rounded,
+
               title: "Rented",
+
               subtitle: "This property is currently occupied",
-              color: Color(0xFFDC2626),
+
+              color: const Color(0xFFDC2626),
+
               selected: currentStatus == "Rented",
 
               onTap: () {
                 Get.back();
 
-                // Update property to Rented later
+                // Update property later
               },
             ),
           ],
@@ -828,6 +773,10 @@ class OwnerHomeScreen extends StatelessWidget {
       isScrollControlled: true,
     );
   }
+
+  // =========================================================
+  // STATUS OPTION
+  // =========================================================
 
   Widget buildStatusOption({
     required IconData icon,
@@ -839,10 +788,11 @@ class OwnerHomeScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
+
       borderRadius: BorderRadius.circular(16),
 
       child: Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
 
         decoration: BoxDecoration(
           color: selected ? color.withOpacity(0.08) : Colors.white,
@@ -862,13 +812,14 @@ class OwnerHomeScreen extends StatelessWidget {
 
               decoration: BoxDecoration(
                 color: color.withOpacity(0.10),
+
                 borderRadius: BorderRadius.circular(12),
               ),
 
               child: Icon(icon, color: color, size: 22),
             ),
 
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
@@ -877,18 +828,23 @@ class OwnerHomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF03045E),
+                      color: ownerPrimaryColor,
                     ),
                   ),
 
-                  SizedBox(height: 3),
+                  const SizedBox(height: 3),
 
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 11, color: Color(0xFF7D8990)),
+
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF7D8990),
+                    ),
                   ),
                 ],
               ),

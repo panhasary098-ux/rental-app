@@ -23,7 +23,8 @@ Widget customTypeContainer({
       duration: const Duration(milliseconds: 180),
 
       decoration: BoxDecoration(
-        color: isSeleted ? lightSecondaryColor : Colors.white,
+        //color: isSeleted ? lightSecondaryColor : Colors.white,
+        color: Colors.white,
 
         borderRadius: BorderRadius.circular(15),
 
@@ -51,7 +52,8 @@ Widget customTypeContainer({
             // ==================================================
             Container(
               decoration: BoxDecoration(
-                color: isSeleted ? secondaryColor : lightSecondaryColor,
+                //color: isSeleted ? secondaryColor : lightSecondaryColor,
+                color: lightSecondaryColor,
 
                 borderRadius: BorderRadius.circular(8),
               ),

@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class PropertyController extends Controller
 {
+    // ======================================================
+    // SUBMIT PROPERTY
+    // ======================================================
+
     public function store(Request $request)
     {
         $user = $request->user();
@@ -176,7 +180,7 @@ class PropertyController extends Controller
                 }
             }
 
-            // Remove duplicate floor numbers
+            // Remove duplicates
             $validated['available_floors'] =
                 array_values(
                     array_unique($availableFloors)
@@ -185,8 +189,6 @@ class PropertyController extends Controller
 
         // ======================================================
         // PAYMENT AMOUNT
-        // Laravel decides the fee.
-        // Flutter does NOT decide the fee.
         // ======================================================
 
         $paymentAmount = match (
@@ -213,7 +215,8 @@ class PropertyController extends Controller
             // ==================================================
 
             $property = Property::create([
-                'owner_id' => $user->id,
+                'owner_id' =>
+                    $user->id,
 
                 'name' =>
                     $validated['name'],
@@ -258,10 +261,12 @@ class PropertyController extends Controller
                     $validated['rental_status'],
 
                 // Waiting for admin
-                'verification_status' => 'pending',
+                'verification_status' =>
+                    'pending',
 
                 // Not visible to renter yet
-                'post_status' => 'unpublished',
+                'post_status' =>
+                    'unpublished',
             ]);
 
             // ==================================================
@@ -314,7 +319,8 @@ class PropertyController extends Controller
                     $property
                         ->availableFloors()
                         ->create([
-                            'floor_number' => $floor,
+                            'floor_number' =>
+                                $floor,
                         ]);
                 }
             }
@@ -333,12 +339,15 @@ class PropertyController extends Controller
                 );
 
                 $property->images()->create([
-                    'image_path' => $path,
+                    'image_path' =>
+                        $path,
 
                     // First image = cover
-                    'is_cover' => $index === 0,
+                    'is_cover' =>
+                        $index === 0,
 
-                    'sort_order' => $index + 1,
+                    'sort_order' =>
+                        $index + 1,
                 ]);
             }
 
@@ -374,8 +383,8 @@ class PropertyController extends Controller
             // ==================================================
 
             $property->payment()->create([
-                // Amount determined by Laravel
-                'amount' => $paymentAmount,
+                'amount' =>
+                    $paymentAmount,
 
                 'transaction_reference' =>
                     $validated[
@@ -385,10 +394,11 @@ class PropertyController extends Controller
                 'payment_proof_path' =>
                     $paymentProofPath,
 
-                // Admin has not checked payment yet
-                'payment_status' => 'pending',
+                'payment_status' =>
+                    'pending',
 
-                'paid_at' => null,
+                'paid_at' =>
+                    null,
             ]);
 
             return $property;
@@ -416,8 +426,173 @@ class PropertyController extends Controller
             'message' =>
                 'Property submitted successfully and is waiting for admin review',
 
-            'property' => $property,
+            'property' =>
+                $property,
 
         ], 201);
+    }
+
+    // ======================================================
+    // GET LOGGED-IN OWNER PROPERTIES
+    // ======================================================
+
+    public function myProperties(Request $request)
+    {
+        $user = $request->user();
+
+        // ==================================================
+        // ONLY HOUSE OWNER
+        // ==================================================
+
+        if (!$user || $user->role !== 'house_owner') {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Only house owners can view their properties',
+            ], 403);
+        }
+
+        // ==================================================
+        // GET OWNER PROPERTIES
+        // ==================================================
+
+        $properties = Property::where(
+            'owner_id',
+            $user->id
+        )
+            ->with([
+                'images' => function ($query) {
+                    $query->orderBy(
+                        'sort_order'
+                    );
+                },
+
+                'facilities',
+
+                'availableFloors',
+            ])
+            ->latest()
+            ->get();
+
+        // ==================================================
+        // ADD INFORMATION FOR FLUTTER
+        // ==================================================
+
+        $properties->each(function ($property) {
+
+            // --------------------------------------------------
+            // COVER IMAGE
+            // --------------------------------------------------
+
+            $coverImage =
+                $property->images
+                    ->firstWhere(
+                        'is_cover',
+                        true
+                    );
+
+            // If somehow no cover exists,
+            // use first image.
+            if (!$coverImage) {
+                $coverImage =
+                    $property->images->first();
+            }
+
+            $property->cover_image_path =
+                $coverImage
+                    ? $coverImage->image_path
+                    : null;
+
+            // --------------------------------------------------
+            // EDIT PERMISSION
+            // --------------------------------------------------
+            //
+            // Pending  = editable
+            // Rejected = editable
+            // Approved = NOT editable
+            //
+
+            $property->can_edit =
+                $property->verification_status
+                !== 'approved';
+        });
+
+        return response()->json([
+            'success' => true,
+
+            'properties' =>
+                $properties,
+        ]);
+    }
+
+    // ======================================================
+    // UPDATE RENTAL STATUS
+    // ======================================================
+
+    public function updateRentalStatus(
+        Request $request,
+        Property $property
+    ) {
+        $user = $request->user();
+
+        // ==================================================
+        // USER CHECK
+        // ==================================================
+
+        if (
+            !$user ||
+            $user->role !== 'house_owner'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // ==================================================
+        // OWNER CHECK
+        // ==================================================
+
+        if (
+            $property->owner_id
+            !== $user->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'You do not own this property',
+            ], 403);
+        }
+
+        // ==================================================
+        // VALIDATE STATUS
+        // ==================================================
+
+        $validated =
+            $request->validate([
+                'rental_status' =>
+                    'required|in:available,rented',
+            ]);
+
+        // ==================================================
+        // UPDATE
+        // ==================================================
+
+        $property->update([
+            'rental_status' =>
+                $validated[
+                    'rental_status'
+                ],
+        ]);
+
+        return response()->json([
+            'success' => true,
+
+            'message' =>
+                'Rental status updated successfully',
+
+            'property' =>
+                $property,
+        ]);
     }
 }

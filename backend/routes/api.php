@@ -39,3 +39,13 @@ Route::middleware('firebase.auth')->post(
     '/properties',
     [PropertyController::class, 'store']
 );
+
+Route::middleware('firebase.auth')->get(
+    '/owner/properties',
+    [PropertyController::class, 'myProperties']
+);
+
+Route::middleware('firebase.auth')->patch(
+    '/properties/{property}/rental-status',
+    [PropertyController::class, 'updateRentalStatus']
+);

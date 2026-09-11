@@ -26,18 +26,20 @@ class HomeScreen extends StatelessWidget {
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(20, 10, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // ==================================================
+              // HEADER
+              // ==================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.menu_rounded,
                       size: 27,
                       color: primaryColor,
@@ -48,7 +50,7 @@ class HomeScreen extends StatelessWidget {
 
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.notifications_none_rounded,
                       size: 27,
                       color: primaryColor,
@@ -57,40 +59,51 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
-              // Main heading
+              // ==================================================
+              // HEADLINE
+              // ==================================================
               headline(),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
+              // ==================================================
+              // SEARCH
+              // ==================================================
               searchBox(),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-              // Location
+              // ==================================================
+              // LOCATION
+              // ==================================================
               filterLocation(),
 
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-              // Budget + Filters
+              // ==================================================
+              // BUDGET + TYPE
+              // ==================================================
               Row(
                 children: [
                   Expanded(child: filterPrice()),
 
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
                   Expanded(child: filterType()),
                 ],
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-              // Recommended title
+              // ==================================================
+              // RECOMMENDED TITLE
+              // ==================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Recommended for you",
                     style: TextStyle(
                       color: primaryColor,
@@ -101,7 +114,8 @@ class HomeScreen extends StatelessWidget {
 
                   TextButton(
                     onPressed: () {},
-                    child: Text(
+
+                    child: const Text(
                       "See all",
                       style: TextStyle(
                         color: primaryColor,
@@ -113,12 +127,14 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
 
-              // Property list
+              // ==================================================
+              // PROPERTY LIST
+              // ==================================================
               ListView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: properties.length,
 
                 itemBuilder: (context, index) {
@@ -126,34 +142,38 @@ class HomeScreen extends StatelessWidget {
 
                   return Container(
                     width: 300,
-                    margin: EdgeInsets.only(bottom: 15),
+
+                    margin: const EdgeInsets.only(bottom: 15),
 
                     decoration: BoxDecoration(
                       color: Colors.white,
+
                       borderRadius: BorderRadius.circular(18),
 
                       boxShadow: [
                         BoxShadow(
                           blurRadius: 12,
                           color: primaryColor.withOpacity(0.08),
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
 
                     child: InkWell(
                       onTap: () {
-                        Get.to(PropertyDetailScreen());
+                        Get.to(() => const PropertyDetailScreen());
                       },
 
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Image
+                          // ========================================
+                          // IMAGE
+                          // ========================================
                           Stack(
                             children: [
                               ClipRRect(
-                                borderRadius: BorderRadius.vertical(
+                                borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(18),
                                 ),
 
@@ -165,7 +185,9 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
 
-                              // Favorite
+                              // ====================================
+                              // FAVORITE
+                              // ====================================
                               Positioned(
                                 top: 10,
                                 right: 10,
@@ -174,83 +196,74 @@ class HomeScreen extends StatelessWidget {
                                   width: 36,
                                   height: 36,
 
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
 
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.favorite_border_rounded,
                                     color: primaryColor,
                                   ),
                                 ),
                               ),
 
+                              // ====================================
+                              // PROPERTY STATUS
+                              // ====================================
                               Positioned(
                                 top: 10,
                                 left: 10,
 
-                                child: Container(
-                                  height: 22,
-
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-
-                                  decoration: BoxDecoration(
-                                    color: secondaryColor,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-
-                                  alignment: Alignment.center,
-
-                                  child: const Text(
-                                    "Available",
-                                    style: TextStyle(
-                                      color: primaryColor,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
+                                child: buildStatusBadge(property.status),
                               ),
                             ],
                           ),
 
-                          // Property information
+                          // ========================================
+                          // PROPERTY INFORMATION
+                          // ========================================
                           Padding(
-                            padding: EdgeInsets.fromLTRB(14, 10, 14, 10),
+                            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
 
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // NAME
                                 Text(
                                   property.name,
-                                  style: TextStyle(
+
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+
+                                  style: const TextStyle(
                                     color: primaryColor,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
 
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
 
+                                // LOCATION
                                 Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.location_on_outlined,
                                       size: 15,
                                       color: primaryColor,
                                     ),
 
-                                    SizedBox(width: 3),
+                                    const SizedBox(width: 3),
 
                                     Expanded(
                                       child: Text(
-                                        "${property.location.address} ",
+                                        "${property.location.address}",
+
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
+
+                                        style: const TextStyle(
                                           color: Colors.black54,
                                           fontSize: 12,
                                         ),
@@ -259,11 +272,13 @@ class HomeScreen extends StatelessWidget {
                                   ],
                                 ),
 
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
 
+                                // PRICE
                                 Text(
                                   "\$${property.price.toInt()} / month",
-                                  style: TextStyle(
+
+                                  style: const TextStyle(
                                     color: primaryColor,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15,
@@ -287,12 +302,73 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ======================================================
+// PROPERTY STATUS BADGE
+// ======================================================
+
+Widget buildStatusBadge(String status) {
+  Color statusColor;
+
+  if (status.toLowerCase() == "available" ||
+      status.toLowerCase() == "available now") {
+    statusColor = const Color(0xFF16A34A);
+  } else if (status.toLowerCase() == "rented") {
+    statusColor = const Color(0xFFDC2626);
+  } else {
+    statusColor = const Color(0xFFF59E0B);
+  }
+
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+
+    decoration: BoxDecoration(
+      color: Colors.white.withOpacity(0.95),
+
+      borderRadius: BorderRadius.circular(20),
+
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 5,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // STATUS DOT
+        Container(
+          width: 7,
+          height: 7,
+
+          decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+        ),
+
+        const SizedBox(width: 5),
+
+        // STATUS TEXT
+        Text(
+          status,
+
+          style: TextStyle(
+            color: statusColor,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// ======================================================
 // APP NAME
 // ======================================================
 
 Widget appName() {
   return RichText(
-    text: TextSpan(
+    text: const TextSpan(
       children: [
         TextSpan(
           text: "Joul",
@@ -306,8 +382,7 @@ Widget appName() {
         TextSpan(
           text: "Now",
           style: TextStyle(
-            color: const Color.fromARGB(255, 2, 216, 253),
-            //color: const Color.fromARGB(255, 75, 223, 243),
+            color: Color.fromARGB(255, 2, 216, 253),
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -322,7 +397,7 @@ Widget appName() {
 // ======================================================
 
 Widget headline() {
-  return Column(
+  return const Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(
@@ -350,7 +425,7 @@ Widget headline() {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: const Color.fromARGB(255, 2, 216, 253),
+              color: Color.fromARGB(255, 2, 216, 253),
             ),
           ),
 
@@ -368,7 +443,7 @@ Widget headline() {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: const Color.fromARGB(255, 2, 216, 253),
+              color: Color.fromARGB(255, 2, 216, 253),
             ),
           ),
         ],
@@ -397,14 +472,14 @@ Widget searchBox() {
     ),
 
     child: TextFormField(
-      style: TextStyle(color: primaryColor),
+      style: const TextStyle(color: primaryColor),
 
       decoration: InputDecoration(
         prefixIcon: const Icon(Icons.search, color: primaryColor),
 
         hintText: 'Search Property name....',
 
-        hintStyle: TextStyle(color: Colors.black38),
+        hintStyle: const TextStyle(color: Colors.black38),
 
         filled: true,
         fillColor: Colors.white,
@@ -414,16 +489,18 @@ Widget searchBox() {
           borderRadius: BorderRadius.circular(10),
         ),
 
-        // Filter button
         suffixIcon: Tooltip(
           waitDuration: const Duration(milliseconds: 500),
+
           showDuration: const Duration(seconds: 2),
+
           preferBelow: false,
+
           message: "Filter",
 
           child: IconButton(
             onPressed: () {
-              Get.to(() => FilterScreen());
+              Get.to(() => const FilterScreen());
             },
 
             icon: const Icon(Icons.tune, color: primaryColor),
@@ -440,10 +517,11 @@ Widget searchBox() {
 
 Widget filterLocation() {
   return Container(
-    padding: EdgeInsets.all(15),
+    padding: const EdgeInsets.all(15),
 
     decoration: BoxDecoration(
       color: Colors.white,
+
       borderRadius: BorderRadius.circular(17),
 
       boxShadow: [
@@ -466,14 +544,15 @@ Widget filterLocation() {
             borderRadius: BorderRadius.circular(10),
           ),
 
-          child: Icon(Icons.location_on_outlined, color: primaryColor),
+          child: const Icon(Icons.location_on_outlined, color: primaryColor),
         ),
 
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
 
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text("Near", style: TextStyle(fontSize: 12, color: Colors.grey)),
 
@@ -491,7 +570,7 @@ Widget filterLocation() {
           ),
         ),
 
-        Icon(Icons.chevron_right_rounded, color: primaryColor),
+        const Icon(Icons.chevron_right_rounded, color: primaryColor),
       ],
     ),
   );
@@ -504,17 +583,19 @@ Widget filterLocation() {
 Widget filterPrice() {
   return Container(
     height: 67,
-    padding: EdgeInsets.symmetric(horizontal: 13),
+
+    padding: const EdgeInsets.symmetric(horizontal: 13),
 
     decoration: BoxDecoration(
       color: Colors.white,
+
       borderRadius: BorderRadius.circular(17),
 
       boxShadow: [
         BoxShadow(
           color: primaryColor.withOpacity(0.07),
           blurRadius: 10,
-          offset: Offset(0, 3),
+          offset: const Offset(0, 3),
         ),
       ],
     ),
@@ -530,19 +611,20 @@ Widget filterPrice() {
             borderRadius: BorderRadius.circular(9),
           ),
 
-          child: Icon(
+          child: const Icon(
             Icons.account_balance_wallet_outlined,
             size: 22,
             color: primaryColor,
           ),
         ),
 
-        SizedBox(width: 9),
+        const SizedBox(width: 9),
 
-        Expanded(
+        const Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 "Budget",
@@ -554,6 +636,7 @@ Widget filterPrice() {
               Text(
                 "Price range",
                 overflow: TextOverflow.ellipsis,
+
                 style: TextStyle(
                   color: primaryColor,
                   fontWeight: FontWeight.bold,
@@ -575,17 +658,19 @@ Widget filterPrice() {
 Widget filterType() {
   return Container(
     height: 67,
-    padding: EdgeInsets.symmetric(horizontal: 13),
+
+    padding: const EdgeInsets.symmetric(horizontal: 13),
 
     decoration: BoxDecoration(
       color: Colors.white,
+
       borderRadius: BorderRadius.circular(17),
 
       boxShadow: [
         BoxShadow(
           color: primaryColor.withOpacity(0.07),
           blurRadius: 10,
-          offset: Offset(0, 3),
+          offset: const Offset(0, 3),
         ),
       ],
     ),
@@ -601,15 +686,16 @@ Widget filterType() {
             borderRadius: BorderRadius.circular(9),
           ),
 
-          child: Icon(Icons.home_outlined, size: 23, color: primaryColor),
+          child: const Icon(Icons.home_outlined, size: 23, color: primaryColor),
         ),
 
-        SizedBox(width: 9),
+        const SizedBox(width: 9),
 
-        Expanded(
+        const Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 "Filters",

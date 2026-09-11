@@ -605,8 +605,6 @@ class PostPropertyController extends GetxController {
 
         ownershipDocument: ownershipDocument,
 
-        paymentAmount: paymentAmount,
-
         transactionReference: transactionReferenceController.text.trim(),
 
         paymentProof: paymentProof,

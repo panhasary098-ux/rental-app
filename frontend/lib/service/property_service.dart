@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,26 @@ class PropertyService {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   final String baseUrl = "http://10.0.2.2:8000/api";
+
+  // ======================================================
+  // GET FIREBASE TOKEN
+  // ======================================================
+
+  Future<String> _getToken() async {
+    final User? firebaseUser = auth.currentUser;
+
+    if (firebaseUser == null) {
+      throw Exception("User is not logged in");
+    }
+
+    final String? token = await firebaseUser.getIdToken();
+
+    if (token == null || token.isEmpty) {
+      throw Exception("Unable to get authentication token");
+    }
+
+    return token;
+  }
 
   // ======================================================
   // SUBMIT PROPERTY
@@ -39,31 +60,11 @@ class PropertyService {
 
     required File ownershipDocument,
 
-    required double paymentAmount,
-
     String? transactionReference,
 
     required File paymentProof,
   }) async {
-    // ====================================================
-    // FIREBASE USER
-    // ====================================================
-
-    final User? firebaseUser = auth.currentUser;
-
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
-    }
-
-    // ====================================================
-    // FIREBASE TOKEN
-    // ====================================================
-
-    final String? token = await firebaseUser.getIdToken();
-
-    if (token == null || token.isEmpty) {
-      throw Exception("Unable to get authentication token");
-    }
+    final String token = await _getToken();
 
     // ====================================================
     // MULTIPART REQUEST
@@ -96,7 +97,8 @@ class PropertyService {
     request.fields["description"] = description;
     request.fields["contact"] = contact;
 
-    request.fields["furnished"] = furnished ? "1" : "0";
+    request.fields["furnished"] =
+        furnished ? "1" : "0";
 
     // ====================================================
     // LOCATION
@@ -104,42 +106,52 @@ class PropertyService {
 
     request.fields["address"] = address;
 
-    request.fields["latitude"] = latitude.toString();
+    request.fields["latitude"] =
+        latitude.toString();
 
-    request.fields["longitude"] = longitude.toString();
+    request.fields["longitude"] =
+        longitude.toString();
 
     // ====================================================
     // PROPERTY DETAILS
     // ====================================================
 
     if (bedrooms != null) {
-      request.fields["bedrooms"] = bedrooms.toString();
+      request.fields["bedrooms"] =
+          bedrooms.toString();
     }
 
     if (bathrooms != null) {
-      request.fields["bathrooms"] = bathrooms.toString();
+      request.fields["bathrooms"] =
+          bathrooms.toString();
     }
 
     if (totalFloor != null) {
-      request.fields["total_floor"] = totalFloor.toString();
+      request.fields["total_floor"] =
+          totalFloor.toString();
     }
 
-    request.fields["rental_status"] = rentalStatus;
+    request.fields["rental_status"] =
+        rentalStatus;
 
     // ====================================================
     // FACILITIES
     // ====================================================
 
     facilities.forEach((key, value) {
-      request.fields["facilities[$key]"] = value ? "1" : "0";
+      request.fields["facilities[$key]"] =
+          value ? "1" : "0";
     });
 
     // ====================================================
     // AVAILABLE FLOORS
     // ====================================================
 
-    for (int i = 0; i < availableFloors.length; i++) {
-      request.fields["available_floors[$i]"] = availableFloors[i].toString();
+    for (int i = 0;
+        i < availableFloors.length;
+        i++) {
+      request.fields["available_floors[$i]"] =
+          availableFloors[i].toString();
     }
 
     // ====================================================
@@ -148,7 +160,10 @@ class PropertyService {
 
     for (final File image in propertyImages) {
       request.files.add(
-        await http.MultipartFile.fromPath("property_images[]", image.path),
+        await http.MultipartFile.fromPath(
+          "property_images[]",
+          image.path,
+        ),
       );
     }
 
@@ -164,44 +179,113 @@ class PropertyService {
     );
 
     // ====================================================
-    // PAYMENT
+    // TRANSACTION REFERENCE
     // ====================================================
 
-    // Amount comes automatically from PostPropertyController:
-    //
-    // House       = $50
-    // Apartment   = $40
-    // Room        = $30
-
-    request.fields["payment_amount"] = paymentAmount.toStringAsFixed(2);
-
-    // Optional transaction reference
     if (transactionReference != null &&
         transactionReference.trim().isNotEmpty) {
-      request.fields["transaction_reference"] = transactionReference.trim();
+      request.fields["transaction_reference"] =
+          transactionReference.trim();
     }
 
-    // Payment proof
+    // ====================================================
+    // PAYMENT PROOF
+    // ====================================================
+
     request.files.add(
-      await http.MultipartFile.fromPath("payment_proof", paymentProof.path),
+      await http.MultipartFile.fromPath(
+        "payment_proof",
+        paymentProof.path,
+      ),
     );
 
     // ====================================================
     // SEND REQUEST
     // ====================================================
 
-    final streamedResponse = await request.send();
+    final streamedResponse =
+        await request.send();
 
-    // ====================================================
-    // CONVERT RESPONSE
-    // ====================================================
+    final response =
+        await http.Response.fromStream(
+      streamedResponse,
+    );
 
-  
-final response = await http.Response.fromStream(streamedResponse);
+    print(
+      "PROPERTY SUBMIT STATUS: ${response.statusCode}",
+    );
 
-print("PROPERTY SUBMIT STATUS: ${response.statusCode}");
-print("PROPERTY SUBMIT RESPONSE: ${response.body}");
+    print(
+      "PROPERTY SUBMIT RESPONSE: ${response.body}",
+    );
 
-return response;
+    return response;
+  }
+
+  // ======================================================
+  // GET OWNER PROPERTIES
+  // ======================================================
+
+  Future<http.Response> getMyProperties() async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse(
+        "$baseUrl/owner/properties",
+      ),
+
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    print(
+      "MY PROPERTIES STATUS: ${response.statusCode}",
+    );
+
+    print(
+      "MY PROPERTIES RESPONSE: ${response.body}",
+    );
+
+    return response;
+  }
+
+  // ======================================================
+  // UPDATE RENTAL STATUS
+  // ======================================================
+
+  Future<http.Response> updateRentalStatus({
+    required int propertyId,
+    required String rentalStatus,
+  }) async {
+    final String token = await _getToken();
+
+    final response = await http.patch(
+      Uri.parse(
+        "$baseUrl/properties/"
+        "$propertyId/rental-status",
+      ),
+
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+
+      body: jsonEncode({
+        "rental_status": rentalStatus,
+      }),
+    );
+
+    print(
+      "UPDATE STATUS CODE: ${response.statusCode}",
+    );
+
+    print(
+      "UPDATE STATUS RESPONSE: ${response.body}",
+    );
+
+    return response;
   }
 }

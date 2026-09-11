@@ -1,77 +1,287 @@
+import 'dart:convert';
+
+import 'package:final_project/service/property_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+// ======================================================
+// APP COLORS
+// ======================================================
+
+const Color primaryColor = Color(0xFF03045E);
+const Color secondaryColor = Color(0xFF90E0EF);
+const Color backgroundColor = Color(0xFFF4FCFE);
+
 class OwnerPropertiesScreen extends StatefulWidget {
-  OwnerPropertiesScreen({super.key});
+  const OwnerPropertiesScreen({super.key});
 
   @override
   State<OwnerPropertiesScreen> createState() => _OwnerPropertiesScreenState();
 }
 
 class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
-  String selectedFilter = "All";
+  final PropertyService propertyService = PropertyService();
 
-  List<Map<String, dynamic>> properties = [
-    {
-      "title": "Modern Family House",
-      "location": "Sen Sok, Phnom Penh",
-      "price": "\$850 / month",
-      "rentalStatus": "Available",
-      "verificationStatus": "Approved",
-      "image":
-          "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
-    },
-    {
-      "title": "BKK1 City Apartment",
-      "location": "BKK1, Phnom Penh",
-      "price": "\$550 / month",
-      "rentalStatus": "Rented",
-      "verificationStatus": "Approved",
-      "image":
-          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
-    },
-    {
-      "title": "Toul Kork Room",
-      "location": "Toul Kork, Phnom Penh",
-      "price": "\$180 / month",
-      "rentalStatus": "Available",
-      "verificationStatus": "Pending",
-      "image":
-          "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
-    },
-  ];
+  final TextEditingController searchController = TextEditingController();
+
+  String selectedFilter = "All";
+  String searchQuery = "";
+
+  bool isLoading = true;
+  String? errorMessage;
+
+  List<Map<String, dynamic>> properties = [];
+
+  // Laravel public storage
+  final String storageBaseUrl = "http://10.0.2.2:8000/storage";
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadProperties();
+
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text.trim().toLowerCase();
+      });
+    });
+  }
+
+  // =========================================================
+  // LOAD OWNER PROPERTIES
+  // =========================================================
+
+  Future<void> loadProperties() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final response = await propertyService.getMyProperties();
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data["success"] == true) {
+        final List<dynamic> propertyList = data["properties"] ?? [];
+
+        setState(() {
+          properties = propertyList
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
+        });
+      } else {
+        setState(() {
+          errorMessage = data["message"] ?? "Unable to load properties.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  // =========================================================
+  // FILTERED PROPERTIES
+  // =========================================================
+
+  List<Map<String, dynamic>> get filteredProperties {
+    return properties.where((property) {
+      final String rentalStatus = (property["rental_status"] ?? "")
+          .toString()
+          .toLowerCase();
+
+      final String verificationStatus = (property["verification_status"] ?? "")
+          .toString()
+          .toLowerCase();
+
+      // =====================================================
+      // FILTER
+      // =====================================================
+
+      bool matchesFilter = true;
+
+      if (selectedFilter == "Available") {
+        matchesFilter = rentalStatus == "available";
+      } else if (selectedFilter == "Rented") {
+        matchesFilter = rentalStatus == "rented";
+      } else if (selectedFilter == "Pending") {
+        matchesFilter = verificationStatus == "pending";
+      }
+
+      // =====================================================
+      // SEARCH
+      // =====================================================
+
+      final String name = (property["name"] ?? "").toString().toLowerCase();
+
+      final String address = (property["address"] ?? "")
+          .toString()
+          .toLowerCase();
+
+      final bool matchesSearch =
+          searchQuery.isEmpty ||
+          name.contains(searchQuery) ||
+          address.contains(searchQuery);
+
+      return matchesFilter && matchesSearch;
+    }).toList();
+  }
+
+  // =========================================================
+  // IMAGE URL
+  // =========================================================
+
+  String? getPropertyImage(Map<String, dynamic> property) {
+    final dynamic path = property["cover_image_path"];
+
+    if (path == null || path.toString().trim().isEmpty) {
+      return null;
+    }
+
+    final String imagePath = path.toString();
+
+    if (imagePath.startsWith("http")) {
+      return imagePath;
+    }
+
+    return "$storageBaseUrl/$imagePath";
+  }
+
+  // =========================================================
+  // CAPITALIZE STATUS
+  // =========================================================
+
+  String capitalize(String text) {
+    if (text.isEmpty) {
+      return "";
+    }
+
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
+  }
+
+  // =========================================================
+  // PRICE
+  // =========================================================
+
+  String getPrice(Map<String, dynamic> property) {
+    final dynamic rawPrice = property["price"];
+
+    final double? price = double.tryParse(rawPrice.toString());
+
+    if (price == null) {
+      return "\$${rawPrice ?? 0} / month";
+    }
+
+    if (price == price.roundToDouble()) {
+      return "\$${price.toInt()} / month";
+    }
+
+    return "\$${price.toStringAsFixed(2)} / month";
+  }
+
+  // =========================================================
+  // CAN EDIT
+  // =========================================================
+
+  bool canEdit(Map<String, dynamic> property) {
+    // Prefer backend can_edit
+    if (property["can_edit"] is bool) {
+      return property["can_edit"];
+    }
+
+    // Backup rule
+    final String verificationStatus = (property["verification_status"] ?? "")
+        .toString()
+        .toLowerCase();
+
+    return verificationStatus != "approved";
+  }
+
+  // =========================================================
+  // UPDATE RENTAL STATUS
+  // =========================================================
+
+  Future<void> updatePropertyStatus(
+    Map<String, dynamic> property,
+    String newStatus,
+  ) async {
+    try {
+      final dynamic rawId = property["id"];
+
+      final int? propertyId = int.tryParse(rawId.toString());
+
+      if (propertyId == null) {
+        Get.snackbar(
+          "Error",
+          "Invalid property ID.",
+          snackPosition: SnackPosition.TOP,
+        );
+
+        return;
+      }
+
+      final response = await propertyService.updateRentalStatus(
+        propertyId: propertyId,
+        rentalStatus: newStatus,
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && data["success"] == true) {
+        setState(() {
+          property["rental_status"] = newStatus;
+        });
+
+        Get.back();
+
+        Get.snackbar(
+          "Status Updated",
+          "${property["name"]} is now ${capitalize(newStatus)}",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.white,
+          colorText: primaryColor,
+        );
+      } else {
+        Get.snackbar(
+          "Update Failed",
+          data["message"] ?? "Unable to update property status.",
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+    } catch (e) {
+      Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.TOP);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> filteredProperties =
-        properties.where((property) {
-      if (selectedFilter == "All") {
-        return true;
-      }
-
-      if (selectedFilter == "Pending") {
-        return property["verificationStatus"] == "Pending";
-      }
-
-      return property["rentalStatus"] == selectedFilter;
-    }).toList();
+    final List<Map<String, dynamic>> currentProperties = filteredProperties;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
+      backgroundColor: backgroundColor,
 
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        backgroundColor: backgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
 
-        title: Text(
+        title: const Text(
           "My Properties",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF03045E),
+            color: primaryColor,
           ),
         ),
       ),
@@ -81,35 +291,44 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
         child: Column(
           children: [
-            // SEARCH + FILTER AREA
+            // =====================================================
+            // SEARCH + FILTER
+            // =====================================================
             Container(
-              color: Colors.white,
+              color: backgroundColor,
 
-              padding: EdgeInsets.fromLTRB(
-                18,
-                10,
-                18,
-                16,
-              ),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 16),
 
               child: Column(
                 children: [
+                  // =================================================
                   // SEARCH
+                  // =================================================
                   Container(
                     height: 50,
 
                     decoration: BoxDecoration(
-                      color: Color(0xFFF5F7FA),
+                      color: Colors.white,
+
                       borderRadius: BorderRadius.circular(15),
 
-                      border: Border.all(
-                        color: Colors.grey.withOpacity(0.20),
-                      ),
+                      border: Border.all(color: Colors.grey.withOpacity(0.20)),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.03),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
 
                     child: TextField(
-                      decoration: InputDecoration(
+                      controller: searchController,
+
+                      decoration: const InputDecoration(
                         hintText: "Search your properties",
+
                         hintStyle: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF98A2B3),
@@ -122,27 +341,33 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
                         border: InputBorder.none,
 
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 15,
-                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 15),
                       ),
                     ),
                   ),
 
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
 
+                  // =================================================
                   // FILTERS
+                  // =================================================
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
 
                     child: Row(
                       children: [
                         buildFilterChip("All"),
-                        SizedBox(width: 8),
+
+                        const SizedBox(width: 8),
+
                         buildFilterChip("Available"),
-                        SizedBox(width: 8),
+
+                        const SizedBox(width: 8),
+
                         buildFilterChip("Rented"),
-                        SizedBox(width: 8),
+
+                        const SizedBox(width: 8),
+
                         buildFilterChip("Pending"),
                       ],
                     ),
@@ -151,64 +376,82 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               ),
             ),
 
-            // PROPERTY COUNT
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                18,
-                18,
-                18,
-                10,
-              ),
+            // =====================================================
+            // LOADING
+            // =====================================================
+            if (isLoading)
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(color: primaryColor),
+                ),
+              )
+            // =====================================================
+            // ERROR
+            // =====================================================
+            else if (errorMessage != null)
+              Expanded(child: buildErrorState())
+            // =====================================================
+            // DATA
+            // =====================================================
+            else ...[
+              // =================================================
+              // PROPERTY COUNT
+              // =================================================
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
 
-              child: Row(
-                children: [
-                  Text(
-                    "${filteredProperties.length} Properties",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF03045E),
-                    ),
-                  ),
+                child: Row(
+                  children: [
+                    Text(
+                      "${currentProperties.length} Properties",
 
-                  Spacer(),
-
-                  Text(
-                    "Manage your listings",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF7D8990),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // PROPERTY LIST
-            Expanded(
-              child: filteredProperties.isEmpty
-                  ? buildEmptyState()
-                  : ListView.separated(
-                      padding: EdgeInsets.fromLTRB(
-                        18,
-                        4,
-                        18,
-                        28,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: primaryColor,
                       ),
-
-                      itemCount: filteredProperties.length,
-
-                      separatorBuilder: (context, index) {
-                        return SizedBox(height: 16);
-                      },
-
-                      itemBuilder: (context, index) {
-                        return buildPropertyCard(
-                          filteredProperties[index],
-                        );
-                      },
                     ),
-            ),
+
+                    const Spacer(),
+
+                    const Text(
+                      "Manage your listings",
+
+                      style: TextStyle(fontSize: 11, color: Color(0xFF7D8990)),
+                    ),
+                  ],
+                ),
+              ),
+
+              // =================================================
+              // PROPERTY LIST
+              // =================================================
+              Expanded(
+                child: currentProperties.isEmpty
+                    ? buildEmptyState()
+                    : RefreshIndicator(
+                        color: primaryColor,
+
+                        onRefresh: loadProperties,
+
+                        child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+
+                          padding: const EdgeInsets.fromLTRB(18, 4, 18, 28),
+
+                          itemCount: currentProperties.length,
+
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(height: 16);
+                          },
+
+                          itemBuilder: (context, index) {
+                            return buildPropertyCard(currentProperties[index]);
+                          },
+                        ),
+                      ),
+              ),
+            ],
           ],
         ),
       ),
@@ -216,11 +459,11 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   }
 
   // =========================================================
-  // FILTER
+  // FILTER CHIP
   // =========================================================
 
   Widget buildFilterChip(String title) {
-    bool selected = selectedFilter == title;
+    final bool selected = selectedFilter == title;
 
     return InkWell(
       onTap: () {
@@ -232,21 +475,16 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
       borderRadius: BorderRadius.circular(30),
 
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: 17,
-          vertical: 9,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
 
         decoration: BoxDecoration(
-          color: selected
-              ? Color(0xFFE8E9FF)
-              : Colors.white,
+          color: selected ? secondaryColor : Colors.white,
 
           borderRadius: BorderRadius.circular(30),
 
           border: Border.all(
             color: selected
-                ? Color(0xFF03045E).withOpacity(0.25)
+                ? primaryColor.withOpacity(0.20)
                 : Colors.grey.withOpacity(0.25),
           ),
         ),
@@ -256,13 +494,10 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
           style: TextStyle(
             fontSize: 12,
-            fontWeight: selected
-                ? FontWeight.bold
-                : FontWeight.w500,
 
-            color: selected
-                ? Color(0xFF03045E)
-                : Color(0xFF667085),
+            fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+
+            color: selected ? primaryColor : const Color(0xFF667085),
           ),
         ),
       ),
@@ -273,24 +508,34 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   // PROPERTY CARD
   // =========================================================
 
-  Widget buildPropertyCard(
-    Map<String, dynamic> property,
-  ) {
+  Widget buildPropertyCard(Map<String, dynamic> property) {
+    final String rentalStatus = capitalize(
+      (property["rental_status"] ?? "").toString(),
+    );
+
+    final String verificationStatus = capitalize(
+      (property["verification_status"] ?? "").toString(),
+    );
+
+    final String? imageUrl = getPropertyImage(property);
+
+    final bool editable = canEdit(property);
+
     return Container(
+      width: double.infinity,
+
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color: Colors.grey.withOpacity(0.25),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.18)),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.10),
-            blurRadius: 12,
-            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -299,36 +544,49 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
+          // =====================================================
           // IMAGE
+          // =====================================================
           Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(20),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(18),
                 ),
 
-                child: Image.network(
-                  property["image"],
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                ),
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl,
+                        width: double.infinity,
+                        height: 190,
+                        fit: BoxFit.cover,
+
+                        errorBuilder: (context, error, stackTrace) {
+                          return buildImagePlaceholder();
+                        },
+                      )
+                    : buildImagePlaceholder(),
               ),
 
+              // =================================================
               // RENTAL STATUS
+              // =================================================
               Positioned(
-                left: 12,
-                top: 12,
+                left: 10,
+                top: 10,
 
-                child: buildBadge(
-                  property["rentalStatus"],
-                  property["rentalStatus"] == "Available"
-                      ? Color(0xFF16A34A)
-                      : Color(0xFFDC2626),
+                child: buildRentalBadge(
+                  rentalStatus,
+
+                  rentalStatus == "Available"
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFFDC2626),
                 ),
               ),
 
+              // =================================================
               // MENU
+              // =================================================
               Positioned(
                 right: 10,
                 top: 10,
@@ -338,45 +596,52 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                   height: 38,
 
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.92),
+                    color: Colors.white.withOpacity(0.94),
+
                     shape: BoxShape.circle,
                   ),
 
-                  child: PopupMenuButton(
+                  child: PopupMenuButton<String>(
                     padding: EdgeInsets.zero,
 
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.more_vert_rounded,
                       size: 20,
-                      color: Color(0xFF03045E),
+                      color: primaryColor,
                     ),
 
                     itemBuilder: (context) {
                       return [
                         PopupMenuItem(
                           value: "edit",
+
+                          enabled: editable,
+
                           child: Row(
                             children: [
                               Icon(
                                 Icons.edit_outlined,
                                 size: 19,
+                                color: editable ? null : Colors.grey,
                               ),
 
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
 
-                              Text("Edit Property"),
+                              Text(
+                                editable
+                                    ? "Edit Property"
+                                    : "Edit Not Available",
+                              ),
                             ],
                           ),
                         ),
 
-                        PopupMenuItem(
+                        const PopupMenuItem(
                           value: "view",
+
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.visibility_outlined,
-                                size: 19,
-                              ),
+                              Icon(Icons.visibility_outlined, size: 19),
 
                               SizedBox(width: 10),
 
@@ -389,11 +654,11 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
                     onSelected: (value) {
                       if (value == "edit") {
-                        // Edit property later
+                        handleEditProperty(property);
                       }
 
                       if (value == "view") {
-                        // View property details later
+                        handleViewDetails(property);
                       }
                     },
                   ),
@@ -402,60 +667,58 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
             ],
           ),
 
-          // DETAILS
+          // =====================================================
+          // PROPERTY INFORMATION
+          // =====================================================
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        property["title"],
+                // =================================================
+                // NAME
+                // =================================================
+                Text(
+                  property["name"] ?? "Unnamed Property",
 
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
 
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF03045E),
-                        ),
-                      ),
-                    ),
+                  overflow: TextOverflow.ellipsis,
 
-                    SizedBox(width: 10),
-
-                    buildVerificationBadge(
-                      property["verificationStatus"],
-                    ),
-                  ],
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: primaryColor,
+                  ),
                 ),
 
-                SizedBox(height: 7),
+                const SizedBox(height: 6),
 
+                // =================================================
+                // LOCATION
+                // =================================================
                 Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.location_on_outlined,
-                      size: 16,
+                      size: 14,
                       color: Color(0xFF7D8990),
                     ),
 
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
 
                     Expanded(
                       child: Text(
-                        property["location"],
+                        property["address"] ?? "No location",
 
                         maxLines: 1,
+
                         overflow: TextOverflow.ellipsis,
 
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: const TextStyle(
+                          fontSize: 11,
                           color: Color(0xFF7D8990),
                         ),
                       ),
@@ -463,58 +726,73 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                   ],
                 ),
 
-                SizedBox(height: 10),
+                const SizedBox(height: 6),
 
+                // =================================================
+                // PRICE
+                // =================================================
                 Text(
-                  property["price"],
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF03045E),
+                  getPrice(property),
+
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: primaryColor,
                   ),
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 10),
 
-                Divider(
-                  height: 1,
-                  color: Colors.grey.withOpacity(0.20),
-                ),
+                // =================================================
+                // VERIFICATION
+                // =================================================
+                buildVerificationBadge(verificationStatus),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 14),
 
+                Divider(height: 1, color: Colors.grey.withOpacity(0.20)),
+
+                const SizedBox(height: 14),
+
+                // =================================================
+                // ACTIONS
+                // =================================================
                 Row(
                   children: [
+                    // =============================================
                     // EDIT
+                    // =============================================
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Edit Property later
-                        },
+                        onPressed: editable
+                            ? () {
+                                handleEditProperty(property);
+                              }
+                            : null,
 
-                        icon: Icon(
-                          Icons.edit_outlined,
-                          size: 17,
-                        ),
+                        icon: const Icon(Icons.edit_outlined, size: 17),
 
                         label: Text(
-                          "Edit",
-                          style: TextStyle(
+                          editable ? "Edit" : "Locked",
+
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
                           ),
                         ),
 
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Color(0xFF03045E),
+                          foregroundColor: primaryColor,
+
+                          disabledForegroundColor: Colors.grey,
 
                           side: BorderSide(
-                            color: Colors.grey.withOpacity(0.35),
+                            color: editable
+                                ? Colors.grey.withOpacity(0.35)
+                                : Colors.grey.withOpacity(0.20),
                           ),
 
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -523,26 +801,24 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                       ),
                     ),
 
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
 
+                    // =============================================
                     // CHANGE STATUS
+                    // =============================================
                     Expanded(
                       flex: 2,
 
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          showStatusBottomSheet(
-                            property,
-                          );
+                          showStatusBottomSheet(property);
                         },
 
-                        icon: Icon(
-                          Icons.swap_horiz_rounded,
-                          size: 18,
-                        ),
+                        icon: const Icon(Icons.swap_horiz_rounded, size: 18),
 
-                        label: Text(
+                        label: const Text(
                           "Change Status",
+
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 12,
@@ -550,13 +826,13 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                         ),
 
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF03045E),
+                          backgroundColor: primaryColor,
+
                           foregroundColor: Colors.white,
+
                           elevation: 0,
 
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
 
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -575,30 +851,49 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   }
 
   // =========================================================
+  // IMAGE PLACEHOLDER
+  // =========================================================
+
+  Widget buildImagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 190,
+
+      color: secondaryColor.withOpacity(0.18),
+
+      child: const Icon(
+        Icons.home_work_outlined,
+        size: 55,
+        color: primaryColor,
+      ),
+    );
+  }
+
+  // =========================================================
   // VERIFICATION BADGE
   // =========================================================
 
-  Widget buildVerificationBadge(
-    String status,
-  ) {
+  Widget buildVerificationBadge(String status) {
     Color color;
+    IconData icon;
 
     if (status == "Approved") {
-      color = Color(0xFF2563EB);
+      color = const Color(0xFF2563EB);
+      icon = Icons.verified_rounded;
     } else if (status == "Pending") {
-      color = Color(0xFFF59E0B);
+      color = const Color(0xFFF59E0B);
+      icon = Icons.schedule_rounded;
     } else {
-      color = Color(0xFFDC2626);
+      color = const Color(0xFFDC2626);
+      icon = Icons.cancel_outlined;
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 9,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
 
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
+
         borderRadius: BorderRadius.circular(20),
       ),
 
@@ -606,18 +901,13 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         mainAxisSize: MainAxisSize.min,
 
         children: [
-          Icon(
-            status == "Approved"
-                ? Icons.verified_rounded
-                : Icons.schedule_rounded,
-            size: 13,
-            color: color,
-          ),
+          Icon(icon, size: 13, color: color),
 
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
 
           Text(
             status,
+
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -630,28 +920,20 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   }
 
   // =========================================================
-  // BADGE
+  // RENTAL STATUS BADGE
   // =========================================================
 
-  Widget buildBadge(
-    String text,
-    Color color,
-  ) {
+  Widget buildRentalBadge(String text, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.94),
+
         borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 5,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 5),
         ],
       ),
 
@@ -663,16 +945,14 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
             width: 7,
             height: 7,
 
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
 
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
 
           Text(
             text,
+
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -685,31 +965,27 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   }
 
   // =========================================================
-  // CHANGE AVAILABILITY
+  // CHANGE STATUS BOTTOM SHEET
   // =========================================================
 
-  void showStatusBottomSheet(
-    Map<String, dynamic> property,
-  ) {
+  void showStatusBottomSheet(Map<String, dynamic> property) {
+    final String currentStatus = (property["rental_status"] ?? "")
+        .toString()
+        .toLowerCase();
+
     Get.bottomSheet(
       Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          12,
-          20,
-          28,
-        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
 
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
 
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
@@ -720,95 +996,89 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.30),
+
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
-            Text(
+            const Text(
               "Change Availability",
+
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF03045E),
+                color: primaryColor,
               ),
             ),
 
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
 
             Text(
-              property["title"],
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7D8990),
-              ),
+              property["name"] ?? "",
+
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
             ),
 
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
 
-            Text(
+            const Text(
               "Choose the current rental status of this property.",
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF98A2B3),
-              ),
+
+              style: TextStyle(fontSize: 12, color: Color(0xFF98A2B3)),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
+            // =====================================================
+            // AVAILABLE
+            // =====================================================
             buildStatusOption(
               icon: Icons.check_circle_outline_rounded,
-              title: "Available",
-              subtitle: "Property is currently open for rent",
-              color: Color(0xFF16A34A),
 
-              selected:
-                  property["rentalStatus"] == "Available",
+              title: "Available",
+
+              subtitle: "Property is currently open for rent",
+
+              color: const Color(0xFF16A34A),
+
+              selected: currentStatus == "available",
 
               onTap: () {
-                setState(() {
-                  property["rentalStatus"] = "Available";
-                });
+                if (currentStatus == "available") {
+                  Get.back();
+                  return;
+                }
 
-                Get.back();
-
-                Get.snackbar(
-                  "Status Updated",
-                  "${property["title"]} is now available",
-                  snackPosition: SnackPosition.TOP,
-                  backgroundColor: Colors.white,
-                  colorText: Color(0xFF03045E),
-                );
+                updatePropertyStatus(property, "available");
               },
             ),
 
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
+            // =====================================================
+            // RENTED
+            // =====================================================
             buildStatusOption(
               icon: Icons.key_rounded,
-              title: "Rented",
-              subtitle: "Property is currently occupied",
-              color: Color(0xFFDC2626),
 
-              selected:
-                  property["rentalStatus"] == "Rented",
+              title: "Rented",
+
+              subtitle: "Property is currently occupied",
+
+              color: const Color(0xFFDC2626),
+
+              selected: currentStatus == "rented",
 
               onTap: () {
-                setState(() {
-                  property["rentalStatus"] = "Rented";
-                });
+                if (currentStatus == "rented") {
+                  Get.back();
+                  return;
+                }
 
-                Get.back();
-
-                Get.snackbar(
-                  "Status Updated",
-                  "${property["title"]} is now rented",
-                  snackPosition: SnackPosition.TOP,
-                  backgroundColor: Colors.white,
-                  colorText: Color(0xFF03045E),
-                );
+                updatePropertyStatus(property, "rented");
               },
             ),
           ],
@@ -818,6 +1088,10 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
       isScrollControlled: true,
     );
   }
+
+  // =========================================================
+  // STATUS OPTION
+  // =========================================================
 
   Widget buildStatusOption({
     required IconData icon,
@@ -829,22 +1103,19 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   }) {
     return InkWell(
       onTap: onTap,
+
       borderRadius: BorderRadius.circular(16),
 
       child: Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
 
         decoration: BoxDecoration(
-          color: selected
-              ? color.withOpacity(0.08)
-              : Colors.white,
+          color: selected ? color.withOpacity(0.08) : Colors.white,
 
           borderRadius: BorderRadius.circular(16),
 
           border: Border.all(
-            color: selected
-                ? color
-                : Colors.grey.withOpacity(0.30),
+            color: selected ? color : Colors.grey.withOpacity(0.30),
           ),
         ),
 
@@ -856,17 +1127,14 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
               decoration: BoxDecoration(
                 color: color.withOpacity(0.10),
+
                 borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                color: color,
-                size: 23,
-              ),
+              child: Icon(icon, color: color, size: 23),
             ),
 
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
@@ -875,18 +1143,20 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF03045E),
+                      color: primaryColor,
                     ),
                   ),
 
-                  SizedBox(height: 3),
+                  const SizedBox(height: 3),
 
                   Text(
                     subtitle,
-                    style: TextStyle(
+
+                    style: const TextStyle(
                       fontSize: 11,
                       color: Color(0xFF7D8990),
                     ),
@@ -895,14 +1165,46 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               ),
             ),
 
-            if (selected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: color,
-              ),
+            if (selected) Icon(Icons.check_circle_rounded, color: color),
           ],
         ),
       ),
+    );
+  }
+
+  // =========================================================
+  // EDIT PROPERTY
+  // =========================================================
+
+  void handleEditProperty(Map<String, dynamic> property) {
+    if (!canEdit(property)) {
+      Get.snackbar(
+        "Edit Not Available",
+        "Approved properties cannot be edited.",
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Actual Edit screen will be connected next.
+    Get.snackbar(
+      "Edit Property",
+      "Edit screen will be connected next.",
+      snackPosition: SnackPosition.TOP,
+    );
+  }
+
+  // =========================================================
+  // VIEW DETAILS
+  // =========================================================
+
+  void handleViewDetails(Map<String, dynamic> property) {
+    // Actual detail screen will be connected later.
+    Get.snackbar(
+      "View Details",
+      "Property details screen will be connected later.",
+      snackPosition: SnackPosition.TOP,
     );
   }
 
@@ -911,7 +1213,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
   // =========================================================
 
   Widget buildEmptyState() {
-    return Center(
+    return const Center(
       child: Padding(
         padding: EdgeInsets.all(30),
 
@@ -919,30 +1221,17 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            Container(
-              width: 80,
-              height: 80,
-
-              decoration: BoxDecoration(
-                color: Color(0xFFE8E9FF),
-                shape: BoxShape.circle,
-              ),
-
-              child: Icon(
-                Icons.home_work_outlined,
-                size: 37,
-                color: Color(0xFF03045E),
-              ),
-            ),
+            Icon(Icons.home_work_outlined, size: 55, color: secondaryColor),
 
             SizedBox(height: 18),
 
             Text(
               "No properties found",
+
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF03045E),
+                color: primaryColor,
               ),
             ),
 
@@ -950,15 +1239,87 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
             Text(
               "Your properties matching this filter will appear here.",
+
               textAlign: TextAlign.center,
+
+              style: TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // =========================================================
+  // ERROR STATE
+  // =========================================================
+
+  Widget buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(30),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 55,
+              color: Color(0xFFDC2626),
+            ),
+
+            const SizedBox(height: 15),
+
+            const Text(
+              "Unable to load properties",
+
               style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF7D8990),
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: primaryColor,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              errorMessage ?? "",
+
+              textAlign: TextAlign.center,
+
+              style: const TextStyle(fontSize: 12, color: Color(0xFF7D8990)),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton.icon(
+              onPressed: loadProperties,
+
+              icon: const Icon(Icons.refresh_rounded),
+
+              label: const Text("Retry"),
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+
+                foregroundColor: Colors.white,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // =========================================================
+  // DISPOSE
+  // =========================================================
+
+  @override
+  void dispose() {
+    searchController.dispose();
+
+    super.dispose();
   }
 }
