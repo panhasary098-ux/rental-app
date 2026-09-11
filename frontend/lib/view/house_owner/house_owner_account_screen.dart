@@ -1,3 +1,4 @@
+import 'package:final_project/controller/owner_account_controller.dart';
 import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -6,17 +7,20 @@ import 'package:get/get.dart';
 class OwnerAccountScreen extends StatelessWidget {
   OwnerAccountScreen({super.key});
 
+  final OwnerAccountController controller =
+      Get.put(OwnerAccountController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF8FAFC),
 
+      // App Bar
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xFFF8FAFC),
         elevation: 0,
         scrolledUnderElevation: 0,
-
         titleSpacing: 20,
 
         title: Text(
@@ -31,7 +35,7 @@ class OwnerAccountScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // Settings later
+              // Settings
             },
             icon: Icon(
               Icons.settings_outlined,
@@ -39,147 +43,152 @@ class OwnerAccountScreen extends StatelessWidget {
               color: Color(0xFF03045E),
             ),
           ),
-
           SizedBox(width: 10),
         ],
       ),
 
-      body: SafeArea(
-        top: false,
+      // Body
+      body: Obx(() {
+        // Loading
+        if (controller.isLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFF03045E),
+            ),
+          );
+        }
 
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(18, 10, 18, 30),
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(18, 10, 18, 30),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile
+                buildProfileCard(),
 
-            children: [
-              // PROFILE
-              buildProfileCard(),
+                SizedBox(height: 28),
 
-              SizedBox(height: 28),
+                // Account
+                buildSectionTitle("Account"),
 
-              // ACCOUNT
-              buildSectionTitle("Account"),
+                SizedBox(height: 10),
 
-              SizedBox(height: 10),
-
-              buildMenuCard(
-                children: [
-                  buildMenuItem(
-                    icon: Icons.person_outline_rounded,
-                    title: "Personal Information",
-                    onTap: () {
-                      // Personal Information later
-                    },
-                  ),
-
-                  buildDivider(),
-
-                  buildMenuItem(
-                    icon: Icons.home_outlined,
-                    title: "My Properties",
-                    onTap: () {
-                      // My Properties later
-                    },
-                  ),
-
-                  buildDivider(),
-
-                  buildMenuItem(
-                    icon: Icons.notifications_none_rounded,
-                    title: "Notifications",
-                    onTap: () {
-                      // Notifications later
-                    },
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 28),
-
-              // SUPPORT
-              buildSectionTitle("Support"),
-
-              SizedBox(height: 10),
-
-              buildMenuCard(
-                children: [
-                  buildMenuItem(
-                    icon: Icons.help_outline_rounded,
-                    title: "Help Center",
-                    onTap: () {
-                      // Help Center later
-                    },
-                  ),
-
-                  buildDivider(),
-
-                  buildMenuItem(
-                    icon: Icons.info_outline_rounded,
-                    title: "About Us",
-                    onTap: () {
-                      // About Us later
-                    },
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 30),
-
-              // LOG OUT
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    showLogoutDialog();
-                  },
-
-                  icon: Icon(
-                    Icons.logout_rounded,
-                    size: 20,
-                  ),
-
-                  label: Text(
-                    "Log out",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Color(0xFFEF4444),
-                    backgroundColor: Colors.white,
-
-                    side: BorderSide(
-                      color: Color(0xFFEF4444).withOpacity(0.45),
-                      width: 1.2,
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.person_outline_rounded,
+                      title: "Personal Information",
+                      onTap: () {
+                        // Personal Information
+                      },
                     ),
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    buildDivider(),
+
+                    buildMenuItem(
+                      icon: Icons.home_outlined,
+                      title: "My Properties",
+                      onTap: () {
+                        // My Properties
+                      },
+                    ),
+
+                    buildDivider(),
+
+                    buildMenuItem(
+                      icon: Icons.notifications_none_rounded,
+                      title: "Notifications",
+                      onTap: () {
+                        // Notifications
+                      },
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 28),
+
+                // Support
+                buildSectionTitle("Support"),
+
+                SizedBox(height: 10),
+
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.help_outline_rounded,
+                      title: "Help Center",
+                      onTap: () {
+                        // Help Center
+                      },
+                    ),
+
+                    buildDivider(),
+
+                    buildMenuItem(
+                      icon: Icons.info_outline_rounded,
+                      title: "About Us",
+                      onTap: () {
+                        // About Us
+                      },
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 30),
+
+                // Logout
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      showLogoutDialog();
+                    },
+
+                    icon: Icon(
+                      Icons.logout_rounded,
+                      size: 20,
+                    ),
+
+                    label: Text(
+                      "Log out",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Color(0xFFEF4444),
+                      backgroundColor: Colors.white,
+
+                      side: BorderSide(
+                        color: Color(0xFFEF4444).withOpacity(0.45),
+                        width: 1.2,
+                      ),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
-  // =========================================================
-  // PROFILE CARD
-  // =========================================================
-
+  // Profile
   Widget buildProfileCard() {
     return Container(
       width: double.infinity,
-
       padding: EdgeInsets.symmetric(
         horizontal: 14,
         vertical: 15,
@@ -187,7 +196,6 @@ class OwnerAccountScreen extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius: BorderRadius.circular(18),
 
         border: Border.all(
@@ -205,54 +213,100 @@ class OwnerAccountScreen extends StatelessWidget {
 
       child: Row(
         children: [
-          // PROFILE IMAGE
+          // Profile Image
           Stack(
             clipBehavior: Clip.none,
-
             children: [
-              Container(
-                width: 70,
-                height: 70,
+              Obx(
+                () => Container(
+                  width: 70,
+                  height: 70,
 
-                decoration: BoxDecoration(
-                  color: Color(0xFFE8E9FF),
-                  shape: BoxShape.circle,
-                ),
-
-                alignment: Alignment.center,
-
-                child: Text(
-                  "SL",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF03045E),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFE8E9FF),
+                    shape: BoxShape.circle,
                   ),
+
+                  clipBehavior: Clip.antiAlias,
+
+                  child: controller.profileImage.value.isNotEmpty
+                      ? Image.network(
+                          getProfileImageUrl(
+                            controller.profileImage.value,
+                          ),
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+
+                          errorBuilder: (
+                            context,
+                            error,
+                            stackTrace,
+                          ) {
+                            return Center(
+                              child: Text(
+                                controller.getInitials(),
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF03045E),
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : Center(
+                          child: Text(
+                            controller.getInitials(),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF03045E),
+                            ),
+                          ),
+                        ),
                 ),
               ),
 
+              // Camera
               Positioned(
                 right: -1,
                 bottom: -1,
 
-                child: Container(
-                  width: 25,
-                  height: 25,
+                child: GestureDetector(
+                  onTap: () {
+                    controller.pickProfileImage();
+                  },
 
-                  decoration: BoxDecoration(
-                    color: Color(0xFF03045E),
-                    shape: BoxShape.circle,
+                  child: Obx(
+                    () => Container(
+                      width: 25,
+                      height: 25,
 
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF03045E),
+                        shape: BoxShape.circle,
+
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+
+                      child: controller.isUploadingImage.value
+                          ? Padding(
+                              padding: EdgeInsets.all(6),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Icon(
+                              Icons.camera_alt_outlined,
+                              size: 12,
+                              color: Colors.white,
+                            ),
                     ),
-                  ),
-
-                  child: Icon(
-                    Icons.camera_alt_outlined,
-                    size: 12,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -261,41 +315,45 @@ class OwnerAccountScreen extends StatelessWidget {
 
           SizedBox(width: 14),
 
-          // USER INFO
+          // User Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-
               children: [
-                Text(
-                  "Sophea Lim",
+                // Name
+                Obx(
+                  () => Text(
+                    controller.name.value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
 
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF03045E),
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF03045E),
+                    ),
                   ),
                 ),
 
                 SizedBox(height: 3),
 
-                Text(
-                  "sophea@gmail.com",
+                // Email
+                Obx(
+                  () => Text(
+                    controller.email.value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
 
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF667085),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF667085),
+                    ),
                   ),
                 ),
 
                 SizedBox(height: 7),
 
+                // Role
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10,
@@ -307,12 +365,17 @@ class OwnerAccountScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
 
-                  child: Text(
-                    "House Owner",
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF03045E),
+                  child: Obx(
+                    () => Text(
+                      controller.role.value == "house_owner"
+                          ? "House Owner"
+                          : controller.role.value,
+
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF03045E),
+                      ),
                     ),
                   ),
                 ),
@@ -332,14 +395,10 @@ class OwnerAccountScreen extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // SECTION TITLE
-  // =========================================================
-
+  // Section Title
   Widget buildSectionTitle(String title) {
     return Padding(
       padding: EdgeInsets.only(left: 2),
-
       child: Text(
         title,
         style: TextStyle(
@@ -351,10 +410,7 @@ class OwnerAccountScreen extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // MENU CARD
-  // =========================================================
-
+  // Menu Card
   Widget buildMenuCard({
     required List<Widget> children,
   }) {
@@ -363,7 +419,6 @@ class OwnerAccountScreen extends StatelessWidget {
 
       decoration: BoxDecoration(
         color: Colors.white,
-
         borderRadius: BorderRadius.circular(16),
 
         border: Border.all(
@@ -385,10 +440,7 @@ class OwnerAccountScreen extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // MENU ITEM
-  // =========================================================
-
+  // Menu Item
   Widget buildMenuItem({
     required IconData icon,
     required String title,
@@ -396,7 +448,6 @@ class OwnerAccountScreen extends StatelessWidget {
   }) {
     return InkWell(
       onTap: onTap,
-
       borderRadius: BorderRadius.circular(16),
 
       child: Padding(
@@ -409,7 +460,6 @@ class OwnerAccountScreen extends StatelessWidget {
           children: [
             SizedBox(
               width: 30,
-
               child: Icon(
                 icon,
                 size: 23,
@@ -441,10 +491,7 @@ class OwnerAccountScreen extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // DIVIDER
-  // =========================================================
-
+  // Divider
   Widget buildDivider() {
     return Padding(
       padding: EdgeInsets.only(
@@ -460,10 +507,7 @@ class OwnerAccountScreen extends StatelessWidget {
     );
   }
 
-  // =========================================================
-  // LOGOUT DIALOG
-  // =========================================================
-
+  // Logout
   void showLogoutDialog() {
     Get.dialog(
       AlertDialog(
@@ -482,7 +526,6 @@ class OwnerAccountScreen extends StatelessWidget {
 
         content: Column(
           mainAxisSize: MainAxisSize.min,
-
           children: [
             Container(
               width: 58,
@@ -536,6 +579,7 @@ class OwnerAccountScreen extends StatelessWidget {
         actions: [
           Row(
             children: [
+              // Cancel
               Expanded(
                 child: TextButton(
                   onPressed: () {
@@ -560,6 +604,7 @@ class OwnerAccountScreen extends StatelessWidget {
 
               SizedBox(width: 10),
 
+              // Confirm Logout
               Expanded(
                 child: ElevatedButton(
                   onPressed: () async {
@@ -568,7 +613,9 @@ class OwnerAccountScreen extends StatelessWidget {
                     try {
                       await AuthService().logout();
 
-                      Get.offAll(() => LoginScreen());
+                      Get.offAll(
+                        () => LoginScreen(),
+                      );
 
                       Get.snackbar(
                         "Logged Out",
@@ -616,4 +663,34 @@ class OwnerAccountScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// Profile Image URL
+String getProfileImageUrl(String image) {
+  if (image.isEmpty) {
+    return "";
+  }
+
+  // Android Emulator
+  if (image.startsWith("http://127.0.0.1:8000")) {
+    return image.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
+  }
+
+  if (image.startsWith("http://localhost:8000")) {
+    return image.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
+  }
+
+  // Full URL
+  if (image.startsWith("http")) {
+    return image;
+  }
+
+  // Laravel Storage
+  return "http://10.0.2.2:8000/storage/$image";
 }
