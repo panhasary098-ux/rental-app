@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:final_project/controller/post_properties_controller.dart';
 import 'package:final_project/model/location.dart';
 import 'package:final_project/view/house_owner/post_property/select_location_screen.dart';
@@ -30,95 +28,121 @@ class PostHouseStep2 extends StatelessWidget {
 
   final PostPropertyController controller = Get.find<PostPropertyController>();
 
+  final String storageBaseUrl = "http://10.0.2.2:8000/storage";
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ======================================================
-        // HEADER
-        // ======================================================
-        Row(
-          children: [
-            IconButton(
-              onPressed: () {
-                controller.currentStep.value = 1;
-              },
-              icon: const Icon(
-                Icons.arrow_back_ios_new,
-                color: primaryColor,
-                size: 20,
+    return Obx(() {
+      final bool isEditMode = controller.isEditMode.value;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ======================================================
+          // HEADER
+          // ======================================================
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  // ==============================================
+                  // EDIT MODE
+                  // ==============================================
+                  //
+                  // Property type cannot be changed.
+                  // Return to My Properties.
+                  //
+
+                  if (isEditMode) {
+                    Get.back();
+                    return;
+                  }
+
+                  // ==============================================
+                  // CREATE MODE
+                  // ==============================================
+
+                  controller.currentStep.value = 1;
+                },
+
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: primaryColor,
+                  size: 20,
+                ),
               ),
-            ),
 
-            const Text(
-              "House",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: primaryColor,
+              Text(
+                isEditMode ? "Edit House" : "House",
+
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: primaryColor,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
 
-        // ======================================================
-        // FORM
-        // ======================================================
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Input your house information",
-                  style: TextStyle(fontSize: 15, color: Colors.black45),
-                ),
+          // ======================================================
+          // FORM
+          // ======================================================
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-                
-                const SizedBox(height: 15),
+                children: [
+                  Text(
+                    isEditMode
+                        ? "Update your house information"
+                        : "Input your house information",
 
-                // ==================================================
-                // NAME
-                // ==================================================
-                customInputTitle(title: "Name"),
+                    style: const TextStyle(fontSize: 15, color: Colors.black45),
+                  ),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 15),
 
-                CustomTextFormField(
-                  hintText: "Enter house name",
-                  controller: controller.nameController,
-                  prefixIcon: Icons.home_outlined,
-                ),
+                  // ==================================================
+                  // NAME
+                  // ==================================================
+                  customInputTitle(title: "Name"),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
-                // ==================================================
-                // SIZE
-                // ==================================================
-                customInputTitle(title: "Size"),
+                  CustomTextFormField(
+                    hintText: "Enter house name",
+                    controller: controller.nameController,
+                    prefixIcon: Icons.home_outlined,
+                  ),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 10),
 
-                CustomTextFormField(
-                  hintText: "Enter house size",
-                  controller: controller.sizeController,
-                  keyboardType: TextInputType.number,
-                  prefixIcon: Icons.square_foot,
-                  suffixText: "m²",
-                ),
+                  // ==================================================
+                  // SIZE
+                  // ==================================================
+                  customInputTitle(title: "Size"),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
-                // ==================================================
-                // LOCATION
-                // ==================================================
-                customInputTitle(title: "Location"),
+                  CustomTextFormField(
+                    hintText: "Enter house size",
+                    controller: controller.sizeController,
+                    keyboardType: TextInputType.number,
+                    prefixIcon: Icons.square_foot,
+                    suffixText: "m²",
+                  ),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 10),
 
-                Obx(
-                  () => PropertyLocationPicker(
+                  // ==================================================
+                  // LOCATION
+                  // ==================================================
+                  customInputTitle(title: "Location"),
+
+                  const SizedBox(height: 5),
+
+                  PropertyLocationPicker(
                     address: controller.address.value,
 
                     onTap: () async {
@@ -136,87 +160,83 @@ class PostHouseStep2 extends StatelessWidget {
                       }
                     },
                   ),
-                ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // PRICE
-                // ==================================================
-                customInputTitle(title: "Price"),
+                  // ==================================================
+                  // PRICE
+                  // ==================================================
+                  customInputTitle(title: "Price"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                CustomTextFormField(
-                  hintText: "Enter rent price",
-                  controller: controller.priceController,
-                  keyboardType: TextInputType.number,
-                  prefixIcon: Icons.attach_money,
-                ),
+                  CustomTextFormField(
+                    hintText: "Enter rent price",
+                    controller: controller.priceController,
+                    keyboardType: TextInputType.number,
+                    prefixIcon: Icons.attach_money,
+                  ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // DESCRIPTION
-                // ==================================================
-                customInputTitle(title: "Description"),
+                  // ==================================================
+                  // DESCRIPTION
+                  // ==================================================
+                  customInputTitle(title: "Description"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                CustomDescriptionField(
-                  hintText: "Describe your house...",
-                  controller: controller.descriptionController,
-                ),
+                  CustomDescriptionField(
+                    hintText: "Describe your house...",
+                    controller: controller.descriptionController,
+                  ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // STATUS
-                // ==================================================
-                customInputTitle(title: "Status"),
+                  // ==================================================
+                  // STATUS
+                  // ==================================================
+                  customInputTitle(title: "Status"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                Obx(
-                  () => CustomStatusDropdown(
+                  CustomStatusDropdown(
                     value: controller.status.value,
 
                     onChanged: (value) {
                       controller.status.value = value;
                     },
                   ),
-                ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // CONTACT
-                // ==================================================
-                customInputTitle(title: "Contact"),
+                  // ==================================================
+                  // CONTACT
+                  // ==================================================
+                  customInputTitle(title: "Contact"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                CustomTextFormField(
-                  hintText: "Enter contact number",
-                  controller: controller.contactController,
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: Icons.phone_outlined,
-                ),
+                  CustomTextFormField(
+                    hintText: "Enter contact number",
+                    controller: controller.contactController,
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: Icons.phone_outlined,
+                  ),
 
-                const SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
-                // ==================================================
-                // HOUSE DETAILS TITLE
-                // ==================================================
-                CustomHousedetail(),
+                  // ==================================================
+                  // HOUSE DETAILS TITLE
+                  // ==================================================
+                  CustomHousedetail(),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // HOUSE DETAILS
-                // ==================================================
-                Obx(
-                  () => HouseDetailsCard(
+                  // ==================================================
+                  // HOUSE DETAILS
+                  // ==================================================
+                  HouseDetailsCard(
                     bedrooms: controller.houseBedrooms.value,
 
                     bathrooms: controller.houseBathrooms.value,
@@ -238,7 +258,7 @@ class PostHouseStep2 extends StatelessWidget {
                     },
 
                     onBathroomDecrease: () {
-                      if (controller.houseBathrooms.value > 0) {
+                      if (controller.houseBathrooms.value > 1) {
                         controller.houseBathrooms.value--;
                       }
                     },
@@ -253,51 +273,95 @@ class PostHouseStep2 extends StatelessWidget {
                       }
                     },
                   ),
-                ),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // ==================================================
-                // FURNISHED
-                // ==================================================
-                customInputTitle(title: "Furnished"),
+                  // ==================================================
+                  // FURNISHED
+                  // ==================================================
+                  customInputTitle(title: "Furnished"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                Obx(
-                  () => FurnishedSelector(
+                  FurnishedSelector(
                     value: controller.furnished.value,
 
                     onChanged: (value) {
                       controller.furnished.value = value;
                     },
                   ),
-                ),
 
-                const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                // ==================================================
-                // FACILITIES
-                // ==================================================
-                customInputTitle(title: "Choose facilities"),
+                  // ==================================================
+                  // FACILITIES
+                  // ==================================================
+                  customInputTitle(title: "Choose facilities"),
 
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
 
-                FacilitiesSelector(),
+                  FacilitiesSelector(),
 
-                const SizedBox(height: 15),
-                VerificationTitle(),
-                // ==================================================
-                // PROPERTY IMAGES
-                // ==================================================
-                customInputTitle(title: "Property Images"),
+                  const SizedBox(height: 15),
 
-                const SizedBox(height: 5),
+                  VerificationTitle(),
 
-                Obx(
-                  () => Imagepicker(
-                    title: "Add property photos",
-                    subtitle: "Tap to select property images",
+                  const SizedBox(height: 15),
+
+                  // ==================================================
+                  // PROPERTY IMAGES
+                  // ==================================================
+                  customInputTitle(title: "Property Images"),
+
+                  const SizedBox(height: 5),
+
+                  // ==================================================
+                  // EXISTING IMAGES
+                  // EDIT MODE ONLY
+                  // ==================================================
+                  if (isEditMode &&
+                      controller.selectedImages.isEmpty &&
+                      controller.existingImagePaths.isNotEmpty) ...[
+                    buildExistingImages(),
+
+                    const SizedBox(height: 10),
+
+                    buildInformationBox(
+                      icon: Icons.info_outline,
+                      text:
+                          "These are your current property photos. "
+                          "If you select new photos, all current photos "
+                          "will be replaced.",
+                    ),
+
+                    const SizedBox(height: 12),
+                  ],
+
+                  // ==================================================
+                  // NEW IMAGES SELECTED
+                  // ==================================================
+                  if (isEditMode && controller.selectedImages.isNotEmpty) ...[
+                    buildInformationBox(
+                      icon: Icons.swap_horiz_rounded,
+                      text:
+                          "The new photos below will replace your current property photos when you save changes.",
+                    ),
+
+                    const SizedBox(height: 10),
+                  ],
+
+                  // ==================================================
+                  // IMAGE PICKER
+                  // ==================================================
+                  Imagepicker(
+                    title: isEditMode
+                        ? "Select New Property Photos"
+                        : "Add property photos",
+
+                    subtitle: isEditMode
+                        ? "Optional — leave empty to keep current photos"
+                        : "Tap to select property images",
+
                     icon: Icons.add_photo_alternate_outlined,
 
                     images: controller.selectedImages.toList(),
@@ -310,53 +374,217 @@ class PostHouseStep2 extends StatelessWidget {
                       controller.pickImages();
                     },
                   ),
-                ),
 
-                // const SizedBox(height: 15),
-                // customInputTitle(title: "National ID"),
-                // const SizedBox(height: 5),
+                  const SizedBox(height: 15),
 
-                // // const SizedBox(height: 5),
-                // Obx(
-                //   () => SingleImagePicker(
-                //     title: "Upload National ID",
-                //     subtitle: "Tap to select your National ID",
-                //     icon: Icons.badge_outlined,
-                //     image: controller.nationalIdImage.value,
-                //     onTap: () {
-                //       controller.pickNationalIdImage();
-                //     },
-                //     onRemove: () {
-                //       controller.removeNationalIdImage();
-                //     },
-                //   ),
-                // ),
+                  // ==================================================
+                  // OWNERSHIP DOCUMENT
+                  // ==================================================
+                  customInputTitle(title: "Ownership Document"),
 
-                const SizedBox(height: 15),
+                  const SizedBox(height: 5),
 
-                customInputTitle(title: "Ownership Document"),
+                  // ==================================================
+                  // EXISTING DOCUMENT NOTICE
+                  // ==================================================
+                  if (isEditMode &&
+                      controller.hasExistingOwnershipDocument.value) ...[
+                    buildExistingDocumentBox(),
 
-                const SizedBox(height: 5),
+                    const SizedBox(height: 10),
+                  ],
 
-                Obx(
-                  () => SingleImagePicker(
-                    title: "Upload Ownership Document",
-                    subtitle: "Tap to select proof of ownership",
+                  // ==================================================
+                  // DOCUMENT PICKER
+                  // ==================================================
+                  SingleImagePicker(
+                    title: isEditMode
+                        ? controller.ownershipDocumentImage.value == null
+                              ? "Replace Ownership Document"
+                              : "New Ownership Document"
+                        : "Upload Ownership Document",
+
+                    subtitle: isEditMode
+                        ? controller.ownershipDocumentImage.value == null
+                              ? "Optional — current document will be kept"
+                              : "New document selected"
+                        : "Tap to select proof of ownership",
+
                     icon: Icons.description_outlined,
+
                     image: controller.ownershipDocumentImage.value,
+
                     onTap: () {
                       controller.pickOwnershipDocumentImage();
                     },
+
                     onRemove: () {
                       controller.removeOwnershipDocumentImage();
                     },
                   ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  // ======================================================
+  // EXISTING PROPERTY IMAGES
+  // ======================================================
+
+  Widget buildExistingImages() {
+    return SizedBox(
+      height: 105,
+
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+
+        itemCount: controller.existingImagePaths.length,
+
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 10);
+        },
+
+        itemBuilder: (context, index) {
+          final String path = controller.existingImagePaths[index];
+
+          final String imageUrl = path.startsWith("http")
+              ? path
+              : "$storageBaseUrl/$path";
+
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+
+            child: Container(
+              width: 130,
+              height: 105,
+
+              color: lightSecondaryColor,
+
+              child: Image.network(
+                imageUrl,
+
+                fit: BoxFit.cover,
+
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      size: 35,
+                      color: primaryColor,
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ======================================================
+  // EXISTING DOCUMENT
+  // ======================================================
+
+  Widget buildExistingDocumentBox() {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(13),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFECFDF3),
+
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.30)),
+      ),
+
+      child: const Row(
+        children: [
+          Icon(
+            Icons.check_circle_outline_rounded,
+            color: Color(0xFF16A34A),
+            size: 22,
+          ),
+
+          SizedBox(width: 10),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  "Ownership document uploaded",
+
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: primaryColor,
+                  ),
+                ),
+
+                SizedBox(height: 2),
+
+                Text(
+                  "Your current document will remain unless you select a new one.",
+
+                  style: TextStyle(fontSize: 11, color: Color(0xFF667085)),
                 ),
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  // ======================================================
+  // INFORMATION BOX
+  // ======================================================
+
+  Widget buildInformationBox({required IconData icon, required String text}) {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(11),
+
+      decoration: BoxDecoration(
+        color: secondaryColor.withOpacity(0.12),
+
+        borderRadius: BorderRadius.circular(10),
+
+        border: Border.all(color: secondaryColor.withOpacity(0.40)),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Icon(icon, size: 18, color: primaryColor),
+
+          const SizedBox(width: 8),
+
+          Expanded(
+            child: Text(
+              text,
+
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF667085),
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -377,6 +605,7 @@ Widget CustomHousedetail() {
 
         child: Text(
           "HOUSE DETAILS",
+
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,
@@ -408,6 +637,7 @@ Widget VerificationTitle() {
 
         child: Text(
           "VERIFICATION DOCUMENTS",
+
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,
