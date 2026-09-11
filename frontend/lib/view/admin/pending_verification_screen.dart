@@ -1,39 +1,157 @@
+import 'package:final_project/service/admin_service.dart';
 import 'package:final_project/view/admin/property_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class PendingVerificationScreen extends StatelessWidget {
-  PendingVerificationScreen({super.key});
+class PendingVerificationScreen extends StatefulWidget {
+  const PendingVerificationScreen({super.key});
 
-  List<Map<String, dynamic>> pendingProperties = [
-    {
-      "title": "Modern Room Near University",
-      "owner": "Dara Sok",
-      "location": "Toul Kork, Phnom Penh",
-      "submitted": "24 Aug 2026",
-      "price": "\$120 / month",
-      "image":
-          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
-    },
-    {
-      "title": "Affordable Student Apartment",
-      "owner": "Sophea Lim",
-      "location": "Sen Sok, Phnom Penh",
-      "submitted": "23 Aug 2026",
-      "price": "\$180 / month",
-      "image":
-          "https://images.unsplash.com/photo-1502672023488-70e25813eb80",
-    },
-    {
-      "title": "Private Room for Students",
-      "owner": "Vanna Chan",
-      "location": "Boeung Keng Kang",
-      "submitted": "22 Aug 2026",
-      "price": "\$95 / month",
-      "image":
-          "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
-    },
-  ];
+  @override
+  State<PendingVerificationScreen> createState() =>
+      _PendingVerificationScreenState();
+}
+
+class _PendingVerificationScreenState
+    extends State<PendingVerificationScreen> {
+  final AdminService adminService = AdminService();
+
+  final TextEditingController searchController =
+      TextEditingController();
+
+  List<Map<String, dynamic>> pendingProperties = [];
+  List<Map<String, dynamic>> filteredProperties = [];
+
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadPendingProperties();
+
+    searchController.addListener(
+      filterProperties,
+    );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  // Load real pending properties from Laravel
+  Future<void> loadPendingProperties() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      final properties =
+          await adminService.getPendingProperties();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        pendingProperties = properties;
+        filteredProperties = properties;
+        isLoading = false;
+      });
+
+      filterProperties();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      String message = e.toString();
+
+      if (message.startsWith("Exception: ")) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
+        );
+      }
+
+      setState(() {
+        isLoading = false;
+        errorMessage = message;
+      });
+    }
+  }
+
+  // Search property, owner or location
+  void filterProperties() {
+    final String query =
+        searchController.text.trim().toLowerCase();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (query.isEmpty) {
+      setState(() {
+        filteredProperties =
+            List<Map<String, dynamic>>.from(
+          pendingProperties,
+        );
+      });
+
+      return;
+    }
+
+    setState(() {
+      filteredProperties =
+          pendingProperties.where((property) {
+        final String title =
+            property["title"]
+                    ?.toString()
+                    .toLowerCase() ??
+                "";
+
+        final String owner =
+            property["owner"]
+                    ?.toString()
+                    .toLowerCase() ??
+                "";
+
+        final String location =
+            property["location"]
+                    ?.toString()
+                    .toLowerCase() ??
+                "";
+
+        return title.contains(query) ||
+            owner.contains(query) ||
+            location.contains(query);
+      }).toList();
+    });
+  }
+
+  // Fix Laravel localhost URL for Android emulator
+  String getImageUrl(dynamic value) {
+    if (value == null) {
+      return "";
+    }
+
+    String url = value.toString();
+
+    url = url.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
+
+    url = url.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
+
+    return url;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +167,6 @@ class PendingVerificationScreen extends StatelessWidget {
           onPressed: () {
             Get.back();
           },
-
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: Color(0xFF1F2923),
@@ -71,7 +188,7 @@ class PendingVerificationScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // PENDING SUMMARY
+            // Pending summary
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
@@ -84,12 +201,13 @@ class PendingVerificationScreen extends StatelessWidget {
 
                 decoration: BoxDecoration(
                   color: Colors.white,
-
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius:
+                      BorderRadius.circular(16),
 
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF1F2923).withOpacity(0.05),
+                      color: Color(0xFF1F2923)
+                          .withOpacity(0.05),
                       blurRadius: 12,
                       offset: Offset(0, 4),
                     ),
@@ -104,7 +222,10 @@ class PendingVerificationScreen extends StatelessWidget {
 
                       decoration: BoxDecoration(
                         color: Color(0xFFF59E0B),
-                        borderRadius: BorderRadius.circular(13),
+                        borderRadius:
+                            BorderRadius.circular(
+                          13,
+                        ),
                       ),
 
                       child: Icon(
@@ -118,16 +239,18 @@ class PendingVerificationScreen extends StatelessWidget {
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
 
                         children: [
                           Text(
                             "${pendingProperties.length} submissions waiting",
-
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1F2923),
+                              fontWeight:
+                                  FontWeight.bold,
+                              color:
+                                  Color(0xFF1F2923),
                             ),
                           ),
 
@@ -135,11 +258,11 @@ class PendingVerificationScreen extends StatelessWidget {
 
                           Text(
                             "Review property and owner documents before approval.",
-
                             style: TextStyle(
                               fontSize: 12,
                               height: 1.35,
-                              color: Color(0xFF68756D),
+                              color:
+                                  Color(0xFF68756D),
                             ),
                           ),
                         ],
@@ -149,23 +272,29 @@ class PendingVerificationScreen extends StatelessWidget {
                     SizedBox(width: 8),
 
                     Container(
-                      padding: EdgeInsets.symmetric(
+                      padding:
+                          EdgeInsets.symmetric(
                         horizontal: 11,
                         vertical: 6,
                       ),
 
                       decoration: BoxDecoration(
                         color: Color(0xFFFFF3D6),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius:
+                            BorderRadius.circular(
+                          20,
+                        ),
                       ),
 
                       child: Text(
-                        pendingProperties.length.toString(),
-
+                        pendingProperties.length
+                            .toString(),
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFFD97706),
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFFD97706),
                         ),
                       ),
                     ),
@@ -174,7 +303,7 @@ class PendingVerificationScreen extends StatelessWidget {
               ),
             ),
 
-            // SEARCH
+            // Search
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 20,
@@ -182,8 +311,11 @@ class PendingVerificationScreen extends StatelessWidget {
               ),
 
               child: TextField(
+                controller: searchController,
+
                 decoration: InputDecoration(
-                  hintText: "Search property or owner",
+                  hintText:
+                      "Search property or owner",
 
                   hintStyle: TextStyle(
                     color: Color(0xFF94A099),
@@ -195,46 +327,74 @@ class PendingVerificationScreen extends StatelessWidget {
                     color: Color(0xFF68756D),
                   ),
 
-                  suffixIcon: Container(
-                    margin: EdgeInsets.all(8),
+                  suffixIcon: searchController
+                          .text
+                          .isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            searchController.clear();
+                          },
+                          icon: Icon(
+                            Icons.close_rounded,
+                            color:
+                                Color(0xFF03045E),
+                          ),
+                        )
+                      : Container(
+                          margin:
+                              EdgeInsets.all(8),
 
-                    decoration: BoxDecoration(
-                      color: Color(0xFF90E0EF).withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(9),
-                    ),
+                          decoration:
+                              BoxDecoration(
+                            color: Color(
+                              0xFF90E0EF,
+                            ).withOpacity(0.25),
 
-                    child: Icon(
-                      Icons.tune_rounded,
-                      color: Color(0xFF03045E),
-                      size: 20,
-                    ),
-                  ),
+                            borderRadius:
+                                BorderRadius.circular(
+                              9,
+                            ),
+                          ),
+
+                          child: Icon(
+                            Icons.tune_rounded,
+                            color:
+                                Color(0xFF03045E),
+                            size: 20,
+                          ),
+                        ),
 
                   filled: true,
                   fillColor: Colors.white,
 
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding:
+                      EdgeInsets.symmetric(
                     vertical: 14,
                   ),
 
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
 
                     borderSide: BorderSide(
                       color: Color(0xFFE1E9E4),
                     ),
                   ),
 
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                  enabledBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
 
                     borderSide: BorderSide(
                       color: Color(0xFFE1E9E4),
                     ),
                   ),
 
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                  focusedBorder:
+                      OutlineInputBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
 
                     borderSide: BorderSide(
                       color: Color(0xFF03045E),
@@ -247,29 +407,9 @@ class PendingVerificationScreen extends StatelessWidget {
 
             SizedBox(height: 5),
 
-            // PROPERTY LIST
+            // Main content
             Expanded(
-              child: ListView.separated(
-                padding: EdgeInsets.fromLTRB(
-                  20,
-                  10,
-                  20,
-                  25,
-                ),
-
-                itemCount: pendingProperties.length,
-
-                separatorBuilder: (context, index) {
-                  return SizedBox(height: 14);
-                },
-
-                itemBuilder: (context, index) {
-                  Map<String, dynamic> property =
-                      pendingProperties[index];
-
-                  return buildPropertyCard(property);
-                },
-              ),
+              child: buildContent(),
             ),
           ],
         ),
@@ -277,20 +417,197 @@ class PendingVerificationScreen extends StatelessWidget {
     );
   }
 
+  // Loading, error, empty or property list
+  Widget buildContent() {
+    if (isLoading) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF03045E),
+        ),
+      );
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.all(25),
+
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                size: 50,
+                color: Color(0xFFDC2626),
+              ),
+
+              SizedBox(height: 12),
+
+              Text(
+                "Unable to load pending properties",
+                textAlign: TextAlign.center,
+
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1F2923),
+                ),
+              ),
+
+              SizedBox(height: 7),
+
+              Text(
+                errorMessage!,
+                textAlign: TextAlign.center,
+
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF68756D),
+                ),
+              ),
+
+              SizedBox(height: 18),
+
+              ElevatedButton.icon(
+                onPressed: loadPendingProperties,
+
+                icon: Icon(
+                  Icons.refresh_rounded,
+                ),
+
+                label: Text(
+                  "Try Again",
+                ),
+
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Color(0xFF03045E),
+                  foregroundColor:
+                      Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (filteredProperties.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+
+              decoration: BoxDecoration(
+                color: Color(0xFF90E0EF)
+                    .withOpacity(0.25),
+                shape: BoxShape.circle,
+              ),
+
+              child: Icon(
+                Icons.verified_user_outlined,
+                size: 35,
+                color: Color(0xFF03045E),
+              ),
+            ),
+
+            SizedBox(height: 14),
+
+            Text(
+              searchController.text.isEmpty
+                  ? "No pending submissions"
+                  : "No results found",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1F2923),
+              ),
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              searchController.text.isEmpty
+                  ? "New property submissions will appear here."
+                  : "Try searching with another property or owner name.",
+              textAlign: TextAlign.center,
+
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF68756D),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      color: Color(0xFF03045E),
+
+      onRefresh: loadPendingProperties,
+
+      child: ListView.separated(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          10,
+          20,
+          25,
+        ),
+
+        itemCount:
+            filteredProperties.length,
+
+        separatorBuilder:
+            (context, index) {
+          return SizedBox(height: 14);
+        },
+
+        itemBuilder:
+            (context, index) {
+          final Map<String, dynamic>
+              property =
+              filteredProperties[index];
+
+          return buildPropertyCard(
+            property,
+          );
+        },
+      ),
+    );
+  }
+
+  // Property card
   Widget buildPropertyCard(
     Map<String, dynamic> property,
   ) {
+    final String imageUrl =
+        getImageUrl(property["image"]);
+
     return InkWell(
-      onTap: () {
-        // NEXT SCREEN
-        // Get.to(
-        //   () => PropertyReviewScreen(
-        //     property: property,
-        //   ),
-        // );
+      // Open review screen when the card is tapped
+      onTap: () async {
+        final dynamic result =
+            await Get.to(
+          () => PropertyReviewScreen(
+            property: property,
+          ),
+        );
+
+        // Reload list after approve or reject
+        if (result == true) {
+          await loadPendingProperties();
+        }
       },
 
-      borderRadius: BorderRadius.circular(16),
+      borderRadius:
+          BorderRadius.circular(16),
 
       child: Container(
         padding: EdgeInsets.all(12),
@@ -298,7 +615,8 @@ class PendingVerificationScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.circular(16),
+          borderRadius:
+              BorderRadius.circular(16),
 
           border: Border.all(
             color: Color(0xFFE1E9E4),
@@ -306,7 +624,8 @@ class PendingVerificationScreen extends StatelessWidget {
 
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF1F2923).withOpacity(0.035),
+              color: Color(0xFF1F2923)
+                  .withOpacity(0.035),
               blurRadius: 12,
               offset: Offset(0, 4),
             ),
@@ -316,76 +635,78 @@ class PendingVerificationScreen extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
-                // PROPERTY IMAGE
+                // Property image
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-
-                  child: Image.network(
-                    property["image"],
-
-                    width: 105,
-                    height: 105,
-
-                    fit: BoxFit.cover,
-
-                    errorBuilder: (
-                      context,
-                      error,
-                      stackTrace,
-                    ) {
-                      return Container(
-                        width: 105,
-                        height: 105,
-
-                        decoration: BoxDecoration(
-                          color: Color(0xFF90E0EF).withOpacity(0.25),
-
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-
-                        child: Icon(
-                          Icons.home_work_outlined,
-                          color: Color(0xFF03045E),
-                          size: 35,
-                        ),
-                      );
-                    },
+                  borderRadius:
+                      BorderRadius.circular(
+                    12,
                   ),
+
+                  child: imageUrl.isEmpty
+                      ? buildImagePlaceholder()
+                      : Image.network(
+                          imageUrl,
+                          width: 105,
+                          height: 105,
+                          fit: BoxFit.cover,
+
+                          errorBuilder: (
+                            context,
+                            error,
+                            stackTrace,
+                          ) {
+                            return buildImagePlaceholder();
+                          },
+                        ),
                 ),
 
                 SizedBox(width: 13),
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
 
                     children: [
-                      // STATUS
+                      // Status
                       Container(
-                        padding: EdgeInsets.symmetric(
+                        padding:
+                            EdgeInsets.symmetric(
                           horizontal: 9,
                           vertical: 5,
                         ),
 
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFFF3D6),
-                          borderRadius: BorderRadius.circular(20),
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              Color(0xFFFFF3D6),
+
+                          borderRadius:
+                              BorderRadius.circular(
+                            20,
+                          ),
                         ),
 
                         child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                          mainAxisSize:
+                              MainAxisSize.min,
 
                           children: [
                             Container(
                               width: 6,
                               height: 6,
 
-                              decoration: BoxDecoration(
-                                color: Color(0xFFD97706),
-                                shape: BoxShape.circle,
+                              decoration:
+                                  BoxDecoration(
+                                color: Color(
+                                  0xFFD97706,
+                                ),
+                                shape:
+                                    BoxShape.circle,
                               ),
                             ),
 
@@ -393,11 +714,13 @@ class PendingVerificationScreen extends StatelessWidget {
 
                             Text(
                               "Pending Verification",
-
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFFB45309),
+                                fontWeight:
+                                    FontWeight.w600,
+                                color: Color(
+                                  0xFFB45309,
+                                ),
                               ),
                             ),
                           ],
@@ -407,27 +730,36 @@ class PendingVerificationScreen extends StatelessWidget {
                       SizedBox(height: 8),
 
                       Text(
-                        property["title"],
+                        property["title"]
+                                ?.toString() ??
+                            "Property",
 
                         maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                        overflow:
+                            TextOverflow.ellipsis,
 
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF1F2923),
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF1F2923),
                         ),
                       ),
 
                       SizedBox(height: 7),
 
                       Text(
-                        property["price"],
+                        property["price"]
+                                ?.toString() ??
+                            "-",
 
                         style: TextStyle(
                           fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF03045E),
+                          fontWeight:
+                              FontWeight.bold,
+                          color:
+                              Color(0xFF03045E),
                         ),
                       ),
 
@@ -436,23 +768,31 @@ class PendingVerificationScreen extends StatelessWidget {
                       Row(
                         children: [
                           Icon(
-                            Icons.location_on_outlined,
+                            Icons
+                                .location_on_outlined,
                             size: 15,
-                            color: Color(0xFF68756D),
+                            color:
+                                Color(0xFF68756D),
                           ),
 
                           SizedBox(width: 4),
 
                           Expanded(
                             child: Text(
-                              property["location"],
+                              property["location"]
+                                      ?.toString() ??
+                                  "-",
 
                               maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              overflow:
+                                  TextOverflow
+                                      .ellipsis,
 
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF68756D),
+                                color: Color(
+                                  0xFF68756D,
+                                ),
                               ),
                             ),
                           ),
@@ -473,7 +813,7 @@ class PendingVerificationScreen extends StatelessWidget {
 
             SizedBox(height: 13),
 
-            // OWNER
+            // Owner information
             Row(
               children: [
                 Container(
@@ -481,7 +821,8 @@ class PendingVerificationScreen extends StatelessWidget {
                   height: 38,
 
                   decoration: BoxDecoration(
-                    color: Color(0xFF90E0EF).withOpacity(0.25),
+                    color: Color(0xFF90E0EF)
+                        .withOpacity(0.25),
                     shape: BoxShape.circle,
                   ),
 
@@ -496,14 +837,15 @@ class PendingVerificationScreen extends StatelessWidget {
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
 
                     children: [
                       Text(
                         "House Owner",
-
                         style: TextStyle(
-                          color: Color(0xFF94A099),
+                          color:
+                              Color(0xFF94A099),
                           fontSize: 11,
                         ),
                       ),
@@ -511,11 +853,15 @@ class PendingVerificationScreen extends StatelessWidget {
                       SizedBox(height: 2),
 
                       Text(
-                        property["owner"],
+                        property["owner"]
+                                ?.toString() ??
+                            "Unknown Owner",
 
                         style: TextStyle(
-                          color: Color(0xFF526058),
-                          fontWeight: FontWeight.w600,
+                          color:
+                              Color(0xFF526058),
+                          fontWeight:
+                              FontWeight.w600,
                           fontSize: 13,
                         ),
                       ),
@@ -524,14 +870,15 @@ class PendingVerificationScreen extends StatelessWidget {
                 ),
 
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.end,
 
                   children: [
                     Text(
                       "Submitted",
-
                       style: TextStyle(
-                        color: Color(0xFF94A099),
+                        color:
+                            Color(0xFF94A099),
                         fontSize: 11,
                       ),
                     ),
@@ -539,12 +886,16 @@ class PendingVerificationScreen extends StatelessWidget {
                     SizedBox(height: 2),
 
                     Text(
-                      property["submitted"],
+                      property["submitted"]
+                              ?.toString() ??
+                          "-",
 
                       style: TextStyle(
-                        color: Color(0xFF68756D),
+                        color:
+                            Color(0xFF68756D),
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight:
+                            FontWeight.w500,
                       ),
                     ),
                   ],
@@ -554,35 +905,46 @@ class PendingVerificationScreen extends StatelessWidget {
 
             SizedBox(height: 14),
 
-            // REVIEW BUTTON
+            // Review button
             SizedBox(
               width: double.infinity,
               height: 46,
 
               child: ElevatedButton(
-                onPressed: () {
-                  // NEXT
-                  // Get.to(
-                  //   () => PropertyReviewScreen(
-                  //     property: property,
-                  //   ),
-                  // );
+                onPressed: () async {
+                  final dynamic result =
+                      await Get.to(
+                    () => PropertyReviewScreen(
+                      property: property,
+                    ),
+                  );
 
-                  Get.to(() => PropertyReviewScreen());
+                  // Reload list after approve or reject
+                  if (result == true) {
+                    await loadPendingProperties();
+                  }
                 },
 
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF03045E),
-                  foregroundColor: Colors.white,
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Color(0xFF03045E),
+                  foregroundColor:
+                      Colors.white,
                   elevation: 0,
 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(
+                      12,
+                    ),
                   ),
                 ),
 
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment:
+                      MainAxisAlignment.center,
 
                   children: [
                     Icon(
@@ -594,9 +956,9 @@ class PendingVerificationScreen extends StatelessWidget {
 
                     Text(
                       "Review Submission",
-
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight.bold,
                       ),
                     ),
                   ],
@@ -605,6 +967,28 @@ class PendingVerificationScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Property image placeholder
+  Widget buildImagePlaceholder() {
+    return Container(
+      width: 105,
+      height: 105,
+
+      decoration: BoxDecoration(
+        color:
+            Color(0xFF90E0EF).withOpacity(0.25),
+
+        borderRadius:
+            BorderRadius.circular(12),
+      ),
+
+      child: Icon(
+        Icons.home_work_outlined,
+        color: Color(0xFF03045E),
+        size: 35,
       ),
     );
   }

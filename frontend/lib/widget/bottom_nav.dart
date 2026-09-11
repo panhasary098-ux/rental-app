@@ -48,7 +48,7 @@ class _BottomNavState extends State<BottomNav> {
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           // Selected icon background
-          indicatorColor: secondaryColor,
+          indicatorColor: Colors.white,
 
           // Navigation icons
           iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {

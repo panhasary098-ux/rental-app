@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controller/admin_nav_controller.dart';
-import 'property_review_screen.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   AdminDashboardScreen({super.key});
@@ -20,7 +19,7 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              // HEADER
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
@@ -84,7 +83,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 28),
 
-              // OVERVIEW
+              // Overview
               buildSectionTitle("Overview"),
 
               SizedBox(height: 14),
@@ -150,7 +149,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 30),
 
-              // PENDING VERIFICATION
+              // Pending verification
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
@@ -197,7 +196,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 8),
 
-              // PENDING PROPERTY 1
+              // Pending property 1
               buildPendingPropertyCard(
                 title: "Modern Room Near University",
                 owner: "Dara Sok",
@@ -207,15 +206,16 @@ class AdminDashboardScreen extends StatelessWidget {
                     "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
 
                 onTap: () {
-                  Get.to(
-                    () => PropertyReviewScreen(),
-                  );
+                  AdminNavController controller =
+                      Get.find<AdminNavController>();
+
+                  controller.changePage(1);
                 },
               ),
 
               SizedBox(height: 12),
 
-              // PENDING PROPERTY 2
+              // Pending property 2
               buildPendingPropertyCard(
                 title: "Affordable Student Apartment",
                 owner: "Sophea Lim",
@@ -225,22 +225,23 @@ class AdminDashboardScreen extends StatelessWidget {
                     "https://images.unsplash.com/photo-1502672023488-70e25813eb80",
 
                 onTap: () {
-                  Get.to(
-                    () => PropertyReviewScreen(),
-                  );
+                  AdminNavController controller =
+                      Get.find<AdminNavController>();
+
+                  controller.changePage(1);
                 },
               ),
 
               SizedBox(height: 30),
 
-              // QUICK MANAGEMENT
+              // Quick management
               buildSectionTitle(
                 "Quick Management",
               ),
 
               SizedBox(height: 14),
 
-              // PROPERTY VERIFICATION
+              // Property verification
               buildManagementButton(
                 title: "Property Verification",
                 subtitle:
@@ -257,7 +258,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // MANAGE PROPERTIES
+              // Manage properties
               buildManagementButton(
                 title: "Manage Properties",
                 subtitle:
@@ -274,7 +275,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              // MANAGE USERS
+              // Manage users
               buildManagementButton(
                 title: "Manage Users",
                 subtitle:
@@ -295,7 +296,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // SECTION TITLE
+  // Section title
   Widget buildSectionTitle(String title) {
     return Text(
       title,
@@ -308,7 +309,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // STATUS CARD
+  // Status card
   Widget buildStatCard({
     required String title,
     required String value,
@@ -410,7 +411,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // PENDING PROPERTY CARD
+  // Pending property card
   Widget buildPendingPropertyCard({
     required String title,
     required String owner,
@@ -447,7 +448,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
         child: Row(
           children: [
-            // PROPERTY IMAGE
+            // Property image
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
 
@@ -487,7 +488,7 @@ class AdminDashboardScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  // PENDING STATUS
+                  // Pending status
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 8,
@@ -530,7 +531,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   SizedBox(height: 7),
 
-                  // TITLE
+                  // Title
                   Text(
                     title,
 
@@ -546,7 +547,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   SizedBox(height: 6),
 
-                  // OWNER
+                  // Owner
                   Row(
                     children: [
                       Icon(
@@ -575,7 +576,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   SizedBox(height: 4),
 
-                  // LOCATION
+                  // Location
                   Row(
                     children: [
                       Icon(
@@ -604,7 +605,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
                   SizedBox(height: 5),
 
-                  // DATE
+                  // Date
                   Row(
                     children: [
                       Icon(
@@ -652,7 +653,7 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // MANAGEMENT BUTTON
+  // Management button
   Widget buildManagementButton({
     required String title,
     required String subtitle,

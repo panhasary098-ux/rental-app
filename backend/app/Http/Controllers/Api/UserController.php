@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -208,5 +209,155 @@ class UserController extends Controller
             'message' => 'Profile image updated successfully',
             'profile_image' => asset('storage/' . $path),
         ], 200);
+    }
+
+    // ======================================================
+    // CHECK NATIONAL ID STATUS
+    // ======================================================
+
+    public function nationalIdStatus(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user || $user->role !== 'house_owner') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'has_national_id' => !empty($user->national_id_path),
+        ], 200);
+    }
+
+
+    // ======================================================
+    // UPLOAD NATIONAL ID
+    // ======================================================
+
+    public function uploadNationalId(Request $request)
+    {
+        $user = $request->user();
+
+        // ==================================================
+        // ONLY HOUSE OWNER
+        // ==================================================
+
+        if (!$user || $user->role !== 'house_owner') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // ==================================================
+        // VALIDATION
+        // ==================================================
+
+        $request->validate([
+            'national_id' =>
+            'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        // ==================================================
+        // OLD NATIONAL ID
+        // ==================================================
+
+        $oldNationalIdPath =
+            $user->national_id_path;
+
+        // ==================================================
+        // STORE NEW NATIONAL ID
+        // ==================================================
+        //
+        // Private storage.
+        // Do NOT use the "public" disk.
+        //
+
+        $newNationalIdPath =
+            $request
+            ->file('national_id')
+            ->store('national_ids');
+
+        // ==================================================
+        // UPDATE USER
+        // ==================================================
+
+        $user->national_id_path =
+            $newNationalIdPath;
+
+        $user->save();
+
+        // ==================================================
+        // DELETE OLD NATIONAL ID
+        // ==================================================
+
+        if (
+            $oldNationalIdPath &&
+            $oldNationalIdPath !==
+            $newNationalIdPath
+        ) {
+            Storage::delete(
+                $oldNationalIdPath
+            );
+        }
+
+        // ==================================================
+        // RESPONSE
+        // ==================================================
+
+        return response()->json([
+            'success' => true,
+            'message' =>
+            'National ID uploaded successfully.',
+            'has_national_id' => true,
+        ], 200);
+    }
+
+    // Admin view owner's National ID
+    public function viewNationalId(Request $request, User $user)
+    {
+        $admin = $request->user();
+
+        // Only admin can view National ID
+        if (!$admin || $admin->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only admin can view National ID',
+            ], 403);
+        }
+
+        // National ID is only for house owners
+        if ($user->role !== 'house_owner') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This user is not a house owner',
+            ], 422);
+        }
+
+        // Check if owner uploaded National ID
+        if (empty($user->national_id_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'National ID has not been uploaded',
+            ], 404);
+        }
+
+        // Check if the private file still exists
+        if (!Storage::disk('local')->exists($user->national_id_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'National ID file not found',
+            ], 404);
+        }
+
+        $filePath = Storage::disk('local')->path(
+            $user->national_id_path
+        );
+
+        // Return the private image to authenticated admin
+        return response()->file($filePath);
     }
 }

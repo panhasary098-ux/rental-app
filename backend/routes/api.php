@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PropertyController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AdminPropertyController;
 
 Route::post('/users', [
     UserController::class,
@@ -55,3 +56,33 @@ Route::middleware('firebase.auth')->put(
     [PropertyController::class, 'updateProperty']
 );
 
+
+Route::middleware('firebase.auth')->get(
+    '/owner/national-id/status',
+    [UserController::class, 'nationalIdStatus']
+);
+
+Route::middleware('firebase.auth')->post(
+    '/owner/national-id',
+    [UserController::class, 'uploadNationalId']
+);
+
+Route::middleware('firebase.auth')->get(
+    '/admin/users/{user}/national-id',
+    [UserController::class, 'viewNationalId']
+);
+
+Route::middleware('firebase.auth')->get(
+    '/admin/properties/pending',
+    [AdminPropertyController::class, 'pendingProperties']
+);
+
+Route::middleware('firebase.auth')->post(
+    '/admin/properties/{property}/approve',
+    [AdminPropertyController::class, 'approveProperty']
+);
+
+Route::middleware('firebase.auth')->post(
+    '/admin/properties/{property}/reject',
+    [AdminPropertyController::class, 'rejectProperty']
+);

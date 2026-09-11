@@ -134,7 +134,7 @@ class AdminBottomNav extends StatelessWidget {
 
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Color.fromARGB(255, 220, 250, 255)
+                      ? Color(0xFF03045E)
                       : Colors.transparent,
 
                   borderRadius: BorderRadius.circular(18),
@@ -148,7 +148,7 @@ class AdminBottomNav extends StatelessWidget {
                   size: 22,
 
                   color: isSelected
-                      ? Color(0xFF03045E)
+                      ? Colors.white
                       : Color(0xFF8E8AA8),
                 ),
               ),

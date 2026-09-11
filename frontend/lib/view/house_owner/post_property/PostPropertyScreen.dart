@@ -60,18 +60,28 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
     }
 
     // ====================================================
-    // EDIT MODE
+    // WAIT UNTIL FIRST BUILD IS FINISHED
     // ====================================================
 
-    if (widget.propertyToEdit != null) {
-      controller.loadPropertyForEdit(widget.propertyToEdit!);
-    }
-    // ====================================================
-    // CREATE MODE
-    // ====================================================
-    else {
-      controller.resetForCreateMode();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+
+      // ==================================================
+      // EDIT MODE
+      // ==================================================
+
+      if (widget.propertyToEdit != null) {
+        controller.loadPropertyForEdit(widget.propertyToEdit!);
+      }
+      // ==================================================
+      // CREATE MODE
+      // ==================================================
+      else {
+        controller.resetForCreateMode();
+      }
+    });
   }
 
   // ======================================================
