@@ -196,6 +196,12 @@ class PropertyService {
     // CONVERT RESPONSE
     // ====================================================
 
-    return http.Response.fromStream(streamedResponse);
+  
+final response = await http.Response.fromStream(streamedResponse);
+
+print("PROPERTY SUBMIT STATUS: ${response.statusCode}");
+print("PROPERTY SUBMIT RESPONSE: ${response.body}");
+
+return response;
   }
 }
