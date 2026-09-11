@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
@@ -595,4 +596,546 @@ class PropertyController extends Controller
                 $property,
         ]);
     }
+    // ======================================================
+// UPDATE PROPERTY
+// ======================================================
+
+public function updateProperty(
+    Request $request,
+    Property $property
+) {
+    $user = $request->user();
+
+    // ==================================================
+    // ONLY HOUSE OWNER
+    // ==================================================
+
+    if (
+        !$user ||
+        $user->role !== 'house_owner'
+    ) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized',
+        ], 403);
+    }
+
+    // ==================================================
+    // OWNER CHECK
+    // ==================================================
+
+    if ($property->owner_id !== $user->id) {
+        return response()->json([
+            'success' => false,
+            'message' =>
+                'You do not own this property',
+        ], 403);
+    }
+
+    // ==================================================
+    // APPROVED PROPERTY CANNOT BE EDITED
+    // ==================================================
+
+    if (
+        $property->verification_status
+        === 'approved'
+    ) {
+        return response()->json([
+            'success' => false,
+            'message' =>
+                'Approved properties cannot be edited',
+        ], 403);
+    }
+
+    // ==================================================
+    // VALIDATION
+    // ==================================================
+
+    $validated = $request->validate([
+
+        // --------------------------------------------------
+        // MAIN INFORMATION
+        // --------------------------------------------------
+
+        'name' =>
+            'required|string|max:255',
+
+        'size' =>
+            'required|numeric|min:0.01',
+
+        'price' =>
+            'required|numeric|min:0.01',
+
+        'description' =>
+            'required|string',
+
+        'contact' =>
+            'required|string|max:255',
+
+        'furnished' =>
+            'required|boolean',
+
+        // --------------------------------------------------
+        // LOCATION
+        // --------------------------------------------------
+
+        'address' =>
+            'required|string|max:255',
+
+        'latitude' =>
+            'required|numeric|between:-90,90',
+
+        'longitude' =>
+            'required|numeric|between:-180,180',
+
+        // --------------------------------------------------
+        // PROPERTY DETAILS
+        // --------------------------------------------------
+
+        'bedrooms' =>
+            'nullable|integer|min:0',
+
+        'bathrooms' =>
+            'nullable|integer|min:0',
+
+        'total_floor' =>
+            'required|integer|min:1',
+
+        'rental_status' =>
+            'required|in:available,rented',
+
+        // --------------------------------------------------
+        // FACILITIES
+        // --------------------------------------------------
+
+        'facilities' =>
+            'nullable|array',
+
+        'facilities.wifi' =>
+            'nullable|boolean',
+
+        'facilities.parking' =>
+            'nullable|boolean',
+
+        'facilities.air_conditioning' =>
+            'nullable|boolean',
+
+        'facilities.pet_allowed' =>
+            'nullable|boolean',
+
+        'facilities.balcony' =>
+            'nullable|boolean',
+
+        'facilities.kitchen' =>
+            'nullable|boolean',
+
+        'facilities.swimming_pool' =>
+            'nullable|boolean',
+
+        'facilities.elevator' =>
+            'nullable|boolean',
+
+        // --------------------------------------------------
+        // AVAILABLE FLOORS
+        // --------------------------------------------------
+
+        'available_floors' =>
+            'nullable|array',
+
+        'available_floors.*' =>
+            'integer|min:1',
+
+        // --------------------------------------------------
+        // NEW PROPERTY IMAGES
+        //
+        // Optional during edit.
+        // If owner does not select new images,
+        // existing images remain.
+        // --------------------------------------------------
+
+        'property_images' =>
+            'nullable|array|min:1',
+
+        'property_images.*' =>
+            'image|mimes:jpg,jpeg,png,webp|max:5120',
+
+        // --------------------------------------------------
+        // NEW OWNERSHIP DOCUMENT
+        //
+        // Optional during edit.
+        // Existing document remains if no new one is sent.
+        // --------------------------------------------------
+
+        'ownership_document' =>
+            'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+    ]);
+
+    // ==================================================
+    // PROPERTY TYPE
+    // ==================================================
+    //
+    // Property type cannot be changed during edit.
+    //
+    // House stays House
+    // Apartment stays Apartment
+    // Room stays Room
+    //
+
+    $propertyType =
+        $property->property_type;
+
+    // ==================================================
+    // VALIDATE AVAILABLE FLOORS
+    // ==================================================
+
+    if (
+        in_array(
+            $propertyType,
+            ['room', 'apartment']
+        )
+    ) {
+        $availableFloors =
+            $validated['available_floors']
+            ?? [];
+
+        if (empty($availableFloors)) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Please select at least one available floor.',
+            ], 422);
+        }
+
+        foreach (
+            $availableFloors as $floor
+        ) {
+            if (
+                $floor >
+                $validated['total_floor']
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' =>
+                        'Available floor cannot be higher than total floors.',
+                ], 422);
+            }
+        }
+
+        $validated['available_floors'] =
+            array_values(
+                array_unique(
+                    $availableFloors
+                )
+            );
+    } else {
+        $validated['available_floors'] = [];
+    }
+
+    // ==================================================
+    // KEEP OLD FILE PATHS
+    // ==================================================
+
+    $oldImagePaths = [];
+
+    $oldDocumentPath = null;
+
+    // ==================================================
+    // DATABASE TRANSACTION
+    // ==================================================
+
+    DB::transaction(function () use (
+        $validated,
+        $request,
+        $property,
+        $propertyType,
+        &$oldImagePaths,
+        &$oldDocumentPath
+    ) {
+
+        // ==================================================
+        // 1. UPDATE PROPERTY
+        // ==================================================
+
+        $property->update([
+            'name' =>
+                $validated['name'],
+
+            'size' =>
+                $validated['size'],
+
+            'price' =>
+                $validated['price'],
+
+            'description' =>
+                $validated['description'],
+
+            'contact' =>
+                $validated['contact'],
+
+            'furnished' =>
+                $validated['furnished'],
+
+            'address' =>
+                $validated['address'],
+
+            'latitude' =>
+                $validated['latitude'],
+
+            'longitude' =>
+                $validated['longitude'],
+
+            'bedrooms' =>
+                $validated['bedrooms']
+                ?? null,
+
+            'bathrooms' =>
+                $validated['bathrooms']
+                ?? null,
+
+            'total_floor' =>
+                $validated['total_floor'],
+
+            'rental_status' =>
+                $validated['rental_status'],
+
+            // ==================================================
+            // RESUBMIT FOR ADMIN REVIEW
+            // ==================================================
+            //
+            // Pending property stays pending.
+            //
+            // Rejected property becomes pending again.
+            //
+
+            'verification_status' =>
+                'pending',
+
+            'post_status' =>
+                'unpublished',
+        ]);
+
+        // ==================================================
+        // 2. UPDATE FACILITIES
+        // ==================================================
+
+        $facilities =
+            $validated['facilities']
+            ?? [];
+
+        $property
+            ->facilities()
+            ->updateOrCreate(
+                [],
+                [
+                    'wifi' =>
+                        $facilities['wifi']
+                        ?? false,
+
+                    'parking' =>
+                        $facilities['parking']
+                        ?? false,
+
+                    'air_conditioning' =>
+                        $facilities[
+                            'air_conditioning'
+                        ] ?? false,
+
+                    'pet_allowed' =>
+                        $facilities[
+                            'pet_allowed'
+                        ] ?? false,
+
+                    'balcony' =>
+                        $facilities['balcony']
+                        ?? false,
+
+                    'kitchen' =>
+                        $facilities['kitchen']
+                        ?? false,
+
+                    'swimming_pool' =>
+                        $facilities[
+                            'swimming_pool'
+                        ] ?? false,
+
+                    'elevator' =>
+                        $facilities['elevator']
+                        ?? false,
+                ]
+            );
+
+        // ==================================================
+        // 3. UPDATE AVAILABLE FLOORS
+        // ==================================================
+
+        $property
+            ->availableFloors()
+            ->delete();
+
+        if (
+            in_array(
+                $propertyType,
+                ['room', 'apartment']
+            )
+        ) {
+            foreach (
+                $validated[
+                    'available_floors'
+                ] as $floor
+            ) {
+                $property
+                    ->availableFloors()
+                    ->create([
+                        'floor_number' =>
+                            $floor,
+                    ]);
+            }
+        }
+
+        // ==================================================
+        // 4. REPLACE PROPERTY IMAGES
+        // ==================================================
+        //
+        // Only replace images when owner selects
+        // new property images.
+        //
+
+        if (
+            $request->hasFile(
+                'property_images'
+            )
+        ) {
+            $oldImagePaths =
+                $property
+                    ->images()
+                    ->pluck(
+                        'image_path'
+                    )
+                    ->toArray();
+
+            // Delete old image records
+            $property
+                ->images()
+                ->delete();
+
+            // Store new images
+            foreach (
+                $request->file(
+                    'property_images'
+                ) as $index => $image
+            ) {
+                $path =
+                    $image->store(
+                        'property_images',
+                        'public'
+                    );
+
+                $property
+                    ->images()
+                    ->create([
+                        'image_path' =>
+                            $path,
+
+                        'is_cover' =>
+                            $index === 0,
+
+                        'sort_order' =>
+                            $index + 1,
+                    ]);
+            }
+        }
+
+        // ==================================================
+        // 5. REPLACE OWNERSHIP DOCUMENT
+        // ==================================================
+
+        if (
+            $request->hasFile(
+                'ownership_document'
+            )
+        ) {
+            $oldDocument =
+                $property
+                    ->document()
+                    ->first();
+
+            if ($oldDocument) {
+                $oldDocumentPath =
+                    $oldDocument
+                        ->ownership_document_path;
+            }
+
+            $newDocumentPath =
+                $request
+                    ->file(
+                        'ownership_document'
+                    )
+                    ->store(
+                        'property_documents'
+                    );
+
+            $property
+                ->document()
+                ->updateOrCreate(
+                    [],
+                    [
+                        'ownership_document_path' =>
+                            $newDocumentPath,
+                    ]
+                );
+        }
+    });
+
+    // ==================================================
+    // DELETE OLD PROPERTY IMAGE FILES
+    // ==================================================
+
+    foreach (
+        $oldImagePaths as $oldImagePath
+    ) {
+        Storage::disk('public')
+            ->delete(
+                $oldImagePath
+            );
+    }
+
+    // ==================================================
+    // DELETE OLD OWNERSHIP DOCUMENT FILE
+    // ==================================================
+
+    if ($oldDocumentPath) {
+        Storage::delete(
+            $oldDocumentPath
+        );
+    }
+
+    // ==================================================
+    // LOAD UPDATED PROPERTY
+    // ==================================================
+
+    $property->load([
+        'images',
+        'facilities',
+        'availableFloors',
+        'document',
+        'payment',
+    ]);
+
+    // Still editable because it is pending
+    $property->can_edit = true;
+
+    // ==================================================
+    // RESPONSE
+    // ==================================================
+
+    return response()->json([
+        'success' => true,
+
+        'message' =>
+            'Property updated successfully and submitted for admin review',
+
+        'property' =>
+            $property,
+    ]);
+}
 }

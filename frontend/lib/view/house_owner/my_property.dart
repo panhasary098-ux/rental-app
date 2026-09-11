@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,17 +67,29 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
       if (response.statusCode == 200 && data["success"] == true) {
         final List<dynamic> propertyList = data["properties"] ?? [];
 
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           properties = propertyList
               .map((item) => Map<String, dynamic>.from(item))
               .toList();
         });
       } else {
+        if (!mounted) {
+          return;
+        }
+
         setState(() {
           errorMessage = data["message"] ?? "Unable to load properties.";
         });
       }
     } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         errorMessage = e.toString();
       });
@@ -262,6 +275,61 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
     }
   }
 
+  // =========================================================
+  // EDIT PROPERTY
+  // =========================================================
+
+  Future<void> handleEditProperty(Map<String, dynamic> property) async {
+    // =====================================================
+    // APPROVED PROPERTY CANNOT EDIT
+    // =====================================================
+
+    if (!canEdit(property)) {
+      Get.snackbar(
+        "Edit Not Available",
+        "Approved properties cannot be edited.",
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // =====================================================
+    // OPEN POST PROPERTY SCREEN IN EDIT MODE
+    // =====================================================
+
+    final dynamic result = await Get.to(
+      () => Postpropertyscreen(propertyToEdit: property),
+    );
+
+    // =====================================================
+    // REFRESH AFTER SUCCESSFUL UPDATE
+    // =====================================================
+    //
+    // PostPropertyScreen returns:
+    //
+    // Get.back(result: true)
+    //
+    // after updateProperty() succeeds.
+    //
+
+    if (result == true) {
+      await loadProperties();
+    }
+  }
+
+  // =========================================================
+  // VIEW DETAILS
+  // =========================================================
+
+  void handleViewDetails(Map<String, dynamic> property) {
+    Get.snackbar(
+      "View Details",
+      "Property details screen will be connected later.",
+      snackPosition: SnackPosition.TOP,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> currentProperties = filteredProperties;
@@ -278,6 +346,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
         title: const Text(
           "My Properties",
+
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -557,8 +626,11 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                 child: imageUrl != null
                     ? Image.network(
                         imageUrl,
+
                         width: double.infinity,
+
                         height: 190,
+
                         fit: BoxFit.cover,
 
                         errorBuilder: (context, error, stackTrace) {
@@ -622,6 +694,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
                               Icon(
                                 Icons.edit_outlined,
                                 size: 19,
+
                                 color: editable ? null : Colors.grey,
                               ),
 
@@ -879,12 +952,15 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
     if (status == "Approved") {
       color = const Color(0xFF2563EB);
+
       icon = Icons.verified_rounded;
     } else if (status == "Pending") {
       color = const Color(0xFFF59E0B);
+
       icon = Icons.schedule_rounded;
     } else {
       color = const Color(0xFFDC2626);
+
       icon = Icons.cancel_outlined;
     }
 
@@ -1049,6 +1125,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               onTap: () {
                 if (currentStatus == "available") {
                   Get.back();
+
                   return;
                 }
 
@@ -1075,6 +1152,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               onTap: () {
                 if (currentStatus == "rented") {
                   Get.back();
+
                   return;
                 }
 
@@ -1169,42 +1247,6 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  // =========================================================
-  // EDIT PROPERTY
-  // =========================================================
-
-  void handleEditProperty(Map<String, dynamic> property) {
-    if (!canEdit(property)) {
-      Get.snackbar(
-        "Edit Not Available",
-        "Approved properties cannot be edited.",
-        snackPosition: SnackPosition.TOP,
-      );
-
-      return;
-    }
-
-    // Actual Edit screen will be connected next.
-    Get.snackbar(
-      "Edit Property",
-      "Edit screen will be connected next.",
-      snackPosition: SnackPosition.TOP,
-    );
-  }
-
-  // =========================================================
-  // VIEW DETAILS
-  // =========================================================
-
-  void handleViewDetails(Map<String, dynamic> property) {
-    // Actual detail screen will be connected later.
-    Get.snackbar(
-      "View Details",
-      "Property details screen will be connected later.",
-      snackPosition: SnackPosition.TOP,
     );
   }
 

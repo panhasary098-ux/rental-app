@@ -18,6 +18,8 @@ class PostReviewStep3 extends StatelessWidget {
 
   final PostPropertyController controller = Get.find<PostPropertyController>();
 
+  final String storageBaseUrl = "http://10.0.2.2:8000/storage";
+
   // ======================================================
   // PROPERTY TYPE LABEL
   // ======================================================
@@ -100,22 +102,154 @@ class PostReviewStep3 extends StatelessWidget {
     return "";
   }
 
+  // ======================================================
+  // PHOTO COUNT
+  // ======================================================
+
+  int getPhotoCount() {
+    // Edit mode + new images selected
+    if (controller.isEditMode.value && controller.selectedImages.isNotEmpty) {
+      return controller.selectedImages.length;
+    }
+
+    // Edit mode + keep old images
+    if (controller.isEditMode.value) {
+      return controller.existingImagePaths.length;
+    }
+
+    // Create mode
+    return controller.selectedImages.length;
+  }
+
+  // ======================================================
+  // OWNERSHIP DOCUMENT STATUS
+  // ======================================================
+
+  String getOwnershipDocumentStatus() {
+    // New document selected
+    if (controller.ownershipDocumentImage.value != null) {
+      if (controller.isEditMode.value) {
+        return "New document";
+      }
+
+      return "Uploaded";
+    }
+
+    // Existing document kept
+    if (controller.isEditMode.value &&
+        controller.hasExistingOwnershipDocument.value) {
+      return "Existing document";
+    }
+
+    return "Not uploaded";
+  }
+
+  // ======================================================
+  // MAIN PROPERTY IMAGE
+  // ======================================================
+
+  Widget buildPropertyImage() {
+    // ====================================================
+    // NEW IMAGE
+    // ====================================================
+
+    if (controller.selectedImages.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+
+        child: Image.file(
+          File(controller.selectedImages.first.path),
+
+          width: double.infinity,
+          height: 180,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    // ====================================================
+    // EXISTING IMAGE - EDIT MODE
+    // ====================================================
+
+    if (controller.isEditMode.value &&
+        controller.existingImagePaths.isNotEmpty) {
+      final String path = controller.existingImagePaths.first;
+
+      final String imageUrl = path.startsWith("http")
+          ? path
+          : "$storageBaseUrl/$path";
+
+      return ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+
+        child: Image.network(
+          imageUrl,
+
+          width: double.infinity,
+          height: 180,
+          fit: BoxFit.cover,
+
+          errorBuilder: (context, error, stackTrace) {
+            return buildImagePlaceholder();
+          },
+        ),
+      );
+    }
+
+    // ====================================================
+    // NO IMAGE
+    // ====================================================
+
+    return buildImagePlaceholder();
+  }
+
+  // ======================================================
+  // IMAGE PLACEHOLDER
+  // ======================================================
+
+  Widget buildImagePlaceholder() {
+    return Container(
+      width: double.infinity,
+      height: 180,
+
+      decoration: const BoxDecoration(
+        color: lightSecondaryColor,
+
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+
+      child: const Icon(
+        Icons.home_work_outlined,
+        size: 55,
+        color: primaryColor,
+      ),
+    );
+  }
+
+  // ======================================================
+  // BUILD
+  // ======================================================
+
   @override
   Widget build(BuildContext context) {
     final facilities = getSelectedFacilities();
 
+    final bool isEditMode = controller.isEditMode.value;
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           const SizedBox(height: 10),
 
           // ======================================================
           // TITLE
           // ======================================================
-          const Text(
-            "Review Your Property",
-            style: TextStyle(
+          Text(
+            isEditMode ? "Review Your Changes" : "Review Your Property",
+
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w900,
               color: primaryColor,
@@ -124,20 +258,30 @@ class PostReviewStep3 extends StatelessWidget {
 
           const SizedBox(height: 5),
 
-          const Text(
-            "Check the details below before continuing to payment.",
-            style: TextStyle(fontSize: 14, color: Colors.black45),
+          Text(
+            isEditMode
+                ? "Check the updated details before saving your changes."
+                : "Check the details below before continuing to payment.",
+
+            style: const TextStyle(fontSize: 14, color: Colors.black45),
           ),
 
           const SizedBox(height: 16),
+
+          // ======================================================
+          // EDIT MODE NOTICE
+          // ======================================================
+          if (isEditMode) ...[buildEditNotice(), const SizedBox(height: 14)],
 
           // ======================================================
           // MAIN REVIEW CARD
           // ======================================================
           Container(
             width: double.infinity,
+
             decoration: BoxDecoration(
               color: Colors.white,
+
               borderRadius: BorderRadius.circular(16),
 
               border: Border.all(color: secondaryColor.withOpacity(0.35)),
@@ -153,35 +297,26 @@ class PostReviewStep3 extends StatelessWidget {
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 // ==================================================
                 // PROPERTY IMAGE
                 // ==================================================
-                if (controller.selectedImages.isNotEmpty)
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
-                    ),
-
-                    child: Image.file(
-                      File(controller.selectedImages.first.path),
-                      width: double.infinity,
-                      height: 180,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                buildPropertyImage(),
 
                 Padding(
                   padding: const EdgeInsets.all(16),
 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+
                     children: [
                       // ============================================
                       // NAME
                       // ============================================
                       Text(
                         controller.nameController.text.trim(),
+
                         style: const TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.w800,
@@ -207,6 +342,7 @@ class PostReviewStep3 extends StatelessWidget {
                           Expanded(
                             child: Text(
                               controller.address.value ?? "",
+
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.black54,
@@ -223,6 +359,7 @@ class PostReviewStep3 extends StatelessWidget {
                       // ============================================
                       Text(
                         "\$${controller.priceController.text.trim()} / month",
+
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w800,
@@ -232,13 +369,35 @@ class PostReviewStep3 extends StatelessWidget {
 
                       const SizedBox(height: 6),
 
+                      // ============================================
+                      // IMAGE COUNT
+                      // ============================================
                       Text(
-                        "${controller.selectedImages.length} property photo(s)",
+                        "${getPhotoCount()} property photo(s)",
+
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.black45,
                         ),
                       ),
+
+                      // ============================================
+                      // IMAGE EDIT MESSAGE
+                      // ============================================
+                      if (isEditMode) ...[
+                        const SizedBox(height: 4),
+
+                        Text(
+                          controller.selectedImages.isNotEmpty
+                              ? "New photos will replace the existing photos."
+                              : "Existing property photos will be kept.",
+
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF667085),
+                          ),
+                        ),
+                      ],
 
                       const SizedBox(height: 16),
 
@@ -266,6 +425,7 @@ class PostReviewStep3 extends StatelessWidget {
 
                       reviewRow(
                         title: "Status",
+
                         value: controller.status.value == "available"
                             ? "Available"
                             : "Rented",
@@ -273,6 +433,7 @@ class PostReviewStep3 extends StatelessWidget {
 
                       reviewRow(
                         title: "Contact",
+
                         value: controller.contactController.text.trim(),
                       ),
 
@@ -292,6 +453,7 @@ class PostReviewStep3 extends StatelessWidget {
 
                         reviewRow(
                           title: "Total Floors",
+
                           value: controller.houseTotalFloor.value.toString(),
                         ),
                       ],
@@ -302,22 +464,26 @@ class PostReviewStep3 extends StatelessWidget {
                       if (controller.selectIndex.value == 1) ...[
                         reviewRow(
                           title: "Bedrooms",
+
                           value: controller.apartmentBedrooms.value.toString(),
                         ),
 
                         reviewRow(
                           title: "Bathrooms",
+
                           value: controller.apartmentBathrooms.value.toString(),
                         ),
 
                         reviewRow(
                           title: "Total Floors",
+
                           value: controller.apartmentTotalFloor.value
                               .toString(),
                         ),
 
                         reviewRow(
                           title: "Available Floors",
+
                           value: getAvailableFloorsText(),
                         ),
                       ],
@@ -328,11 +494,13 @@ class PostReviewStep3 extends StatelessWidget {
                       if (controller.selectIndex.value == 2) ...[
                         reviewRow(
                           title: "Total Floors",
+
                           value: controller.roomTotalFloor.value.toString(),
                         ),
 
                         reviewRow(
                           title: "Available Floors",
+
                           value: getAvailableFloorsText(),
                         ),
                       ],
@@ -344,6 +512,7 @@ class PostReviewStep3 extends StatelessWidget {
                       // ============================================
                       const Text(
                         "Facilities",
+
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -356,6 +525,7 @@ class PostReviewStep3 extends StatelessWidget {
                       if (facilities.isEmpty)
                         const Text(
                           "No facilities selected",
+
                           style: TextStyle(fontSize: 13, color: Colors.black45),
                         )
                       else
@@ -366,6 +536,7 @@ class PostReviewStep3 extends StatelessWidget {
                           children: facilities.map((facility) {
                             return FacilityChip(
                               icon: facility["icon"],
+
                               text: facility["text"],
                             );
                           }).toList(),
@@ -382,6 +553,7 @@ class PostReviewStep3 extends StatelessWidget {
                       // ============================================
                       const Text(
                         "Description",
+
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -393,6 +565,7 @@ class PostReviewStep3 extends StatelessWidget {
 
                       Text(
                         controller.descriptionController.text.trim(),
+
                         style: const TextStyle(
                           fontSize: 14,
                           height: 1.5,
@@ -422,6 +595,7 @@ class PostReviewStep3 extends StatelessWidget {
                           const Expanded(
                             child: Text(
                               "Ownership Document",
+
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -431,9 +605,8 @@ class PostReviewStep3 extends StatelessWidget {
                           ),
 
                           Text(
-                            controller.ownershipDocumentImage.value != null
-                                ? "Uploaded"
-                                : "Not uploaded",
+                            getOwnershipDocumentStatus(),
+
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -442,6 +615,27 @@ class PostReviewStep3 extends StatelessWidget {
                           ),
                         ],
                       ),
+
+                      if (isEditMode) ...[
+                        const SizedBox(height: 5),
+
+                        Align(
+                          alignment: Alignment.centerRight,
+
+                          child: Text(
+                            controller.ownershipDocumentImage.value != null
+                                ? "The current document will be replaced."
+                                : "The current document will be kept.",
+
+                            textAlign: TextAlign.right,
+
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF667085),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -450,6 +644,55 @@ class PostReviewStep3 extends StatelessWidget {
           ),
 
           const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  // ======================================================
+  // EDIT MODE NOTICE
+  // ======================================================
+
+  Widget buildEditNotice() {
+    final String originalStatus =
+        controller.originalVerificationStatus.value?.toLowerCase() ?? "";
+
+    final bool wasRejected = originalStatus == "rejected";
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(13),
+
+      decoration: BoxDecoration(
+        color: secondaryColor.withOpacity(0.12),
+
+        borderRadius: BorderRadius.circular(12),
+
+        border: Border.all(color: secondaryColor.withOpacity(0.45)),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          const Icon(Icons.info_outline_rounded, color: primaryColor, size: 21),
+
+          const SizedBox(width: 9),
+
+          Expanded(
+            child: Text(
+              wasRejected
+                  ? "After you resubmit these changes, the property will return to Pending for admin review."
+                  : "After you save these changes, the property will remain Pending for admin review.",
+
+              style: const TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: Color(0xFF667085),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -466,10 +709,12 @@ Widget reviewRow({required String title, required String value}) {
 
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Expanded(
           child: Text(
             title,
+
             style: const TextStyle(fontSize: 14, color: Colors.black45),
           ),
         ),
@@ -479,6 +724,7 @@ Widget reviewRow({required String title, required String value}) {
         Expanded(
           child: Text(
             value,
+
             textAlign: TextAlign.right,
 
             style: const TextStyle(
@@ -518,6 +764,7 @@ class FacilityChip extends StatelessWidget {
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
+
         children: [
           Icon(icon, size: 16, color: primaryColor),
 
@@ -525,6 +772,7 @@ class FacilityChip extends StatelessWidget {
 
           Text(
             text,
+
             style: const TextStyle(
               fontSize: 12,
               color: primaryColor,

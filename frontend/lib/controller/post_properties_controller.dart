@@ -8,6 +8,18 @@ import 'package:image_picker/image_picker.dart';
 
 class PostPropertyController extends GetxController {
   // ======================================================
+  // MODE
+  // ======================================================
+
+  final RxBool isEditMode = false.obs;
+
+  final RxnInt editingPropertyId = RxnInt();
+
+  // Used later on the review screen:
+  // pending / rejected
+  final RxnString originalVerificationStatus = RxnString();
+
+  // ======================================================
   // STEP / PROPERTY TYPE
   // ======================================================
 
@@ -45,7 +57,7 @@ class PostPropertyController extends GetxController {
   final RxInt houseTotalFloor = 1.obs;
 
   // ======================================================
-  // APARTMENT / FLAT
+  // APARTMENT
   // ======================================================
 
   final RxInt apartmentBedrooms = 0.obs;
@@ -82,32 +94,305 @@ class PostPropertyController extends GetxController {
   final ImagePicker picker = ImagePicker();
 
   // ======================================================
-  // PROPERTY IMAGES
+  // NEW PROPERTY IMAGES
   // ======================================================
+  //
+  // Create mode:
+  // These are the images to submit.
+  //
+  // Edit mode:
+  // Empty = keep existing images.
+  // Not empty = replace existing images.
+  //
 
   final RxList<XFile> selectedImages = <XFile>[].obs;
 
   // ======================================================
-  // OWNERSHIP DOCUMENT
+  // EXISTING PROPERTY IMAGES - EDIT MODE
   // ======================================================
 
+  final RxList<String> existingImagePaths = <String>[].obs;
+
+  // ======================================================
+  // OWNERSHIP DOCUMENT
+  // ======================================================
+  //
+  // Create:
+  // Required.
+  //
+  // Edit:
+  // null = keep existing document.
+  // new XFile = replace existing document.
+  //
+
   final Rxn<XFile> ownershipDocumentImage = Rxn<XFile>();
+
+  final RxBool hasExistingOwnershipDocument = false.obs;
 
   // ======================================================
   // PAYMENT
   // ======================================================
+  //
+  // Only used when creating a new property.
+  //
 
   final transactionReferenceController = TextEditingController();
 
   final Rxn<XFile> paymentProofImage = Rxn<XFile>();
 
   // ======================================================
-  // SUBMIT STATE
+  // SUBMIT / UPDATE STATE
   // ======================================================
 
   final RxBool isSubmitting = false.obs;
 
   final PropertyService propertyService = PropertyService();
+
+  // ======================================================
+  // START EDIT MODE
+  // ======================================================
+
+  void loadPropertyForEdit(Map<String, dynamic> property) {
+    isEditMode.value = true;
+
+    editingPropertyId.value = _toInt(property["id"]);
+
+    originalVerificationStatus.value = property["verification_status"]
+        ?.toString();
+
+    // ====================================================
+    // PROPERTY TYPE
+    // ====================================================
+
+    final String propertyType = (property["property_type"] ?? "")
+        .toString()
+        .toLowerCase();
+
+    switch (propertyType) {
+      case "house":
+        selectIndex.value = 0;
+        break;
+
+      case "apartment":
+        selectIndex.value = 1;
+        break;
+
+      case "room":
+        selectIndex.value = 2;
+        break;
+
+      default:
+        selectIndex.value = null;
+    }
+
+    // ====================================================
+    // OPEN DIRECTLY AT STEP 2
+    // ====================================================
+
+    currentStep.value = 2;
+
+    // ====================================================
+    // COMMON INFORMATION
+    // ====================================================
+
+    nameController.text = property["name"]?.toString() ?? "";
+
+    sizeController.text = _numberToText(property["size"]);
+
+    priceController.text = _numberToText(property["price"]);
+
+    descriptionController.text = property["description"]?.toString() ?? "";
+
+    contactController.text = property["contact"]?.toString() ?? "";
+
+    status.value = property["rental_status"]?.toString();
+
+    furnished.value = _toBool(property["furnished"]);
+
+    // ====================================================
+    // LOCATION
+    // ====================================================
+
+    address.value = property["address"]?.toString();
+
+    latitude.value = _toDouble(property["latitude"]);
+
+    longitude.value = _toDouble(property["longitude"]);
+
+    // ====================================================
+    // TYPE DETAILS
+    // ====================================================
+
+    final int bedrooms = _toInt(property["bedrooms"]) ?? 0;
+
+    final int bathrooms = _toInt(property["bathrooms"]) ?? 1;
+
+    final int totalFloor = _toInt(property["total_floor"]) ?? 1;
+
+    // HOUSE
+    if (propertyType == "house") {
+      houseBedrooms.value = bedrooms;
+      houseBathrooms.value = bathrooms;
+      houseTotalFloor.value = totalFloor;
+    }
+
+    // APARTMENT
+    if (propertyType == "apartment") {
+      apartmentBedrooms.value = bedrooms;
+      apartmentBathrooms.value = bathrooms;
+      apartmentTotalFloor.value = totalFloor;
+    }
+
+    // ROOM
+    if (propertyType == "room") {
+      roomTotalFloor.value = totalFloor;
+    }
+
+    // ====================================================
+    // AVAILABLE FLOORS
+    // ====================================================
+
+    apartmentAvailableFloors.clear();
+    roomAvailableFloors.clear();
+
+    final dynamic rawFloors =
+        property["available_floors"] ?? property["availableFloors"];
+
+    final List<int> floors = _extractAvailableFloors(rawFloors);
+
+    if (propertyType == "apartment") {
+      apartmentAvailableFloors.assignAll(floors);
+    }
+
+    if (propertyType == "room") {
+      roomAvailableFloors.assignAll(floors);
+    }
+
+    // ====================================================
+    // FACILITIES
+    // ====================================================
+
+    final dynamic rawFacilities = property["facilities"];
+
+    if (rawFacilities is Map) {
+      wifi.value = _toBool(rawFacilities["wifi"]);
+
+      parking.value = _toBool(rawFacilities["parking"]);
+
+      airConditioning.value = _toBool(rawFacilities["air_conditioning"]);
+
+      petAllowed.value = _toBool(rawFacilities["pet_allowed"]);
+
+      balcony.value = _toBool(rawFacilities["balcony"]);
+
+      kitchen.value = _toBool(rawFacilities["kitchen"]);
+
+      swimmingPool.value = _toBool(rawFacilities["swimming_pool"]);
+
+      elevator.value = _toBool(rawFacilities["elevator"]);
+    }
+
+    // ====================================================
+    // EXISTING IMAGES
+    // ====================================================
+
+    selectedImages.clear();
+    existingImagePaths.clear();
+
+    final dynamic rawImages = property["images"];
+
+    if (rawImages is List) {
+      for (final image in rawImages) {
+        if (image is Map) {
+          final dynamic path = image["image_path"];
+
+          if (path != null && path.toString().isNotEmpty) {
+            existingImagePaths.add(path.toString());
+          }
+        }
+      }
+    }
+
+    // ====================================================
+    // EXISTING OWNERSHIP DOCUMENT
+    // ====================================================
+    //
+    // Every submitted property already required an
+    // ownership document.
+    //
+    // We do NOT need to expose/download the private file.
+    //
+
+    ownershipDocumentImage.value = null;
+
+    hasExistingOwnershipDocument.value = true;
+
+    // ====================================================
+    // PAYMENT
+    // ====================================================
+    //
+    // Editing does not require payment again.
+    //
+
+    transactionReferenceController.clear();
+    paymentProofImage.value = null;
+  }
+
+  // ======================================================
+  // RESET TO CREATE MODE
+  // ======================================================
+
+  void resetForCreateMode() {
+    isEditMode.value = false;
+    editingPropertyId.value = null;
+    originalVerificationStatus.value = null;
+
+    currentStep.value = 1;
+    selectIndex.value = null;
+
+    nameController.clear();
+    sizeController.clear();
+    priceController.clear();
+    descriptionController.clear();
+    contactController.clear();
+
+    status.value = null;
+    furnished.value = false;
+
+    address.value = null;
+    latitude.value = null;
+    longitude.value = null;
+
+    houseBedrooms.value = 0;
+    houseBathrooms.value = 1;
+    houseTotalFloor.value = 1;
+
+    apartmentBedrooms.value = 0;
+    apartmentBathrooms.value = 1;
+    apartmentTotalFloor.value = 1;
+    apartmentAvailableFloors.clear();
+
+    roomTotalFloor.value = 1;
+    roomAvailableFloors.clear();
+
+    wifi.value = false;
+    parking.value = false;
+    airConditioning.value = false;
+    petAllowed.value = false;
+    balcony.value = false;
+    kitchen.value = false;
+    swimmingPool.value = false;
+    elevator.value = false;
+
+    selectedImages.clear();
+    existingImagePaths.clear();
+
+    ownershipDocumentImage.value = null;
+    hasExistingOwnershipDocument.value = false;
+
+    transactionReferenceController.clear();
+    paymentProofImage.value = null;
+  }
 
   // ======================================================
   // PROPERTY IMAGES
@@ -176,26 +461,6 @@ class PostPropertyController extends GetxController {
 
       default:
         throw Exception('Property type is not selected');
-    }
-  }
-
-  // ======================================================
-  // PAYMENT AMOUNT
-  // ======================================================
-
-  double getPaymentAmount() {
-    switch (selectIndex.value) {
-      case 0:
-        return 50.0; // House
-
-      case 1:
-        return 40.0; // Apartment
-
-      case 2:
-        return 30.0; // Room
-
-      default:
-        return 0.0;
     }
   }
 
@@ -430,24 +695,56 @@ class PostPropertyController extends GetxController {
       }
     }
 
+    // ==================================================
     // PROPERTY IMAGES
-    if (selectedImages.isEmpty) {
-      showValidationMessage(
-        'Missing Images',
-        'Please select at least one property image.',
-      );
+    // ==================================================
 
-      return false;
+    if (isEditMode.value) {
+      // Existing images are acceptable.
+      // New images are optional.
+      if (selectedImages.isEmpty && existingImagePaths.isEmpty) {
+        showValidationMessage(
+          'Missing Images',
+          'Please select at least one property image.',
+        );
+
+        return false;
+      }
+    } else {
+      // Create mode requires new images.
+      if (selectedImages.isEmpty) {
+        showValidationMessage(
+          'Missing Images',
+          'Please select at least one property image.',
+        );
+
+        return false;
+      }
     }
 
+    // ==================================================
     // OWNERSHIP DOCUMENT
-    if (ownershipDocumentImage.value == null) {
-      showValidationMessage(
-        'Missing Document',
-        'Please upload the ownership document.',
-      );
+    // ==================================================
 
-      return false;
+    if (isEditMode.value) {
+      if (ownershipDocumentImage.value == null &&
+          !hasExistingOwnershipDocument.value) {
+        showValidationMessage(
+          'Missing Document',
+          'Please upload the ownership document.',
+        );
+
+        return false;
+      }
+    } else {
+      if (ownershipDocumentImage.value == null) {
+        showValidationMessage(
+          'Missing Document',
+          'Please upload the ownership document.',
+        );
+
+        return false;
+      }
     }
 
     return true;
@@ -458,6 +755,11 @@ class PostPropertyController extends GetxController {
   // ======================================================
 
   bool validatePaymentStep() {
+    // Edit mode never requires another payment.
+    if (isEditMode.value) {
+      return true;
+    }
+
     if (paymentProofImage.value == null) {
       showValidationMessage(
         'Missing Payment Proof',
@@ -485,22 +787,71 @@ class PostPropertyController extends GetxController {
   }
 
   // ======================================================
-  // SUBMIT PROPERTY
+  // GET TYPE-SPECIFIC DATA
+  // ======================================================
+
+  Map<String, dynamic> getTypeSpecificData() {
+    final String propertyType = getPropertyType();
+
+    int? bedrooms;
+    int? bathrooms;
+    int totalFloor;
+    List<int> availableFloors = [];
+
+    if (propertyType == 'house') {
+      bedrooms = houseBedrooms.value;
+
+      bathrooms = houseBathrooms.value;
+
+      totalFloor = houseTotalFloor.value;
+    } else if (propertyType == 'apartment') {
+      bedrooms = apartmentBedrooms.value;
+
+      bathrooms = apartmentBathrooms.value;
+
+      totalFloor = apartmentTotalFloor.value;
+
+      availableFloors = apartmentAvailableFloors.toList()..sort();
+    } else {
+      bedrooms = null;
+      bathrooms = null;
+
+      totalFloor = roomTotalFloor.value;
+
+      availableFloors = roomAvailableFloors.toList()..sort();
+    }
+
+    return {
+      "bedrooms": bedrooms,
+      "bathrooms": bathrooms,
+      "totalFloor": totalFloor,
+      "availableFloors": availableFloors,
+    };
+  }
+
+  // ======================================================
+  // SUBMIT NEW PROPERTY
   // ======================================================
 
   Future<bool> submitProperty() async {
     try {
-      // Prevent double submission
       if (isSubmitting.value) {
         return false;
       }
 
-      // Recheck property information
+      if (isEditMode.value) {
+        showValidationMessage(
+          'Edit Mode',
+          'Use Save Changes when editing a property.',
+        );
+
+        return false;
+      }
+
       if (!validateStep2()) {
         return false;
       }
 
-      // Check payment proof
       if (!validatePaymentStep()) {
         return false;
       }
@@ -511,48 +862,7 @@ class PostPropertyController extends GetxController {
 
       final double price = double.parse(priceController.text.trim());
 
-      // Payment amount is automatically selected
-      // based on the property type.
-      final double paymentAmount = getPaymentAmount();
-
-      // ==================================================
-      // TYPE-SPECIFIC DATA
-      // ==================================================
-
-      int? bedrooms;
-      int? bathrooms;
-      int? totalFloor;
-
-      List<int> availableFloors = [];
-
-      // HOUSE
-      if (propertyType == 'house') {
-        bedrooms = houseBedrooms.value;
-        bathrooms = houseBathrooms.value;
-        totalFloor = houseTotalFloor.value;
-      }
-
-      // APARTMENT
-      if (propertyType == 'apartment') {
-        bedrooms = apartmentBedrooms.value;
-        bathrooms = apartmentBathrooms.value;
-        totalFloor = apartmentTotalFloor.value;
-
-        availableFloors = apartmentAvailableFloors.toList()..sort();
-      }
-
-      // ROOM
-      if (propertyType == 'room') {
-        bedrooms = null;
-        bathrooms = null;
-        totalFloor = roomTotalFloor.value;
-
-        availableFloors = roomAvailableFloors.toList()..sort();
-      }
-
-      // ==================================================
-      // CONVERT XFILE → FILE
-      // ==================================================
+      final typeData = getTypeSpecificData();
 
       final List<File> propertyImages = selectedImages
           .map((image) => File(image.path))
@@ -563,10 +873,6 @@ class PostPropertyController extends GetxController {
       final File paymentProof = File(paymentProofImage.value!.path);
 
       isSubmitting.value = true;
-
-      // ==================================================
-      // SEND TO LARAVEL
-      // ==================================================
 
       final response = await propertyService.submitProperty(
         name: nameController.text.trim(),
@@ -589,17 +895,17 @@ class PostPropertyController extends GetxController {
 
         longitude: longitude.value!,
 
-        bedrooms: bedrooms,
+        bedrooms: typeData["bedrooms"],
 
-        bathrooms: bathrooms,
+        bathrooms: typeData["bathrooms"],
 
-        totalFloor: totalFloor,
+        totalFloor: typeData["totalFloor"],
 
         rentalStatus: status.value!,
 
         facilities: getFacilities(),
 
-        availableFloors: availableFloors,
+        availableFloors: List<int>.from(typeData["availableFloors"]),
 
         propertyImages: propertyImages,
 
@@ -609,10 +915,6 @@ class PostPropertyController extends GetxController {
 
         paymentProof: paymentProof,
       );
-
-      // ==================================================
-      // RESPONSE
-      // ==================================================
 
       dynamic data;
 
@@ -646,6 +948,255 @@ class PostPropertyController extends GetxController {
     } finally {
       isSubmitting.value = false;
     }
+  }
+
+  // ======================================================
+  // SAVE EDITED PROPERTY
+  // ======================================================
+
+  Future<bool> updateProperty() async {
+    try {
+      if (isSubmitting.value) {
+        return false;
+      }
+
+      if (!isEditMode.value) {
+        showValidationMessage(
+          'Invalid Action',
+          'This property is not in edit mode.',
+        );
+
+        return false;
+      }
+
+      if (editingPropertyId.value == null) {
+        showValidationMessage(
+          'Missing Property',
+          'Unable to find the property to update.',
+        );
+
+        return false;
+      }
+
+      if (!validateStep2()) {
+        return false;
+      }
+
+      final double size = double.parse(sizeController.text.trim());
+
+      final double price = double.parse(priceController.text.trim());
+
+      final typeData = getTypeSpecificData();
+
+      // ==================================================
+      // NEW IMAGES
+      // ==================================================
+      //
+      // Empty means Laravel keeps old images.
+      //
+
+      List<File>? newPropertyImages;
+
+      if (selectedImages.isNotEmpty) {
+        newPropertyImages = selectedImages
+            .map((image) => File(image.path))
+            .toList();
+      }
+
+      // ==================================================
+      // NEW OWNERSHIP DOCUMENT
+      // ==================================================
+
+      File? newOwnershipDocument;
+
+      if (ownershipDocumentImage.value != null) {
+        newOwnershipDocument = File(ownershipDocumentImage.value!.path);
+      }
+
+      isSubmitting.value = true;
+
+      // ==================================================
+      // SEND UPDATE TO LARAVEL
+      // ==================================================
+
+      final response = await propertyService.updateProperty(
+        propertyId: editingPropertyId.value!,
+
+        name: nameController.text.trim(),
+
+        size: size,
+
+        price: price,
+
+        description: descriptionController.text.trim(),
+
+        contact: contactController.text.trim(),
+
+        furnished: furnished.value,
+
+        address: address.value!,
+
+        latitude: latitude.value!,
+
+        longitude: longitude.value!,
+
+        bedrooms: typeData["bedrooms"],
+
+        bathrooms: typeData["bathrooms"],
+
+        totalFloor: typeData["totalFloor"],
+
+        rentalStatus: status.value!,
+
+        facilities: getFacilities(),
+
+        availableFloors: List<int>.from(typeData["availableFloors"]),
+
+        propertyImages: newPropertyImages,
+
+        ownershipDocument: newOwnershipDocument,
+      );
+
+      dynamic data;
+
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        data = null;
+      }
+
+      if (response.statusCode == 200 && data?["success"] == true) {
+        originalVerificationStatus.value = "pending";
+
+        Get.snackbar(
+          'Success',
+          data?['message'] ?? 'Property updated successfully.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        return true;
+      }
+
+      Get.snackbar(
+        'Update Failed',
+        data?['message'] ?? 'Unable to update property.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return false;
+    } catch (e) {
+      Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
+
+      return false;
+    } finally {
+      isSubmitting.value = false;
+    }
+  }
+
+  // ======================================================
+  // HELPER: BOOLEAN
+  // ======================================================
+
+  bool _toBool(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+
+    if (value is int) {
+      return value == 1;
+    }
+
+    final String text = value?.toString().toLowerCase() ?? "";
+
+    return text == "1" || text == "true";
+  }
+
+  // ======================================================
+  // HELPER: INT
+  // ======================================================
+
+  int? _toInt(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return int.tryParse(value.toString());
+  }
+
+  // ======================================================
+  // HELPER: DOUBLE
+  // ======================================================
+
+  double? _toDouble(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is double) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return double.tryParse(value.toString());
+  }
+
+  // ======================================================
+  // HELPER: NUMBER TO TEXT
+  // ======================================================
+
+  String _numberToText(dynamic value) {
+    final double? number = _toDouble(value);
+
+    if (number == null) {
+      return "";
+    }
+
+    if (number == number.roundToDouble()) {
+      return number.toInt().toString();
+    }
+
+    return number.toString();
+  }
+
+  // ======================================================
+  // HELPER: AVAILABLE FLOORS
+  // ======================================================
+
+  List<int> _extractAvailableFloors(dynamic rawFloors) {
+    final List<int> floors = [];
+
+    if (rawFloors is! List) {
+      return floors;
+    }
+
+    for (final item in rawFloors) {
+      int? floor;
+
+      if (item is Map) {
+        floor = _toInt(item["floor_number"]);
+      } else {
+        floor = _toInt(item);
+      }
+
+      if (floor != null) {
+        floors.add(floor);
+      }
+    }
+
+    floors.sort();
+
+    return floors;
   }
 
   // ======================================================

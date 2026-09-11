@@ -49,3 +49,9 @@ Route::middleware('firebase.auth')->patch(
     '/properties/{property}/rental-status',
     [PropertyController::class, 'updateRentalStatus']
 );
+
+Route::middleware('firebase.auth')->put(
+    '/properties/{property}',
+    [PropertyController::class, 'updateProperty']
+);
+
