@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .toList();
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
 
       body: SafeArea(
         child: SingleChildScrollView(

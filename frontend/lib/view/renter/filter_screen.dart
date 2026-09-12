@@ -47,17 +47,17 @@ class _FilterScreenState extends State<FilterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
 
       // ======================================================
       // APP BAR
       // ======================================================
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.white,
         elevation: 0,
 
         leading: IconButton(
-          onPressed: () {
+          onPressed: () { 
             Get.back();
           },
           icon: const Icon(

@@ -286,10 +286,10 @@ class _MapScreenState extends State<MapScreen> {
     final List<Property> filteredProperties = displayedProperties;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
 
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.white,
 
         elevation: 0,
 
@@ -477,6 +477,7 @@ class _MapScreenState extends State<MapScreen> {
         selectedColor: primaryColor,
 
         backgroundColor: lightSecondaryColor,
+         checkmarkColor: Colors.white,
 
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : primaryColor,

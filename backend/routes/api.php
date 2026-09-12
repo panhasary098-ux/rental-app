@@ -114,6 +114,18 @@ Route::middleware('firebase.auth')->get(
     [AdminPropertyController::class, 'pendingProperties']
 );
 
+// Get approved properties for admin management
+Route::middleware('firebase.auth')->get(
+    '/admin/properties',
+    [AdminPropertyController::class, 'managedProperties']
+);
+
+// Update approved property post status
+Route::middleware('firebase.auth')->patch(
+    '/admin/properties/{property}/post-status',
+    [AdminPropertyController::class, 'updatePostStatus']
+);
+
 // Approve property
 Route::middleware('firebase.auth')->post(
     '/admin/properties/{property}/approve',
@@ -124,4 +136,34 @@ Route::middleware('firebase.auth')->post(
 Route::middleware('firebase.auth')->post(
     '/admin/properties/{property}/reject',
     [AdminPropertyController::class, 'rejectProperty']
+);
+
+// Get renters and house owners for admin
+Route::middleware('firebase.auth')->get(
+    '/admin/users',
+    [UserController::class, 'adminUsers']
+);
+
+// Suspend or restore a user account
+Route::middleware('firebase.auth')->patch(
+    '/admin/users/{user}/status',
+    [UserController::class, 'updateUserStatus']
+);
+
+// Get admin dashboard summary
+Route::middleware('firebase.auth')->get(
+    '/admin/dashboard',
+    [AdminPropertyController::class, 'dashboardSummary']
+);
+
+// Admin view private ownership document
+Route::middleware('firebase.auth')->get(
+    '/admin/properties/{property}/ownership-document',
+    [AdminPropertyController::class, 'viewOwnershipDocument']
+);
+
+// Admin view private payment proof
+Route::middleware('firebase.auth')->get(
+    '/admin/properties/{property}/payment-proof',
+    [AdminPropertyController::class, 'viewPaymentProof']
 );

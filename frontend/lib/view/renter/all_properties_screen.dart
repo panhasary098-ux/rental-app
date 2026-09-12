@@ -218,10 +218,10 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
     final List<Property> properties = displayedProperties;
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Colors.white,
 
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
 
