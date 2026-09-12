@@ -1,26 +1,161 @@
+import 'dart:convert';
+
 import 'package:final_project/model/property.dart';
+import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/renter/all_properties_screen.dart';
 import 'package:final_project/view/renter/filter_screen.dart';
 import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
-
-// ======================================================
-// APP COLORS
-// ======================================================
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
 const Color backgroundColor = Color(0xFFF4FCFE);
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final List<Property> properties;
 
-  HomeScreen({super.key, required this.properties});
+  const HomeScreen({super.key, required this.properties});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final PropertyService propertyService = PropertyService();
+
+  final Set<int> favoritePropertyIds = {};
+
+  final Set<int> favoriteLoadingIds = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadFavorites();
+  }
+
+  // Load saved property IDs
+  Future<void> loadFavorites() async {
+    try {
+      final response = await propertyService.getFavorites();
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && decoded["success"] == true) {
+        final List<dynamic> data = decoded["properties"] ?? [];
+
+        final Set<int> ids = {};
+
+        for (final item in data) {
+          final dynamic id = item["id"];
+
+          if (id != null) {
+            ids.add(int.parse(id.toString()));
+          }
+        }
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          favoritePropertyIds
+            ..clear()
+            ..addAll(ids);
+        });
+      }
+    } catch (e) {
+      print("HOME FAVORITES LOAD ERROR: $e");
+    }
+  }
+
+  // Add or remove favorite
+  Future<void> toggleFavorite(Property property) async {
+    final int? propertyId = property.id;
+
+    if (propertyId == null) {
+      Get.snackbar(
+        "Error",
+        "Property ID is missing",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    if (favoriteLoadingIds.contains(propertyId)) {
+      return;
+    }
+
+    final bool isFavorite = favoritePropertyIds.contains(propertyId);
+
+    setState(() {
+      favoriteLoadingIds.add(propertyId);
+    });
+
+    try {
+      final response = isFavorite
+          ? await propertyService.removeFavorite(propertyId: propertyId)
+          : await propertyService.addFavorite(propertyId: propertyId);
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && decoded["success"] == true) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          if (isFavorite) {
+            favoritePropertyIds.remove(propertyId);
+          } else {
+            favoritePropertyIds.add(propertyId);
+          }
+
+          favoriteLoadingIds.remove(propertyId);
+        });
+      } else {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          favoriteLoadingIds.remove(propertyId);
+        });
+
+        Get.snackbar(
+          "Error",
+          decoded["message"] ?? "Unable to update saved property",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        favoriteLoadingIds.remove(propertyId);
+      });
+
+      Get.snackbar(
+        "Error",
+        "Unable to update saved property",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      print("HOME FAVORITE ERROR: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final List<Property> recommendedProperties = widget.properties
+        .take(3)
+        .toList();
+
     return Scaffold(
       backgroundColor: backgroundColor,
 
@@ -30,15 +165,16 @@ class HomeScreen extends StatelessWidget {
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
-              // ==================================================
-              // HEADER
-              // ==================================================
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                 children: [
                   IconButton(
                     onPressed: () {},
+
                     icon: const Icon(
                       Icons.menu_rounded,
                       size: 27,
@@ -50,6 +186,7 @@ class HomeScreen extends StatelessWidget {
 
                   IconButton(
                     onPressed: () {},
+
                     icon: const Icon(
                       Icons.notifications_none_rounded,
                       size: 27,
@@ -61,30 +198,18 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // ==================================================
-              // HEADLINE
-              // ==================================================
               headline(),
 
               const SizedBox(height: 20),
 
-              // ==================================================
-              // SEARCH
-              // ==================================================
               searchBox(),
 
               const SizedBox(height: 20),
 
-              // ==================================================
-              // LOCATION
-              // ==================================================
               filterLocation(),
 
               const SizedBox(height: 12),
 
-              // ==================================================
-              // BUDGET + TYPE
-              // ==================================================
               Row(
                 children: [
                   Expanded(child: filterPrice()),
@@ -97,14 +222,13 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ==================================================
-              // RECOMMENDED TITLE
-              // ==================================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                 children: [
                   const Text(
                     "Recommended for you",
+
                     style: TextStyle(
                       color: primaryColor,
                       fontWeight: FontWeight.bold,
@@ -113,8 +237,15 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      await Get.to(
+                        () =>
+                            AllPropertiesScreen(properties: widget.properties),
+                      );
 
+                      // Reload favorites after coming back
+                      await loadFavorites();
+                    },
                     child: const Text(
                       "See all",
                       style: TextStyle(
@@ -129,189 +260,303 @@ class HomeScreen extends StatelessWidget {
 
               const SizedBox(height: 5),
 
-              // ==================================================
-              // PROPERTY LIST
-              // ==================================================
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: properties.length,
+              if (recommendedProperties.isEmpty)
+                buildEmptyPropertyState()
+              else
+                ListView.builder(
+                  shrinkWrap: true,
 
-                itemBuilder: (context, index) {
-                  final property = properties[index];
+                  physics: const NeverScrollableScrollPhysics(),
 
-                  return Container(
-                    width: 300,
+                  itemCount: recommendedProperties.length,
 
-                    margin: const EdgeInsets.only(bottom: 15),
+                  itemBuilder: (context, index) {
+                    final Property property = recommendedProperties[index];
 
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-
-                      borderRadius: BorderRadius.circular(18),
-
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 12,
-                          color: primaryColor.withOpacity(0.08),
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-
-                    child: InkWell(
-                      onTap: () {
-                        Get.to(() => const PropertyDetailScreen());
-                      },
-
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // ========================================
-                          // IMAGE
-                          // ========================================
-                          Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: const BorderRadius.vertical(
-                                  top: Radius.circular(18),
-                                ),
-
-                                child: Image.network(
-                                  property.images[0],
-                                  height: 190,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-
-                              // ====================================
-                              // FAVORITE
-                              // ====================================
-                              Positioned(
-                                top: 10,
-                                right: 10,
-
-                                child: Container(
-                                  width: 36,
-                                  height: 36,
-
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-
-                                  child: const Icon(
-                                    Icons.favorite_border_rounded,
-                                    color: primaryColor,
-                                  ),
-                                ),
-                              ),
-
-                              // ====================================
-                              // PROPERTY STATUS
-                              // ====================================
-                              Positioned(
-                                top: 10,
-                                left: 10,
-
-                                child: buildStatusBadge(property.status),
-                              ),
-                            ],
-                          ),
-
-                          // ========================================
-                          // PROPERTY INFORMATION
-                          // ========================================
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
-
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // NAME
-                                Text(
-                                  property.name,
-
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-
-                                  style: const TextStyle(
-                                    color: primaryColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 5),
-
-                                // LOCATION
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      size: 15,
-                                      color: primaryColor,
-                                    ),
-
-                                    const SizedBox(width: 3),
-
-                                    Expanded(
-                                      child: Text(
-                                        "${property.location.address}",
-
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-
-                                        style: const TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 5),
-
-                                // PRICE
-                                Text(
-                                  "\$${property.price.toInt()} / month",
-
-                                  style: const TextStyle(
-                                    color: primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
+                    return buildPropertyCard(property);
+                  },
+                ),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget buildPropertyCard(Property property) {
+    final int? propertyId = property.id;
+
+    final bool isFavorite =
+        propertyId != null && favoritePropertyIds.contains(propertyId);
+
+    final bool isLoading =
+        propertyId != null && favoriteLoadingIds.contains(propertyId);
+
+    return Container(
+      width: double.infinity,
+
+      margin: const EdgeInsets.only(bottom: 15),
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        borderRadius: BorderRadius.circular(18),
+
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 12,
+
+            color: primaryColor.withOpacity(0.08),
+
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+
+      child: InkWell(
+        onTap: () async {
+          await Get.to(() => PropertyDetailScreen(property: property));
+
+          // Refresh the heart if favorite status
+          // was changed inside the detail screen.
+          await loadFavorites();
+        },
+
+        borderRadius: BorderRadius.circular(18),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(18),
+                  ),
+
+                  child: buildPropertyImage(property),
+                ),
+
+                // Favorite button
+                Positioned(
+                  top: 10,
+                  right: 10,
+
+                  child: InkWell(
+                    onTap: isLoading
+                        ? null
+                        : () {
+                            toggleFavorite(property);
+                          },
+
+                    borderRadius: BorderRadius.circular(30),
+
+                    child: Container(
+                      width: 36,
+                      height: 36,
+
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+
+                      child: isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(9),
+
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+
+                                color: primaryColor,
+                              ),
+                            )
+                          : Icon(
+                              isFavorite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+
+                              color: primaryColor,
+                            ),
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  top: 10,
+                  left: 10,
+
+                  child: buildStatusBadge(property.status),
+                ),
+              ],
+            ),
+
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
+                children: [
+                  Text(
+                    property.name,
+
+                    maxLines: 1,
+
+                    overflow: TextOverflow.ellipsis,
+
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+
+                        size: 15,
+
+                        color: primaryColor,
+                      ),
+
+                      const SizedBox(width: 3),
+
+                      Expanded(
+                        child: Text(
+                          property.location.address ?? "Unknown location",
+
+                          maxLines: 1,
+
+                          overflow: TextOverflow.ellipsis,
+
+                          style: const TextStyle(
+                            color: Colors.black54,
+
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Text(
+                    "\$${property.price.toInt()} / month",
+
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-// ======================================================
-// PROPERTY STATUS BADGE
-// ======================================================
+// Property image
+Widget buildPropertyImage(Property property) {
+  if (property.images.isEmpty) {
+    return Container(
+      height: 190,
+      width: double.infinity,
+      color: lightSecondaryColor,
 
+      child: const Icon(
+        Icons.home_work_outlined,
+        size: 45,
+        color: primaryColor,
+      ),
+    );
+  }
+
+  return Image.network(
+    property.images.first,
+    height: 190,
+    width: double.infinity,
+    fit: BoxFit.cover,
+
+    errorBuilder: (context, error, stackTrace) {
+      return Container(
+        height: 190,
+        width: double.infinity,
+        color: lightSecondaryColor,
+
+        child: const Icon(
+          Icons.home_work_outlined,
+          size: 45,
+          color: primaryColor,
+        ),
+      );
+    },
+  );
+}
+
+// Empty property state
+Widget buildEmptyPropertyState() {
+  return Container(
+    width: double.infinity,
+
+    padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
+
+    decoration: BoxDecoration(
+      color: Colors.white,
+
+      borderRadius: BorderRadius.circular(18),
+
+      border: Border.all(color: primaryColor.withOpacity(0.08)),
+    ),
+
+    child: const Column(
+      children: [
+        Icon(Icons.home_work_outlined, size: 44, color: primaryColor),
+
+        SizedBox(height: 12),
+
+        Text(
+          "No properties available",
+
+          style: TextStyle(
+            color: primaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+
+        SizedBox(height: 5),
+
+        Text(
+          "New rental properties will appear here.",
+
+          textAlign: TextAlign.center,
+
+          style: TextStyle(color: Color(0xFF7D8990), fontSize: 12),
+        ),
+      ],
+    ),
+  );
+}
+
+// Status badge
 Widget buildStatusBadge(String status) {
   Color statusColor;
 
-  if (status.toLowerCase() == "available" ||
-      status.toLowerCase() == "available now") {
+  final String value = status.toLowerCase();
+
+  if (value == "available" || value == "available now") {
     statusColor = const Color(0xFF16A34A);
-  } else if (status.toLowerCase() == "rented") {
+  } else if (value == "rented") {
     statusColor = const Color(0xFFDC2626);
   } else {
     statusColor = const Color(0xFFF59E0B);
@@ -336,8 +581,8 @@ Widget buildStatusBadge(String status) {
 
     child: Row(
       mainAxisSize: MainAxisSize.min,
+
       children: [
-        // STATUS DOT
         Container(
           width: 7,
           height: 7,
@@ -347,7 +592,6 @@ Widget buildStatusBadge(String status) {
 
         const SizedBox(width: 5),
 
-        // STATUS TEXT
         Text(
           status,
 
@@ -362,16 +606,14 @@ Widget buildStatusBadge(String status) {
   );
 }
 
-// ======================================================
-// APP NAME
-// ======================================================
-
+// App name
 Widget appName() {
   return RichText(
     text: const TextSpan(
       children: [
         TextSpan(
           text: "Joul",
+
           style: TextStyle(
             color: primaryColor,
             fontSize: 22,
@@ -381,6 +623,7 @@ Widget appName() {
 
         TextSpan(
           text: "Now",
+
           style: TextStyle(
             color: Color.fromARGB(255, 2, 216, 253),
             fontSize: 22,
@@ -392,16 +635,15 @@ Widget appName() {
   );
 }
 
-// ======================================================
-// HEADLINE
-// ======================================================
-
+// Headline
 Widget headline() {
   return const Column(
     crossAxisAlignment: CrossAxisAlignment.start,
+
     children: [
       Text(
         "Find a place",
+
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -413,6 +655,7 @@ Widget headline() {
         children: [
           Text(
             "near your ",
+
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -422,6 +665,7 @@ Widget headline() {
 
           Text(
             "school",
+
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -431,6 +675,7 @@ Widget headline() {
 
           Text(
             " or ",
+
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -440,6 +685,7 @@ Widget headline() {
 
           Text(
             "work",
+
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -452,10 +698,7 @@ Widget headline() {
   );
 }
 
-// ======================================================
-// SEARCH BOX
-// ======================================================
-
+// Search box
 Widget searchBox() {
   return Container(
     decoration: BoxDecoration(
@@ -486,6 +729,7 @@ Widget searchBox() {
 
         border: OutlineInputBorder(
           borderSide: BorderSide.none,
+
           borderRadius: BorderRadius.circular(10),
         ),
 
@@ -511,10 +755,7 @@ Widget searchBox() {
   );
 }
 
-// ======================================================
-// LOCATION FILTER
-// ======================================================
-
+// Location filter
 Widget filterLocation() {
   return Container(
     padding: const EdgeInsets.all(15),
@@ -541,6 +782,7 @@ Widget filterLocation() {
 
           decoration: BoxDecoration(
             color: lightSecondaryColor,
+
             borderRadius: BorderRadius.circular(10),
           ),
 
@@ -560,6 +802,7 @@ Widget filterLocation() {
 
               Text(
                 "Phnom Penh",
+
                 style: TextStyle(
                   color: primaryColor,
                   fontWeight: FontWeight.w600,
@@ -576,10 +819,7 @@ Widget filterLocation() {
   );
 }
 
-// ======================================================
-// PRICE FILTER
-// ======================================================
-
+// Price filter
 Widget filterPrice() {
   return Container(
     height: 67,
@@ -608,6 +848,7 @@ Widget filterPrice() {
 
           decoration: BoxDecoration(
             color: lightSecondaryColor,
+
             borderRadius: BorderRadius.circular(9),
           ),
 
@@ -623,11 +864,13 @@ Widget filterPrice() {
         const Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
                 "Budget",
+
                 style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
               ),
 
@@ -635,6 +878,7 @@ Widget filterPrice() {
 
               Text(
                 "Price range",
+
                 overflow: TextOverflow.ellipsis,
 
                 style: TextStyle(
@@ -651,10 +895,7 @@ Widget filterPrice() {
   );
 }
 
-// ======================================================
-// PROPERTY TYPE FILTER
-// ======================================================
-
+// Property type filter
 Widget filterType() {
   return Container(
     height: 67,
@@ -683,6 +924,7 @@ Widget filterType() {
 
           decoration: BoxDecoration(
             color: lightSecondaryColor,
+
             borderRadius: BorderRadius.circular(9),
           ),
 
@@ -694,11 +936,13 @@ Widget filterType() {
         const Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
                 "Filters",
+
                 style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
               ),
 
@@ -706,6 +950,7 @@ Widget filterType() {
 
               Text(
                 "Rooms",
+
                 style: TextStyle(
                   color: primaryColor,
                   fontWeight: FontWeight.bold,

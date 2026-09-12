@@ -9,10 +9,7 @@ class PropertyService {
 
   final String baseUrl = "http://10.0.2.2:8000/api";
 
-  // ======================================================
-  // GET FIREBASE TOKEN
-  // ======================================================
-
+  // Get Firebase token
   Future<String> _getToken() async {
     final User? firebaseUser = auth.currentUser;
 
@@ -29,10 +26,7 @@ class PropertyService {
     return token;
   }
 
-  // ======================================================
-  // SUBMIT PROPERTY
-  // ======================================================
-
+  // Submit property
   Future<http.Response> submitProperty({
     required String name,
     required String propertyType,
@@ -41,27 +35,18 @@ class PropertyService {
     required String description,
     required String contact,
     required bool furnished,
-
     required String address,
     required double latitude,
     required double longitude,
-
     int? bedrooms,
     int? bathrooms,
     int? totalFloor,
-
     required String rentalStatus,
-
     required Map<String, bool> facilities,
-
     required List<int> availableFloors,
-
     required List<File> propertyImages,
-
     required File ownershipDocument,
-
     String? transactionReference,
-
     required File paymentProof,
   }) async {
     final String token = await _getToken();
@@ -76,10 +61,6 @@ class PropertyService {
       "Authorization": "Bearer $token",
     });
 
-    // ====================================================
-    // PROPERTY INFORMATION
-    // ====================================================
-
     request.fields["name"] = name;
     request.fields["property_type"] = propertyType;
     request.fields["size"] = size.toString();
@@ -88,17 +69,9 @@ class PropertyService {
     request.fields["contact"] = contact;
     request.fields["furnished"] = furnished ? "1" : "0";
 
-    // ====================================================
-    // LOCATION
-    // ====================================================
-
     request.fields["address"] = address;
     request.fields["latitude"] = latitude.toString();
     request.fields["longitude"] = longitude.toString();
-
-    // ====================================================
-    // PROPERTY DETAILS
-    // ====================================================
 
     if (bedrooms != null) {
       request.fields["bedrooms"] = bedrooms.toString();
@@ -114,35 +87,19 @@ class PropertyService {
 
     request.fields["rental_status"] = rentalStatus;
 
-    // ====================================================
-    // FACILITIES
-    // ====================================================
-
     facilities.forEach((key, value) {
       request.fields["facilities[$key]"] = value ? "1" : "0";
     });
 
-    // ====================================================
-    // AVAILABLE FLOORS
-    // ====================================================
-
     for (int i = 0; i < availableFloors.length; i++) {
       request.fields["available_floors[$i]"] = availableFloors[i].toString();
     }
-
-    // ====================================================
-    // PROPERTY IMAGES
-    // ====================================================
 
     for (final File image in propertyImages) {
       request.files.add(
         await http.MultipartFile.fromPath("property_images[]", image.path),
       );
     }
-
-    // ====================================================
-    // OWNERSHIP DOCUMENT
-    // ====================================================
 
     request.files.add(
       await http.MultipartFile.fromPath(
@@ -151,26 +108,14 @@ class PropertyService {
       ),
     );
 
-    // ====================================================
-    // TRANSACTION REFERENCE
-    // ====================================================
-
     if (transactionReference != null &&
         transactionReference.trim().isNotEmpty) {
       request.fields["transaction_reference"] = transactionReference.trim();
     }
 
-    // ====================================================
-    // PAYMENT PROOF
-    // ====================================================
-
     request.files.add(
       await http.MultipartFile.fromPath("payment_proof", paymentProof.path),
     );
-
-    // ====================================================
-    // SEND REQUEST
-    // ====================================================
 
     final streamedResponse = await request.send();
 
@@ -183,10 +128,7 @@ class PropertyService {
     return response;
   }
 
-  // ======================================================
-  // GET OWNER PROPERTIES
-  // ======================================================
-
+  // Get owner's properties
   Future<http.Response> getMyProperties() async {
     final String token = await _getToken();
 
@@ -202,10 +144,71 @@ class PropertyService {
     return response;
   }
 
-  // ======================================================
-  // UPDATE RENTAL STATUS
-  // ======================================================
+  // Get properties visible to renter
+  Future<http.Response> getRenterProperties() async {
+    final String token = await _getToken();
 
+    final response = await http.get(
+      Uri.parse("$baseUrl/renter/properties"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("RENTER PROPERTIES STATUS: ${response.statusCode}");
+
+    print("RENTER PROPERTIES RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Get renter favorites
+  Future<http.Response> getFavorites() async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/renter/favorites"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("GET FAVORITES STATUS: ${response.statusCode}");
+
+    print("GET FAVORITES RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Add property to favorites
+  Future<http.Response> addFavorite({required int propertyId}) async {
+    final String token = await _getToken();
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/renter/favorites/$propertyId"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("ADD FAVORITE STATUS: ${response.statusCode}");
+
+    print("ADD FAVORITE RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Remove property from favorites
+  Future<http.Response> removeFavorite({required int propertyId}) async {
+    final String token = await _getToken();
+
+    final response = await http.delete(
+      Uri.parse("$baseUrl/renter/favorites/$propertyId"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("REMOVE FAVORITE STATUS: ${response.statusCode}");
+
+    print("REMOVE FAVORITE RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Update rental status
   Future<http.Response> updateRentalStatus({
     required int propertyId,
     required String rentalStatus,
@@ -229,58 +232,28 @@ class PropertyService {
     return response;
   }
 
-  // ======================================================
-  // UPDATE / EDIT PROPERTY
-  // ======================================================
-
+  // Update property
   Future<http.Response> updateProperty({
     required int propertyId,
-
     required String name,
     required double size,
     required double price,
     required String description,
     required String contact,
     required bool furnished,
-
     required String address,
     required double latitude,
     required double longitude,
-
     int? bedrooms,
     int? bathrooms,
     required int totalFloor,
-
     required String rentalStatus,
-
     required Map<String, bool> facilities,
-
     required List<int> availableFloors,
-
-    // Optional during edit.
-    // If empty, Laravel keeps the current images.
     List<File>? propertyImages,
-
-    // Optional during edit.
-    // If null, Laravel keeps the current document.
     File? ownershipDocument,
   }) async {
     final String token = await _getToken();
-
-    // ====================================================
-    // IMPORTANT
-    // ====================================================
-    //
-    // We send POST + _method=PUT.
-    //
-    // This lets Laravel handle multipart image uploads
-    // correctly while still matching our PUT route.
-    //
-    // Laravel treats this as:
-    //
-    // PUT /api/properties/{property}
-    //
-    // ====================================================
 
     final request = http.MultipartRequest(
       "POST",
@@ -292,34 +265,18 @@ class PropertyService {
       "Authorization": "Bearer $token",
     });
 
-    // Laravel method spoofing
     request.fields["_method"] = "PUT";
-
-    // ====================================================
-    // PROPERTY INFORMATION
-    // ====================================================
 
     request.fields["name"] = name;
     request.fields["size"] = size.toString();
     request.fields["price"] = price.toString();
     request.fields["description"] = description;
     request.fields["contact"] = contact;
-
     request.fields["furnished"] = furnished ? "1" : "0";
 
-    // ====================================================
-    // LOCATION
-    // ====================================================
-
     request.fields["address"] = address;
-
     request.fields["latitude"] = latitude.toString();
-
     request.fields["longitude"] = longitude.toString();
-
-    // ====================================================
-    // PROPERTY DETAILS
-    // ====================================================
 
     if (bedrooms != null) {
       request.fields["bedrooms"] = bedrooms.toString();
@@ -333,28 +290,13 @@ class PropertyService {
 
     request.fields["rental_status"] = rentalStatus;
 
-    // ====================================================
-    // FACILITIES
-    // ====================================================
-
     facilities.forEach((key, value) {
       request.fields["facilities[$key]"] = value ? "1" : "0";
     });
 
-    // ====================================================
-    // AVAILABLE FLOORS
-    // ====================================================
-
     for (int i = 0; i < availableFloors.length; i++) {
       request.fields["available_floors[$i]"] = availableFloors[i].toString();
     }
-
-    // ====================================================
-    // NEW PROPERTY IMAGES
-    // ====================================================
-    //
-    // Only send them when owner selected new images.
-    //
 
     if (propertyImages != null && propertyImages.isNotEmpty) {
       for (final File image in propertyImages) {
@@ -364,10 +306,6 @@ class PropertyService {
       }
     }
 
-    // ====================================================
-    // NEW OWNERSHIP DOCUMENT
-    // ====================================================
-
     if (ownershipDocument != null) {
       request.files.add(
         await http.MultipartFile.fromPath(
@@ -376,23 +314,6 @@ class PropertyService {
         ),
       );
     }
-
-    // ====================================================
-    // NO PAYMENT
-    // ====================================================
-    //
-    // Editing does NOT send:
-    //
-    // payment_amount
-    // payment_proof
-    // transaction_reference
-    //
-    // Existing payment stays unchanged.
-    //
-
-    // ====================================================
-    // SEND REQUEST
-    // ====================================================
 
     final streamedResponse = await request.send();
 

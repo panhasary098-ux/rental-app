@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:final_project/model/apartmentFlat.dart';
+import 'package:final_project/model/house.dart';
+import 'package:final_project/model/property.dart';
+import 'package:final_project/model/room.dart';
+import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/renter/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
-
-// ======================================================
-// APP COLORS
-// ======================================================
+import 'package:get/get.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
@@ -11,54 +16,123 @@ const Color backgroundColor = Color(0xFFF4FCFE);
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PropertyDetailScreen extends StatefulWidget {
-  const PropertyDetailScreen({super.key});
+  final Property property;
+
+  const PropertyDetailScreen({super.key, required this.property});
 
   @override
   State<PropertyDetailScreen> createState() => _PropertyDetailScreenState();
 }
 
 class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
-  int currentIndex = 1;
-
-  List<String> images = [
-    "https://i.pinimg.com/1200x/6a/17/d3/6a17d3982fe119f3c1110a65417fc5dc.jpg",
-    "https://i.pinimg.com/1200x/50/3e/83/503e838a83d1f2bcdd499b9814b2050e.jpg",
-    "https://i.pinimg.com/1200x/f5/b5/23/f5b52328776ad50ad5842bdecf853bdb.jpg",
-  ];
-
-  List<Map<String, dynamic>> mainInfo = [
-    {"icon": Icons.bed_outlined, "text": "2 Bedrooms"},
-    {"icon": Icons.bathtub_outlined, "text": "1 Bath"},
-    {"icon": Icons.square_foot, "text": "50 m²"},
-    {"icon": Icons.chair_outlined, "text": "Furnished"},
-  ];
-
-  List<Map<String, dynamic>> facilities = [
-    {"icon": Icons.wifi, "text": "Free"},
-    {"icon": Icons.local_parking_outlined, "text": "Parking-free"},
-    {"icon": Icons.ac_unit, "text": "Air Con"},
-    {"icon": Icons.pets_outlined, "text": "Pet Allowed"},
-    {"icon": Icons.balcony_outlined, "text": "Balcony"},
-    {"icon": Icons.pool_outlined, "text": "Swim-Pool"},
-    {"icon": Icons.kitchen_outlined, "text": "Kitchen"},
-    {"icon": Icons.chair_outlined, "text": "Furnished"},
-    {"icon": Icons.elevator_outlined, "text": "Elevator-24h"},
-  ];
-
-  List<Map<String, dynamic>> floors = [
-    {"floor": 1, "available": true},
-    {"floor": 2, "available": true},
-    {"floor": 3, "available": false},
-    {"floor": 4, "available": true},
-    {"floor": 5, "available": false},
-    {"floor": 6, "available": true},
-    {"floor": 7, "available": false},
-    {"floor": 8, "available": true},
-    {"floor": 9, "available": false},
-    {"floor": 10, "available": false},
-  ];
+  final PropertyService propertyService = PropertyService();
 
   bool showFloor = false;
+
+  bool isFavorite = false;
+  bool favoriteLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    loadFavoriteStatus();
+  }
+
+  // Check if this property is already saved
+  Future<void> loadFavoriteStatus() async {
+    final int? propertyId = widget.property.id;
+
+    if (propertyId == null) {
+      return;
+    }
+
+    try {
+      final response = await propertyService.getFavorites();
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && decoded["success"] == true) {
+        final List<dynamic> favorites = decoded["properties"] ?? [];
+
+        final bool saved = favorites.any((item) {
+          return item["id"]?.toString() == propertyId.toString();
+        });
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          isFavorite = saved;
+        });
+      }
+    } catch (e) {
+      print("DETAIL FAVORITE STATUS ERROR: $e");
+    }
+  }
+
+  // Add or remove favorite
+  Future<void> toggleFavorite() async {
+    final int? propertyId = widget.property.id;
+
+    if (propertyId == null || favoriteLoading) {
+      return;
+    }
+
+    setState(() {
+      favoriteLoading = true;
+    });
+
+    try {
+      final response = isFavorite
+          ? await propertyService.removeFavorite(propertyId: propertyId)
+          : await propertyService.addFavorite(propertyId: propertyId);
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && decoded["success"] == true) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          isFavorite = !isFavorite;
+          favoriteLoading = false;
+        });
+      } else {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          favoriteLoading = false;
+        });
+
+        Get.snackbar(
+          "Error",
+          decoded["message"] ?? "Unable to update saved property",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        favoriteLoading = false;
+      });
+
+      Get.snackbar(
+        "Error",
+        "Unable to update saved property",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      print("DETAIL FAVORITE ERROR: $e");
+    }
+  }
 
   void floorList() {
     setState(() {
@@ -66,14 +140,123 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     });
   }
 
+  // Main property information
+  List<Map<String, dynamic>> get mainInfo {
+    final Property property = widget.property;
+
+    final List<Map<String, dynamic>> information = [];
+
+    if (property is House) {
+      information.addAll([
+        {"icon": Icons.bed_outlined, "text": "${property.bedrooms} Bedrooms"},
+        {"icon": Icons.bathtub_outlined, "text": "${property.bathrooms} Bath"},
+      ]);
+    }
+
+    if (property is ApartmentFlat) {
+      information.addAll([
+        {"icon": Icons.bed_outlined, "text": "${property.bedrooms} Bedrooms"},
+        {"icon": Icons.bathtub_outlined, "text": "${property.bathrooms} Bath"},
+      ]);
+    }
+
+    information.add({
+      "icon": Icons.square_foot,
+      "text": "${property.size.toStringAsFixed(0)} m²",
+    });
+
+    information.add({
+      "icon": Icons.chair_outlined,
+      "text": property.furnished ? "Furnished" : "Unfurnished",
+    });
+
+    return information;
+  }
+
+  // Facilities that are available
+  List<Map<String, dynamic>> get availableFacilities {
+    final facilities = widget.property.facilities;
+
+    final List<Map<String, dynamic>> result = [];
+
+    if (facilities.wifi) {
+      result.add({"icon": Icons.wifi, "text": "WiFi"});
+    }
+
+    if (facilities.parking) {
+      result.add({"icon": Icons.local_parking_outlined, "text": "Parking"});
+    }
+
+    if (facilities.airConditioning) {
+      result.add({"icon": Icons.ac_unit, "text": "Air Con"});
+    }
+
+    if (facilities.petAllowed) {
+      result.add({"icon": Icons.pets_outlined, "text": "Pet Allowed"});
+    }
+
+    if (facilities.balcony) {
+      result.add({"icon": Icons.balcony_outlined, "text": "Balcony"});
+    }
+
+    if (facilities.swimmingPool) {
+      result.add({"icon": Icons.pool_outlined, "text": "Swimming Pool"});
+    }
+
+    if (facilities.kitchen) {
+      result.add({"icon": Icons.kitchen_outlined, "text": "Kitchen"});
+    }
+
+    if (facilities.elevator) {
+      result.add({"icon": Icons.elevator_outlined, "text": "Elevator"});
+    }
+
+    return result;
+  }
+
+  int get totalFloor {
+    final Property property = widget.property;
+
+    if (property is House) {
+      return property.totalFloor;
+    }
+
+    if (property is ApartmentFlat) {
+      return property.totalFloor;
+    }
+
+    if (property is Room) {
+      return property.totalFloor;
+    }
+
+    return 0;
+  }
+
+  List<int> get availableFloors {
+    final Property property = widget.property;
+
+    if (property is ApartmentFlat) {
+      return property.availableFloors;
+    }
+
+    if (property is Room) {
+      return property.availableFloors;
+    }
+
+    return [];
+  }
+
+  bool get hasAvailableFloorList {
+    return widget.property is ApartmentFlat || widget.property is Room;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Property property = widget.property;
+
     return Scaffold(
       backgroundColor: backgroundColor,
 
-      // ======================================================
-      // APP BAR
-      // ======================================================
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
@@ -83,6 +266,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
         title: const Text(
           "View detail info",
+
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -93,511 +277,284 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
       body: Column(
         children: [
-          // ======================================================
-          // IMAGE SLIDESHOW
-          // ======================================================
+          // Property images
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
 
-            child: ClipRRect(
-              child: Stack(
-                children: [
-                  SizedBox(
-                    height: 300,
-                    width: double.infinity,
+            child: Stack(
+              children: [
+                SizedBox(
+                  height: 300,
+                  width: double.infinity,
 
-                    child: ImageSlideshow(
-                      width: double.infinity,
-                      height: 280,
+                  child: buildImageSlideshow(),
+                ),
 
-                      initialPage: 0,
+                // Favorite
+                Positioned(
+                  top: 10,
+                  right: 10,
 
-                      indicatorColor: primaryColor,
-                      indicatorBackgroundColor: Colors.white70,
+                  child: InkWell(
+                    onTap: favoriteLoading ? null : toggleFavorite,
 
-                      autoPlayInterval: 3000,
-                      isLoop: true,
-
-                      children: images.map((imag) {
-                        return SizedBox.expand(
-                          child: Image.network(imag, fit: BoxFit.cover),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-
-                  // Favorite button
-                  Positioned(
-                    top: 10,
-                    right: 10,
+                    borderRadius: BorderRadius.circular(30),
 
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 40,
+                      height: 40,
 
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
 
-                      child: Icon(
-                        Icons.favorite_border_rounded,
-                        color: primaryColor,
-                      ),
+                      child: favoriteLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(10),
+
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+
+                                color: primaryColor,
+                              ),
+                            )
+                          : Icon(
+                              isFavorite
+                                  ? Icons.favorite_rounded
+                                  : Icons.favorite_border_rounded,
+
+                              color: primaryColor,
+                            ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
 
-          // ======================================================
-          // PROPERTY INFO
-          // ======================================================
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
 
-                child: SizedBox(
-                  width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
 
-                    children: [
-                      const SizedBox(height: 10),
+                    // Name + status
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
-                      // ==================================================
-                      // NAME + AVAILABLE
-                      // ==================================================
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            property.name,
 
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              "BaliN3-Apartment",
+                            maxLines: 2,
 
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            overflow: TextOverflow.ellipsis,
 
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: primaryColor,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-
-                          Container(
-                            height: 28,
-
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-
-                            decoration: BoxDecoration(
+                            style: const TextStyle(
+                              fontSize: 22,
                               color: primaryColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
 
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-
-                              children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: Colors.white,
-                                  size: 15,
-                                ),
-
-                                SizedBox(width: 4),
-
-                                Text(
-                                  "Available",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(width: 10),
 
-                      // ==================================================
-                      // LOCATION + PRICE
-                      // ==================================================
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        buildStatusBadge(property.status),
+                      ],
+                    ),
 
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 12),
 
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.location_on_outlined,
-                                      color: primaryColor,
-                                      size: 20,
-                                    ),
+                    // Location + price
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
 
-                                    const SizedBox(width: 3),
+                      children: [
+                        Expanded(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
 
-                                    Expanded(
-                                      child: Text(
-                                        "Chrouy jong vaa, Phnom Penh",
-
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black.withOpacity(0.65),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.near_me_outlined,
-                                      color: primaryColor,
-                                      size: 20,
-                                    ),
-
-                                    const SizedBox(width: 3),
-
-                                    Expanded(
-                                      child: Text(
-                                        "8Km from your location",
-
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.black.withOpacity(0.65),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-
-                          Row(
                             children: [
-                              const Text(
-                                "\$150",
-                                style: TextStyle(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w800,
-                                  color: primaryColor,
-                                ),
+                              const Icon(
+                                Icons.location_on_outlined,
+
+                                color: primaryColor,
+
+                                size: 20,
                               ),
 
-                              const Text(
-                                "/Month",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: primaryColor,
+                              const SizedBox(width: 3),
+
+                              Expanded(
+                                child: Text(
+                                  property.location.address ??
+                                      "Unknown location",
+
+                                  style: TextStyle(
+                                    fontSize: 15,
+
+                                    color: Colors.black.withOpacity(0.65),
+
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(width: 12),
 
-                      // ==================================================
-                      // MAIN INFO
-                      // ==================================================
-                      Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: secondaryColor.withOpacity(0.6),
-                      ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
 
-                      SizedBox(
-                        height: 45,
+                          children: [
+                            Text(
+                              "\$${property.price.toStringAsFixed(0)}",
 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              style: const TextStyle(
+                                fontSize: 23,
 
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                                fontWeight: FontWeight.w800,
 
-                          children: List.generate(mainInfo.length, (index) {
-                            return Row(
-                              children: [
-                                Icon(
-                                  mainInfo[index]["icon"],
-                                  size: 16,
+                                color: primaryColor,
+                              ),
+                            ),
+
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 3),
+
+                              child: Text(
+                                "/Month",
+
+                                style: TextStyle(
+                                  fontSize: 13,
+
+                                  fontWeight: FontWeight.w600,
+
                                   color: primaryColor,
                                 ),
-
-                                const SizedBox(width: 5),
-
-                                Text(
-                                  mainInfo[index]["text"],
-
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: primaryColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                        ),
-                      ),
-
-                      Container(
-                        height: 1,
-                        width: double.infinity,
-                        color: secondaryColor.withOpacity(0.6),
-                      ),
-
-                      const SizedBox(height: 10),
-
-                      // ==================================================
-                      // FLOOR
-                      // ==================================================
-                      Row(
-                        children: [
-                          const Text(
-                            "Floor",
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: primaryColor,
-                            ),
-                          ),
-
-                          IconButton(
-                            onPressed: floorList,
-
-                            icon: Icon(
-                              showFloor
-                                  ? Icons.keyboard_arrow_up
-                                  : Icons.keyboard_arrow_down,
-
-                              size: 25,
-                              color: primaryColor,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      Visibility(
-                        visible: showFloor,
-
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-
-                          child: Container(
-                            height: 200,
-
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-
-                              border: Border.all(
-                                color: secondaryColor.withOpacity(0.5),
                               ),
                             ),
-
-                            child: SingleChildScrollView(
-                              child: Column(
-                                children: floors.map((item) {
-                                  return Column(
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-
-                                        child: Row(
-                                          children: [
-                                            const Icon(
-                                              Icons.apartment,
-                                              size: 20,
-                                              color: primaryColor,
-                                            ),
-
-                                            const SizedBox(width: 5),
-
-                                            Text(
-                                              "${item["floor"]} Floor",
-
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                color: primaryColor,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-
-                                            const Spacer(),
-
-                                            Text(
-                                              item["available"]
-                                                  ? "Available"
-                                                  : "Not available",
-
-                                              style: TextStyle(
-                                                fontSize: 15,
-
-                                                fontWeight: item["available"]
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w400,
-
-                                                color: item["available"]
-                                                    ? primaryColor
-                                                    : Colors.black45,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-
-                                      Container(
-                                        height: 1,
-                                        width: double.infinity,
-                                        color: secondaryColor.withOpacity(0.4),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ),
+                      ],
+                    ),
 
-                      const SizedBox(height: 15),
+                    const SizedBox(height: 20),
 
-                      // ==================================================
-                      // DESCRIPTION
-                      // ==================================================
-                      const Text(
-                        "About this place",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: primaryColor,
-                        ),
-                      ),
+                    // Main info
+                    Container(
+                      height: 1,
+                      width: double.infinity,
 
-                      const SizedBox(height: 5),
+                      color: secondaryColor.withOpacity(0.6),
+                    ),
 
-                      const Text(
-                        "Clean and modern apartment in a safe area, "
-                        "close to school, local markets and food shapes",
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 13),
 
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black87,
-                          height: 1.5,
-                        ),
-                      ),
+                      child: Wrap(
+                        spacing: 18,
+                        runSpacing: 10,
 
-                      const SizedBox(height: 15),
+                        children: mainInfo.map((item) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
 
-                      // ==================================================
-                      // FACILITIES
-                      // ==================================================
-                      const Text(
-                        "Facilities",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                          color: primaryColor,
-                        ),
-                      ),
+                            children: [
+                              Icon(item["icon"], size: 17, color: primaryColor),
 
-                      const SizedBox(height: 10),
+                              const SizedBox(width: 5),
 
-                      SizedBox(
-                        height: 65,
+                              Text(
+                                item["text"],
 
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: facilities.length,
+                                style: const TextStyle(
+                                  fontSize: 13,
 
-                          itemBuilder: (context, index) {
-                            final item = facilities[index];
+                                  color: primaryColor,
 
-                            return Container(
-                              height: 60,
-
-                              decoration: BoxDecoration(
-                                color: lightSecondaryColor,
-
-                                borderRadius: BorderRadius.circular(13),
-
-                                border: Border.all(color: secondaryColor),
-                              ),
-
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                ),
-
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-
-                                  children: [
-                                    Icon(
-                                      item["icon"],
-                                      size: 20,
-                                      color: primaryColor,
-                                    ),
-
-                                    const SizedBox(height: 3),
-
-                                    Text(
-                                      item["text"],
-
-                                      style: const TextStyle(
-                                        fontSize: 13,
-                                        color: primaryColor,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                            );
-                          },
-
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(width: 12);
-                          },
-                        ),
+                            ],
+                          );
+                        }).toList(),
                       ),
+                    ),
 
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                    Container(
+                      height: 1,
+                      width: double.infinity,
+
+                      color: secondaryColor.withOpacity(0.6),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Floor
+                    buildFloorSection(),
+
+                    const SizedBox(height: 15),
+
+                    // Description
+                    const Text(
+                      "About this place",
+
+                      style: TextStyle(
+                        fontSize: 17,
+
+                        fontWeight: FontWeight.w800,
+
+                        color: primaryColor,
+                      ),
+                    ),
+
+                    const SizedBox(height: 7),
+
+                    Text(
+                      property.description,
+
+                      style: const TextStyle(
+                        fontSize: 13,
+
+                        color: Colors.black87,
+
+                        height: 1.5,
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    // Facilities
+                    const Text(
+                      "Facilities",
+
+                      style: TextStyle(
+                        fontSize: 17,
+
+                        fontWeight: FontWeight.w800,
+
+                        color: primaryColor,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    buildFacilities(),
+
+                    const SizedBox(height: 22),
+                  ],
                 ),
               ),
             ),
@@ -605,104 +562,519 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         ],
       ),
 
-      // ======================================================
-      // BOTTOM BUTTONS
-      // ======================================================
-      bottomNavigationBar: Container(
-        height: 90,
+      bottomNavigationBar: buildBottomButtons(),
+    );
+  }
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+  Widget buildImageSlideshow() {
+    final List<String> images = widget.property.images;
 
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withOpacity(0.10),
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: const Offset(0, -2),
-            ),
-          ],
+    if (images.isEmpty) {
+      return Container(
+        color: lightSecondaryColor,
+
+        child: const Center(
+          child: Icon(Icons.home_work_outlined, size: 60, color: primaryColor),
         ),
+      );
+    }
 
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 20,
-            bottom: 20,
+    return ImageSlideshow(
+      width: double.infinity,
+      height: 300,
+
+      initialPage: 0,
+
+      indicatorColor: primaryColor,
+      indicatorBackgroundColor: Colors.white70,
+
+      autoPlayInterval: images.length > 1 ? 3000 : 0,
+
+      isLoop: images.length > 1,
+
+      children: images.map((image) {
+        return Image.network(
+          image,
+
+          fit: BoxFit.cover,
+
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: lightSecondaryColor,
+
+              child: const Icon(
+                Icons.home_work_outlined,
+
+                size: 55,
+
+                color: primaryColor,
+              ),
+            );
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildStatusBadge(String status) {
+    final String value = status.toLowerCase();
+
+    Color color;
+    IconData icon;
+
+    if (value == "available" || value == "available now") {
+      color = const Color(0xFF16A34A);
+
+      icon = Icons.check_circle_rounded;
+    } else if (value == "rented") {
+      color = const Color(0xFFDC2626);
+
+      icon = Icons.cancel_rounded;
+    } else {
+      color = const Color(0xFFF59E0B);
+
+      icon = Icons.access_time_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+
+      decoration: BoxDecoration(
+        color: color,
+
+        borderRadius: BorderRadius.circular(12),
+      ),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          Icon(icon, color: Colors.white, size: 15),
+
+          const SizedBox(width: 4),
+
+          Text(
+            status,
+
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
           ),
+        ],
+      ),
+    );
+  }
 
-          child: Row(
+  Widget buildFloorSection() {
+    // Apartment and Room have
+    // available-floor information.
+    if (hasAvailableFloorList) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Row(
             children: [
-              // ==================================================
-              // VIEW MAP
-              // ==================================================
-              Expanded(
-                child: TextButton(
-                  onPressed: () {},
+              const Text(
+                "Floor",
 
-                  style: TextButton.styleFrom(
-                    foregroundColor: primaryColor,
-                    backgroundColor: lightSecondaryColor,
+                style: TextStyle(
+                  fontSize: 17,
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
+                  fontWeight: FontWeight.w800,
 
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-
-                    children: [
-                      Icon(Icons.map_outlined, size: 23),
-
-                      SizedBox(width: 5),
-
-                      Text(
-                        "View in map",
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                    ],
-                  ),
+                  color: primaryColor,
                 ),
               ),
 
-              const SizedBox(width: 10),
+              const Spacer(),
 
-              // ==================================================
-              // CONTACT
-              // ==================================================
-              Expanded(
-                child: TextButton(
-                  onPressed: () {},
+              Text(
+                "$totalFloor Floors",
 
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: primaryColor,
+                style: const TextStyle(color: Colors.black54, fontSize: 12),
+              ),
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
+              IconButton(
+                onPressed: floorList,
 
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                icon: Icon(
+                  showFloor
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
 
-                    children: [
-                      Icon(Icons.person_outline_rounded, size: 23),
+                  size: 25,
 
-                      SizedBox(width: 5),
-
-                      Text(
-                        "Context",
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                    ],
-                  ),
+                  color: primaryColor,
                 ),
               ),
             ],
           ),
+
+          Visibility(
+            visible: showFloor,
+
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 220),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                borderRadius: BorderRadius.circular(12),
+
+                border: Border.all(color: secondaryColor.withOpacity(0.5)),
+              ),
+
+              child: ListView.separated(
+                shrinkWrap: true,
+
+                padding: EdgeInsets.zero,
+
+                itemCount: totalFloor,
+
+                separatorBuilder: (context, index) {
+                  return Container(
+                    height: 1,
+
+                    color: secondaryColor.withOpacity(0.4),
+                  );
+                },
+
+                itemBuilder: (context, index) {
+                  final int floor = index + 1;
+
+                  final bool available = availableFloors.contains(floor);
+
+                  return Padding(
+                    padding: const EdgeInsets.all(10),
+
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.apartment,
+
+                          size: 20,
+
+                          color: primaryColor,
+                        ),
+
+                        const SizedBox(width: 6),
+
+                        Text(
+                          "Floor $floor",
+
+                          style: const TextStyle(
+                            fontSize: 14,
+
+                            color: primaryColor,
+
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+
+                        const Spacer(),
+
+                        Text(
+                          available ? "Available" : "Not available",
+
+                          style: TextStyle(
+                            fontSize: 13,
+
+                            fontWeight: available
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+
+                            color: available
+                                ? const Color(0xFF16A34A)
+                                : Colors.black45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // House only has total floor count.
+    return Row(
+      children: [
+        const Text(
+          "Floor",
+
+          style: TextStyle(
+            fontSize: 17,
+
+            fontWeight: FontWeight.w800,
+
+            color: primaryColor,
+          ),
+        ),
+
+        const Spacer(),
+
+        const Icon(Icons.layers_outlined, color: primaryColor, size: 19),
+
+        const SizedBox(width: 5),
+
+        Text(
+          "$totalFloor ${totalFloor == 1 ? "Floor" : "Floors"}",
+
+          style: const TextStyle(
+            color: primaryColor,
+
+            fontSize: 14,
+
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildFacilities() {
+    final facilities = availableFacilities;
+
+    if (facilities.isEmpty) {
+      return Container(
+        width: double.infinity,
+
+        padding: const EdgeInsets.all(16),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.circular(12),
+
+          border: Border.all(color: secondaryColor.withOpacity(0.4)),
+        ),
+
+        child: const Text(
+          "No facilities listed",
+
+          style: TextStyle(color: Colors.black54, fontSize: 13),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 70,
+
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+
+        itemCount: facilities.length,
+
+        itemBuilder: (context, index) {
+          final item = facilities[index];
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 13),
+
+            decoration: BoxDecoration(
+              color: lightSecondaryColor,
+
+              borderRadius: BorderRadius.circular(13),
+
+              border: Border.all(color: secondaryColor),
+            ),
+
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+
+              children: [
+                Icon(item["icon"], size: 20, color: primaryColor),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  item["text"],
+
+                  style: const TextStyle(
+                    fontSize: 12,
+
+                    color: primaryColor,
+
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 12);
+        },
+      ),
+    );
+  }
+
+  Widget buildBottomButtons() {
+    return Container(
+      height: 90,
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.10),
+
+            blurRadius: 10,
+
+            spreadRadius: 1,
+
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+
+        child: Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                onPressed: () {
+                  Get.to(() => MapScreen(initialProperty: widget.property));
+                },
+
+                style: TextButton.styleFrom(
+                  foregroundColor: primaryColor,
+
+                  backgroundColor: lightSecondaryColor,
+
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    Icon(Icons.map_outlined, size: 23),
+
+                    SizedBox(width: 5),
+
+                    Text(
+                      "View in map",
+
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: TextButton(
+                onPressed: () {
+                  Get.bottomSheet(
+                    Container(
+                      padding: const EdgeInsets.all(22),
+
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(22),
+                        ),
+                      ),
+
+                      child: SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            const Text(
+                              "Owner Contact",
+
+                              style: TextStyle(
+                                color: primaryColor,
+
+                                fontSize: 18,
+
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            const SizedBox(height: 15),
+
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.phone_outlined,
+
+                                  color: primaryColor,
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                Expanded(
+                                  child: Text(
+                                    widget.property.contact,
+
+                                    style: const TextStyle(
+                                      color: primaryColor,
+
+                                      fontSize: 16,
+
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 10),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+
+                  backgroundColor: primaryColor,
+
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    Icon(Icons.person_outline_rounded, size: 23),
+
+                    SizedBox(width: 5),
+
+                    Text(
+                      "Contact",
+
+                      style: TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -14,8 +14,12 @@ class Property {
   String status;
   String contact;
   List<String> images;
+
+  // These fields existed in the old model.
+  // Renter API does not receive private documents.
   String nationalIDImage;
   String ownerShipImage;
+
   Facilities facilities;
   bool furnished;
 
@@ -29,333 +33,431 @@ class Property {
     required this.status,
     required this.contact,
     required this.images,
-    required this.nationalIDImage,
-    required this.ownerShipImage,
+    this.nationalIDImage = "",
+    this.ownerShipImage = "",
     required this.facilities,
     this.furnished = false,
   });
+
+  // Convert Laravel JSON into House, ApartmentFlat or Room
+  static Property fromJson(
+    Map<String, dynamic> json,
+  ) {
+    final String propertyType =
+        json["property_type"]
+                ?.toString()
+                .toLowerCase() ??
+            "";
+
+    final PropertyLocation location =
+        PropertyLocation(
+      address: json["address"]?.toString(),
+
+      latitude: _toDouble(
+        json["latitude"],
+      ),
+
+      longitude: _toDouble(
+        json["longitude"],
+      ),
+    );
+
+    final Facilities facilities =
+        _parseFacilities(
+      json["facilities"],
+    );
+
+    final List<String> images =
+        _parseImages(
+      json["images"],
+    );
+
+    final List<int> availableFloors =
+        _parseAvailableFloors(
+      json["available_floors"],
+    );
+
+    final String rentalStatus =
+        _formatRentalStatus(
+      json["rental_status"],
+    );
+
+    final int id =
+        _toInt(
+      json["id"],
+    );
+
+    final String name =
+        json["name"]?.toString() ??
+            "Property";
+
+    final double size =
+        _toDouble(
+      json["size"],
+    );
+
+    final double price =
+        _toDouble(
+      json["price"],
+    );
+
+    final String description =
+        json["description"]
+                ?.toString() ??
+            "";
+
+    final String contact =
+        json["contact"]
+                ?.toString() ??
+            "";
+
+    final bool furnished =
+        _toBool(
+      json["furnished"],
+    );
+
+    final int bedrooms =
+        _toInt(
+      json["bedrooms"],
+    );
+
+    final int bathrooms =
+        _toInt(
+      json["bathrooms"],
+    );
+
+    final int totalFloor =
+        _toInt(
+      json["total_floor"],
+    );
+
+    // House
+    if (propertyType == "house") {
+      return House(
+        id: id,
+        name: name,
+        size: size,
+        location: location,
+        price: price,
+        description: description,
+        status: rentalStatus,
+        contact: contact,
+        images: images,
+
+        // Private documents are not sent to renter
+        nationalIDImage: "",
+        ownerShipImage: "",
+
+        facilities: facilities,
+        furnished: furnished,
+
+        bedrooms: bedrooms,
+        bathrooms: bathrooms,
+        totalFloor: totalFloor,
+      );
+    }
+
+    // Apartment
+    if (propertyType == "apartment") {
+      return ApartmentFlat(
+        id: id,
+        name: name,
+        size: size,
+        location: location,
+        price: price,
+        description: description,
+        status: rentalStatus,
+        contact: contact,
+        images: images,
+
+        // Private documents are not sent to renter
+        nationalIDImage: "",
+        ownerShipImage: "",
+
+        facilities: facilities,
+        furnished: furnished,
+
+        bedrooms: bedrooms,
+        bathrooms: bathrooms,
+        totalFloor: totalFloor,
+        availableFloors: availableFloors,
+      );
+    }
+
+    // Room
+    if (propertyType == "room") {
+      return Room(
+        id: id,
+        name: name,
+        size: size,
+        location: location,
+        price: price,
+        description: description,
+        status: rentalStatus,
+        contact: contact,
+        images: images,
+
+        // Private documents are not sent to renter
+        nationalIDImage: "",
+        ownerShipImage: "",
+
+        facilities: facilities,
+        furnished: furnished,
+
+        totalFloor: totalFloor,
+        availableFloors: availableFloors,
+      );
+    }
+
+    // Fallback
+    return Property(
+      id: id,
+      name: name,
+      size: size,
+      location: location,
+      price: price,
+      description: description,
+      status: rentalStatus,
+      contact: contact,
+      images: images,
+      nationalIDImage: "",
+      ownerShipImage: "",
+      facilities: facilities,
+      furnished: furnished,
+    );
+  }
+
+  // Parse Laravel image list
+  static List<String> _parseImages(
+    dynamic value,
+  ) {
+    if (value is! List) {
+      return [];
+    }
+
+    final List<String> result = [];
+
+    for (final dynamic item in value) {
+      if (item is Map) {
+        final dynamic imageUrl =
+            item["image_url"];
+
+        final dynamic imagePath =
+            item["image_path"];
+
+        if (imageUrl != null &&
+            imageUrl
+                .toString()
+                .isNotEmpty) {
+          result.add(
+            _fixLaravelUrl(
+              imageUrl.toString(),
+            ),
+          );
+        } else if (imagePath != null &&
+            imagePath
+                .toString()
+                .isNotEmpty) {
+          result.add(
+            _buildStorageUrl(
+              imagePath.toString(),
+            ),
+          );
+        }
+      }
+    }
+
+    return result;
+  }
+
+  // Parse facilities
+  static Facilities _parseFacilities(
+    dynamic value,
+  ) {
+    if (value is! Map) {
+      return Facilities();
+    }
+
+    return Facilities(
+      wifi: _toBool(
+        value["wifi"],
+      ),
+
+      parking: _toBool(
+        value["parking"],
+      ),
+
+      airConditioning: _toBool(
+        value["air_conditioning"],
+      ),
+
+      petAllowed: _toBool(
+        value["pet_allowed"],
+      ),
+
+      balcony: _toBool(
+        value["balcony"],
+      ),
+
+      kitchen: _toBool(
+        value["kitchen"],
+      ),
+
+      swimmingPool: _toBool(
+        value["swimming_pool"],
+      ),
+
+      elevator: _toBool(
+        value["elevator"],
+      ),
+    );
+  }
+
+  // Parse available floors
+  static List<int> _parseAvailableFloors(
+    dynamic value,
+  ) {
+    if (value is! List) {
+      return [];
+    }
+
+    return value
+        .map(
+          (floor) => _toInt(
+            floor,
+          ),
+        )
+        .where(
+          (floor) => floor > 0,
+        )
+        .toList();
+  }
+
+  // Convert Laravel available/rented status
+  static String _formatRentalStatus(
+    dynamic value,
+  ) {
+    final String status =
+        value
+            ?.toString()
+            .toLowerCase() ??
+        "";
+
+    if (status == "rented") {
+      return "Rented";
+    }
+
+    if (status == "available") {
+      return "Available";
+    }
+
+    return status.isEmpty
+        ? "Available"
+        : status;
+  }
+
+  // Convert value to int
+  static int _toInt(
+    dynamic value,
+  ) {
+    if (value == null) {
+      return 0;
+    }
+
+    if (value is int) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toInt();
+    }
+
+    return int.tryParse(
+          value.toString(),
+        ) ??
+        0;
+  }
+
+  // Convert value to double
+  static double _toDouble(
+    dynamic value,
+  ) {
+    if (value == null) {
+      return 0.0;
+    }
+
+    if (value is double) {
+      return value;
+    }
+
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    return double.tryParse(
+          value.toString(),
+        ) ??
+        0.0;
+  }
+
+  // Convert value to bool
+  static bool _toBool(
+    dynamic value,
+  ) {
+    if (value == true) {
+      return true;
+    }
+
+    if (value == false ||
+        value == null) {
+      return false;
+    }
+
+    if (value is num) {
+      return value == 1;
+    }
+
+    final String text =
+        value
+            .toString()
+            .toLowerCase();
+
+    return text == "1" ||
+        text == "true";
+  }
+
+  // Fix Laravel localhost URL for Android emulator
+  static String _fixLaravelUrl(
+    String url,
+  ) {
+    return url
+        .replaceFirst(
+          "http://localhost:8000",
+          "http://10.0.2.2:8000",
+        )
+        .replaceFirst(
+          "http://127.0.0.1:8000",
+          "http://10.0.2.2:8000",
+        );
+  }
+
+  // Build public storage URL
+  static String _buildStorageUrl(
+    String path,
+  ) {
+    String cleanPath = path;
+
+    if (cleanPath.startsWith("/")) {
+      cleanPath =
+          cleanPath.substring(1);
+    }
+
+    if (cleanPath.startsWith(
+      "storage/",
+    )) {
+      return "http://10.0.2.2:8000/$cleanPath";
+    }
+
+    return "http://10.0.2.2:8000/storage/$cleanPath";
+  }
 }
-
-final List<Property> properties = [
-  // 1. House
-  House(
-    id: 1,
-    name: "Modern Family House",
-    size: 180.0,
-    location: PropertyLocation(
-      address: "Sen Sok, Phnom Penh",
-      latitude: 11.5876,
-      longitude: 104.8862,
-    ),
-    price: 850.0,
-    description: "Spacious modern house in a quiet neighborhood.",
-    status: "Available now",
-    contact: "012345678",
-    images: [
-      "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-      "https://i.pinimg.com/1200x/cb/0b/5b/cb0b5b2810179b9c1260648cd9230304.jpg",
-    ],
-
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      petAllowed: true,
-      balcony: true,
-      kitchen: true,
-      swimmingPool: false,
-      elevator: false,
-    ),
-    furnished: true,
-    bedrooms: 4,
-    bathrooms: 3,
-    totalFloor: 2,
-  ),
-
-  // 2. Room
-  Room(
-    id: 2,
-    name: "Cozy Room Toul Kork",
-    size: 25.0,
-    location: PropertyLocation(
-      address: "Toul Kork, Phnom Penh",
-      latitude: 11.5783,
-      longitude: 104.8987,
-    ),
-    price: 150.0,
-    description: "Affordable room suitable for students.",
-    status: "Available now",
-    contact: "098765432",
-    images: [
-      "https://i.pinimg.com/736x/13/61/de/1361deb9f2833ca90045fdee3a8bff8d.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      kitchen: false,
-      balcony: false,
-    ),
-    furnished: true,
-    totalFloor: 4,
-    availableFloors: [1, 2, 4],
-  ),
-
-  // 3. Apartment
-  ApartmentFlat(
-    id: 3,
-    name: "BKK1 City Apartment",
-    size: 75.0,
-    location: PropertyLocation(
-      address: "BKK1, Phnom Penh",
-      latitude: 11.5504,
-      longitude: 104.9282,
-    ),
-    price: 550.0,
-    description: "Modern apartment close to restaurants and cafes.",
-    status: "Available in 15 days",
-    contact: "011223344",
-    images: [
-      "https://i.pinimg.com/1200x/6a/17/d3/6a17d3982fe119f3c1110a65417fc5dc.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      balcony: true,
-      kitchen: true,
-      swimmingPool: true,
-      elevator: true,
-    ),
-    furnished: true,
-    bedrooms: 2,
-    bathrooms: 2,
-    totalFloor: 12,
-    availableFloors: [3, 6, 8],
-  ),
-
-  // 4. Apartment
-  ApartmentFlat(
-    id: 4,
-    name: "Riverside Apartment",
-    size: 90.0,
-    location: PropertyLocation(
-      address: "Riverside, Phnom Penh",
-      latitude: 11.5690,
-      longitude: 104.9308,
-    ),
-    price: 700.0,
-    description: "Apartment with a beautiful river view.",
-    status: "Available now",
-    contact: "097112233",
-    images: [
-      "https://i.pinimg.com/1200x/f5/b5/23/f5b52328776ad50ad5842bdecf853bdb.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      balcony: true,
-      kitchen: true,
-      swimmingPool: true,
-      elevator: true,
-    ),
-    furnished: false,
-    bedrooms: 3,
-    bathrooms: 2,
-    totalFloor: 15,
-    availableFloors: [5, 9, 12],
-  ),
-
-  // 5. House
-  House(
-    id: 5,
-    name: "Villa Sen Sok",
-    size: 250.0,
-    location: PropertyLocation(
-      address: "Sen Sok, Phnom Penh",
-      latitude: 11.5982,
-      longitude: 104.8814,
-    ),
-    price: 1200.0,
-    description: "Large villa with private parking and garden.",
-    status: "Available in 1 month",
-    contact: "010556677",
-    images: [
-      "https://i.pinimg.com/736x/92/0e/59/920e59c3ae27b635ee75a20d17d79864.jpg",
-      "https://i.pinimg.com/736x/0f/d3/42/0fd3425d2b92ccb9dafbf70a5a49d964.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      petAllowed: true,
-      balcony: true,
-      kitchen: true,
-      swimmingPool: true,
-    ),
-    furnished: true,
-    bedrooms: 5,
-    bathrooms: 4,
-    totalFloor: 3,
-  ),
-
-  // 6. Room
-  Room(
-    id: 6,
-    name: "Budget Room Near University",
-    size: 20.0,
-    location: PropertyLocation(
-      address: "Russian Federation Blvd, Phnom Penh",
-      latitude: 11.5665,
-      longitude: 104.8901,
-    ),
-    price: 100.0,
-    description: "Simple and affordable room near university.",
-    status: "Available now",
-    contact: "096334455",
-    images: [
-      "https://i.pinimg.com/1200x/33/bc/54/33bc54d67db0899605a57439fe03a5ba.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: false,
-      airConditioning: true,
-      kitchen: false,
-    ),
-    furnished: false,
-    totalFloor: 3,
-    availableFloors: [2, 3],
-  ),
-
-  // 7. House
-  House(
-    id: 7,
-    name: "Green Garden House",
-    size: 160.0,
-    location: PropertyLocation(
-      address: "Chroy Changvar, Phnom Penh",
-      latitude: 11.5877,
-      longitude: 104.9483,
-    ),
-    price: 650.0,
-    description: "Comfortable family house with a garden.",
-    status: "Available in 7 days",
-    contact: "015778899",
-    images: [
-      "https://i.pinimg.com/736x/86/89/e1/8689e109a09f53d97cb91369c4217bd5.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      petAllowed: true,
-      balcony: true,
-      kitchen: true,
-    ),
-    furnished: false,
-    bedrooms: 3,
-    bathrooms: 2,
-    totalFloor: 2,
-  ),
-
-  // 8. Apartment
-  ApartmentFlat(
-    id: 8,
-    name: "Toul Kork Luxury Apartment",
-    size: 110.0,
-    location: PropertyLocation(
-      address: "Toul Kork, Phnom Penh",
-      latitude: 11.5835,
-      longitude: 104.8985,
-    ),
-    price: 900.0,
-    description: "Luxury apartment with modern facilities.",
-    status: "Available now",
-    contact: "093445566",
-    images: [
-      "https://i.pinimg.com/1200x/50/3e/83/503e838a83d1f2bcdd499b9814b2050e.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      balcony: true,
-      kitchen: true,
-      swimmingPool: true,
-      elevator: true,
-    ),
-    furnished: true,
-    bedrooms: 3,
-    bathrooms: 3,
-    totalFloor: 20,
-    availableFloors: [4, 10, 17],
-  ),
-
-  // 9. Room
-  Room(
-    id: 9,
-    name: "Private Room BKK3",
-    size: 30.0,
-    location: PropertyLocation(
-      address: "BKK3, Phnom Penh",
-      latitude: 11.5455,
-      longitude: 104.9158,
-    ),
-    price: 200.0,
-    description: "Clean private room in a convenient location.",
-    status: "Available in 2 weeks",
-    contact: "088667788",
-    images: [
-      "https://i.pinimg.com/1200x/26/10/70/261070a7a4519aebd064e35ba16a10ad.jpg",
-    ],
-    nationalIDImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    ownerShipImage:
-        "https://i.pinimg.com/736x/cb/32/a4/cb32a4cb991b33bb126fd1d1b5b3ddd4.jpg",
-    facilities: Facilities(
-      wifi: true,
-      parking: true,
-      airConditioning: true,
-      balcony: true,
-      kitchen: true,
-    ),
-    furnished: true,
-    totalFloor: 5,
-    availableFloors: [1, 3, 5],
-  ),
-];

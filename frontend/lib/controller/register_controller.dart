@@ -89,7 +89,7 @@ class RegisterController extends GetxController {
       );
 
       if (selectedRole.value == "Renter") {
-        Get.offAll(() =>BottomNav(properties: properties));
+        Get.offAll(() =>BottomNav());
       } else if (selectedRole.value == "House Owner") {
         Get.offAll(() => OwnerBottomNav());
       }

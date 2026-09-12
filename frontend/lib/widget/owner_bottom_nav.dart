@@ -48,29 +48,21 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
       });
 
       // Check if the owner already uploaded a National ID
-      final bool hasNationalId =
-          await authService.checkNationalIdStatus();
+      final bool hasNationalId = await authService.checkNationalIdStatus();
 
       if (!mounted) {
         return;
       }
 
-      // If National ID already exists, open Post Property directly
+      // National ID already exists
       if (hasNationalId) {
-        await Get.to(
-          () => const Postpropertyscreen(),
-        );
+        await Get.to(() => const Postpropertyscreen());
 
         return;
       }
 
-      // If National ID does not exist, open verification screen
-      //
-      // After a successful upload,
-      // VerifyIdentityScreen will open Postpropertyscreen directly.
-      await Get.to(
-        () => const VerifyIdentityScreen(),
-      );
+      // National ID does not exist
+      await Get.to(() => const VerifyIdentityScreen());
     } catch (e) {
       if (!mounted) {
         return;
@@ -79,10 +71,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
       Get.snackbar(
@@ -106,27 +95,39 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
 
       body: IndexedStack(
         index: selectedIndex,
+
         children: [
-          OwnerHomeScreen(),
+          // Home
+          OwnerHomeScreen(
+            // Open My Properties tab
+            onSeeAll: () {
+              changePage(1);
+            },
+
+            // Use the same National ID check as Post tab
+            onPostProperty: () {
+              openPostProperty();
+            },
+          ),
+
+          // My Properties
           OwnerPropertiesScreen(),
 
           // Post is opened separately after checking National ID
-          SizedBox(),
+          const SizedBox(),
 
+          // Account
           OwnerAccountScreen(),
         ],
       ),
 
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          indicatorColor: Color(0xFF03045E),
+          indicatorColor: const Color(0xFF03045E),
 
           iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
             if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(
-                color: Colors.white,
-                size: 25,
-              );
+              return const IconThemeData(color: Colors.white, size: 25);
             }
 
             return IconThemeData(
@@ -156,7 +157,9 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
           height: 70,
           backgroundColor: Colors.white,
           elevation: 5,
+
           selectedIndex: selectedIndex,
+
           onDestinationSelected: changePage,
 
           destinations: const [
@@ -184,66 +187,6 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
               label: 'Account',
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // Temporary screen
-  Widget buildTemporaryScreen({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Container(
-      color: Color(0xFFF8FAFC),
-
-      child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-
-                decoration: BoxDecoration(
-                  color: Color(0xFFE8E9FF),
-                  shape: BoxShape.circle,
-                ),
-
-                child: Icon(
-                  icon,
-                  size: 36,
-                  color: Color(0xFF03045E),
-                ),
-              ),
-
-              SizedBox(height: 18),
-
-              Text(
-                title,
-
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF03045E),
-                ),
-              ),
-
-              SizedBox(height: 6),
-
-              Text(
-                subtitle,
-
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF7D8990),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

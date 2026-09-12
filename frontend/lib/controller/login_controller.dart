@@ -87,7 +87,7 @@ class LoginController extends GetxController {
       } else if (role == "house_owner") {
         Get.offAll(() => OwnerBottomNav());
       } else if (role == "renter") {
-        Get.offAll(() => BottomNav(properties: properties));
+        Get.offAll(() => BottomNav());
       } else {
         await authService.logout();
 
@@ -176,7 +176,7 @@ class LoginController extends GetxController {
         } else if (role == "house_owner") {
           Get.offAll(() => OwnerBottomNav());
         } else if (role == "renter") {
-          Get.offAll(() =>BottomNav(properties: properties));
+          Get.offAll(() =>BottomNav());
         } else {
           await authService.logout();
 
@@ -369,7 +369,7 @@ class LoginController extends GetxController {
       if (userRole == "house_owner") {
         Get.offAll(() => OwnerBottomNav());
       } else if (userRole == "renter") {
-        Get.offAll(() => BottomNav(properties: properties));
+        Get.offAll(() => BottomNav());
       }
     } catch (e) {
       await authService.logout();
@@ -443,7 +443,7 @@ class LoginController extends GetxController {
         } else if (role == "house_owner") {
           Get.offAll(() => OwnerBottomNav());
         } else if (role == "renter") {
-          Get.offAll(() => BottomNav(properties: properties));
+          Get.offAll(() => BottomNav());
         }
 
         return;

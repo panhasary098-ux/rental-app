@@ -26,7 +26,6 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
       // ======================================================
       // APP BAR
       // ======================================================
-
       appBar: AppBar(
         backgroundColor: backgroundColor,
         elevation: 0,
@@ -52,16 +51,10 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
               ),
 
               child: TextFormField(
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: primaryColor,
-                ),
+                style: const TextStyle(fontSize: 15, color: primaryColor),
 
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.search,
-                    color: primaryColor,
-                  ),
+                  prefixIcon: const Icon(Icons.search, color: primaryColor),
 
                   hintText: 'Search Property name....',
 
@@ -88,25 +81,25 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
       // BODY
       // ======================================================
 
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: properties.length,
+      // body: ListView.builder(
+      //   padding: const EdgeInsets.all(16),
+      //   itemCount: properties.length,
 
-        itemBuilder: (context, index) {
-          final item = properties[index];
+      //   itemBuilder: (context, index) {
+      //     final item = properties[index];
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 15),
+      //     return Padding(
+      //       padding: const EdgeInsets.only(bottom: 15),
 
-            child: customitemShow(
-              image: item.images[0],
-              name: item.name,
-              location: item.location.address.toString(),
-              price: item.price,
-            ),
-          );
-        },
-      ),
+      //       child: customitemShow(
+      //         image: item.images[0],
+      //         name: item.name,
+      //         location: item.location.address.toString(),
+      //         price: item.price,
+      //       ),
+      //     );
+      //   },
+      // ),
     );
   }
 
@@ -144,7 +137,6 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
           // ======================================================
           // IMAGE
           // ======================================================
-
           Padding(
             padding: const EdgeInsets.all(10),
 
@@ -160,20 +152,15 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
 
                   children: [
                     InkWell(
-                      onTap: () {
-                        Get.to(() => PropertyDetailScreen());
-                      },
-
-                      child: Image.network(
-                        image,
-                        fit: BoxFit.cover,
-                      ),
+                      // onTap: () {
+                      //   Get.to(() => PropertyDetailScreen());
+                      // },
+                      child: Image.network(image, fit: BoxFit.cover),
                     ),
 
                     // ======================================================
                     // AVAILABLE BADGE
                     // ======================================================
-
                     Positioned(
                       top: 5,
                       left: 5,
@@ -181,9 +168,7 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
                       child: Container(
                         height: 22,
 
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
 
                         decoration: BoxDecoration(
                           color: primaryColor,
@@ -211,7 +196,6 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
           // ======================================================
           // INFORMATION
           // ======================================================
-
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(
@@ -260,7 +244,6 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
                   // ======================================================
                   // PRICE
                   // ======================================================
-
                   Row(
                     children: [
                       Flexible(
@@ -294,7 +277,6 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
                   // ======================================================
                   // DISTANCE + FAVORITE
                   // ======================================================
-
                   SizedBox(
                     height: 30,
 
@@ -310,10 +292,7 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
 
                         const Text(
                           "1 Km",
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 13,
-                          ),
+                          style: TextStyle(color: Colors.black54, fontSize: 13),
                         ),
 
                         const Spacer(),
@@ -337,9 +316,7 @@ class _PropertiesfoundScreenState extends State<PropertiesfoundScreen> {
                           ),
 
                           icon: Icon(
-                            isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
 
                             color: isFavorite
                                 ? primaryColor
