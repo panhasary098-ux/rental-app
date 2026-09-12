@@ -158,7 +158,29 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
                         }
 
                         if (success) {
-                          Get.back(result: true);
+                          // Return to My Properties
+                          // and tell it to reload.
+                          Navigator.of(context).pop(true);
+
+                          // Show success message after
+                          // returning to My Properties.
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            Get.snackbar(
+                              "Property Updated",
+                              "Your property changes were saved successfully.",
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: primaryColor,
+                              colorText: Colors.white,
+                              margin: const EdgeInsets.all(16),
+                              borderRadius: 12,
+                              duration: const Duration(seconds: 3),
+                              icon: const Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            );
+                          });
                         }
                       },
 
