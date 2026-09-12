@@ -1,4 +1,4 @@
-import 'package:final_project/view/authentication/login_screen.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,8 +18,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      //home: LoginScreen(),
+      //home: OwnerAccountScreen()
+      //home: RenterAccountScreen(),
+      //home: OwnerBottomNav(),
 
+      // Testing screens if needed later:
+      // home: AdminDashboardScreen(),
+      // home: AdminBottomNav(),
+      //home: BottomNav(),
+      // home: FilterScreen(),
+      // home: HomeScreen(),
+      // home: PostStep1(),
+      //home: Postpropertyscreen(),
+      //home: AllPropertiesScreen(properties: properties),
     );
   }
 }
