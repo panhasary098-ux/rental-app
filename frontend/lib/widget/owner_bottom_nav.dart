@@ -17,17 +17,18 @@ class OwnerBottomNav extends StatefulWidget {
 class _OwnerBottomNavState extends State<OwnerBottomNav> {
   int selectedIndex = 0;
 
-  // Service used to check the owner's National ID
+  // Used to rebuild My Properties after a new post
+  int propertiesRefreshKey = 0;
+
   final AuthService authService = AuthService();
 
-  // Prevent multiple Post requests at the same time
   bool isCheckingNationalId = false;
 
-  // Change bottom navigation page
   Future<void> changePage(int index) async {
-    // Post needs to check National ID first
+    // Post tab
     if (index == 2) {
       await openPostProperty();
+
       return;
     }
 
@@ -47,21 +48,33 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
         isCheckingNationalId = true;
       });
 
-      // Check if the owner already uploaded a National ID
       final bool hasNationalId = await authService.checkNationalIdStatus();
 
       if (!mounted) {
         return;
       }
 
-      // National ID already exists
       if (hasNationalId) {
-        await Get.to(() => const Postpropertyscreen());
+        final dynamic result = await Get.to(() => const Postpropertyscreen());
+
+        if (!mounted) {
+          return;
+        }
+
+        // Property submitted successfully
+        if (result == true) {
+          setState(() {
+            // Select My Properties
+            selectedIndex = 1;
+
+            // Force My Properties to reload from Laravel
+            propertiesRefreshKey++;
+          });
+        }
 
         return;
       }
 
-      // National ID does not exist
       await Get.to(() => const VerifyIdentityScreen());
     } catch (e) {
       if (!mounted) {
@@ -97,26 +110,22 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
         index: selectedIndex,
 
         children: [
-          // Home
           OwnerHomeScreen(
-            // Open My Properties tab
             onSeeAll: () {
               changePage(1);
             },
 
-            // Use the same National ID check as Post tab
             onPostProperty: () {
               openPostProperty();
             },
           ),
 
           // My Properties
-          OwnerPropertiesScreen(),
+          OwnerPropertiesScreen(key: ValueKey(propertiesRefreshKey)),
 
-          // Post is opened separately after checking National ID
+          // Post opens separately
           const SizedBox(),
 
-          // Account
           OwnerAccountScreen(),
         ],
       ),
@@ -132,6 +141,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
 
             return IconThemeData(
               color: const Color(0xFF03045E).withOpacity(0.45),
+
               size: 24,
             );
           }),
@@ -140,14 +150,18 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(
                 color: Color(0xFF03045E),
+
                 fontSize: 12,
+
                 fontWeight: FontWeight.w700,
               );
             }
 
             return TextStyle(
               color: const Color(0xFF03045E).withOpacity(0.50),
+
               fontSize: 12,
+
               fontWeight: FontWeight.w500,
             );
           }),
@@ -155,7 +169,9 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
 
         child: NavigationBar(
           height: 70,
+
           backgroundColor: Colors.white,
+
           elevation: 5,
 
           selectedIndex: selectedIndex,
@@ -165,25 +181,33 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
+
               selectedIcon: Icon(Icons.home_rounded),
+
               label: 'Home',
             ),
 
             NavigationDestination(
               icon: Icon(Icons.home_work_outlined),
+
               selectedIcon: Icon(Icons.home_work_rounded),
+
               label: 'Properties',
             ),
 
             NavigationDestination(
               icon: Icon(Icons.add_home_work_outlined),
+
               selectedIcon: Icon(Icons.add_home_work_rounded),
+
               label: 'Post',
             ),
 
             NavigationDestination(
               icon: Icon(Icons.person_outline_rounded),
+
               selectedIcon: Icon(Icons.person_rounded),
+
               label: 'Account',
             ),
           ],

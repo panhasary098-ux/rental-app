@@ -26,12 +26,12 @@ class MyApp extends StatelessWidget {
       //home: LoginScreen(),
       //home: OwnerAccountScreen()
       //home: RenterAccountScreen(),
-      // home: OwnerBottomNav(),
+      home: OwnerBottomNav(),
 
       // Testing screens if needed later:
       // home: AdminDashboardScreen(),
       // home: AdminBottomNav(),
-      home: BottomNav(),
+      //home: BottomNav(),
       // home: FilterScreen(),
       // home: HomeScreen(),
       // home: PostStep1(),

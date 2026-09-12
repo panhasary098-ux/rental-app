@@ -9,27 +9,12 @@ import 'package:final_project/widget/stepNumber.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-// ======================================================
-// APP COLORS
-// ======================================================
-
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
 const Color backgroundColor = Color(0xFFF4FCFE);
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class Postpropertyscreen extends StatefulWidget {
-  // ======================================================
-  // EDIT PROPERTY
-  // ======================================================
-  //
-  // null:
-  // normal new-property flow
-  //
-  // not null:
-  // edit existing property
-  //
-
   final Map<String, dynamic>? propertyToEdit;
 
   const Postpropertyscreen({super.key, this.propertyToEdit});
@@ -41,17 +26,9 @@ class Postpropertyscreen extends StatefulWidget {
 class _PostpropertyscreenState extends State<Postpropertyscreen> {
   late final PostPropertyController controller;
 
-  // ======================================================
-  // INITIALIZE
-  // ======================================================
-
   @override
   void initState() {
     super.initState();
-
-    // ====================================================
-    // GET / CREATE CONTROLLER
-    // ====================================================
 
     if (Get.isRegistered<PostPropertyController>()) {
       controller = Get.find<PostPropertyController>();
@@ -59,34 +36,18 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       controller = Get.put(PostPropertyController());
     }
 
-    // ====================================================
-    // WAIT UNTIL FIRST BUILD IS FINISHED
-    // ====================================================
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) {
         return;
       }
 
-      // ==================================================
-      // EDIT MODE
-      // ==================================================
-
       if (widget.propertyToEdit != null) {
         controller.loadPropertyForEdit(widget.propertyToEdit!);
-      }
-      // ==================================================
-      // CREATE MODE
-      // ==================================================
-      else {
+      } else {
         controller.resetForCreateMode();
       }
     });
   }
-
-  // ======================================================
-  // BUILD
-  // ======================================================
 
   @override
   Widget build(BuildContext context) {
@@ -96,13 +57,9 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       return Scaffold(
         backgroundColor: Colors.white,
 
-        // ==================================================
-        // APP BAR
-        // ==================================================
         appBar: AppBar(
           title: Text(
             isEditMode ? "Edit Property" : "Submit Your Property",
-
             style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
@@ -117,17 +74,11 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
           iconTheme: const IconThemeData(color: primaryColor),
         ),
 
-        // ==================================================
-        // BODY
-        // ==================================================
         body: Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
 
           child: Column(
             children: [
-              // ==============================================
-              // STEP INDICATOR
-              // ==============================================
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 35),
 
@@ -136,16 +87,10 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
               const SizedBox(height: 10),
 
-              // ==============================================
-              // STEP CONTENT
-              // ==============================================
               Expanded(child: changeSteps(controller.currentStep.value)),
 
               const SizedBox(height: 10),
 
-              // ==============================================
-              // BOTTOM BUTTONS
-              // ==============================================
               buildBottomButtons(),
             ],
           ),
@@ -154,10 +99,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
     });
   }
 
-  // ======================================================
-  // BOTTOM BUTTONS
-  // ======================================================
-
   Widget buildBottomButtons() {
     final int step = controller.currentStep.value;
 
@@ -165,16 +106,10 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
     final bool hasSelectedType = controller.selectIndex.value != null;
 
-    // ======================================================
-    // EDIT MODE - STEP 3
-    // ======================================================
-
+    // Edit mode - Step 3
     if (isEditMode && step == 3) {
       return Row(
         children: [
-          // ==================================================
-          // BACK TO STEP 2
-          // ==================================================
           Expanded(
             child: SizedBox(
               height: 50,
@@ -198,7 +133,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
                 child: const Text(
                   "Back",
-
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -207,9 +141,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
           const SizedBox(width: 12),
 
-          // ==================================================
-          // SAVE / RESUBMIT
-          // ==================================================
           Expanded(
             flex: 2,
 
@@ -222,9 +153,11 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
                     : () async {
                         final bool success = await controller.updateProperty();
 
+                        if (!mounted) {
+                          return;
+                        }
+
                         if (success) {
-                          // Return true so My Properties
-                          // can refresh the property list.
                           Get.back(result: true);
                         }
                       },
@@ -255,7 +188,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
                       )
                     : Text(
                         getEditSubmitText(),
-
                         textAlign: TextAlign.center,
 
                         style: const TextStyle(
@@ -270,16 +202,10 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       );
     }
 
-    // ======================================================
-    // CREATE MODE - STEP 4 PAYMENT
-    // ======================================================
-
+    // Create mode - Step 4
     if (!isEditMode && step == 4) {
       return Row(
         children: [
-          // ==================================================
-          // BACK
-          // ==================================================
           Expanded(
             child: SizedBox(
               height: 50,
@@ -303,7 +229,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
                 child: const Text(
                   "Back",
-
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -312,9 +237,7 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
           const SizedBox(width: 12),
 
-          // ==================================================
-          // FINAL SUBMIT
-          // ==================================================
+          // Final submit
           Expanded(
             child: SizedBox(
               height: 50,
@@ -325,8 +248,20 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
                     : () async {
                         final bool success = await controller.submitProperty();
 
+                        if (!mounted) {
+                          return;
+                        }
+
                         if (success) {
-                          Get.back(result: true);
+                          // Return true to OwnerBottomNav
+                          // so it can select My Properties.
+                          Navigator.of(context).pop(true);
+
+                          // Clear all posting data after
+                          // the Post screen starts closing.
+                          Future.microtask(() {
+                            controller.resetForCreateMode();
+                          });
                         }
                       },
 
@@ -356,7 +291,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
                       )
                     : const Text(
                         "Submit Property",
-
                         textAlign: TextAlign.center,
 
                         style: TextStyle(
@@ -371,17 +305,10 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       );
     }
 
-    // ======================================================
-    // STEP 3
-    // CREATE MODE ONLY
-    // ======================================================
-
+    // Create mode - Step 3
     if (!isEditMode && step == 3) {
       return Row(
         children: [
-          // ==================================================
-          // EDIT INFORMATION
-          // ==================================================
           Expanded(
             child: SizedBox(
               height: 50,
@@ -405,7 +332,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
                 child: const Text(
                   "Edit",
-
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
@@ -414,9 +340,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
           const SizedBox(width: 12),
 
-          // ==================================================
-          // CONTINUE TO PAYMENT
-          // ==================================================
           Expanded(
             child: SizedBox(
               height: 50,
@@ -440,7 +363,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
 
                 child: const Text(
                   "Continue to Payment",
-
                   textAlign: TextAlign.center,
 
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
@@ -452,10 +374,7 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       );
     }
 
-    // ======================================================
-    // STEP 1 / STEP 2
-    // ======================================================
-
+    // Step 1 / Step 2
     return SizedBox(
       width: double.infinity,
       height: 50,
@@ -464,20 +383,14 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
         onPressed: step == 1 && !hasSelectedType
             ? null
             : () {
-                // ============================================
-                // STEP 1 → STEP 2
-                // ============================================
-
+                // Step 1 -> Step 2
                 if (step == 1) {
                   controller.currentStep.value = 2;
 
                   return;
                 }
 
-                // ============================================
-                // STEP 2 → STEP 3
-                // ============================================
-
+                // Step 2 -> Step 3
                 if (step == 2) {
                   final bool isValid = controller.validateStep2();
 
@@ -514,10 +427,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
     );
   }
 
-  // ======================================================
-  // EDIT FINAL BUTTON TEXT
-  // ======================================================
-
   String getEditSubmitText() {
     final String verificationStatus =
         controller.originalVerificationStatus.value?.toLowerCase() ?? "";
@@ -529,14 +438,9 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
     return "Save Changes";
   }
 
-  // ======================================================
-  // CHANGE STEP
-  // ======================================================
-
   Widget changeSteps(int step) {
     switch (step) {
       case 1:
-        // Edit mode should never reach Step 1.
         if (controller.isEditMode.value) {
           return changeType(controller.selectIndex.value);
         }
@@ -550,7 +454,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
         return PostReviewStep3(key: const ValueKey(3));
 
       case 4:
-        // Edit mode never goes to payment.
         if (controller.isEditMode.value) {
           return PostReviewStep3(key: const ValueKey("edit_review"));
         }
@@ -561,10 +464,6 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
         return const SizedBox();
     }
   }
-
-  // ======================================================
-  // CHANGE PROPERTY TYPE
-  // ======================================================
 
   Widget changeType(int? typeIndex) {
     switch (typeIndex) {
