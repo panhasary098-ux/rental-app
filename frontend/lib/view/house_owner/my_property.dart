@@ -547,13 +547,13 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
 
         decoration: BoxDecoration(
-          color: selected ? secondaryColor : Colors.white,
+          color: selected ? primaryColor : Colors.white,
 
           borderRadius: BorderRadius.circular(30),
 
           border: Border.all(
             color: selected
-                ? primaryColor.withOpacity(0.20)
+                ? primaryColor
                 : Colors.grey.withOpacity(0.25),
           ),
         ),
@@ -566,7 +566,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
 
             fontWeight: selected ? FontWeight.bold : FontWeight.w500,
 
-            color: selected ? primaryColor : const Color(0xFF667085),
+            color: selected ? Colors.white : const Color(0xFF667085),
           ),
         ),
       ),
