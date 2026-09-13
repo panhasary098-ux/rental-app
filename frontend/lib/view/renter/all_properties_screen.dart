@@ -608,7 +608,9 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                                   ? Icons.favorite_rounded
                                   : Icons.favorite_border_rounded,
 
-                              color: primaryColor,
+                              color: isFavorite ? Colors.red : primaryColor,
+
+                              size: 22,
                             ),
                     ),
                   ),
