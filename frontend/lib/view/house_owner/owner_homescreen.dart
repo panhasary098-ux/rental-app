@@ -37,7 +37,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     loadHomeData();
   }
 
-  // Load owner and property information
   Future<void> loadHomeData() async {
     try {
       setState(() {
@@ -45,11 +44,9 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         errorMessage = null;
       });
 
-      // Get logged-in owner information
       final Map<String, dynamic> ownerData = await authService
           .getCurrentUserFromLaravel();
 
-      // Get owner's properties
       final response = await propertyService.getMyProperties();
 
       if (response.statusCode != 200) {
@@ -101,7 +98,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }
   }
 
-  // Update rental status
   Future<void> updatePropertyRentalStatus({
     required Map<String, dynamic> property,
     required String newStatus,
@@ -121,16 +117,13 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     final String currentStatus =
         property["rental_status"]?.toString().toLowerCase() ?? "";
 
-    // Do nothing when status is already selected
     if (currentStatus == newStatus) {
       Get.back();
       return;
     }
 
-    // Close status bottom sheet
     Get.back();
 
-    // Show loading
     Get.dialog(
       const Center(child: CircularProgressIndicator(color: ownerPrimaryColor)),
       barrierDismissible: false,
@@ -211,12 +204,10 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }
   }
 
-  // Total property count
   int get totalProperties {
     return properties.length;
   }
 
-  // Pending property count
   int get pendingProperties {
     return properties.where((property) {
       final String status =
@@ -226,7 +217,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }).length;
   }
 
-  // Available property count
   int get availableProperties {
     return properties.where((property) {
       final String status =
@@ -236,7 +226,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }).length;
   }
 
-  // Rented property count
   int get rentedProperties {
     return properties.where((property) {
       final String status =
@@ -246,7 +235,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     }).length;
   }
 
-  // Latest 3 properties
   List<Map<String, dynamic>> get recentProperties {
     final List<Map<String, dynamic>> result = List<Map<String, dynamic>>.from(
       properties,
@@ -279,7 +267,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return result.take(3).toList();
   }
 
-  // Get property cover image
   String getPropertyImage(Map<String, dynamic> property) {
     final dynamic coverPath = property["cover_image_path"];
 
@@ -321,7 +308,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return "";
   }
 
-  // Convert Laravel storage path to emulator URL
   String buildStorageUrl(String path) {
     if (path.isEmpty) {
       return "";
@@ -346,7 +332,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return "http://10.0.2.2:8000/storage/$cleanPath";
   }
 
-  // Owner initials
   String getOwnerInitials() {
     final String name = owner?["name"]?.toString().trim() ?? "";
 
@@ -371,7 +356,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         .toUpperCase();
   }
 
-  // Format verification status
   String formatVerificationStatus(dynamic value) {
     final String status = value?.toString().toLowerCase() ?? "";
 
@@ -386,7 +370,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return "Pending";
   }
 
-  // Format rental status
   String formatRentalStatus(dynamic value) {
     final String status = value?.toString().toLowerCase() ?? "";
 
@@ -397,7 +380,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return "Available";
   }
 
-  // Format property price
   String formatPrice(dynamic value) {
     if (value == null) {
       return "\$0 / month";
@@ -439,7 +421,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Main content
   Widget buildBody() {
     if (isLoading) {
       return SizedBox(
@@ -518,7 +499,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Header
   Widget buildHeader() {
     final String name = owner?["name"]?.toString() ?? "Owner";
 
@@ -626,115 +606,125 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
 
   // Hero card
   Widget buildHeroCard() {
-    return Container(
-      width: double.infinity,
-      height: 235,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
 
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
+      child: SizedBox(
+        width: double.infinity,
+        height: 235,
 
-        image: const DecorationImage(
-          image: NetworkImage(
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-
-      child: Container(
-        padding: const EdgeInsets.all(20),
-
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
-
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-
-            end: Alignment.centerRight,
-
-            colors: [
-              ownerPrimaryColor.withOpacity(0.95),
-
-              ownerPrimaryColor.withOpacity(0.60),
-
-              Colors.transparent,
-            ],
-          ),
-        ),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          fit: StackFit.expand,
 
           children: [
-            const Text(
-              "Manage Your\nProperties with\nEase",
+            // Background image
+            Image.asset("assets/homescreen/apartment1.jpg", fit: BoxFit.cover),
 
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                height: 1.15,
-              ),
-            ),
+            // Gradient overlay
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
 
-            const SizedBox(height: 10),
+                  end: Alignment.centerRight,
 
-            SizedBox(
-              width: 230,
+                  colors: [
+                    ownerPrimaryColor.withOpacity(0.92),
 
-              child: Text(
-                "Post, track and manage your rental properties all in one place.",
+                    ownerPrimaryColor.withOpacity(0.62),
 
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withOpacity(0.85),
-                  height: 1.35,
+                    ownerPrimaryColor.withOpacity(0.20),
+
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
 
-            const SizedBox(height: 12),
+            // Hero content
+            Padding(
+              padding: const EdgeInsets.all(20),
 
-            InkWell(
-              onTap: () {
-                widget.onPostProperty?.call();
-              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-              borderRadius: BorderRadius.circular(30),
+                mainAxisAlignment: MainAxisAlignment.center,
 
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
+                children: [
+                  const Text(
+                    "Manage Your\nProperties with\nEase",
 
-                decoration: BoxDecoration(
-                  color: Colors.white,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1.15,
+                    ),
+                  ),
 
-                  borderRadius: BorderRadius.circular(30),
-                ),
+                  const SizedBox(height: 10),
 
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+                  SizedBox(
+                    width: 230,
 
-                  children: [
-                    Icon(Icons.add_rounded, size: 20, color: ownerPrimaryColor),
-
-                    SizedBox(width: 6),
-
-                    Text(
-                      "Post a New Property",
+                    child: Text(
+                      "Post, track and manage your rental properties all in one place.",
 
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: ownerPrimaryColor,
+                        color: Colors.white.withOpacity(0.88),
+                        height: 1.35,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  InkWell(
+                    onTap: () {
+                      widget.onPostProperty?.call();
+                    },
+
+                    borderRadius: BorderRadius.circular(30),
+
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+
+                        children: [
+                          Icon(
+                            Icons.add_rounded,
+                            size: 20,
+                            color: ownerPrimaryColor,
+                          ),
+
+                          SizedBox(width: 6),
+
+                          Text(
+                            "Post a New Property",
+
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: ownerPrimaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -743,7 +733,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Summary section
   Widget buildSummarySection() {
     return GridView.count(
       crossAxisCount: 2,
@@ -794,7 +783,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Summary card
   Widget buildSummaryCard({
     required IconData icon,
     required String number,
@@ -884,7 +872,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Property card
   Widget buildPropertyCard({required Map<String, dynamic> property}) {
     final String image = getPropertyImage(property);
 
@@ -1116,7 +1103,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Verification badge color
   Color getVerificationColor(String status) {
     if (status == "Approved") {
       return const Color(0xFF2563EB);
@@ -1129,7 +1115,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return const Color(0xFFF59E0B);
   }
 
-  // Property image placeholder
   Widget buildPropertyImagePlaceholder() {
     return Container(
       width: 115,
@@ -1147,7 +1132,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Badge
   Widget buildBadge(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -1172,7 +1156,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Empty property state
   Widget buildEmptyProperties() {
     return Container(
       width: double.infinity,
@@ -1219,7 +1202,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Error state
   Widget buildErrorState() {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.70,
@@ -1286,7 +1268,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Change availability
   void showStatusBottomSheet(
     Map<String, dynamic> property,
     String currentStatus,
@@ -1393,7 +1374,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     );
   }
 
-  // Status option
   Widget buildStatusOption({
     required IconData icon,
     required String title,

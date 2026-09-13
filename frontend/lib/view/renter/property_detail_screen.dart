@@ -324,7 +324,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                                   ? Icons.favorite_rounded
                                   : Icons.favorite_border_rounded,
 
-                              color: primaryColor,
+                              color: isFavorite ? Colors.red : primaryColor,
+
+                              size: 22,
                             ),
                     ),
                   ),

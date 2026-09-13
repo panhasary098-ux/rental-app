@@ -4,6 +4,7 @@ import 'package:final_project/model/property.dart';
 import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/renter/all_properties_screen.dart';
 import 'package:final_project/view/renter/filter_screen.dart';
+import 'package:final_project/view/renter/propertiesFound_screen.dart';
 import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final PropertyService propertyService = PropertyService();
 
   final Set<int> favoritePropertyIds = {};
-
   final Set<int> favoriteLoadingIds = {};
 
   @override
@@ -36,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
     loadFavorites();
   }
 
-  // Load saved property IDs
   Future<void> loadFavorites() async {
     try {
       final response = await propertyService.getFavorites();
@@ -71,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Add or remove favorite
   Future<void> toggleFavorite(Property property) async {
     final int? propertyId = property.id;
 
@@ -150,6 +148,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Quick filter: Student Budget $70 - $150
+  void openStudentBudgetProperties() {
+    final List<Property> results = widget.properties.where((property) {
+      return property.price >= 70 && property.price <= 150;
+    }).toList();
+
+    Get.to(
+      () => const PropertiesfoundScreen(),
+      arguments: {"properties": results, "search": ""},
+    );
+  }
+
+  // Quick filter: Room
+  void openPopularRoomProperties() {
+    final List<Property> results = widget.properties.where((property) {
+      final String type = property.runtimeType.toString().toLowerCase();
+
+      return type.contains("room");
+    }).toList();
+
+    Get.to(
+      () => const PropertiesfoundScreen(),
+      arguments: {"properties": results, "search": ""},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Property> recommendedProperties = widget.properties
@@ -167,7 +191,6 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
@@ -202,25 +225,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 20),
 
-              searchBox(),
+              searchBox(widget.properties),
 
-              const SizedBox(height: 20),
-
-              filterLocation(),
-
-              const SizedBox(height: 12),
+              const SizedBox(height: 18),
 
               Row(
                 children: [
-                  Expanded(child: filterPrice()),
+                  Expanded(
+                    child: studentBudgetCard(
+                      onTap: openStudentBudgetProperties,
+                    ),
+                  ),
 
                   const SizedBox(width: 12),
 
-                  Expanded(child: filterType()),
+                  Expanded(
+                    child: popularTypeCard(onTap: openPopularRoomProperties),
+                  ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -243,11 +268,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             AllPropertiesScreen(properties: widget.properties),
                       );
 
-                      // Reload favorites after coming back
                       await loadFavorites();
                     },
+
                     child: const Text(
                       "See all",
+
                       style: TextStyle(
                         color: primaryColor,
                         fontSize: 17,
@@ -317,8 +343,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap: () async {
           await Get.to(() => PropertyDetailScreen(property: property));
 
-          // Refresh the heart if favorite status
-          // was changed inside the detail screen.
           await loadFavorites();
         },
 
@@ -338,7 +362,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: buildPropertyImage(property),
                 ),
 
-                // Favorite button
                 Positioned(
                   top: 10,
                   right: 10,
@@ -367,7 +390,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-
                                 color: primaryColor,
                               ),
                             )
@@ -376,7 +398,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? Icons.favorite_rounded
                                   : Icons.favorite_border_rounded,
 
-                              color: primaryColor,
+                              color: isFavorite ? Colors.red : primaryColor,
+
+                              size: 22,
                             ),
                     ),
                   ),
@@ -418,9 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-
                         size: 15,
-
                         color: primaryColor,
                       ),
 
@@ -436,7 +458,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           style: const TextStyle(
                             color: Colors.black54,
-
                             fontSize: 12,
                           ),
                         ),
@@ -465,7 +486,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Property image
 Widget buildPropertyImage(Property property) {
   if (property.images.isEmpty) {
     return Container(
@@ -503,7 +523,6 @@ Widget buildPropertyImage(Property property) {
   );
 }
 
-// Empty property state
 Widget buildEmptyPropertyState() {
   return Container(
     width: double.infinity,
@@ -548,7 +567,6 @@ Widget buildEmptyPropertyState() {
   );
 }
 
-// Status badge
 Widget buildStatusBadge(String status) {
   Color statusColor;
 
@@ -606,7 +624,6 @@ Widget buildStatusBadge(String status) {
   );
 }
 
-// App name
 Widget appName() {
   return RichText(
     text: const TextSpan(
@@ -635,7 +652,6 @@ Widget appName() {
   );
 }
 
-// Headline
 Widget headline() {
   return const Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -698,11 +714,12 @@ Widget headline() {
   );
 }
 
-// Search box
-Widget searchBox() {
+Widget searchBox(List<Property> properties) {
   return Container(
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
+      color: Colors.white,
+
+      borderRadius: BorderRadius.circular(12),
 
       boxShadow: [
         BoxShadow(
@@ -730,24 +747,39 @@ Widget searchBox() {
         border: OutlineInputBorder(
           borderSide: BorderSide.none,
 
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
         ),
 
-        suffixIcon: Tooltip(
-          waitDuration: const Duration(milliseconds: 500),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.all(7),
 
-          showDuration: const Duration(seconds: 2),
+          child: Tooltip(
+            message: "Filter",
 
-          preferBelow: false,
+            child: Material(
+              color: lightSecondaryColor,
 
-          message: "Filter",
+              borderRadius: BorderRadius.circular(9),
 
-          child: IconButton(
-            onPressed: () {
-              Get.to(() => const FilterScreen());
-            },
+              child: InkWell(
+                borderRadius: BorderRadius.circular(9),
 
-            icon: const Icon(Icons.tune, color: primaryColor),
+                onTap: () {
+                  Get.to(() => FilterScreen(properties: properties));
+                },
+
+                child: const SizedBox(
+                  width: 40,
+                  height: 40,
+
+                  child: Icon(
+                    Icons.tune_rounded,
+                    color: primaryColor,
+                    size: 21,
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -755,212 +787,172 @@ Widget searchBox() {
   );
 }
 
-// Location filter
-Widget filterLocation() {
-  return Container(
-    padding: const EdgeInsets.all(15),
+Widget studentBudgetCard({required VoidCallback onTap}) {
+  return InkWell(
+    onTap: onTap,
 
-    decoration: BoxDecoration(
-      color: Colors.white,
+    borderRadius: BorderRadius.circular(17),
 
-      borderRadius: BorderRadius.circular(17),
+    child: Container(
+      height: 72,
 
-      boxShadow: [
-        BoxShadow(
-          color: primaryColor.withOpacity(0.08),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
+      padding: const EdgeInsets.symmetric(horizontal: 13),
 
-    child: Row(
-      children: [
-        Container(
-          width: 38,
-          height: 38,
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-          decoration: BoxDecoration(
-            color: lightSecondaryColor,
+        borderRadius: BorderRadius.circular(17),
 
-            borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.07),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+
+            decoration: BoxDecoration(
+              color: lightSecondaryColor,
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: const Icon(
+              Icons.account_balance_wallet_outlined,
+              size: 22,
+              color: primaryColor,
+            ),
           ),
 
-          child: const Icon(Icons.location_on_outlined, color: primaryColor),
-        ),
+          const SizedBox(width: 9),
 
-        const SizedBox(width: 10),
+          const Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
 
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            children: [
-              Text("Near", style: TextStyle(fontSize: 12, color: Colors.grey)),
+              children: [
+                Text(
+                  "Student Budget",
 
-              SizedBox(height: 3),
-
-              Text(
-                "Phnom Penh",
-
-                style: TextStyle(
-                  color: primaryColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
+                  style: TextStyle(
+                    color: Color(0xFF6F6F6F),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
 
-        const Icon(Icons.chevron_right_rounded, color: primaryColor),
-      ],
+                SizedBox(height: 4),
+
+                Text(
+                  "\$70 - \$150",
+
+                  overflow: TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
   );
 }
 
-// Price filter
-Widget filterPrice() {
-  return Container(
-    height: 67,
+Widget popularTypeCard({required VoidCallback onTap}) {
+  return InkWell(
+    onTap: onTap,
 
-    padding: const EdgeInsets.symmetric(horizontal: 13),
+    borderRadius: BorderRadius.circular(17),
 
-    decoration: BoxDecoration(
-      color: Colors.white,
+    child: Container(
+      height: 72,
 
-      borderRadius: BorderRadius.circular(17),
+      padding: const EdgeInsets.symmetric(horizontal: 13),
 
-      boxShadow: [
-        BoxShadow(
-          color: primaryColor.withOpacity(0.07),
-          blurRadius: 10,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
+      decoration: BoxDecoration(
+        color: Colors.white,
 
-    child: Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
+        borderRadius: BorderRadius.circular(17),
 
-          decoration: BoxDecoration(
-            color: lightSecondaryColor,
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.07),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
 
-            borderRadius: BorderRadius.circular(9),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+
+            decoration: BoxDecoration(
+              color: lightSecondaryColor,
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: const Icon(
+              Icons.bed_outlined,
+              size: 23,
+              color: primaryColor,
+            ),
           ),
 
-          child: const Icon(
-            Icons.account_balance_wallet_outlined,
-            size: 22,
-            color: primaryColor,
-          ),
-        ),
+          const SizedBox(width: 9),
 
-        const SizedBox(width: 9),
+          const Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
 
-        const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Popular Type",
 
-            children: [
-              Text(
-                "Budget",
-
-                style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
-              ),
-
-              SizedBox(height: 3),
-
-              Text(
-                "Price range",
-
-                overflow: TextOverflow.ellipsis,
-
-                style: TextStyle(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  style: TextStyle(
+                    color: Color(0xFF6F6F6F),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
-// Property type filter
-Widget filterType() {
-  return Container(
-    height: 67,
+                SizedBox(height: 4),
 
-    padding: const EdgeInsets.symmetric(horizontal: 13),
+                Text(
+                  "Room",
 
-    decoration: BoxDecoration(
-      color: Colors.white,
+                  overflow: TextOverflow.ellipsis,
 
-      borderRadius: BorderRadius.circular(17),
-
-      boxShadow: [
-        BoxShadow(
-          color: primaryColor.withOpacity(0.07),
-          blurRadius: 10,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-
-    child: Row(
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-
-          decoration: BoxDecoration(
-            color: lightSecondaryColor,
-
-            borderRadius: BorderRadius.circular(9),
-          ),
-
-          child: const Icon(Icons.home_outlined, size: 23, color: primaryColor),
-        ),
-
-        const SizedBox(width: 9),
-
-        const Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Text(
-                "Filters",
-
-                style: TextStyle(color: Color(0xFF6F6F6F), fontSize: 11),
-              ),
-
-              SizedBox(height: 3),
-
-              Text(
-                "Rooms",
-
-                style: TextStyle(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 15,
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
