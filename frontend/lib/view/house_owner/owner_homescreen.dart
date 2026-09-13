@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 const Color ownerPrimaryColor = Color(0xFF03045E);
-const Color ownerBackgroundColor = Color(0xFFF4FCFE);
+const Color ownerBackgroundColor = Color.fromARGB(255, 242, 242, 242);
 const Color ownerLightSecondaryColor = Color(0xFFE6F9FC);
 
 class OwnerHomeScreen extends StatefulWidget {

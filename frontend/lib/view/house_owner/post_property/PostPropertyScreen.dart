@@ -55,7 +55,7 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
       final bool isEditMode = controller.isEditMode.value;
 
       return Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 242, 242, 242),
 
         appBar: AppBar(
           title: Text(
@@ -68,7 +68,7 @@ class _PostpropertyscreenState extends State<Postpropertyscreen> {
           ),
 
           centerTitle: true,
-          backgroundColor: Colors.white,
+          backgroundColor:Color.fromARGB(255, 242, 242, 242),
           elevation: 0,
 
           iconTheme: const IconThemeData(color: primaryColor),

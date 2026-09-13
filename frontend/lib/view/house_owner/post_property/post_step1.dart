@@ -38,7 +38,7 @@ class PostStep1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Color.fromARGB(255, 242, 242, 242),
 
       child: Padding(
         padding: const EdgeInsets.all(8),

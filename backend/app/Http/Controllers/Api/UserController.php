@@ -15,49 +15,49 @@ class UserController extends Controller
     {
         $request->validate([
             'firebase_uid' =>
-                'required|string|unique:users,firebase_uid',
+            'required|string|unique:users,firebase_uid',
 
             'name' =>
-                'required|string',
+            'required|string',
 
             'email' =>
-                'required|email|unique:users,email',
+            'required|email|unique:users,email',
 
             'phone' =>
-                'nullable|string',
+            'nullable|string',
 
             'role' =>
-                'required|in:renter,house_owner',
+            'required|in:renter,house_owner',
         ]);
 
         $user = User::create([
             'firebase_uid' =>
-                $request->firebase_uid,
+            $request->firebase_uid,
 
             'name' =>
-                $request->name,
+            $request->name,
 
             'email' =>
-                $request->email,
+            $request->email,
 
             'phone' =>
-                $request->phone,
+            $request->phone,
 
             'role' =>
-                $request->role,
+            $request->role,
 
             'status' =>
-                'active',
+            'active',
         ]);
 
         return response()->json([
             'success' => true,
 
             'message' =>
-                'User created successfully',
+            'User created successfully',
 
             'user' =>
-                $user,
+            $user,
         ], 201);
     }
 
@@ -73,7 +73,7 @@ class UserController extends Controller
             return response()->json([
                 'success' => false,
                 'message' =>
-                    'User not found',
+                'User not found',
             ], 404);
         }
 
@@ -91,10 +91,10 @@ class UserController extends Controller
             'success' => true,
 
             'message' =>
-                'Get authenticated user successfully',
+            'Get authenticated user successfully',
 
             'user' =>
-                $user,
+            $user,
         ], 200);
     }
 
@@ -110,7 +110,7 @@ class UserController extends Controller
                 'success' => false,
 
                 'message' =>
-                    'Authentication token is missing',
+                'Authentication token is missing',
             ], 401);
         }
 
@@ -122,8 +122,8 @@ class UserController extends Controller
 
             $firebaseUid =
                 $verifiedToken
-                    ->claims()
-                    ->get('sub');
+                ->claims()
+                ->get('sub');
 
             $user = User::where(
                 'firebase_uid',
@@ -137,10 +137,10 @@ class UserController extends Controller
                 ) {
                     return response()->json([
                         'success' =>
-                            false,
+                        false,
 
                         'message' =>
-                            'Your account has been suspended',
+                        'Your account has been suspended',
                     ], 403);
                 }
 
@@ -150,7 +150,7 @@ class UserController extends Controller
                     'exists' => true,
 
                     'user' =>
-                        $user,
+                    $user,
                 ], 200);
             }
 
@@ -160,14 +160,14 @@ class UserController extends Controller
                 'exists' => false,
 
                 'message' =>
-                    'Please select your account type',
+                'Please select your account type',
             ], 200);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Invalid or expired authentication token',
+                'Invalid or expired authentication token',
             ], 401);
         }
     }
@@ -178,7 +178,7 @@ class UserController extends Controller
     ) {
         $request->validate([
             'role' =>
-                'required|in:renter,house_owner',
+            'required|in:renter,house_owner',
         ]);
 
         $token =
@@ -189,7 +189,7 @@ class UserController extends Controller
                 'success' => false,
 
                 'message' =>
-                    'Authentication token is missing',
+                'Authentication token is missing',
             ], 401);
         }
 
@@ -201,8 +201,8 @@ class UserController extends Controller
 
             $firebaseUid =
                 $verifiedToken
-                    ->claims()
-                    ->get('sub');
+                ->claims()
+                ->get('sub');
 
             $firebaseUser =
                 $auth->getUser(
@@ -220,10 +220,10 @@ class UserController extends Controller
                     'success' => true,
 
                     'message' =>
-                        'User already exists',
+                    'User already exists',
 
                     'user' =>
-                        $existingUser,
+                    $existingUser,
                 ], 200);
             }
 
@@ -232,7 +232,7 @@ class UserController extends Controller
                     'success' => false,
 
                     'message' =>
-                        'Email is required',
+                    'Email is required',
                 ], 422);
             }
 
@@ -247,48 +247,48 @@ class UserController extends Controller
                     'success' => false,
 
                     'message' =>
-                        'An account with this email already exists',
+                    'An account with this email already exists',
                 ], 409);
             }
 
             $user = User::create([
                 'firebase_uid' =>
-                    $firebaseUid,
+                $firebaseUid,
 
                 'name' =>
-                    $firebaseUser
-                        ->displayName ??
+                $firebaseUser
+                    ->displayName ??
                     'User',
 
                 'email' =>
-                    $firebaseUser->email,
+                $firebaseUser->email,
 
                 'phone' =>
-                    $firebaseUser
-                        ->phoneNumber,
+                $firebaseUser
+                    ->phoneNumber,
 
                 'role' =>
-                    $request->role,
+                $request->role,
 
                 'status' =>
-                    'active',
+                'active',
             ]);
 
             return response()->json([
                 'success' => true,
 
                 'message' =>
-                    'Account created successfully',
+                'Account created successfully',
 
                 'user' =>
-                    $user,
+                $user,
             ], 201);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Invalid or expired authentication token',
+                'Invalid or expired authentication token',
             ], 401);
         }
     }
@@ -298,7 +298,7 @@ class UserController extends Controller
     ) {
         $request->validate([
             'profile_image' =>
-                'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $user =
@@ -306,13 +306,13 @@ class UserController extends Controller
 
         $path =
             $request
-                ->file(
-                    'profile_image'
-                )
-                ->store(
-                    'profile_images',
-                    'public'
-                );
+            ->file(
+                'profile_image'
+            )
+            ->store(
+                'profile_images',
+                'public'
+            );
 
         $user->profile_image =
             $path;
@@ -323,13 +323,13 @@ class UserController extends Controller
             'success' => true,
 
             'message' =>
-                'Profile image updated successfully',
+            'Profile image updated successfully',
 
             'profile_image' =>
-                asset(
-                    'storage/' .
+            asset(
+                'storage/' .
                     $path
-                ),
+            ),
         ], 200);
     }
 
@@ -343,13 +343,13 @@ class UserController extends Controller
         if (
             !$user ||
             $user->role !==
-                'house_owner'
+            'house_owner'
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Unauthorized',
+                'Unauthorized',
             ], 403);
         }
 
@@ -357,10 +357,8 @@ class UserController extends Controller
             'success' => true,
 
             'has_national_id' =>
-                !empty(
-                    $user
-                        ->national_id_path
-                ),
+            !empty($user
+                ->national_id_path),
         ], 200);
     }
 
@@ -374,34 +372,34 @@ class UserController extends Controller
         if (
             !$user ||
             $user->role !==
-                'house_owner'
+            'house_owner'
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Unauthorized',
+                'Unauthorized',
             ], 403);
         }
 
         $request->validate([
             'national_id' =>
-                'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         $oldNationalIdPath =
             $user
-                ->national_id_path;
+            ->national_id_path;
 
         // Store National ID privately
         $newNationalIdPath =
             $request
-                ->file(
-                    'national_id'
-                )
-                ->store(
-                    'national_ids'
-                );
+            ->file(
+                'national_id'
+            )
+            ->store(
+                'national_ids'
+            );
 
         $user->national_id_path =
             $newNationalIdPath;
@@ -411,7 +409,7 @@ class UserController extends Controller
         if (
             $oldNationalIdPath &&
             $oldNationalIdPath !==
-                $newNationalIdPath
+            $newNationalIdPath
         ) {
             Storage::delete(
                 $oldNationalIdPath
@@ -422,10 +420,10 @@ class UserController extends Controller
             'success' => true,
 
             'message' =>
-                'National ID uploaded successfully.',
+            'National ID uploaded successfully.',
 
             'has_national_id' =>
-                true,
+            true,
         ], 200);
     }
 
@@ -440,13 +438,13 @@ class UserController extends Controller
         if (
             !$admin ||
             $admin->role !==
-                'admin'
+            'admin'
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Only admin can view National ID',
+                'Only admin can view National ID',
             ], 403);
         }
 
@@ -458,21 +456,19 @@ class UserController extends Controller
                 'success' => false,
 
                 'message' =>
-                    'This user is not a house owner',
+                'This user is not a house owner',
             ], 422);
         }
 
         if (
-            empty(
-                $user
-                    ->national_id_path
-            )
+            empty($user
+                ->national_id_path)
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'National ID has not been uploaded',
+                'National ID has not been uploaded',
             ], 404);
         }
 
@@ -488,7 +484,7 @@ class UserController extends Controller
                 'success' => false,
 
                 'message' =>
-                    'National ID file not found',
+                'National ID file not found',
             ], 404);
         }
 
@@ -515,13 +511,13 @@ class UserController extends Controller
         if (
             !$admin ||
             $admin->role !==
-                'admin'
+            'admin'
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Only admin can manage users',
+                'Only admin can manage users',
             ], 403);
         }
 
@@ -534,22 +530,22 @@ class UserController extends Controller
                     'house_owner',
                 ]
             )
-                ->orderBy(
-                    'created_at',
-                    'desc'
-                )
-                ->get();
+            ->orderBy(
+                'created_at',
+                'desc'
+            )
+            ->get();
 
         // Count submitted properties
         // for each house owner.
         $ownerIds =
             $users
-                ->where(
-                    'role',
-                    'house_owner'
-                )
-                ->pluck('id')
-                ->values();
+            ->where(
+                'role',
+                'house_owner'
+            )
+            ->pluck('id')
+            ->values();
 
         $propertyCounts =
             collect();
@@ -559,23 +555,23 @@ class UserController extends Controller
                 DB::table(
                     'properties'
                 )
-                    ->select(
-                        'owner_id',
-                        DB::raw(
-                            'COUNT(*) as total'
-                        )
+                ->select(
+                    'owner_id',
+                    DB::raw(
+                        'COUNT(*) as total'
                     )
-                    ->whereIn(
-                        'owner_id',
-                        $ownerIds
-                    )
-                    ->groupBy(
-                        'owner_id'
-                    )
-                    ->pluck(
-                        'total',
-                        'owner_id'
-                    );
+                )
+                ->whereIn(
+                    'owner_id',
+                    $ownerIds
+                )
+                ->groupBy(
+                    'owner_id'
+                )
+                ->pluck(
+                    'total',
+                    'owner_id'
+                );
         }
 
         $formattedUsers =
@@ -588,57 +584,55 @@ class UserController extends Controller
 
                     if (
                         $user
-                            ->profile_image
+                        ->profile_image
                     ) {
                         $profileImageUrl =
                             asset(
                                 'storage/' .
-                                $user
+                                    $user
                                     ->profile_image
                             );
                     }
 
                     return [
                         'id' =>
-                            $user->id,
+                        $user->id,
 
                         'name' =>
-                            $user->name,
+                        $user->name,
 
                         'email' =>
-                            $user->email,
+                        $user->email,
 
                         'phone' =>
-                            $user->phone,
+                        $user->phone,
 
                         'role' =>
-                            $user->role,
+                        $user->role,
 
                         'status' =>
-                            $user->status,
+                        $user->status,
 
                         'properties' =>
-                            $user->role ===
+                        $user->role ===
                             'house_owner'
-                                ? (int) (
-                                    $propertyCounts[
-                                        $user->id
-                                    ] ??
-                                    0
-                                )
-                                : 0,
+                            ? (int) (
+                                $propertyCounts[$user->id] ??
+                                0
+                            )
+                            : 0,
 
                         'profile_image' =>
-                            $profileImageUrl,
+                        $profileImageUrl,
 
                         'created_at' =>
-                            $user->created_at
-                                ? $user
-                                    ->created_at
-                                    ->format(
-                                        'd M Y'
-                                    )
-                                : null,
+                        $user->created_at
+                            ? $user
+                            ->created_at
+                            ->format(
+                                'd M Y'
+                            )
+                            : null,
                     ];
                 }
             );
@@ -647,10 +641,10 @@ class UserController extends Controller
             'success' => true,
 
             'count' =>
-                $formattedUsers->count(),
+            $formattedUsers->count(),
 
             'users' =>
-                $formattedUsers,
+            $formattedUsers,
         ], 200);
     }
 
@@ -665,13 +659,13 @@ class UserController extends Controller
         if (
             !$admin ||
             $admin->role !==
-                'admin'
+            'admin'
         ) {
             return response()->json([
                 'success' => false,
 
                 'message' =>
-                    'Only admin can update user status',
+                'Only admin can update user status',
             ], 403);
         }
 
@@ -685,14 +679,14 @@ class UserController extends Controller
                 'success' => false,
 
                 'message' =>
-                    'Admin accounts cannot be suspended',
+                'Admin accounts cannot be suspended',
             ], 422);
         }
 
         $validated =
             $request->validate([
                 'status' =>
-                    'required|in:active,suspended',
+                'required|in:active,suspended',
             ]);
 
         $user->status =
@@ -704,18 +698,40 @@ class UserController extends Controller
             'success' => true,
 
             'message' =>
-                $user->status ===
+            $user->status ===
                 'suspended'
-                    ? 'User account suspended successfully.'
-                    : 'User account restored successfully.',
+                ? 'User account suspended successfully.'
+                : 'User account restored successfully.',
 
             'user' => [
                 'id' =>
-                    $user->id,
+                $user->id,
 
                 'status' =>
-                    $user->status,
+                $user->status,
             ],
+        ], 200);
+    }
+
+    // Update User
+    public function updateMe(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:30',
+        ]);
+
+        $user = $request->user();
+
+        $user->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully',
+            'user' => $user->fresh(),
         ], 200);
     }
 }

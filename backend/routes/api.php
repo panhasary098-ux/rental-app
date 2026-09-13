@@ -167,3 +167,9 @@ Route::middleware('firebase.auth')->get(
     '/admin/properties/{property}/payment-proof',
     [AdminPropertyController::class, 'viewPaymentProof']
 );
+
+// Update User
+Route::put(
+    '/me',
+    [UserController::class, 'updateMe']
+);

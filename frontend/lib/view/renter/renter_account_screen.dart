@@ -7,146 +7,24 @@ import 'package:get/get.dart';
 class RenterAccountScreen extends StatelessWidget {
   RenterAccountScreen({super.key});
 
-  final RenterAccountController controller = Get.put(RenterAccountController());
-
-  void showSuccessNotification({
-    required String title,
-    required String message,
-  }) {
-    Get.snackbar(
-      '',
-      '',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      borderRadius: 18,
-      borderColor: const Color(0xFFE5E7EB),
-      borderWidth: 1,
-      duration: const Duration(seconds: 3),
-      boxShadows: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.10),
-          blurRadius: 18,
-          offset: const Offset(0, 6),
-        ),
-      ],
-      icon: Container(
-        width: 36,
-        height: 36,
-        decoration: const BoxDecoration(
-          color: Color(0xFFEAF7EE),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.check_rounded,
-          color: Color(0xFF15803D),
-          size: 20,
-        ),
-      ),
-      titleText: Text(
-        title,
-        style: const TextStyle(
-          color: Color(0xFF15803D),
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      messageText: Text(
-        message,
-        style: const TextStyle(
-          color: Color(0xFF6B7280),
-          fontSize: 13,
-          height: 1.35,
-        ),
-      ),
-      mainButton: TextButton(
-        onPressed: () {
-          Get.closeCurrentSnackbar();
-        },
-        child: const Icon(
-          Icons.close_rounded,
-          color: Color(0xFF9CA3AF),
-          size: 21,
-        ),
-      ),
-    );
-  }
-
-  void showErrorNotification({required String title, required String message}) {
-    Get.snackbar(
-      '',
-      '',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      borderRadius: 18,
-      borderColor: const Color(0xFFF3D2D2),
-      borderWidth: 1,
-      duration: const Duration(seconds: 3),
-      boxShadows: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.10),
-          blurRadius: 18,
-          offset: const Offset(0, 6),
-        ),
-      ],
-      icon: Container(
-        width: 36,
-        height: 36,
-        decoration: const BoxDecoration(
-          color: Color(0xFFFDECEC),
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(
-          Icons.priority_high_rounded,
-          color: Color(0xFFDC2626),
-          size: 20,
-        ),
-      ),
-      titleText: Text(
-        title,
-        style: const TextStyle(
-          color: Color(0xFFDC2626),
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      messageText: Text(
-        message,
-        style: const TextStyle(
-          color: Color(0xFF6B7280),
-          fontSize: 13,
-          height: 1.35,
-        ),
-      ),
-      mainButton: TextButton(
-        onPressed: () {
-          Get.closeCurrentSnackbar();
-        },
-        child: const Icon(
-          Icons.close_rounded,
-          color: Color(0xFF9CA3AF),
-          size: 21,
-        ),
-      ),
-    );
-  }
+  final RenterAccountController controller =
+      Get.put(RenterAccountController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Color(0xFFF8FAFC),
+      resizeToAvoidBottomInset: false,
 
+      // App Bar
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: Color(0xFFF8FAFC),
         elevation: 0,
         scrolledUnderElevation: 0,
         titleSpacing: 20,
 
-        title: const Text(
+        title: Text(
           "Account",
           style: TextStyle(
             fontSize: 24,
@@ -157,194 +35,329 @@ class RenterAccountScreen extends StatelessWidget {
 
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(
+            onPressed: () {
+              showSettings();
+            },
+
+            icon: Icon(
               Icons.settings_outlined,
               size: 25,
               color: Color(0xFF03045E),
             ),
           ),
 
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
         ],
       ),
 
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xFF03045E)),
-          );
-        }
+      // Body
+      body: Obx(
+        () {
+          if (controller.isLoading.value) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF03045E),
+              ),
+            );
+          }
 
-        return SafeArea(
-          top: false,
+          return SafeArea(
+            top: false,
 
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                18,
+                8,
+                18,
+                20,
+              ),
 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              child: Column(
+                children: [
+                  // Profile
+                  buildProfileCard(),
 
-              children: [
-                buildProfileCard(),
+                  SizedBox(height: 16),
 
-                const SizedBox(height: 28),
+                  // Account
+                  Align(
+                    alignment: Alignment.centerLeft,
 
-                buildSectionTitle("Account"),
-
-                const SizedBox(height: 10),
-
-                buildMenuCard(
-                  children: [
-                    buildMenuItem(
-                      icon: Icons.person_outline_rounded,
-                      title: "Personal Information",
-                      onTap: () {},
+                    child: buildSectionTitle(
+                      "Account",
                     ),
+                  ),
 
-                    buildDivider(),
+                  SizedBox(height: 8),
 
-                    buildMenuItem(
-                      icon: Icons.favorite_border_rounded,
-                      title: "Saved Properties",
-                      onTap: () {},
-                    ),
+                  buildMenuCard(
+                    children: [
+                      buildMenuItem(
+                        icon:
+                            Icons.person_outline_rounded,
+                        title:
+                            "Personal Information",
 
-                    buildDivider(),
-
-                    buildMenuItem(
-                      icon: Icons.notifications_none_rounded,
-                      title: "Notifications",
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 28),
-
-                buildSectionTitle("Support"),
-
-                const SizedBox(height: 10),
-
-                buildMenuCard(
-                  children: [
-                    buildMenuItem(
-                      icon: Icons.help_outline_rounded,
-                      title: "Help Center",
-                      onTap: () {},
-                    ),
-
-                    buildDivider(),
-
-                    buildMenuItem(
-                      icon: Icons.info_outline_rounded,
-                      title: "About Us",
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 30),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      showLogoutDialog();
-                    },
-
-                    icon: const Icon(Icons.logout_rounded, size: 20),
-
-                    label: const Text(
-                      "Log out",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFEF4444),
-                      backgroundColor: Colors.white,
-
-                      side: BorderSide(
-                        color: const Color(0xFFEF4444).withOpacity(0.45),
-                        width: 1.2,
+                        onTap: () {
+                          showEditProfile();
+                        },
                       ),
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      buildDivider(),
+
+                      buildMenuItem(
+                        icon:
+                            Icons.favorite_border_rounded,
+                        title:
+                            "Saved Properties",
+
+                        onTap: () {
+                          showNotReady(
+                            "Saved Properties",
+                          );
+                        },
+                      ),
+
+                      buildDivider(),
+
+                      buildMenuItem(
+                        icon: Icons
+                            .notifications_none_rounded,
+                        title:
+                            "Notifications",
+
+                        onTap: () {
+                          showNotReady(
+                            "Notifications",
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 14),
+
+                  // Support
+                  Align(
+                    alignment: Alignment.centerLeft,
+
+                    child: buildSectionTitle(
+                      "Support",
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  buildMenuCard(
+                    children: [
+                      buildMenuItem(
+                        icon:
+                            Icons.help_outline_rounded,
+                        title: "Help Center",
+
+                        onTap: () {
+                          showHelpCenter();
+                        },
+                      ),
+
+                      buildDivider(),
+
+                      buildMenuItem(
+                        icon:
+                            Icons.info_outline_rounded,
+                        title: "About Us",
+
+                        onTap: () {
+                          showAboutUs();
+                        },
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(height: 28),
+
+                  // Logout
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        showLogoutDialog();
+                      },
+
+                      icon: Icon(
+                        Icons.logout_rounded,
+                        size: 19,
+                      ),
+
+                      label: Text(
+                        "Log out",
+
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      style:
+                          OutlinedButton.styleFrom(
+                        foregroundColor:
+                            Color(0xFFEF4444),
+
+                        backgroundColor:
+                            Colors.white,
+
+                        side: BorderSide(
+                          color:
+                              Color(0xFFEF4444)
+                                  .withValues(
+                            alpha: 0.45,
+                          ),
+
+                          width: 1.2,
+                        ),
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(
+                            14,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
+  // Profile
   Widget buildProfileCard() {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+      padding: EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 18,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(
+          22,
+        ),
 
-        border: Border.all(color: Colors.grey.withOpacity(0.15)),
+        border: Border.all(
+          color: Color(0xFFE8EAF0),
+        ),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(
+              alpha: 0.05,
+            ),
+
+            blurRadius: 18,
+
+            offset: Offset(
+              0,
+              6,
+            ),
           ),
         ],
       ),
 
       child: Row(
         children: [
+          // Profile Image
           Stack(
             clipBehavior: Clip.none,
 
             children: [
               Obx(
                 () => Container(
-                  width: 70,
-                  height: 70,
+                  width: 98,
+                  height: 98,
 
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE8E9FF),
-                    shape: BoxShape.circle,
+                  decoration: BoxDecoration(
+                    color:
+                        Color(0xFFE8E9FF),
+
+                    shape:
+                        BoxShape.circle,
+
+                    border: Border.all(
+                      color:
+                          Colors.white,
+
+                      width: 4,
+                    ),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            Color(0xFF03045E)
+                                .withValues(
+                          alpha: 0.10,
+                        ),
+
+                        blurRadius: 14,
+
+                        offset: Offset(
+                          0,
+                          5,
+                        ),
+                      ),
+                    ],
                   ),
 
-                  clipBehavior: Clip.antiAlias,
+                  clipBehavior:
+                      Clip.antiAlias,
 
-                  child: controller.profileImage.value.isNotEmpty
+                  child: controller
+                          .profileImage
+                          .value
+                          .isNotEmpty
                       ? Image.network(
-                          getProfileImageUrl(controller.profileImage.value),
+                          getProfileImageUrl(
+                            controller
+                                .profileImage
+                                .value,
+                          ),
 
-                          width: 70,
-                          height: 70,
-                          fit: BoxFit.cover,
+                          fit:
+                              BoxFit.cover,
 
-                          errorBuilder: (context, error, stackTrace) {
+                          errorBuilder: (
+                            context,
+                            error,
+                            stackTrace,
+                          ) {
                             return Center(
                               child: Text(
-                                controller.getInitials(),
+                                controller
+                                    .getInitials(),
 
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF03045E),
+                                style:
+                                    TextStyle(
+                                  fontSize:
+                                      30,
+
+                                  fontWeight:
+                                      FontWeight
+                                          .bold,
+
+                                  color:
+                                      Color(
+                                    0xFF03045E,
+                                  ),
                                 ),
                               ),
                             );
@@ -352,52 +365,90 @@ class RenterAccountScreen extends StatelessWidget {
                         )
                       : Center(
                           child: Text(
-                            controller.getInitials(),
+                            controller
+                                .getInitials(),
 
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF03045E),
+                            style:
+                                TextStyle(
+                              fontSize:
+                                  30,
+
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
+
+                              color:
+                                  Color(
+                                0xFF03045E,
+                              ),
                             ),
                           ),
                         ),
                 ),
               ),
 
+              // Camera
               Positioned(
-                right: -1,
-                bottom: -1,
+                right: 0,
+                bottom: 1,
 
-                child: GestureDetector(
+                child:
+                    GestureDetector(
                   onTap: () {
-                    controller.pickProfileImage();
+                    controller
+                        .pickProfileImage();
                   },
 
                   child: Obx(
                     () => Container(
-                      width: 25,
-                      height: 25,
+                      width: 32,
+                      height: 32,
 
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF03045E),
-                        shape: BoxShape.circle,
+                      decoration:
+                          BoxDecoration(
+                        color: Color(
+                          0xFF03045E,
+                        ),
 
-                        border: Border.all(color: Colors.white, width: 2),
+                        shape:
+                            BoxShape.circle,
+
+                        border:
+                            Border.all(
+                          color:
+                              Colors.white,
+
+                          width: 3,
+                        ),
                       ),
 
-                      child: controller.isUploadingImage.value
-                          ? const Padding(
-                              padding: EdgeInsets.all(6),
+                      child: controller
+                              .isUploadingImage
+                              .value
+                          ? Padding(
+                              padding:
+                                  EdgeInsets
+                                      .all(
+                                7,
+                              ),
 
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                              child:
+                                  CircularProgressIndicator(
+                                strokeWidth:
+                                    2,
+
+                                color:
+                                    Colors.white,
                               ),
                             )
-                          : const Icon(
-                              Icons.camera_alt_outlined,
-                              size: 12,
-                              color: Colors.white,
+                          : Icon(
+                              Icons
+                                  .camera_alt_rounded,
+
+                              size: 15,
+
+                              color:
+                                  Colors.white,
                             ),
                     ),
                   ),
@@ -406,125 +457,201 @@ class RenterAccountScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(width: 14),
+          SizedBox(width: 18),
 
+          // User Info
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
+                // Name
                 Obx(
                   () => Text(
                     controller.name.value,
 
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
 
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF03045E),
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
+                      fontSize: 19,
+
+                      fontWeight:
+                          FontWeight.w800,
+
+                      color:
+                          Color(0xFF111827),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                SizedBox(height: 5),
 
+                // Email
                 Obx(
                   () => Text(
                     controller.email.value,
 
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
 
-                    style: const TextStyle(
+                    overflow:
+                        TextOverflow.ellipsis,
+
+                    style: TextStyle(
                       fontSize: 12,
-                      color: Color(0xFF667085),
+
+                      color:
+                          Color(0xFF667085),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 7),
+                SizedBox(height: 10),
 
+                // Role
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                  padding:
+                      EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
                   ),
 
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8E9FF),
-                    borderRadius: BorderRadius.circular(20),
+                  decoration:
+                      BoxDecoration(
+                    color:
+                        Color(0xFFE8E9FF),
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      20,
+                    ),
                   ),
 
                   child: Obx(
                     () => Text(
-                      formatRole(controller.role.value),
+                      formatRole(
+                        controller.role.value,
+                      ),
 
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF03045E),
+                      style: TextStyle(
+                        fontSize: 11,
+
+                        fontWeight:
+                            FontWeight.w700,
+
+                        color:
+                            Color(0xFF03045E),
                       ),
                     ),
                   ),
                 ),
+
+                SizedBox(height: 10),
+
+                // Edit Profile
+                GestureDetector(
+                  onTap: () {
+                    showEditProfile();
+                  },
+
+                  child: Row(
+                    mainAxisSize:
+                        MainAxisSize.min,
+
+                    children: [
+                      Icon(
+                        Icons.edit_outlined,
+
+                        size: 15,
+
+                        color:
+                            Color(0xFF03045E),
+                      ),
+
+                      SizedBox(width: 5),
+
+                      Text(
+                        "Edit profile",
+
+                        style: TextStyle(
+                          fontSize: 12,
+
+                          fontWeight:
+                              FontWeight.w700,
+
+                          color:
+                              Color(
+                            0xFF03045E,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-
-          const SizedBox(width: 8),
-
-          const Icon(
-            Icons.chevron_right_rounded,
-            size: 27,
-            color: Color(0xFF667085),
           ),
         ],
       ),
     );
   }
 
-  Widget buildSectionTitle(String title) {
+  // Section Title
+  Widget buildSectionTitle(
+    String title,
+  ) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2),
+      padding: EdgeInsets.only(
+        left: 2,
+      ),
 
       child: Text(
         title,
 
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF03045E),
+        style: TextStyle(
+          fontSize: 15,
+
+          fontWeight:
+              FontWeight.bold,
+
+          color:
+              Color(0xFF03045E),
         ),
       ),
     );
   }
 
-  Widget buildMenuCard({required List<Widget> children}) {
+  // Menu Card
+  Widget buildMenuCard({
+    required List<Widget> children,
+  }) {
     return Container(
       width: double.infinity,
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(
+          16,
+        ),
 
-        border: Border.all(color: Colors.grey.withOpacity(0.15)),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(
+          color:
+              Color(0xFFE8EAF0),
+        ),
       ),
 
-      child: Column(children: children),
+      child: Column(
+        children: children,
+      ),
     );
   }
 
+  // Menu Item
   Widget buildMenuItem({
     required IconData icon,
     required String title,
@@ -533,37 +660,66 @@ class RenterAccountScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(16),
-
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
+        padding:
+            EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 11,
+        ),
 
         child: Row(
           children: [
-            SizedBox(
-              width: 30,
+            Container(
+              width: 36,
+              height: 36,
 
-              child: Icon(icon, size: 23, color: const Color(0xFF03045E)),
+              decoration:
+                  BoxDecoration(
+                color:
+                    Color(0xFFF0F1FF),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  11,
+                ),
+              ),
+
+              child: Icon(
+                icon,
+
+                size: 20,
+
+                color:
+                    Color(0xFF03045E),
+              ),
             ),
 
-            const SizedBox(width: 12),
+            SizedBox(width: 13),
 
             Expanded(
               child: Text(
                 title,
 
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF03045E),
+                style: TextStyle(
+                  fontSize: 13,
+
+                  fontWeight:
+                      FontWeight.w600,
+
+                  color:
+                      Color(0xFF111827),
                 ),
               ),
             ),
 
-            const Icon(
-              Icons.chevron_right_rounded,
-              size: 23,
-              color: Color(0xFF98A2B3),
+            Icon(
+              Icons
+                  .chevron_right_rounded,
+
+              size: 22,
+
+              color:
+                  Color(0xFF98A2B3),
             ),
           ],
         ),
@@ -571,143 +727,635 @@ class RenterAccountScreen extends StatelessWidget {
     );
   }
 
+  // Divider
   Widget buildDivider() {
     return Padding(
-      padding: const EdgeInsets.only(left: 57, right: 14),
+      padding: EdgeInsets.only(
+        left: 63,
+        right: 14,
+      ),
 
       child: Divider(
         height: 1,
+
         thickness: 0.7,
-        color: Colors.grey.withOpacity(0.18),
+
+        color:
+            Color(0xFFE5E7EB),
       ),
     );
   }
 
+  // Edit Profile
+  void showEditProfile() {
+    controller.nameController.text =
+        controller.name.value;
+
+    controller.phoneController.text =
+        controller.phone.value;
+
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          18,
+          20,
+          25,
+        ),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+              BorderRadius.vertical(
+            top: Radius.circular(
+              24,
+            ),
+          ),
+        ),
+
+        child: SafeArea(
+          top: false,
+
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min,
+
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 5,
+
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          Color(0xFFD1D5DB),
+
+                      borderRadius:
+                          BorderRadius.circular(
+                        20,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                Text(
+                  "Edit Profile",
+
+                  style: TextStyle(
+                    fontSize: 20,
+
+                    fontWeight:
+                        FontWeight.bold,
+
+                    color:
+                        Color(0xFF03045E),
+                  ),
+                ),
+
+                SizedBox(height: 20),
+
+                // Name
+                TextField(
+                  controller:
+                      controller.nameController,
+
+                  decoration:
+                      InputDecoration(
+                    labelText:
+                        "Full Name",
+
+                    prefixIcon:
+                        Icon(
+                      Icons
+                          .person_outline,
+                    ),
+
+                    border:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        12,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 14),
+
+                // Email
+                TextField(
+                  enabled: false,
+
+                  controller:
+                      TextEditingController(
+                    text:
+                        controller.email.value,
+                  ),
+
+                  decoration:
+                      InputDecoration(
+                    labelText:
+                        "Email",
+
+                    prefixIcon:
+                        Icon(
+                      Icons
+                          .email_outlined,
+                    ),
+
+                    filled: true,
+
+                    fillColor:
+                        Color(0xFFF3F4F6),
+
+                    border:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        12,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 14),
+
+                // Phone
+                TextField(
+                  controller:
+                      controller.phoneController,
+
+                  keyboardType:
+                      TextInputType.phone,
+
+                  decoration:
+                      InputDecoration(
+                    labelText:
+                        "Phone",
+
+                    prefixIcon:
+                        Icon(
+                      Icons
+                          .phone_outlined,
+                    ),
+
+                    border:
+                        OutlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(
+                        12,
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 22),
+
+                // Save
+                Obx(
+                  () => SizedBox(
+                    width:
+                        double.infinity,
+
+                    height: 50,
+
+                    child:
+                        ElevatedButton(
+                      onPressed: controller
+                              .isUpdating
+                              .value
+                          ? null
+                          : () async {
+                              bool
+                                  success =
+                                  await controller
+                                      .updateProfile();
+
+                              if (success) {
+                                Get.back();
+                              }
+                            },
+
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            Color(
+                          0xFF03045E,
+                        ),
+
+                        foregroundColor:
+                            Colors.white,
+
+                        elevation: 0,
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
+                        ),
+                      ),
+
+                      child: controller
+                              .isUpdating
+                              .value
+                          ? SizedBox(
+                              width: 22,
+                              height: 22,
+
+                              child:
+                                  CircularProgressIndicator(
+                                strokeWidth:
+                                    2,
+
+                                color:
+                                    Colors.white,
+                              ),
+                            )
+                          : Text(
+                              "Save Changes",
+
+                              style:
+                                  TextStyle(
+                                fontWeight:
+                                    FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+
+      isScrollControlled: true,
+    );
+  }
+
+  // Settings
+  void showSettings() {
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.all(
+          20,
+        ),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+              BorderRadius.vertical(
+            top: Radius.circular(
+              24,
+            ),
+          ),
+        ),
+
+        child: SafeArea(
+          top: false,
+
+          child: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons
+                      .person_outline,
+
+                  color:
+                      Color(0xFF03045E),
+                ),
+
+                title: Text(
+                  "Edit Profile",
+                ),
+
+                onTap: () {
+                  Get.back();
+
+                  showEditProfile();
+                },
+              ),
+
+              ListTile(
+                leading: Icon(
+                  Icons
+                      .logout_rounded,
+
+                  color:
+                      Color(0xFFDC2626),
+                ),
+
+                title: Text(
+                  "Log out",
+
+                  style: TextStyle(
+                    color:
+                        Color(0xFFDC2626),
+                  ),
+                ),
+
+                onTap: () {
+                  Get.back();
+
+                  showLogoutDialog();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      isScrollControlled: true,
+    );
+  }
+
+  // Help Center
+  void showHelpCenter() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor:
+            Colors.white,
+
+        title: Text(
+          "Help Center",
+
+          style: TextStyle(
+            color:
+                Color(0xFF03045E),
+
+            fontWeight:
+                FontWeight.bold,
+          ),
+        ),
+
+        content: Text(
+          "For support with your account or property listings, please contact the JoulNow support team.",
+        ),
+
+        actions: [
+          TextButton(
+            onPressed:
+                Get.back,
+
+            child:
+                Text("Close"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // About Us
+  void showAboutUs() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor:
+            Colors.white,
+
+        title: Text(
+          "About JoulNow",
+
+          style: TextStyle(
+            color:
+                Color(0xFF03045E),
+
+            fontWeight:
+                FontWeight.bold,
+          ),
+        ),
+
+        content: Text(
+          "JoulNow is a verified rental platform that helps renters find trusted rooms, houses, and apartments.",
+        ),
+
+        actions: [
+          TextButton(
+            onPressed:
+                Get.back,
+
+            child:
+                Text("Close"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Not Ready
+  void showNotReady(
+    String feature,
+  ) {
+    Get.snackbar(
+      feature,
+      "This feature will be available soon.",
+
+      snackPosition:
+          SnackPosition.TOP,
+
+      backgroundColor:
+          Color(0xFF03045E),
+
+      colorText:
+          Colors.white,
+    );
+  }
+
+  // Logout
   void showLogoutDialog() {
     Get.dialog(
       AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor:
+            Colors.white,
 
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            20,
+          ),
+        ),
 
-        contentPadding: const EdgeInsets.fromLTRB(24, 25, 24, 18),
+        contentPadding:
+            EdgeInsets.fromLTRB(
+          24,
+          25,
+          24,
+          18,
+        ),
 
         content: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize:
+              MainAxisSize.min,
 
           children: [
             Container(
               width: 58,
               height: 58,
 
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFE8E8),
-                shape: BoxShape.circle,
+              decoration:
+                  BoxDecoration(
+                color:
+                    Color(0xFFFFE8E8),
+
+                shape:
+                    BoxShape.circle,
               ),
 
-              child: const Icon(
+              child: Icon(
                 Icons.logout_rounded,
-                color: Color(0xFFDC2626),
+
+                color:
+                    Color(0xFFDC2626),
+
                 size: 27,
               ),
             ),
 
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
-            const Text(
+            Text(
               "Log out",
 
               style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF03045E),
+
+                fontWeight:
+                    FontWeight.bold,
+
+                color:
+                    Color(0xFF03045E),
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
-            const Text(
+            Text(
               "Are you sure you want to log out of your account?",
 
-              textAlign: TextAlign.center,
+              textAlign:
+                  TextAlign.center,
 
               style: TextStyle(
                 fontSize: 13,
+
                 height: 1.4,
-                color: Color(0xFF667085),
+
+                color:
+                    Color(0xFF667085),
               ),
             ),
           ],
         ),
 
-        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-
         actions: [
           Row(
             children: [
               Expanded(
-                child: TextButton(
+                child:
+                    TextButton(
                   onPressed: () {
                     Get.back();
                   },
 
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-
-                  child: const Text(
+                  child: Text(
                     "Cancel",
 
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF667085),
+                    style:
+                        TextStyle(
+                      fontWeight:
+                          FontWeight.w600,
+
+                      color:
+                          Color(
+                        0xFF667085,
+                      ),
                     ),
                   ),
                 ),
               ),
 
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
 
               Expanded(
-                child: ElevatedButton(
-                  onPressed: () async {
+                child:
+                    ElevatedButton(
+                  onPressed:
+                      () async {
                     Get.back();
 
                     try {
-                      await AuthService().logout();
+                      await AuthService()
+                          .logout();
 
-                      Get.offAll(() => LoginScreen());
-
-                      Future.delayed(const Duration(milliseconds: 200), () {
-                        showSuccessNotification(
-                          title: "Logged Out",
-                          message: "You have been logged out successfully.",
-                        );
-                      });
+                      Get.offAll(
+                        () =>
+                            LoginScreen(),
+                      );
                     } catch (e) {
-                      showErrorNotification(
-                        title: "Logout Failed",
-                        message: "Something went wrong. Please try again.",
+                      Get.snackbar(
+                        "Logout Failed",
+                        e.toString(),
+
+                        snackPosition:
+                            SnackPosition
+                                .TOP,
+
+                        backgroundColor:
+                            Colors.red,
+
+                        colorText:
+                            Colors.white,
                       );
                     }
                   },
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFDC2626),
-                    foregroundColor: Colors.white,
+                  style:
+                      ElevatedButton
+                          .styleFrom(
+                    backgroundColor:
+                        Color(
+                      0xFFDC2626,
+                    ),
+
+                    foregroundColor:
+                        Colors.white,
+
                     elevation: 0,
 
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(
+                        11,
+                      ),
                     ),
                   ),
 
-                  child: const Text(
+                  child: Text(
                     "Log out",
 
-                    style: TextStyle(fontWeight: FontWeight.w600),
+                    style:
+                        TextStyle(
+                      fontWeight:
+                          FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -719,6 +1367,7 @@ class RenterAccountScreen extends StatelessWidget {
   }
 }
 
+// Role
 String formatRole(String role) {
   if (role == "house_owner") {
     return "House Owner";
@@ -731,20 +1380,35 @@ String formatRole(String role) {
   return "Renter";
 }
 
-String getProfileImageUrl(String image) {
+// Profile Image URL
+String getProfileImageUrl(
+  String image,
+) {
   if (image.isEmpty) {
     return "";
   }
 
-  if (image.startsWith("http://127.0.0.1:8000")) {
-    return image.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
+  if (image.startsWith(
+    "http://127.0.0.1:8000",
+  )) {
+    return image.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
   }
 
-  if (image.startsWith("http://localhost:8000")) {
-    return image.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
+  if (image.startsWith(
+    "http://localhost:8000",
+  )) {
+    return image.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
   }
 
-  if (image.startsWith("http")) {
+  if (image.startsWith(
+    "http",
+  )) {
     return image;
   }
 
