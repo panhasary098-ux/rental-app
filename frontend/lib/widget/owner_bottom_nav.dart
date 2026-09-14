@@ -8,24 +8,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class OwnerBottomNav extends StatefulWidget {
-  OwnerBottomNav({super.key});
+  OwnerBottomNav({
+    super.key,
+  });
 
   @override
-  State<OwnerBottomNav> createState() => _OwnerBottomNavState();
+  State<OwnerBottomNav> createState() =>
+      _OwnerBottomNavState();
 }
 
-class _OwnerBottomNavState extends State<OwnerBottomNav> {
+class _OwnerBottomNavState
+    extends State<OwnerBottomNav> {
   int selectedIndex = 0;
 
-  // Used to rebuild My Properties after a new post
   int propertiesRefreshKey = 0;
 
-  final AuthService authService = AuthService();
+  final AuthService authService =
+      AuthService();
 
   bool isCheckingNationalId = false;
 
-  Future<void> changePage(int index) async {
-    // Post tab
+  // Change Page
+  Future<void> changePage(
+    int index,
+  ) async {
+    // Post
     if (index == 2) {
       await openPostProperty();
 
@@ -37,7 +44,7 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
     });
   }
 
-  // Check National ID before opening Post Property
+  // Open Post Property
   Future<void> openPostProperty() async {
     if (isCheckingNationalId) {
       return;
@@ -48,26 +55,31 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
         isCheckingNationalId = true;
       });
 
-      final bool hasNationalId = await authService.checkNationalIdStatus();
+      final bool hasNationalId =
+          await authService
+              .checkNationalIdStatus();
 
       if (!mounted) {
         return;
       }
 
+      // Verified Owner
       if (hasNationalId) {
-        final dynamic result = await Get.to(() => const Postpropertyscreen());
+        final dynamic result =
+            await Get.to(
+          () =>
+              const Postpropertyscreen(),
+        );
 
         if (!mounted) {
           return;
         }
 
-        // Property submitted successfully
+        // Property Submitted
         if (result == true) {
           setState(() {
-            // Select My Properties
             selectedIndex = 1;
 
-            // Force My Properties to reload from Laravel
             propertiesRefreshKey++;
           });
         }
@@ -75,22 +87,34 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
         return;
       }
 
-      await Get.to(() => const VerifyIdentityScreen());
+      // Verify Identity
+      await Get.to(
+        () =>
+            const VerifyIdentityScreen(),
+      );
     } catch (e) {
       if (!mounted) {
         return;
       }
 
-      String message = e.toString();
+      String message =
+          e.toString();
 
-      if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst("Exception: ", "");
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message =
+            message.replaceFirst(
+          "Exception: ",
+          "",
+        );
       }
 
       Get.snackbar(
         "Unable to Continue",
         message,
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
     } finally {
       if (mounted) {
@@ -102,14 +126,20 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4FCFE),
+      backgroundColor:
+          const Color(
+        0xFFF8FAFC,
+      ),
 
       body: IndexedStack(
         index: selectedIndex,
 
         children: [
+          // Home
           OwnerHomeScreen(
             onSeeAll: () {
               changePage(1);
@@ -120,95 +150,168 @@ class _OwnerBottomNavState extends State<OwnerBottomNav> {
             },
           ),
 
-          // My Properties
-          OwnerPropertiesScreen(key: ValueKey(propertiesRefreshKey)),
+          // Properties
+          OwnerPropertiesScreen(
+            key: ValueKey(
+              propertiesRefreshKey,
+            ),
+          ),
 
-          // Post opens separately
+          // Post
           const SizedBox(),
 
+          // Account
           OwnerAccountScreen(),
+
         ],
       ),
 
-      bottomNavigationBar: NavigationBarTheme(
-        data: NavigationBarThemeData(
-          indicatorColor: const Color(0xFF03045E),
+      bottomNavigationBar:
+          NavigationBarTheme(
+        data:
+            NavigationBarThemeData(
+          indicatorColor:
+              const Color(
+            0xFF03045E,
+          ),
 
-          iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return const IconThemeData(color: Colors.white, size: 25);
-            }
+          iconTheme:
+              WidgetStateProperty
+                  .resolveWith<
+                      IconThemeData>(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return const IconThemeData(
+                  color: Colors.white,
+                  size: 25,
+                );
+              }
 
-            return IconThemeData(
-              color: const Color(0xFF03045E).withOpacity(0.45),
+              return IconThemeData(
+                color:
+                    const Color(
+                  0xFF03045E,
+                ).withOpacity(
+                  0.45,
+                ),
 
-              size: 24,
-            );
-          }),
+                size: 24,
+              );
+            },
+          ),
 
-          labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-            if (states.contains(WidgetState.selected)) {
-              return const TextStyle(
-                color: Color(0xFF03045E),
+          labelTextStyle:
+              WidgetStateProperty
+                  .resolveWith<
+                      TextStyle>(
+            (states) {
+              if (states.contains(
+                WidgetState.selected,
+              )) {
+                return const TextStyle(
+                  color:
+                      Color(
+                    0xFF03045E,
+                  ),
+
+                  fontSize: 12,
+
+                  fontWeight:
+                      FontWeight
+                          .w700,
+                );
+              }
+
+              return TextStyle(
+                color:
+                    const Color(
+                  0xFF03045E,
+                ).withOpacity(
+                  0.50,
+                ),
 
                 fontSize: 12,
 
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                    FontWeight
+                        .w500,
               );
-            }
-
-            return TextStyle(
-              color: const Color(0xFF03045E).withOpacity(0.50),
-
-              fontSize: 12,
-
-              fontWeight: FontWeight.w500,
-            );
-          }),
+            },
+          ),
         ),
 
         child: NavigationBar(
           height: 70,
 
-          backgroundColor: Colors.white,
+          backgroundColor:
+              Colors.white,
 
           elevation: 5,
 
-          selectedIndex: selectedIndex,
+          selectedIndex:
+              selectedIndex,
 
-          onDestinationSelected: changePage,
+          onDestinationSelected:
+              changePage,
 
           destinations: const [
+            // Home
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
+              icon: Icon(
+                Icons.home_outlined,
+              ),
 
-              selectedIcon: Icon(Icons.home_rounded),
+              selectedIcon: Icon(
+                Icons.home_rounded,
+              ),
 
-              label: 'Home',
+              label: "Home",
             ),
 
+            // Properties
             NavigationDestination(
-              icon: Icon(Icons.home_work_outlined),
+              icon: Icon(
+                Icons
+                    .home_work_outlined,
+              ),
 
-              selectedIcon: Icon(Icons.home_work_rounded),
+              selectedIcon: Icon(
+                Icons
+                    .home_work_rounded,
+              ),
 
-              label: 'Properties',
+              label: "Properties",
             ),
 
+            // Post
             NavigationDestination(
-              icon: Icon(Icons.add_home_work_outlined),
+              icon: Icon(
+                Icons
+                    .add_home_work_outlined,
+              ),
 
-              selectedIcon: Icon(Icons.add_home_work_rounded),
+              selectedIcon: Icon(
+                Icons
+                    .add_home_work_rounded,
+              ),
 
-              label: 'Post',
+              label: "Post",
             ),
 
+            // Account
             NavigationDestination(
-              icon: Icon(Icons.person_outline_rounded),
+              icon: Icon(
+                Icons
+                    .person_outline_rounded,
+              ),
 
-              selectedIcon: Icon(Icons.person_rounded),
+              selectedIcon: Icon(
+                Icons.person_rounded,
+              ),
 
-              label: 'Account',
+              label: "Account",
             ),
           ],
         ),

@@ -1,175 +1,199 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\AdminPropertyController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\AuthController;
 
-// Create user
+// Register
+Route::post(
+    '/register',
+    [AuthController::class, 'register']
+);
+
+// Login
+Route::post(
+    '/login',
+    [AuthController::class, 'login']
+);
+
+// Social Login Sync
+Route::middleware('firebase.auth')->post(
+    '/auth/social-sync',
+    [UserController::class, 'socialSync']
+);
+
+// Social Registration
+Route::middleware('firebase.auth')->post(
+    '/auth/social-register',
+    [UserController::class, 'createSocialUser']
+);
+
+// Old Firebase User Create
 Route::post(
     '/users',
     [UserController::class, 'store']
 );
 
-// Get user by Firebase UID
+// Get User By Firebase UID
 Route::get(
     '/users/firebase/{firebaseUid}',
     [UserController::class, 'getByFirebaseUid']
 );
 
-// Get current logged-in user
-Route::middleware('firebase.auth')->get(
-    '/me',
-    [UserController::class, 'me']
-);
+// Protected
+Route::middleware('auth:sanctum')->group(function () {
 
-// Social login sync
-Route::post(
-    '/auth/social-sync',
-    [UserController::class, 'socialSync']
-);
+    // Current User
+    Route::get(
+        '/me',
+        [AuthController::class, 'me']
+    );
 
-// Social registration
-Route::post(
-    '/auth/social-register',
-    [UserController::class, 'createSocialUser']
-);
+    // Update User
+    Route::put(
+        '/me',
+        [UserController::class, 'updateMe']
+    );
 
-// Update profile image
-Route::middleware('firebase.auth')->post(
-    '/profile-image',
-    [UserController::class, 'updateProfileImage']
-);
+    // Logout
+    Route::post(
+        '/logout',
+        [AuthController::class, 'logout']
+    );
 
-// Submit property
-Route::middleware('firebase.auth')->post(
-    '/properties',
-    [PropertyController::class, 'store']
-);
+    // Profile Image
+    Route::post(
+        '/profile-image',
+        [UserController::class, 'updateProfileImage']
+    );
 
-// Get logged-in owner's properties
-Route::middleware('firebase.auth')->get(
-    '/owner/properties',
-    [PropertyController::class, 'myProperties']
-);
+    // Submit Property
+    Route::post(
+        '/properties',
+        [PropertyController::class, 'store']
+    );
 
-// Get properties visible to renters
-Route::middleware('firebase.auth')->get(
-    '/renter/properties',
-    [PropertyController::class, 'renterProperties']
-);
+    // Owner Properties
+    Route::get(
+        '/owner/properties',
+        [PropertyController::class, 'myProperties']
+    );
 
-// Get renter favorites
-Route::middleware('firebase.auth')->get(
-    '/renter/favorites',
-    [FavoriteController::class, 'index']
-);
+    // Renter Properties
+    Route::get(
+        '/renter/properties',
+        [PropertyController::class, 'renterProperties']
+    );
 
-// Add property to favorites
-Route::middleware('firebase.auth')->post(
-    '/renter/favorites/{property}',
-    [FavoriteController::class, 'store']
-);
+    // Get Favorites
+    Route::get(
+        '/renter/favorites',
+        [FavoriteController::class, 'index']
+    );
 
-// Remove property from favorites
-Route::middleware('firebase.auth')->delete(
-    '/renter/favorites/{property}',
-    [FavoriteController::class, 'destroy']
-);
+    // Add Favorite
+    Route::post(
+        '/renter/favorites/{property}',
+        [FavoriteController::class, 'store']
+    );
 
-// Update property rental status
-Route::middleware('firebase.auth')->patch(
-    '/properties/{property}/rental-status',
-    [PropertyController::class, 'updateRentalStatus']
-);
+    // Remove Favorite
+    Route::delete(
+        '/renter/favorites/{property}',
+        [FavoriteController::class, 'destroy']
+    );
 
-// Update property
-Route::middleware('firebase.auth')->put(
-    '/properties/{property}',
-    [PropertyController::class, 'updateProperty']
-);
+    // Update Rental Status
+    Route::patch(
+        '/properties/{property}/rental-status',
+        [PropertyController::class, 'updateRentalStatus']
+    );
 
-// Check owner National ID status
-Route::middleware('firebase.auth')->get(
-    '/owner/national-id/status',
-    [UserController::class, 'nationalIdStatus']
-);
+    // Update Property
+    Route::put(
+        '/properties/{property}',
+        [PropertyController::class, 'updateProperty']
+    );
 
-// Upload owner National ID
-Route::middleware('firebase.auth')->post(
-    '/owner/national-id',
-    [UserController::class, 'uploadNationalId']
-);
+    // National ID Status
+    Route::get(
+        '/owner/national-id/status',
+        [UserController::class, 'nationalIdStatus']
+    );
 
-// Admin view owner National ID
-Route::middleware('firebase.auth')->get(
-    '/admin/users/{user}/national-id',
-    [UserController::class, 'viewNationalId']
-);
+    // Upload National ID
+    Route::post(
+        '/owner/national-id',
+        [UserController::class, 'uploadNationalId']
+    );
 
-// Get pending properties for admin
-Route::middleware('firebase.auth')->get(
-    '/admin/properties/pending',
-    [AdminPropertyController::class, 'pendingProperties']
-);
+    // Admin View National ID
+    Route::get(
+        '/admin/users/{user}/national-id',
+        [UserController::class, 'viewNationalId']
+    );
 
-// Get approved properties for admin management
-Route::middleware('firebase.auth')->get(
-    '/admin/properties',
-    [AdminPropertyController::class, 'managedProperties']
-);
+    // Pending Properties
+    Route::get(
+        '/admin/properties/pending',
+        [AdminPropertyController::class, 'pendingProperties']
+    );
 
-// Update approved property post status
-Route::middleware('firebase.auth')->patch(
-    '/admin/properties/{property}/post-status',
-    [AdminPropertyController::class, 'updatePostStatus']
-);
+    // Managed Properties
+    Route::get(
+        '/admin/properties',
+        [AdminPropertyController::class, 'managedProperties']
+    );
 
-// Approve property
-Route::middleware('firebase.auth')->post(
-    '/admin/properties/{property}/approve',
-    [AdminPropertyController::class, 'approveProperty']
-);
+    // Update Post Status
+    Route::patch(
+        '/admin/properties/{property}/post-status',
+        [AdminPropertyController::class, 'updatePostStatus']
+    );
 
-// Reject property
-Route::middleware('firebase.auth')->post(
-    '/admin/properties/{property}/reject',
-    [AdminPropertyController::class, 'rejectProperty']
-);
+    // Approve Property
+    Route::post(
+        '/admin/properties/{property}/approve',
+        [AdminPropertyController::class, 'approveProperty']
+    );
 
-// Get renters and house owners for admin
-Route::middleware('firebase.auth')->get(
-    '/admin/users',
-    [UserController::class, 'adminUsers']
-);
+    // Reject Property
+    Route::post(
+        '/admin/properties/{property}/reject',
+        [AdminPropertyController::class, 'rejectProperty']
+    );
 
-// Suspend or restore a user account
-Route::middleware('firebase.auth')->patch(
-    '/admin/users/{user}/status',
-    [UserController::class, 'updateUserStatus']
-);
+    // Admin Users
+    Route::get(
+        '/admin/users',
+        [UserController::class, 'adminUsers']
+    );
 
-// Get admin dashboard summary
-Route::middleware('firebase.auth')->get(
-    '/admin/dashboard',
-    [AdminPropertyController::class, 'dashboardSummary']
-);
+    // Update User Status
+    Route::patch(
+        '/admin/users/{user}/status',
+        [UserController::class, 'updateUserStatus']
+    );
 
-// Admin view private ownership document
-Route::middleware('firebase.auth')->get(
-    '/admin/properties/{property}/ownership-document',
-    [AdminPropertyController::class, 'viewOwnershipDocument']
-);
+    // Dashboard
+    Route::get(
+        '/admin/dashboard',
+        [AdminPropertyController::class, 'dashboardSummary']
+    );
 
-// Admin view private payment proof
-Route::middleware('firebase.auth')->get(
-    '/admin/properties/{property}/payment-proof',
-    [AdminPropertyController::class, 'viewPaymentProof']
-);
+    // Ownership Document
+    Route::get(
+        '/admin/properties/{property}/ownership-document',
+        [AdminPropertyController::class, 'viewOwnershipDocument']
+    );
 
-// Update User
-Route::put(
-    '/me',
-    [UserController::class, 'updateMe']
-);
+    // Payment Proof
+    Route::get(
+        '/admin/properties/{property}/payment-proof',
+        [AdminPropertyController::class, 'viewPaymentProof']
+    );
+});

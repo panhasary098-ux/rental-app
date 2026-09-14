@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:final_project/service/admin_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:get/get.dart';
@@ -191,13 +190,15 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return value;
     }
 
-    final String text = value?.toString().toLowerCase() ?? "";
+    final String text =
+        value?.toString().toLowerCase() ?? "";
 
     return text == "1" || text == "true";
   }
 
   String formatSize(dynamic value) {
-    final double? size = double.tryParse(
+    final double? size =
+        double.tryParse(
       value?.toString() ?? "",
     );
 
@@ -230,7 +231,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
   String formatRentalStatus() {
     final String status =
-        property["rental_status"]?.toString().toLowerCase() ??
+        property["rental_status"]
+                ?.toString()
+                .toLowerCase() ??
             "available";
 
     if (status == "rented") {
@@ -249,15 +252,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }
 
   String getPrice() {
-    final dynamic rawPrice = property["raw_price"];
+    final dynamic rawPrice =
+        property["raw_price"];
 
     if (rawPrice != null) {
-      final double? value = double.tryParse(
+      final double? value =
+          double.tryParse(
         rawPrice.toString(),
       );
 
       if (value != null) {
-        if (value == value.roundToDouble()) {
+        if (value ==
+            value.roundToDouble()) {
           return value.toStringAsFixed(0);
         }
 
@@ -269,16 +275,26 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         property["price"]?.toString() ?? "";
 
     final RegExpMatch? match =
-        RegExp(r'[\d,.]+').firstMatch(formatted);
+        RegExp(r'[\d,.]+').firstMatch(
+      formatted,
+    );
 
     if (match != null) {
       final String number =
-          match.group(0)?.replaceAll(",", "") ?? "";
+          match
+                  .group(0)
+                  ?.replaceAll(
+                    ",",
+                    "",
+                  ) ??
+              "";
 
-      final double? value = double.tryParse(number);
+      final double? value =
+          double.tryParse(number);
 
       if (value != null) {
-        if (value == value.roundToDouble()) {
+        if (value ==
+            value.roundToDouble()) {
           return value.toStringAsFixed(0);
         }
 
@@ -292,10 +308,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   List<String> getPropertyImages() {
     final List<String> images = [];
 
-    final dynamic rawImages = property["images"];
+    final dynamic rawImages =
+        property["images"];
 
     if (rawImages is List) {
-      for (final dynamic item in rawImages) {
+      for (final dynamic item
+          in rawImages) {
         if (item is Map) {
           final dynamic rawUrl =
               item["image_url"] ??
@@ -303,7 +321,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               item["url"];
 
           if (rawUrl != null &&
-              rawUrl.toString().isNotEmpty) {
+              rawUrl
+                  .toString()
+                  .isNotEmpty) {
             images.add(
               getImageUrl(rawUrl),
             );
@@ -318,9 +338,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     if (images.isEmpty &&
         property["image"] != null &&
-        property["image"].toString().isNotEmpty) {
+        property["image"]
+            .toString()
+            .isNotEmpty) {
       images.add(
-        getImageUrl(property["image"]),
+        getImageUrl(
+          property["image"],
+        ),
       );
     }
 
@@ -347,6 +371,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return url;
   }
 
+  // Floor
   void floorList() {
     setState(() {
       showFloor = !showFloor;
@@ -359,20 +384,24 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       backgroundColor: backgroundColor,
 
       appBar: AppBar(
-        backgroundColor: backgroundColor,
+        backgroundColor:
+            backgroundColor,
         elevation: 0,
         centerTitle: true,
         scrolledUnderElevation: 0,
 
-        iconTheme: const IconThemeData(
+        iconTheme:
+            const IconThemeData(
           color: primaryColor,
         ),
 
         title: const Text(
           "Review Submission",
+
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.w600,
+            fontWeight:
+                FontWeight.w600,
             color: primaryColor,
           ),
         ),
@@ -384,12 +413,16 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           SizedBox(
             height: 300,
             width: double.infinity,
-            child: buildImageSlideshow(),
+            child:
+                buildImageSlideshow(),
           ),
 
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
+            child:
+                SingleChildScrollView(
+              padding:
+                  const EdgeInsets
+                      .fromLTRB(
                 16,
                 20,
                 16,
@@ -397,33 +430,47 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               ),
 
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start,
 
                 children: [
                   // Property Name
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .start,
 
                     children: [
                       Expanded(
                         child: Text(
-                          property["title"]?.toString() ??
-                              property["name"]?.toString() ??
+                          property["title"]
+                                  ?.toString() ??
+                              property["name"]
+                                  ?.toString() ??
                               "Property",
 
                           maxLines: 2,
 
-                          overflow: TextOverflow.ellipsis,
+                          overflow:
+                              TextOverflow
+                                  .ellipsis,
 
-                          style: const TextStyle(
+                          style:
+                              const TextStyle(
                             fontSize: 22,
-                            color: primaryColor,
-                            fontWeight: FontWeight.w900,
+                            color:
+                                primaryColor,
+                            fontWeight:
+                                FontWeight
+                                    .w900,
                           ),
                         ),
                       ),
 
-                      const SizedBox(width: 10),
+                      const SizedBox(
+                        width: 10,
+                      ),
 
                       buildStatusBadge(
                         formatRentalStatus(),
@@ -431,38 +478,58 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(
+                    height: 12,
+                  ),
 
                   // Location
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment:
+                        CrossAxisAlignment
+                            .end,
 
                     children: [
                       Expanded(
                         child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment:
+                              CrossAxisAlignment
+                                  .start,
 
                           children: [
                             const Icon(
-                              Icons.location_on_outlined,
-                              color: primaryColor,
+                              Icons
+                                  .location_on_outlined,
+                              color:
+                                  primaryColor,
                               size: 20,
                             ),
 
-                            const SizedBox(width: 3),
+                            const SizedBox(
+                              width: 3,
+                            ),
 
                             Expanded(
                               child: Text(
-                                property["location"]?.toString() ??
-                                    property["address"]?.toString() ??
+                                property["location"]
+                                        ?.toString() ??
+                                    property["address"]
+                                        ?.toString() ??
                                     "Unknown location",
 
-                                style: TextStyle(
-                                  fontSize: 15,
+                                style:
+                                    TextStyle(
+                                  fontSize:
+                                      15,
 
-                                  color: Colors.black.withOpacity(0.65),
+                                  color: Colors
+                                      .black
+                                      .withOpacity(
+                                    0.65,
+                                  ),
 
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight:
+                                      FontWeight
+                                          .w700,
                                 ),
                               ),
                             ),
@@ -470,39 +537,57 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         ),
                       ),
 
-                      const SizedBox(width: 12),
+                      const SizedBox(
+                        width: 12,
+                      ),
 
                       // Price
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .end,
 
                         children: [
                           Text(
                             "\$${getPrice()}",
 
-                            style: const TextStyle(
-                              fontSize: 23,
+                            style:
+                                const TextStyle(
+                              fontSize:
+                                  23,
 
-                              fontWeight: FontWeight.w800,
+                              fontWeight:
+                                  FontWeight
+                                      .w800,
 
-                              color: primaryColor,
+                              color:
+                                  primaryColor,
                             ),
                           ),
 
                           const Padding(
-                            padding: EdgeInsets.only(
-                              bottom: 3,
+                            padding:
+                                EdgeInsets
+                                    .only(
+                              bottom:
+                                  3,
                             ),
 
-                            child: Text(
+                            child:
+                                Text(
                               "/Month",
 
-                              style: TextStyle(
-                                fontSize: 13,
+                              style:
+                                  TextStyle(
+                                fontSize:
+                                    13,
 
-                                fontWeight: FontWeight.w600,
+                                fontWeight:
+                                    FontWeight
+                                        .w600,
 
-                                color: primaryColor,
+                                color:
+                                    primaryColor,
                               ),
                             ),
                           ),
@@ -511,17 +596,26 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(
+                    height: 20,
+                  ),
 
                   // Property Info
                   Container(
                     height: 1,
-                    width: double.infinity,
-                    color: secondaryColor.withOpacity(0.6),
+                    width:
+                        double.infinity,
+                    color:
+                        secondaryColor
+                            .withOpacity(
+                      0.6,
+                    ),
                   ),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding:
+                        const EdgeInsets
+                            .symmetric(
                       vertical: 13,
                     ),
 
@@ -529,48 +623,73 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                       spacing: 18,
                       runSpacing: 10,
 
-                      children: mainInfo.map((item) {
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
+                      children:
+                          mainInfo.map(
+                        (item) {
+                          return Row(
+                            mainAxisSize:
+                                MainAxisSize
+                                    .min,
 
-                          children: [
-                            Icon(
-                              item["icon"],
-                              size: 17,
-                              color: primaryColor,
-                            ),
-
-                            const SizedBox(width: 5),
-
-                            Text(
-                              item["text"],
-
-                              style: const TextStyle(
-                                fontSize: 13,
-
-                                color: primaryColor,
-
-                                fontWeight: FontWeight.w500,
+                            children: [
+                              Icon(
+                                item[
+                                    "icon"],
+                                size: 17,
+                                color:
+                                    primaryColor,
                               ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+
+                              const SizedBox(
+                                width:
+                                    5,
+                              ),
+
+                              Text(
+                                item[
+                                    "text"],
+
+                                style:
+                                    const TextStyle(
+                                  fontSize:
+                                      13,
+
+                                  color:
+                                      primaryColor,
+
+                                  fontWeight:
+                                      FontWeight
+                                          .w500,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ).toList(),
                     ),
                   ),
 
                   Container(
                     height: 1,
-                    width: double.infinity,
-                    color: secondaryColor.withOpacity(0.6),
+                    width:
+                        double.infinity,
+                    color:
+                        secondaryColor
+                            .withOpacity(
+                      0.6,
+                    ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   // Floor
                   buildFloorSection(),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(
+                    height: 15,
+                  ),
 
                   // Description
                   const Text(
@@ -579,27 +698,39 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     style: TextStyle(
                       fontSize: 17,
 
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                          FontWeight
+                              .w800,
 
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(height: 7),
+                  const SizedBox(
+                    height: 7,
+                  ),
 
                   Text(
-                    property["description"]?.toString() ?? "-",
+                    property[
+                                "description"]
+                            ?.toString() ??
+                        "-",
 
-                    style: const TextStyle(
+                    style:
+                        const TextStyle(
                       fontSize: 13,
 
-                      color: Colors.black87,
+                      color:
+                          Colors.black87,
 
                       height: 1.5,
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  const SizedBox(
+                    height: 18,
+                  ),
 
                   // Facilities
                   const Text(
@@ -608,17 +739,24 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     style: TextStyle(
                       fontSize: 17,
 
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                          FontWeight
+                              .w800,
 
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   buildFacilities(),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(
+                    height: 28,
+                  ),
 
                   // Owner Info
                   const Text(
@@ -627,17 +765,24 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     style: TextStyle(
                       fontSize: 17,
 
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                          FontWeight
+                              .w800,
 
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(
+                    height: 12,
+                  ),
 
                   buildOwnerInfoCard(),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(
+                    height: 28,
+                  ),
 
                   // Documents
                   Row(
@@ -646,75 +791,115 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         child: Text(
                           "Verification Documents",
 
-                          style: TextStyle(
-                            fontSize: 17,
+                          style:
+                              TextStyle(
+                            fontSize:
+                                17,
 
-                            fontWeight: FontWeight.w800,
+                            fontWeight:
+                                FontWeight
+                                    .w800,
 
-                            color: primaryColor,
+                            color:
+                                primaryColor,
                           ),
                         ),
                       ),
 
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
+                        padding:
+                            const EdgeInsets
+                                .symmetric(
+                          horizontal:
+                              10,
+                          vertical:
+                              5,
                         ),
 
-                        decoration: BoxDecoration(
-                          color: secondaryColor.withOpacity(0.20),
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              secondaryColor
+                                  .withOpacity(
+                            0.20,
+                          ),
 
-                          borderRadius: BorderRadius.circular(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
                             20,
                           ),
                         ),
 
-                        child: const Text(
+                        child:
+                            const Text(
                           "3 documents",
 
-                          style: TextStyle(
-                            fontSize: 11,
+                          style:
+                              TextStyle(
+                            fontSize:
+                                11,
 
-                            fontWeight: FontWeight.w600,
+                            fontWeight:
+                                FontWeight
+                                    .w600,
 
-                            color: primaryColor,
+                            color:
+                                primaryColor,
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 12),
-
-                  buildDocumentCard(
-                    title: "National ID",
-                    subtitle: "Owner identity verification",
-                    icon: Icons.badge_outlined,
-                    onTap: showNationalIdPreview,
+                  const SizedBox(
+                    height: 12,
                   ),
 
-                  const SizedBox(height: 12),
+                  buildDocumentCard(
+                    title:
+                        "National ID",
+                    subtitle:
+                        "Owner identity verification",
+                    icon:
+                        Icons.badge_outlined,
+                    onTap:
+                        showNationalIdPreview,
+                  ),
+
+                  const SizedBox(
+                    height: 12,
+                  ),
 
                   buildDocumentCard(
-                    title: "Property Ownership Document",
+                    title:
+                        "Property Ownership Document",
                     subtitle:
                         "Ownership / rental authorization evidence",
-                    icon: Icons.description_outlined,
-                    onTap: showOwnershipDocumentPreview,
+                    icon: Icons
+                        .description_outlined,
+                    onTap:
+                        showOwnershipDocumentPreview,
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(
+                    height: 12,
+                  ),
 
                   buildDocumentCard(
-                    title: "Payment Proof",
+                    title:
+                        "Payment Proof",
                     subtitle:
                         "Property posting fee payment evidence",
-                    icon: Icons.receipt_long_outlined,
-                    onTap: showPaymentProofPreview,
+                    icon: Icons
+                        .receipt_long_outlined,
+                    onTap:
+                        showPaymentProofPreview,
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(
+                    height: 28,
+                  ),
 
                   // Checklist
                   const Text(
@@ -723,51 +908,69 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     style: TextStyle(
                       fontSize: 17,
 
-                      fontWeight: FontWeight.w800,
+                      fontWeight:
+                          FontWeight
+                              .w800,
 
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(
+                    height: 5,
+                  ),
 
                   Text(
                     "Confirm each item before making a decision.",
 
-                    style: TextStyle(
+                    style:
+                        TextStyle(
                       fontSize: 12,
 
-                      color: Colors.black.withOpacity(
+                      color: Colors
+                          .black
+                          .withOpacity(
                         0.45,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(
+                    height: 12,
+                  ),
 
                   buildChecklistItem(
                     "Owner identity matches submitted information",
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   buildChecklistItem(
                     "Ownership document matches property information",
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   buildChecklistItem(
                     "Payment proof appears valid",
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   buildChecklistItem(
                     "Property details appear valid and complete",
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(
+                    height: 10,
+                  ),
 
                   buildChecklistItem(
                     "Submitted property images are appropriate",
@@ -779,7 +982,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ],
       ),
 
-      bottomNavigationBar: buildBottomButtons(),
+      bottomNavigationBar:
+          buildBottomButtons(),
     );
   }
 
@@ -790,11 +994,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     if (images.isEmpty) {
       return Container(
-        color: lightSecondaryColor,
+        color:
+            lightSecondaryColor,
 
         child: const Center(
           child: Icon(
-            Icons.home_work_outlined,
+            Icons
+                .home_work_outlined,
             size: 60,
             color: primaryColor,
           ),
@@ -808,39 +1014,52 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       initialPage: 0,
 
-      indicatorColor: primaryColor,
-      indicatorBackgroundColor: Colors.white70,
+      indicatorColor:
+          primaryColor,
+
+      indicatorBackgroundColor:
+          Colors.white70,
 
       autoPlayInterval:
-          images.length > 1 ? 3000 : 0,
+          images.length > 1
+              ? 3000
+              : 0,
 
-      isLoop: images.length > 1,
+      isLoop:
+          images.length > 1,
 
-      children: images.map((image) {
-        return Image.network(
-          image,
+      children:
+          images.map(
+        (image) {
+          return Image.network(
+            image,
 
-          fit: BoxFit.cover,
+            fit: BoxFit.cover,
 
-          errorBuilder: (
-            context,
-            error,
-            stackTrace,
-          ) {
-            return Container(
-              color: lightSecondaryColor,
+            errorBuilder: (
+              context,
+              error,
+              stackTrace,
+            ) {
+              return Container(
+                color:
+                    lightSecondaryColor,
 
-              child: const Icon(
-                Icons.home_work_outlined,
+                child:
+                    const Icon(
+                  Icons
+                      .home_work_outlined,
 
-                size: 55,
+                  size: 55,
 
-                color: primaryColor,
-              ),
-            );
-          },
-        );
-      }).toList(),
+                  color:
+                      primaryColor,
+                ),
+              );
+            },
+          );
+        },
+      ).toList(),
     );
   }
 
@@ -860,23 +1079,28 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         0xFF16A34A,
       );
 
-      icon = Icons.check_circle_rounded;
-    } else if (value == "rented") {
+      icon =
+          Icons.check_circle_rounded;
+    } else if (value ==
+        "rented") {
       color = const Color(
         0xFFDC2626,
       );
 
-      icon = Icons.cancel_rounded;
+      icon =
+          Icons.cancel_rounded;
     } else {
       color = const Color(
         0xFFF59E0B,
       );
 
-      icon = Icons.access_time_rounded;
+      icon =
+          Icons.access_time_rounded;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets.symmetric(
         horizontal: 10,
         vertical: 6,
       ),
@@ -884,11 +1108,15 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       decoration: BoxDecoration(
         color: color,
 
-        borderRadius: BorderRadius.circular(12),
+        borderRadius:
+            BorderRadius.circular(
+          12,
+        ),
       ),
 
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize:
+            MainAxisSize.min,
 
         children: [
           Icon(
@@ -897,17 +1125,23 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             size: 15,
           ),
 
-          const SizedBox(width: 4),
+          const SizedBox(
+            width: 4,
+          ),
 
           Text(
             status,
 
-            style: const TextStyle(
-              color: Colors.white,
+            style:
+                const TextStyle(
+              color:
+                  Colors.white,
 
               fontSize: 12,
 
-              fontWeight: FontWeight.w600,
+              fontWeight:
+                  FontWeight
+                      .w600,
             ),
           ),
         ],
@@ -918,12 +1152,15 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   // Floor
   Widget buildFloorSection() {
     if (totalFloor <= 0) {
-      return const SizedBox.shrink();
+      return const SizedBox
+          .shrink();
     }
 
     if (hasAvailableFloorList) {
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment
+                .start,
 
         children: [
           Row(
@@ -931,12 +1168,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               const Text(
                 "Floor",
 
-                style: TextStyle(
-                  fontSize: 17,
+                style:
+                    TextStyle(
+                  fontSize:
+                      17,
 
-                  fontWeight: FontWeight.w800,
+                  fontWeight:
+                      FontWeight
+                          .w800,
 
-                  color: primaryColor,
+                  color:
+                      primaryColor,
                 ),
               ),
 
@@ -945,23 +1187,30 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Text(
                 "$totalFloor Floors",
 
-                style: const TextStyle(
-                  color: Colors.black54,
-                  fontSize: 12,
+                style:
+                    const TextStyle(
+                  color:
+                      Colors.black54,
+                  fontSize:
+                      12,
                 ),
               ),
 
               IconButton(
-                onPressed: floorList,
+                onPressed:
+                    floorList,
 
                 icon: Icon(
                   showFloor
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
+                      ? Icons
+                          .keyboard_arrow_up
+                      : Icons
+                          .keyboard_arrow_down,
 
                   size: 25,
 
-                  color: primaryColor,
+                  color:
+                      primaryColor,
                 ),
               ),
             ],
@@ -970,144 +1219,196 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           Visibility(
             visible: showFloor,
 
-            child: hasFloorAvailabilityData
-                ? Container(
-                    constraints: const BoxConstraints(
-                      maxHeight: 220,
-                    ),
+            child:
+                hasFloorAvailabilityData
+                    ? Container(
+                        constraints:
+                            const BoxConstraints(
+                          maxHeight:
+                              220,
+                        ),
 
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              Colors.white,
 
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ),
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            12,
+                          ),
 
-                      border: Border.all(
-                        color: secondaryColor.withOpacity(
-                          0.5,
+                          border:
+                              Border.all(
+                            color:
+                                secondaryColor
+                                    .withOpacity(
+                              0.5,
+                            ),
+                          ),
+                        ),
+
+                        child:
+                            ListView
+                                .separated(
+                          shrinkWrap:
+                              true,
+
+                          padding:
+                              EdgeInsets
+                                  .zero,
+
+                          itemCount:
+                              totalFloor,
+
+                          separatorBuilder:
+                              (
+                            context,
+                            index,
+                          ) {
+                            return Container(
+                              height:
+                                  1,
+
+                              color:
+                                  secondaryColor
+                                      .withOpacity(
+                                0.4,
+                              ),
+                            );
+                          },
+
+                          itemBuilder:
+                              (
+                            context,
+                            index,
+                          ) {
+                            final int
+                                floor =
+                                index +
+                                    1;
+
+                            final bool
+                                available =
+                                availableFloors
+                                    .contains(
+                              floor,
+                            );
+
+                            return Padding(
+                              padding:
+                                  const EdgeInsets
+                                      .all(
+                                10,
+                              ),
+
+                              child:
+                                  Row(
+                                children: [
+                                  const Icon(
+                                    Icons.apartment,
+                                    size:
+                                        20,
+                                    color:
+                                        primaryColor,
+                                  ),
+
+                                  const SizedBox(
+                                    width:
+                                        6,
+                                  ),
+
+                                  Text(
+                                    "Floor $floor",
+
+                                    style:
+                                        const TextStyle(
+                                      fontSize:
+                                          14,
+
+                                      color:
+                                          primaryColor,
+
+                                      fontWeight:
+                                          FontWeight.w500,
+                                    ),
+                                  ),
+
+                                  const Spacer(),
+
+                                  Text(
+                                    available
+                                        ? "Available"
+                                        : "Not available",
+
+                                    style:
+                                        TextStyle(
+                                      fontSize:
+                                          13,
+
+                                      fontWeight: available
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+
+                                      color: available
+                                          ? const Color(
+                                              0xFF16A34A,
+                                            )
+                                          : Colors.black45,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Container(
+                        width:
+                            double.infinity,
+
+                        padding:
+                            const EdgeInsets
+                                .all(
+                          14,
+                        ),
+
+                        decoration:
+                            BoxDecoration(
+                          color:
+                              Colors.white,
+
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            12,
+                          ),
+
+                          border:
+                              Border.all(
+                            color:
+                                secondaryColor
+                                    .withOpacity(
+                              0.5,
+                            ),
+                          ),
+                        ),
+
+                        child:
+                            const Text(
+                          "Floor availability information is not available.",
+
+                          style:
+                              TextStyle(
+                            color:
+                                Colors.black54,
+
+                            fontSize:
+                                13,
+                          ),
                         ),
                       ),
-                    ),
-
-                    child: ListView.separated(
-                      shrinkWrap: true,
-
-                      padding: EdgeInsets.zero,
-
-                      itemCount: totalFloor,
-
-                      separatorBuilder: (
-                        context,
-                        index,
-                      ) {
-                        return Container(
-                          height: 1,
-
-                          color: secondaryColor.withOpacity(
-                            0.4,
-                          ),
-                        );
-                      },
-
-                      itemBuilder: (context, index) {
-                        final int floor =
-                            index + 1;
-
-                        final bool available =
-                            availableFloors.contains(
-                          floor,
-                        );
-
-                        return Padding(
-                          padding: const EdgeInsets.all(
-                            10,
-                          ),
-
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.apartment,
-
-                                size: 20,
-
-                                color: primaryColor,
-                              ),
-
-                              const SizedBox(
-                                width: 6,
-                              ),
-
-                              Text(
-                                "Floor $floor",
-
-                                style: const TextStyle(
-                                  fontSize: 14,
-
-                                  color: primaryColor,
-
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-
-                              const Spacer(),
-
-                              Text(
-                                available
-                                    ? "Available"
-                                    : "Not available",
-
-                                style: TextStyle(
-                                  fontSize: 13,
-
-                                  fontWeight: available
-                                      ? FontWeight.w600
-                                      : FontWeight.w400,
-
-                                  color: available
-                                      ? const Color(
-                                          0xFF16A34A,
-                                        )
-                                      : Colors.black45,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : Container(
-                    width: double.infinity,
-
-                    padding: const EdgeInsets.all(
-                      14,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ),
-
-                      border: Border.all(
-                        color: secondaryColor.withOpacity(
-                          0.5,
-                        ),
-                      ),
-                    ),
-
-                    child: const Text(
-                      "Floor availability information is not available.",
-
-                      style: TextStyle(
-                        color: Colors.black54,
-
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
           ),
         ],
       );
@@ -1121,7 +1422,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           style: TextStyle(
             fontSize: 17,
 
-            fontWeight: FontWeight.w800,
+            fontWeight:
+                FontWeight.w800,
 
             color: primaryColor,
           ),
@@ -1135,17 +1437,21 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           size: 19,
         ),
 
-        const SizedBox(width: 5),
+        const SizedBox(
+          width: 5,
+        ),
 
         Text(
           "$totalFloor ${totalFloor == 1 ? "Floor" : "Floors"}",
 
-          style: const TextStyle(
+          style:
+              const TextStyle(
             color: primaryColor,
 
             fontSize: 14,
 
-            fontWeight: FontWeight.w600,
+            fontWeight:
+                FontWeight.w600,
           ),
         ),
       ],
@@ -1162,17 +1468,26 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return Container(
         width: double.infinity,
 
-        padding: const EdgeInsets.all(16),
+        padding:
+            const EdgeInsets.all(
+          16,
+        ),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.circular(
+          borderRadius:
+              BorderRadius.circular(
             12,
           ),
 
           border: Border.all(
-            color: secondaryColor.withOpacity(0.4),
+            color:
+                secondaryColor
+                    .withOpacity(
+              0.4,
+            ),
           ),
         ),
 
@@ -1180,7 +1495,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           "No facilities listed",
 
           style: TextStyle(
-            color: Colors.black54,
+            color:
+                Colors.black54,
             fontSize: 13,
           ),
         ),
@@ -1190,56 +1506,78 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return SizedBox(
       height: 70,
 
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
+      child:
+          ListView.separated(
+        scrollDirection:
+            Axis.horizontal,
 
-        itemCount: facilities.length,
+        itemCount:
+            facilities.length,
 
         itemBuilder: (
           context,
           index,
         ) {
-          final Map<String, dynamic> item =
+          final Map<String, dynamic>
+              item =
               facilities[index];
 
           return Container(
-            padding: const EdgeInsets.symmetric(
+            padding:
+                const EdgeInsets
+                    .symmetric(
               horizontal: 13,
             ),
 
-            decoration: BoxDecoration(
-              color: lightSecondaryColor,
+            decoration:
+                BoxDecoration(
+              color:
+                  lightSecondaryColor,
 
-              borderRadius: BorderRadius.circular(
+              borderRadius:
+                  BorderRadius
+                      .circular(
                 13,
               ),
 
-              border: Border.all(
-                color: secondaryColor,
+              border:
+                  Border.all(
+                color:
+                    secondaryColor,
               ),
             ),
 
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment:
+                  MainAxisAlignment
+                      .center,
 
               children: [
                 Icon(
                   item["icon"],
                   size: 20,
-                  color: primaryColor,
+                  color:
+                      primaryColor,
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(
+                  height: 4,
+                ),
 
                 Text(
                   item["text"],
 
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style:
+                      const TextStyle(
+                    fontSize:
+                        12,
 
-                    color: primaryColor,
+                    color:
+                        primaryColor,
 
-                    fontWeight: FontWeight.w600,
+                    fontWeight:
+                        FontWeight
+                            .w600,
                   ),
                 ),
               ],
@@ -1247,7 +1585,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           );
         },
 
-        separatorBuilder: (
+        separatorBuilder:
+            (
           context,
           index,
         ) {
@@ -1264,15 +1603,25 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(16),
+      padding:
+          const EdgeInsets.all(
+        16,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(14),
+        borderRadius:
+            BorderRadius.circular(
+          14,
+        ),
 
         border: Border.all(
-          color: secondaryColor.withOpacity(0.4),
+          color:
+              secondaryColor
+                  .withOpacity(
+            0.4,
+          ),
         ),
       ),
 
@@ -1281,7 +1630,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.person_outline,
             "Owner Name",
-            property["owner"]?.toString() ?? "-",
+            property["owner"]
+                    ?.toString() ??
+                "-",
           ),
 
           buildOwnerDivider(),
@@ -1289,7 +1640,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.email_outlined,
             "Email",
-            property["email"]?.toString() ?? "-",
+            property["email"]
+                    ?.toString() ??
+                "-",
           ),
 
           buildOwnerDivider(),
@@ -1297,7 +1650,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.phone_outlined,
             "Phone",
-            property["phone"]?.toString() ?? "-",
+            property["phone"]
+                    ?.toString() ??
+                "-",
           ),
 
           buildOwnerDivider(),
@@ -1311,9 +1666,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerDivider(),
 
           buildOwnerRow(
-            Icons.calendar_today_outlined,
+            Icons
+                .calendar_today_outlined,
             "Submitted",
-            property["submitted"]?.toString() ?? "-",
+            property["submitted"]
+                    ?.toString() ??
+                "-",
           ),
         ],
       ),
@@ -1327,17 +1685,21 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     String value,
   ) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
 
       children: [
         Container(
           width: 38,
           height: 38,
 
-          decoration: BoxDecoration(
-            color: lightSecondaryColor,
+          decoration:
+              BoxDecoration(
+            color:
+                lightSecondaryColor,
 
-            borderRadius: BorderRadius.circular(
+            borderRadius:
+                BorderRadius.circular(
               10,
             ),
           ),
@@ -1349,34 +1711,48 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(
+          width: 12,
+        ),
 
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment
+                    .start,
 
             children: [
               Text(
                 title,
 
-                style: const TextStyle(
-                  fontSize: 12,
+                style:
+                    const TextStyle(
+                  fontSize:
+                      12,
 
-                  color: Colors.black45,
+                  color:
+                      Colors.black45,
                 ),
               ),
 
-              const SizedBox(height: 3),
+              const SizedBox(
+                height: 3,
+              ),
 
               Text(
                 value,
 
-                style: const TextStyle(
-                  fontSize: 14,
+                style:
+                    const TextStyle(
+                  fontSize:
+                      14,
 
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                      FontWeight
+                          .w600,
 
-                  color: Colors.black87,
+                  color:
+                      Colors.black87,
                 ),
               ),
             ],
@@ -1389,14 +1765,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   // Owner Divider
   Widget buildOwnerDivider() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets
+              .symmetric(
         vertical: 13,
       ),
 
       child: Divider(
         height: 1,
 
-        color: secondaryColor.withOpacity(
+        color:
+            secondaryColor
+                .withOpacity(
           0.35,
         ),
       ),
@@ -1413,20 +1793,32 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(14),
+      borderRadius:
+          BorderRadius.circular(
+        14,
+      ),
 
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding:
+            const EdgeInsets.all(
+          14,
+        ),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.circular(
+          borderRadius:
+              BorderRadius.circular(
             14,
           ),
 
           border: Border.all(
-            color: secondaryColor.withOpacity(0.5),
+            color:
+                secondaryColor
+                    .withOpacity(
+              0.5,
+            ),
           ),
         ),
 
@@ -1436,50 +1828,70 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               width: 46,
               height: 46,
 
-              decoration: BoxDecoration(
-                color: lightSecondaryColor,
+              decoration:
+                  BoxDecoration(
+                color:
+                    lightSecondaryColor,
 
-                borderRadius: BorderRadius.circular(
+                borderRadius:
+                    BorderRadius
+                        .circular(
                   12,
                 ),
               ),
 
               child: Icon(
                 icon,
-                color: primaryColor,
+                color:
+                    primaryColor,
               ),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(
+              width: 12,
+            ),
 
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment
+                        .start,
 
                 children: [
                   Text(
                     title,
 
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style:
+                        const TextStyle(
+                      fontSize:
+                          14,
 
-                      fontWeight: FontWeight.bold,
+                      fontWeight:
+                          FontWeight
+                              .bold,
 
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(
+                    height: 4,
+                  ),
 
                   Text(
                     subtitle,
 
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style:
+                        const TextStyle(
+                      fontSize:
+                          12,
 
-                      height: 1.35,
+                      height:
+                          1.35,
 
-                      color: Colors.black54,
+                      color:
+                          Colors.black54,
                     ),
                   ),
                 ],
@@ -1490,16 +1902,22 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               width: 36,
               height: 36,
 
-              decoration: const BoxDecoration(
-                color: lightSecondaryColor,
+              decoration:
+                  const BoxDecoration(
+                color:
+                    lightSecondaryColor,
 
-                shape: BoxShape.circle,
+                shape:
+                    BoxShape.circle,
               ),
 
-              child: const Icon(
-                Icons.visibility_outlined,
+              child:
+                  const Icon(
+                Icons
+                    .visibility_outlined,
 
-                color: primaryColor,
+                color:
+                    primaryColor,
 
                 size: 19,
               ),
@@ -1515,15 +1933,26 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     String text,
   ) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding:
+          const EdgeInsets.all(
+        14,
+      ),
 
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(14),
+        borderRadius:
+            BorderRadius.circular(
+          14,
+        ),
 
         border: Border.all(
-          color: secondaryColor.withOpacity(0.4),
+          color:
+              secondaryColor
+                  .withOpacity(
+            0.4,
+          ),
         ),
       ),
 
@@ -1533,33 +1962,42 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             width: 30,
             height: 30,
 
-            decoration: const BoxDecoration(
-              color: lightSecondaryColor,
+            decoration:
+                const BoxDecoration(
+              color:
+                  lightSecondaryColor,
 
-              shape: BoxShape.circle,
+              shape:
+                  BoxShape.circle,
             ),
 
-            child: const Icon(
+            child:
+                const Icon(
               Icons.check_rounded,
 
-              color: primaryColor,
+              color:
+                  primaryColor,
 
               size: 18,
             ),
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(
+            width: 12,
+          ),
 
           Expanded(
             child: Text(
               text,
 
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 fontSize: 13,
 
                 height: 1.35,
 
-                color: Colors.black87,
+                color:
+                    Colors.black87,
               ),
             ),
           ),
@@ -1573,24 +2011,35 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return Container(
       height: 90,
 
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color: Colors.white,
 
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.10),
+            color:
+                primaryColor
+                    .withOpacity(
+              0.10,
+            ),
 
             blurRadius: 10,
 
             spreadRadius: 1,
 
-            offset: const Offset(0, -2),
+            offset:
+                const Offset(
+              0,
+              -2,
+            ),
           ),
         ],
       ),
 
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
+        padding:
+            const EdgeInsets
+                .fromLTRB(
           16,
           20,
           16,
@@ -1601,41 +2050,61 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           children: [
             // Reject
             Expanded(
-              child: TextButton(
-                onPressed: showRejectDialog,
+              child:
+                  TextButton(
+                onPressed:
+                    showRejectDialog,
 
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(
+                style:
+                    TextButton
+                        .styleFrom(
+                  foregroundColor:
+                      const Color(
                     0xFFDC2626,
                   ),
 
-                  backgroundColor: const Color(
+                  backgroundColor:
+                      const Color(
                     0xFFFEF2F2,
                   ),
 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius
+                            .circular(
                       15,
                     ),
                   ),
                 ),
 
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child:
+                    const Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment
+                          .center,
 
                   children: [
                     Icon(
-                      Icons.close_rounded,
-                      size: 23,
+                      Icons
+                          .close_rounded,
+                      size:
+                          23,
                     ),
 
-                    SizedBox(width: 5),
+                    SizedBox(
+                      width:
+                          5,
+                    ),
 
                     Text(
                       "Reject",
 
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
+                      style:
+                          TextStyle(
+                        fontWeight:
+                            FontWeight
+                                .w800,
                       ),
                     ),
                   ],
@@ -1643,41 +2112,63 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               ),
             ),
 
-            const SizedBox(width: 10),
+            const SizedBox(
+              width: 10,
+            ),
 
             // Approve
             Expanded(
-              child: TextButton(
-                onPressed: showApproveDialog,
+              child:
+                  TextButton(
+                onPressed:
+                    showApproveDialog,
 
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
+                style:
+                    TextButton
+                        .styleFrom(
+                  foregroundColor:
+                      Colors.white,
 
-                  backgroundColor: primaryColor,
+                  backgroundColor:
+                      primaryColor,
 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius
+                            .circular(
                       15,
                     ),
                   ),
                 ),
 
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child:
+                    const Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment
+                          .center,
 
                   children: [
                     Icon(
-                      Icons.check_rounded,
-                      size: 23,
+                      Icons
+                          .check_rounded,
+                      size:
+                          23,
                     ),
 
-                    SizedBox(width: 5),
+                    SizedBox(
+                      width:
+                          5,
+                    ),
 
                     Text(
                       "Approve",
 
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
+                      style:
+                          TextStyle(
+                        fontWeight:
+                            FontWeight
+                                .w800,
                       ),
                     ),
                   ],
@@ -1701,6 +2192,48 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // National ID
+  void showNationalIdPreview() {
+    final dynamic rawOwnerId =
+        property["owner_id"];
+
+    if (rawOwnerId == null) {
+      Get.snackbar(
+        "Unable to Open",
+        "Owner information is missing.",
+        snackPosition:
+            SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    final int? ownerId =
+        int.tryParse(
+      rawOwnerId.toString(),
+    );
+
+    if (ownerId == null) {
+      Get.snackbar(
+        "Unable to Open",
+        "Owner information is invalid.",
+        snackPosition:
+            SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    showPrivateDocumentPreview(
+      title: "National ID",
+      icon: Icons.badge_outlined,
+      future:
+          adminService.getNationalId(
+        ownerId,
+      ),
+    );
+  }
+
   // Ownership Document
   void showOwnershipDocumentPreview() {
     final int? propertyId =
@@ -1712,11 +2245,14 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     }
 
     showPrivateDocumentPreview(
-      title: "Property Ownership Document",
+      title:
+          "Property Ownership Document",
 
-      icon: Icons.description_outlined,
+      icon:
+          Icons.description_outlined,
 
-      future: adminService.getOwnershipDocument(
+      future: adminService
+          .getOwnershipDocument(
         propertyId,
       ),
     );
@@ -1735,9 +2271,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     showPrivateDocumentPreview(
       title: "Payment Proof",
 
-      icon: Icons.receipt_long_outlined,
+      icon:
+          Icons.receipt_long_outlined,
 
-      future: adminService.getPaymentProof(
+      future:
+          adminService.getPaymentProof(
         propertyId,
       ),
     );
@@ -1749,11 +2287,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       "Unable to Open",
       "Property information is missing.",
 
-      snackPosition: SnackPosition.TOP,
+      snackPosition:
+          SnackPosition.TOP,
     );
   }
 
-  // Private Document Preview
+  // Document Preview
   void showPrivateDocumentPreview({
     required String title,
     required IconData icon,
@@ -1761,17 +2300,27 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }) {
     Get.bottomSheet(
       Container(
-        constraints: BoxConstraints(
-          maxHeight: Get.height * 0.85,
+        constraints:
+            BoxConstraints(
+          maxHeight:
+              Get.height * 0.85,
         ),
 
-        padding: const EdgeInsets.all(20),
+        padding:
+            const EdgeInsets.all(
+          20,
+        ),
 
-        decoration: const BoxDecoration(
+        decoration:
+            const BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
+          borderRadius:
+              BorderRadius.vertical(
+            top:
+                Radius.circular(
+              24,
+            ),
           ),
         ),
 
@@ -1779,25 +2328,32 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           top: false,
 
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
 
             children: [
               Container(
                 width: 45,
                 height: 5,
 
-                decoration: BoxDecoration(
-                  color: const Color(
+                decoration:
+                    BoxDecoration(
+                  color:
+                      const Color(
                     0xFFD1D9D4,
                   ),
 
-                  borderRadius: BorderRadius.circular(
+                  borderRadius:
+                      BorderRadius
+                          .circular(
                     20,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 20,
+              ),
 
               Row(
                 children: [
@@ -1805,75 +2361,106 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     width: 46,
                     height: 46,
 
-                    decoration: BoxDecoration(
-                      color: lightSecondaryColor,
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          lightSecondaryColor,
 
-                      borderRadius: BorderRadius.circular(
+                      borderRadius:
+                          BorderRadius
+                              .circular(
                         12,
                       ),
                     ),
 
                     child: Icon(
                       icon,
-                      color: primaryColor,
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(
+                    width: 12,
+                  ),
 
                   Expanded(
                     child: Text(
                       title,
 
-                      style: const TextStyle(
-                        fontSize: 18,
+                      style:
+                          const TextStyle(
+                        fontSize:
+                            18,
 
-                        fontWeight: FontWeight.bold,
+                        fontWeight:
+                            FontWeight
+                                .bold,
 
-                        color: primaryColor,
+                        color:
+                            primaryColor,
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 20,
+              ),
 
               Flexible(
-                child: FutureBuilder<Uint8List>(
+                child:
+                    FutureBuilder<
+                        Uint8List>(
                   future: future,
 
                   builder: (
                     context,
                     snapshot,
                   ) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
+                    if (snapshot
+                            .connectionState ==
+                        ConnectionState
+                            .waiting) {
                       return Container(
-                        width: double.infinity,
+                        width:
+                            double.infinity,
 
-                        height: 280,
+                        height:
+                            280,
 
-                        color: backgroundColor,
+                        color:
+                            backgroundColor,
 
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: primaryColor,
+                        child:
+                            const Center(
+                          child:
+                              CircularProgressIndicator(
+                            color:
+                                primaryColor,
                           ),
                         ),
                       );
                     }
 
-                    if (snapshot.hasError ||
-                        snapshot.data == null) {
+                    if (snapshot
+                            .hasError ||
+                        snapshot
+                                .data ==
+                            null) {
                       String message =
-                          snapshot.error?.toString() ??
+                          snapshot.error
+                                  ?.toString() ??
                               "Document could not be loaded.";
 
-                      if (message.startsWith(
+                      if (message
+                          .startsWith(
                         "Exception: ",
                       )) {
-                        message = message.replaceFirst(
+                        message =
+                            message
+                                .replaceFirst(
                           "Exception: ",
                           "",
                         );
@@ -1885,41 +2472,61 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     }
 
                     return Container(
-                      width: double.infinity,
+                      width:
+                          double.infinity,
 
-                      constraints: const BoxConstraints(
-                        minHeight: 230,
-                        maxHeight: 430,
+                      constraints:
+                          const BoxConstraints(
+                        minHeight:
+                            230,
+                        maxHeight:
+                            430,
                       ),
 
-                      decoration: BoxDecoration(
-                        color: backgroundColor,
+                      decoration:
+                          BoxDecoration(
+                        color:
+                            backgroundColor,
 
-                        borderRadius: BorderRadius.circular(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
                           16,
                         ),
 
-                        border: Border.all(
-                          color: secondaryColor,
+                        border:
+                            Border.all(
+                          color:
+                              secondaryColor,
                         ),
                       ),
 
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(
+                      child:
+                          ClipRRect(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
                           16,
                         ),
 
-                        child: InteractiveViewer(
-                          minScale: 1,
+                        child:
+                            InteractiveViewer(
+                          minScale:
+                              1,
 
-                          maxScale: 5,
+                          maxScale:
+                              5,
 
-                          child: Image.memory(
-                            snapshot.data!,
+                          child:
+                              Image.memory(
+                            snapshot
+                                .data!,
 
-                            width: double.infinity,
+                            width:
+                                double.infinity,
 
-                            fit: BoxFit.contain,
+                            fit:
+                                BoxFit.contain,
                           ),
                         ),
                       ),
@@ -1928,34 +2535,51 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 20,
+              ),
 
               SizedBox(
-                width: double.infinity,
+                width:
+                    double.infinity,
                 height: 48,
 
-                child: ElevatedButton(
-                  onPressed: Get.back,
+                child:
+                    ElevatedButton(
+                  onPressed:
+                      Get.back,
 
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                  style:
+                      ElevatedButton
+                          .styleFrom(
+                    backgroundColor:
+                        primaryColor,
 
-                    foregroundColor: Colors.white,
+                    foregroundColor:
+                        Colors.white,
 
-                    elevation: 0,
+                    elevation:
+                        0,
 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius
+                              .circular(
                         13,
                       ),
                     ),
                   ),
 
-                  child: const Text(
+                  child:
+                      const Text(
                     "Close",
 
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                    style:
+                        TextStyle(
+                      fontWeight:
+                          FontWeight
+                              .bold,
                     ),
                   ),
                 ),
@@ -1965,253 +2589,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ),
       ),
 
-      isScrollControlled: true,
-    );
-  }
-
-  // National ID
-  void showNationalIdPreview() {
-    final dynamic ownerId =
-        property["owner_id"];
-
-    if (ownerId == null) {
-      Get.snackbar(
-        "Unable to Open",
-        "Owner information is missing.",
-
-        snackPosition: SnackPosition.TOP,
-      );
-
-      return;
-    }
-
-    Get.bottomSheet(
-      Container(
-        constraints: BoxConstraints(
-          maxHeight: Get.height * 0.85,
-        ),
-
-        padding: const EdgeInsets.all(20),
-
-        decoration: const BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(24),
-          ),
-        ),
-
-        child: SafeArea(
-          top: false,
-
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-
-            children: [
-              Container(
-                width: 45,
-                height: 5,
-
-                decoration: BoxDecoration(
-                  color: const Color(
-                    0xFFD1D9D4,
-                  ),
-
-                  borderRadius: BorderRadius.circular(
-                    20,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-
-                    decoration: BoxDecoration(
-                      color: lightSecondaryColor,
-
-                      borderRadius: BorderRadius.circular(
-                        12,
-                      ),
-                    ),
-
-                    child: const Icon(
-                      Icons.badge_outlined,
-
-                      color: primaryColor,
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  const Expanded(
-                    child: Text(
-                      "National ID",
-
-                      style: TextStyle(
-                        fontSize: 18,
-
-                        fontWeight: FontWeight.bold,
-
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              Flexible(
-                child: FutureBuilder<String?>(
-                  future: FirebaseAuth
-                      .instance
-                      .currentUser
-                      ?.getIdToken(),
-
-                  builder: (
-                    context,
-                    snapshot,
-                  ) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Container(
-                        width: double.infinity,
-
-                        height: 300,
-
-                        color: backgroundColor,
-
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: primaryColor,
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError ||
-                        snapshot.data == null) {
-                      return buildDocumentError(
-                        "Unable to authenticate admin.",
-                      );
-                    }
-
-                    final String token =
-                        snapshot.data!;
-
-                    final String url =
-                        "http://10.0.2.2:8000/api/admin/users/$ownerId/national-id";
-
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        16,
-                      ),
-
-                      child: InteractiveViewer(
-                        minScale: 1,
-                        maxScale: 5,
-
-                        child: Image.network(
-                          url,
-
-                          headers: {
-                            "Authorization":
-                                "Bearer $token",
-
-                            "Accept":
-                                "image/*",
-                          },
-
-                          width: double.infinity,
-
-                          height: 320,
-
-                          fit: BoxFit.contain,
-
-                          loadingBuilder: (
-                            context,
-                            child,
-                            loadingProgress,
-                          ) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-
-                            return Container(
-                              width: double.infinity,
-
-                              height: 320,
-
-                              color: backgroundColor,
-
-                              child: const Center(
-                                child:
-                                    CircularProgressIndicator(
-                                  color: primaryColor,
-                                ),
-                              ),
-                            );
-                          },
-
-                          errorBuilder: (
-                            context,
-                            error,
-                            stackTrace,
-                          ) {
-                            return buildDocumentError(
-                              "National ID could not be loaded.",
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-
-                child: ElevatedButton(
-                  onPressed: Get.back,
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-
-                    foregroundColor: Colors.white,
-
-                    elevation: 0,
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        13,
-                      ),
-                    ),
-                  ),
-
-                  child: const Text(
-                    "Close",
-
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-
-      isScrollControlled: true,
+      isScrollControlled:
+          true,
     );
   }
 
@@ -2223,41 +2602,60 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       width: double.infinity,
       height: 230,
 
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets
+              .symmetric(
         horizontal: 20,
       ),
 
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color: backgroundColor,
 
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(
+          16,
+        ),
 
         border: Border.all(
-          color: secondaryColor.withOpacity(0.5),
+          color:
+              secondaryColor
+                  .withOpacity(
+            0.5,
+          ),
         ),
       ),
 
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment
+                .center,
 
         children: [
           const Icon(
-            Icons.error_outline_rounded,
+            Icons
+                .error_outline_rounded,
             size: 42,
-            color: Color(0xFFDC2626),
+            color:
+                Color(0xFFDC2626),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(
+            height: 10,
+          ),
 
           Text(
             message,
 
-            textAlign: TextAlign.center,
+            textAlign:
+                TextAlign.center,
 
-            style: const TextStyle(
+            style:
+                const TextStyle(
               fontSize: 13,
 
-              color: Colors.black54,
+              color:
+                  Colors.black54,
             ),
           ),
         ],
@@ -2269,10 +2667,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   void showApproveDialog() {
     Get.dialog(
       AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor:
+            Colors.white,
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
             20,
           ),
         ),
@@ -2281,8 +2682,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           "Approve Property",
 
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-
+            fontWeight:
+                FontWeight.bold,
             color: primaryColor,
           ),
         ),
@@ -2298,29 +2699,37 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Get.back();
             },
 
-            child: const Text(
+            child:
+                const Text(
               "Cancel",
             ),
           ),
 
           // Approve
           ElevatedButton(
-            onPressed: () async {
-              final int? propertyId =
+            onPressed:
+                () async {
+              final int?
+                  propertyId =
                   getPropertyId();
 
-              if (propertyId == null) {
+              if (propertyId ==
+                  null) {
                 Get.snackbar(
                   "Error",
                   "Property ID is missing.",
 
-                  snackPosition: SnackPosition.TOP,
+                  snackPosition:
+                      SnackPosition
+                          .TOP,
 
-                  backgroundColor: const Color(
+                  backgroundColor:
+                      const Color(
                     0xFFDC2626,
                   ),
 
-                  colorText: Colors.white,
+                  colorText:
+                      Colors.white,
                 );
 
                 return;
@@ -2333,22 +2742,29 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 // Loading
                 Get.dialog(
                   const Center(
-                    child: CircularProgressIndicator(
-                      color: primaryColor,
+                    child:
+                        CircularProgressIndicator(
+                      color:
+                          primaryColor,
                     ),
                   ),
 
-                  barrierDismissible: false,
+                  barrierDismissible:
+                      false,
                 );
 
                 // Approve Property
-                final bool success =
-                    await adminService.approveProperty(
+                final bool
+                    success =
+                    await adminService
+                        .approveProperty(
                   propertyId,
                 );
 
                 // Close Loading
-                if (Get.isDialogOpen == true) {
+                if (Get
+                        .isDialogOpen ==
+                    true) {
                   Get.back();
                 }
 
@@ -2356,46 +2772,57 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   // Leave Review Page
                   Get.back(
                     result: {
-                      "success": true,
-                      "action": "approved",
+                      "success":
+                          true,
+                      "action":
+                          "approved",
                     },
                   );
 
                   // Snackbar
                   Future.delayed(
                     const Duration(
-                      milliseconds: 250,
+                      milliseconds:
+                          250,
                     ),
                     () {
                       Get.snackbar(
                         "Property Approved",
                         "The property has been approved successfully.",
 
-                        snackPosition: SnackPosition.TOP,
+                        snackPosition:
+                            SnackPosition
+                                .TOP,
 
                         backgroundColor:
                             const Color(
                           0xFF16A34A,
                         ),
 
-                        colorText: Colors.white,
+                        colorText:
+                            Colors.white,
 
-                        icon: const Icon(
+                        icon:
+                            const Icon(
                           Icons
                               .check_circle_outline_rounded,
-                          color: Colors.white,
+                          color:
+                              Colors.white,
                         ),
 
                         margin:
-                            const EdgeInsets.all(
+                            const EdgeInsets
+                                .all(
                           12,
                         ),
 
-                        borderRadius: 12,
+                        borderRadius:
+                            12,
 
                         duration:
                             const Duration(
-                          seconds: 3,
+                          seconds:
+                              3,
                         ),
                       );
                     },
@@ -2403,17 +2830,22 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 }
               } catch (e) {
                 // Close Loading
-                if (Get.isDialogOpen == true) {
+                if (Get
+                        .isDialogOpen ==
+                    true) {
                   Get.back();
                 }
 
                 String message =
                     e.toString();
 
-                if (message.startsWith(
+                if (message
+                    .startsWith(
                   "Exception: ",
                 )) {
-                  message = message.replaceFirst(
+                  message =
+                      message
+                          .replaceFirst(
                     "Exception: ",
                     "",
                   );
@@ -2423,40 +2855,55 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   "Approval Failed",
                   message,
 
-                  snackPosition: SnackPosition.TOP,
+                  snackPosition:
+                      SnackPosition
+                          .TOP,
 
                   backgroundColor:
                       const Color(
                     0xFFDC2626,
                   ),
 
-                  colorText: Colors.white,
+                  colorText:
+                      Colors.white,
 
-                  icon: const Icon(
-                    Icons.error_outline_rounded,
-                    color: Colors.white,
+                  icon:
+                      const Icon(
+                    Icons
+                        .error_outline_rounded,
+                    color:
+                        Colors.white,
                   ),
 
-                  margin: const EdgeInsets.all(
+                  margin:
+                      const EdgeInsets
+                          .all(
                     12,
                   ),
 
-                  borderRadius: 12,
+                  borderRadius:
+                      12,
 
-                  duration: const Duration(
+                  duration:
+                      const Duration(
                     seconds: 3,
                   ),
                 );
               }
             },
 
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
+            style:
+                ElevatedButton
+                    .styleFrom(
+              backgroundColor:
+                  primaryColor,
 
-              foregroundColor: Colors.white,
+              foregroundColor:
+                  Colors.white,
             ),
 
-            child: const Text(
+            child:
+                const Text(
               "Approve",
             ),
           ),
@@ -2473,10 +2920,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     Get.dialog(
       AlertDialog(
-        backgroundColor: Colors.white,
+        backgroundColor:
+            Colors.white,
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
             20,
           ),
         ),
@@ -2485,42 +2935,52 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           "Reject Property",
 
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight:
+                FontWeight.bold,
 
-            color: Color(
-              0xFFDC2626,
-            ),
+            color:
+                Color(0xFFDC2626),
           ),
         ),
 
         content: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize:
+              MainAxisSize.min,
 
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment
+                  .start,
 
           children: [
             const Text(
               "Provide a reason for rejecting this submission.",
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(
+              height: 14,
+            ),
 
             TextField(
-              controller: reasonController,
+              controller:
+                  reasonController,
 
               maxLines: 4,
 
-              decoration: InputDecoration(
+              decoration:
+                  InputDecoration(
                 hintText:
                     "Enter rejection reason",
 
                 filled: true,
 
-                fillColor: Colors.white,
+                fillColor:
+                    Colors.white,
 
-                border: OutlineInputBorder(
+                border:
+                    OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(
+                      BorderRadius
+                          .circular(
                     12,
                   ),
                 ),
@@ -2528,13 +2988,15 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 focusedBorder:
                     OutlineInputBorder(
                   borderRadius:
-                      BorderRadius.circular(
+                      BorderRadius
+                          .circular(
                     12,
                   ),
 
                   borderSide:
                       const BorderSide(
-                    color: Color(
+                    color:
+                        Color(
                       0xFFDC2626,
                     ),
                   ),
@@ -2551,16 +3013,20 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Get.back();
             },
 
-            child: const Text(
+            child:
+                const Text(
               "Cancel",
             ),
           ),
 
           // Reject
           ElevatedButton(
-            onPressed: () async {
+            onPressed:
+                () async {
               final String reason =
-                  reasonController.text.trim();
+                  reasonController
+                      .text
+                      .trim();
 
               if (reason.isEmpty) {
                 Get.snackbar(
@@ -2568,36 +3034,42 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   "Please enter a rejection reason.",
 
                   snackPosition:
-                      SnackPosition.TOP,
+                      SnackPosition
+                          .TOP,
 
                   backgroundColor:
                       const Color(
                     0xFFF59E0B,
                   ),
 
-                  colorText: Colors.white,
+                  colorText:
+                      Colors.white,
                 );
 
                 return;
               }
 
-              final int? propertyId =
+              final int?
+                  propertyId =
                   getPropertyId();
 
-              if (propertyId == null) {
+              if (propertyId ==
+                  null) {
                 Get.snackbar(
                   "Error",
                   "Property ID is missing.",
 
                   snackPosition:
-                      SnackPosition.TOP,
+                      SnackPosition
+                          .TOP,
 
                   backgroundColor:
                       const Color(
                     0xFFDC2626,
                   ),
 
-                  colorText: Colors.white,
+                  colorText:
+                      Colors.white,
                 );
 
                 return;
@@ -2622,15 +3094,19 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 );
 
                 // Reject Property
-                final bool success =
+                final bool
+                    success =
                     await adminService
                         .rejectProperty(
-                  propertyId: propertyId,
-                  reason: reason,
+                  propertyId:
+                      propertyId,
+                  reason:
+                      reason,
                 );
 
                 // Close Loading
-                if (Get.isDialogOpen ==
+                if (Get
+                        .isDialogOpen ==
                     true) {
                   Get.back();
                 }
@@ -2639,15 +3115,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   // Leave Review Page
                   Get.back(
                     result: {
-                      "success": true,
-                      "action": "rejected",
+                      "success":
+                          true,
+                      "action":
+                          "rejected",
                     },
                   );
 
                   // Snackbar
                   Future.delayed(
                     const Duration(
-                      milliseconds: 250,
+                      milliseconds:
+                          250,
                     ),
                     () {
                       Get.snackbar(
@@ -2655,7 +3134,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         "The property submission has been rejected.",
 
                         snackPosition:
-                            SnackPosition.TOP,
+                            SnackPosition
+                                .TOP,
 
                         backgroundColor:
                             const Color(
@@ -2665,7 +3145,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         colorText:
                             Colors.white,
 
-                        icon: const Icon(
+                        icon:
+                            const Icon(
                           Icons
                               .cancel_outlined,
                           color:
@@ -2678,11 +3159,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                           12,
                         ),
 
-                        borderRadius: 12,
+                        borderRadius:
+                            12,
 
                         duration:
                             const Duration(
-                          seconds: 3,
+                          seconds:
+                              3,
                         ),
                       );
                     },
@@ -2690,7 +3173,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 }
               } catch (e) {
                 // Close Loading
-                if (Get.isDialogOpen ==
+                if (Get
+                        .isDialogOpen ==
                     true) {
                   Get.back();
                 }
@@ -2698,11 +3182,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 String message =
                     e.toString();
 
-                if (message.startsWith(
+                if (message
+                    .startsWith(
                   "Exception: ",
                 )) {
                   message =
-                      message.replaceFirst(
+                      message
+                          .replaceFirst(
                     "Exception: ",
                     "",
                   );
@@ -2713,7 +3199,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   message,
 
                   snackPosition:
-                      SnackPosition.TOP,
+                      SnackPosition
+                          .TOP,
 
                   backgroundColor:
                       const Color(
@@ -2723,18 +3210,22 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   colorText:
                       Colors.white,
 
-                  icon: const Icon(
-                    Icons.error_outline_rounded,
+                  icon:
+                      const Icon(
+                    Icons
+                        .error_outline_rounded,
                     color:
                         Colors.white,
                   ),
 
                   margin:
-                      const EdgeInsets.all(
+                      const EdgeInsets
+                          .all(
                     12,
                   ),
 
-                  borderRadius: 12,
+                  borderRadius:
+                      12,
 
                   duration:
                       const Duration(
@@ -2745,7 +3236,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             },
 
             style:
-                ElevatedButton.styleFrom(
+                ElevatedButton
+                    .styleFrom(
               backgroundColor:
                   const Color(
                 0xFFDC2626,
@@ -2755,7 +3247,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   Colors.white,
             ),
 
-            child: const Text(
+            child:
+                const Text(
               "Reject",
             ),
           ),

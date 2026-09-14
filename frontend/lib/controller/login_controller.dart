@@ -7,18 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginController extends GetxController {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController =
+      TextEditingController();
+
+  final TextEditingController passwordController =
+      TextEditingController();
 
   final RxBool hidePassword = true.obs;
   final RxBool isLoading = false.obs;
 
   final AuthService authService = AuthService();
 
+  // Password
   void togglePassword() {
-    hidePassword.value = !hidePassword.value;
+    hidePassword.value =
+        !hidePassword.value;
   }
 
+  // Success Notification
   void showSuccessNotification({
     required String title,
     required String message,
@@ -29,11 +35,15 @@ class LoginController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       borderRadius: 18,
       borderColor: const Color(0xFFE5E7EB),
       borderWidth: 1,
       duration: const Duration(seconds: 3),
+
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
@@ -92,18 +102,26 @@ class LoginController extends GetxController {
     );
   }
 
-  void showErrorNotification({required String title, required String message}) {
+  // Error Notification
+  void showErrorNotification({
+    required String title,
+    required String message,
+  }) {
     Get.snackbar(
       '',
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       borderRadius: 18,
       borderColor: const Color(0xFFF3D2D2),
       borderWidth: 1,
       duration: const Duration(seconds: 3),
+
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
@@ -162,18 +180,35 @@ class LoginController extends GetxController {
     );
   }
 
+  // Login
   Future<void> login() async {
     if (isLoading.value) {
       return;
     }
 
-    final String email = emailController.text.trim();
-    final String password = passwordController.text.trim();
+    final String email =
+        emailController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
+    final String password =
+        passwordController.text.trim();
+
+    // Validation
+    if (email.isEmpty ||
+        password.isEmpty) {
       showErrorNotification(
         title: "Missing Information",
-        message: "Please enter your email and password.",
+        message:
+            "Please enter your email and password.",
+      );
+
+      return;
+    }
+
+    if (!GetUtils.isEmail(email)) {
+      showErrorNotification(
+        title: "Invalid Email",
+        message:
+            "Please enter a valid email address.",
       );
 
       return;
@@ -182,32 +217,31 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      final UserCredential userCredential = await authService.loginWithEamil(
+      // Laravel Login
+      final Map<String, dynamic> userData =
+          await authService.loginWithEamil(
         email: email,
         password: password,
       );
 
-      final User? firebaseUser = userCredential.user;
+      final String role =
+          userData["role"]?.toString() ?? "";
 
-      if (firebaseUser == null) {
-        throw Exception("Firebase user not found");
-      }
+      final String status =
+          userData["status"]?.toString() ?? "";
 
-      final Map<String, dynamic> userData = await authService.getMe();
-
-      final String role = userData["role"];
-      final String status = userData["status"];
-
-      print("UID: ${firebaseUser.uid}");
+      print("Laravel user ID: ${userData["id"]}");
       print("Role: $role");
       print("Status: $status");
 
+      // Status
       if (status == "suspended") {
         await authService.logout();
 
         showErrorNotification(
           title: "Account Suspended",
-          message: "Your account has been suspended.",
+          message:
+              "Your account has been suspended.",
         );
 
         return;
@@ -215,48 +249,69 @@ class LoginController extends GetxController {
 
       showSuccessNotification(
         title: "Welcome Back!",
-        message: "You have successfully logged in.",
+        message:
+            "You have successfully logged in.",
       );
 
-      if (role == "admin") {
-        Get.offAll(() => AdminBottomNav());
-      } else if (role == "house_owner") {
-        Get.offAll(() => OwnerBottomNav());
-      } else if (role == "renter") {
-        Get.offAll(() => BottomNav());
-      } else {
-        await authService.logout();
+      // Role Routing
+      routeUser(role);
+    } catch (e) {
+      String message = e.toString();
 
-        showErrorNotification(
-          title: "Role Error",
-          message: "User role is not recognized.",
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
         );
       }
-    } on FirebaseAuthException catch (e) {
-      String message = "Unable to login.";
 
-      if (e.code == "invalid-email") {
-        message = "Please enter a valid email.";
-      } else if (e.code == "user-not-found") {
-        message = "No account found with this email.";
-      } else if (e.code == "wrong-password") {
-        message = "Incorrect password.";
-      } else if (e.code == "invalid-credential") {
-        message = "Incorrect email or password.";
-      } else if (e.code == "user-disabled") {
-        message = "This account has been disabled.";
-      } else {
-        message = e.message ?? "Unable to login.";
-      }
-
-      showErrorNotification(title: "Login Failed", message: message);
-    } catch (e) {
-      showErrorNotification(title: "Login Failed", message: e.toString());
+      showErrorNotification(
+        title: "Login Failed",
+        message: message,
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
+  // Role Routing
+  void routeUser(String role) {
+    if (role == "admin") {
+      Get.offAll(
+        () => AdminBottomNav(),
+      );
+
+      return;
+    }
+
+    if (role == "house_owner") {
+      Get.offAll(
+        () => OwnerBottomNav(),
+      );
+
+      return;
+    }
+
+    if (role == "renter") {
+      Get.offAll(
+        () => BottomNav(),
+      );
+
+      return;
+    }
+
+    authService.logout();
+
+    showErrorNotification(
+      title: "Role Error",
+      message:
+          "User role is not recognized.",
+    );
+  }
+
+  // Google Login
   Future<void> loginWithGoogle() async {
     if (isLoading.value) {
       return;
@@ -265,25 +320,42 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      final UserCredential userCredential = await authService.loginWithGoogle();
+      final UserCredential userCredential =
+          await authService.loginWithGoogle();
 
-      final User? firebaseUser = userCredential.user;
+      final User? firebaseUser =
+          userCredential.user;
 
       if (firebaseUser == null) {
-        throw Exception("Firebase user not found");
+        throw Exception(
+          "Firebase user not found",
+        );
       }
 
-      final Map<String, dynamic> result = await authService.checkSocialUser();
+      final Map<String, dynamic> result =
+          await authService.checkSocialUser();
 
-      final bool exists = result["exists"];
+      final bool exists =
+          result["exists"] == true;
 
-      if (exists == true) {
-        final Map<String, dynamic> userData = result["user"];
+      if (exists) {
+        final Map<String, dynamic> userData =
+            Map<String, dynamic>.from(
+          result["user"],
+        );
 
-        final String role = userData["role"];
-        final String status = userData["status"];
+        final String role =
+            userData["role"]?.toString() ??
+                "";
 
-        print("UID: ${firebaseUser.uid}");
+        final String status =
+            userData["status"]?.toString() ??
+                "";
+
+        print(
+          "Firebase UID: ${firebaseUser.uid}",
+        );
+
         print("Role: $role");
         print("Status: $status");
 
@@ -292,7 +364,8 @@ class LoginController extends GetxController {
 
           showErrorNotification(
             title: "Account Suspended",
-            message: "Your account has been suspended.",
+            message:
+                "Your account has been suspended.",
           );
 
           return;
@@ -300,47 +373,158 @@ class LoginController extends GetxController {
 
         showSuccessNotification(
           title: "Welcome Back!",
-          message: "You have successfully logged in.",
+          message:
+              "You have successfully logged in.",
         );
 
-        if (role == "admin") {
-          Get.offAll(() => AdminBottomNav());
-        } else if (role == "house_owner") {
-          Get.offAll(() => OwnerBottomNav());
-        } else if (role == "renter") {
-          Get.offAll(() => BottomNav());
-        } else {
-          await authService.logout();
-
-          showErrorNotification(
-            title: "Role Error",
-            message: "User role is not recognized.",
-          );
-        }
+        routeUser(role);
 
         return;
       }
 
+      // New Social User
       showSocialRoleDialog();
     } on FirebaseAuthException catch (e) {
       showErrorNotification(
         title: "Google Login Failed",
-        message: e.message ?? "Unable to login with Google.",
+        message:
+            e.message ??
+                "Unable to login with Google.",
       );
     } catch (e) {
+      String message = e.toString();
+
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
+        );
+      }
+
       showErrorNotification(
         title: "Google Login Failed",
-        message: e.toString(),
+        message: message,
       );
     } finally {
       isLoading.value = false;
     }
   }
 
+  // Facebook Login
+  Future<void> loginWithFacebook() async {
+    if (isLoading.value) {
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+
+      final UserCredential userCredential =
+          await authService
+              .loginWithFacebook();
+
+      final User? firebaseUser =
+          userCredential.user;
+
+      if (firebaseUser == null) {
+        throw Exception(
+          "Firebase user not found",
+        );
+      }
+
+      final Map<String, dynamic> result =
+          await authService
+              .checkSocialUser();
+
+      final bool exists =
+          result["exists"] == true;
+
+      if (exists) {
+        final Map<String, dynamic> userData =
+            Map<String, dynamic>.from(
+          result["user"],
+        );
+
+        final String role =
+            userData["role"]?.toString() ??
+                "";
+
+        final String status =
+            userData["status"]?.toString() ??
+                "";
+
+        print(
+          "Firebase UID: ${firebaseUser.uid}",
+        );
+
+        print("Role: $role");
+        print("Status: $status");
+
+        if (status == "suspended") {
+          await authService.logout();
+
+          showErrorNotification(
+            title: "Account Suspended",
+            message:
+                "Your account has been suspended.",
+          );
+
+          return;
+        }
+
+        showSuccessNotification(
+          title: "Welcome Back!",
+          message:
+              "You have successfully logged in.",
+        );
+
+        routeUser(role);
+
+        return;
+      }
+
+      // New Social User
+      showSocialRoleDialog();
+    } on FirebaseAuthException catch (e) {
+      showErrorNotification(
+        title: "Facebook Login Failed",
+        message:
+            e.message ??
+                "Unable to login with Facebook.",
+      );
+    } catch (e) {
+      String message = e.toString();
+
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
+        );
+      }
+
+      showErrorNotification(
+        title: "Facebook Login Failed",
+        message: message,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // Social Role Dialog
   void showSocialRoleDialog() {
     Get.dialog(
       AlertDialog(
-        title: const Text("Choose Account Type", textAlign: TextAlign.center),
+        backgroundColor: Colors.white,
+
+        title: const Text(
+          "Choose Account Type",
+          textAlign: TextAlign.center,
+        ),
 
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -353,35 +537,57 @@ class LoginController extends GetxController {
 
             const SizedBox(height: 20),
 
+            // Renter
             InkWell(
               onTap: () async {
                 Get.back();
 
-                await registerSocialRole("renter");
+                await registerSocialRole(
+                  "renter",
+                );
               },
 
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(
+                12,
+              ),
 
               child: Container(
                 width: double.infinity,
 
-                padding: const EdgeInsets.all(16),
+                padding:
+                    const EdgeInsets.all(
+                  16,
+                ),
 
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                decoration:
+                    BoxDecoration(
+                  border: Border.all(
+                    color:
+                        Colors.grey.shade300,
+                  ),
 
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(
+                    12,
+                  ),
                 ),
 
                 child: const Row(
                   children: [
-                    Icon(Icons.search, color: Color(0xFF03045E)),
+                    Icon(
+                      Icons.search,
+                      color:
+                          Color(0xFF03045E),
+                    ),
 
                     SizedBox(width: 14),
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
 
                         children: [
                           Text(
@@ -389,14 +595,19 @@ class LoginController extends GetxController {
 
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
                             ),
                           ),
 
                           Text(
                             "Find a property to rent",
 
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color:
+                                  Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -408,35 +619,58 @@ class LoginController extends GetxController {
 
             const SizedBox(height: 12),
 
+            // House Owner
             InkWell(
               onTap: () async {
                 Get.back();
 
-                await registerSocialRole("house_owner");
+                await registerSocialRole(
+                  "house_owner",
+                );
               },
 
-              borderRadius: BorderRadius.circular(12),
+              borderRadius:
+                  BorderRadius.circular(
+                12,
+              ),
 
               child: Container(
                 width: double.infinity,
 
-                padding: const EdgeInsets.all(16),
+                padding:
+                    const EdgeInsets.all(
+                  16,
+                ),
 
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
+                decoration:
+                    BoxDecoration(
+                  border: Border.all(
+                    color:
+                        Colors.grey.shade300,
+                  ),
 
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius:
+                      BorderRadius.circular(
+                    12,
+                  ),
                 ),
 
                 child: const Row(
                   children: [
-                    Icon(Icons.home_work_outlined, color: Color(0xFF03045E)),
+                    Icon(
+                      Icons
+                          .home_work_outlined,
+                      color:
+                          Color(0xFF03045E),
+                    ),
 
                     SizedBox(width: 14),
 
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
 
                         children: [
                           Text(
@@ -444,14 +678,20 @@ class LoginController extends GetxController {
 
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.bold,
+
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
                             ),
                           ),
 
                           Text(
                             "List and manage your properties",
 
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(
+                              color:
+                                  Colors.grey,
+                            ),
                           ),
                         ],
                       ),
@@ -471,7 +711,13 @@ class LoginController extends GetxController {
               await authService.logout();
             },
 
-            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            child: const Text(
+              "Cancel",
+
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+            ),
           ),
         ],
       ),
@@ -480,165 +726,82 @@ class LoginController extends GetxController {
     );
   }
 
-  Future<void> registerSocialRole(String role) async {
+  // Register Social Role
+  Future<void> registerSocialRole(
+    String role,
+  ) async {
     try {
       isLoading.value = true;
 
-      final Map<String, dynamic> userData = await authService.createSocialUser(
+      final Map<String, dynamic> userData =
+          await authService
+              .createSocialUser(
         role,
       );
 
-      final String userRole = userData["role"];
+      final String userRole =
+          userData["role"]?.toString() ??
+              "";
 
-      print("Social account created");
-      print("Role: $userRole");
+      print(
+        "Social account created",
+      );
+
+      print(
+        "Role: $userRole",
+      );
 
       showSuccessNotification(
         title: "Account Created",
-        message: "Your account was created successfully.",
+        message:
+            "Your account was created successfully.",
       );
 
-      if (userRole == "house_owner") {
-        Get.offAll(() => OwnerBottomNav());
-      } else if (userRole == "renter") {
-        Get.offAll(() => BottomNav());
-      }
+      routeUser(userRole);
     } catch (e) {
       await authService.logout();
 
-      showErrorNotification(
-        title: "Account Creation Failed",
-        message: e.toString(),
-      );
-    } finally {
-      isLoading.value = false;
-    }
-  }
+      String message = e.toString();
 
-  Future<void> loginWithFacebook() async {
-    if (isLoading.value) {
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-
-      print("1. Starting Facebook login");
-
-      final UserCredential userCredential = await authService
-          .loginWithFacebook();
-
-      print("2. Facebook Firebase login successful");
-
-      final User? firebaseUser = userCredential.user;
-
-      if (firebaseUser == null) {
-        throw Exception("Firebase user not found");
-      }
-
-      print("3. Firebase UID: ${firebaseUser.uid}");
-      print("4. Checking Laravel user");
-
-      final Map<String, dynamic> result = await authService.checkSocialUser();
-
-      print("5. Laravel result: $result");
-
-      final bool exists = result["exists"];
-
-      print("6. Exists: $exists");
-
-      if (exists == true) {
-        final Map<String, dynamic> userData = result["user"];
-
-        final String role = userData["role"];
-        final String status = userData["status"];
-
-        print("Role: $role");
-        print("Status: $status");
-
-        if (status == "suspended") {
-          await authService.logout();
-
-          showErrorNotification(
-            title: "Account Suspended",
-            message: "Your account has been suspended.",
-          );
-
-          return;
-        }
-
-        showSuccessNotification(
-          title: "Welcome Back!",
-          message: "You have successfully logged in.",
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
         );
-
-        if (role == "admin") {
-          Get.offAll(() => AdminBottomNav());
-        } else if (role == "house_owner") {
-          Get.offAll(() => OwnerBottomNav());
-        } else if (role == "renter") {
-          Get.offAll(() => BottomNav());
-        } else {
-          await authService.logout();
-
-          showErrorNotification(
-            title: "Role Error",
-            message: "User role is not recognized.",
-          );
-        }
-
-        return;
       }
 
-      print("7. New Facebook user");
-      print("8. Showing role dialog");
-
-      showSocialRoleDialog();
-    } on FirebaseAuthException catch (e) {
-      print("Firebase error: ${e.code}");
-      print("Firebase message: ${e.message}");
-
       showErrorNotification(
-        title: "Facebook Login Failed",
-        message: e.message ?? "Unable to login with Facebook.",
-      );
-    } catch (e) {
-      print("Facebook flow error: $e");
-
-      showErrorNotification(
-        title: "Facebook Login Failed",
-        message: e.toString(),
+        title:
+            "Account Creation Failed",
+        message: message,
       );
     } finally {
       isLoading.value = false;
     }
   }
 
+  // Forgot Password
   Future<void> forgotPassword() async {
-    final String email = emailController.text.trim();
+    final String email =
+        emailController.text.trim();
 
     if (email.isEmpty) {
       showErrorNotification(
         title: "Email Required",
-        message: "Please enter your email first.",
+        message:
+            "Please enter your email first.",
       );
 
       return;
     }
 
-    try {
-      await authService.resetPassword(email);
-
-      showSuccessNotification(
-        title: "Email Sent",
-        message: "Check your email to reset your password.",
-      );
-    } on FirebaseAuthException catch (e) {
-      showErrorNotification(
-        title: "Unable to Send Email",
-        message: e.message ?? "Unable to send reset email.",
-      );
-    }
+    showErrorNotification(
+      title: "Coming Soon",
+      message:
+          "Laravel password reset will be connected next.",
+    );
   }
 
   @override

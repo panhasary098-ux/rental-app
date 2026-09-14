@@ -1,21 +1,77 @@
 import 'package:final_project/service/admin_service.dart';
+import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/view/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../controller/admin_nav_controller.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+  const AdminDashboardScreen({
+    super.key,
+  });
 
   @override
   State<AdminDashboardScreen> createState() =>
       _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState
+    extends State<AdminDashboardScreen> {
   final AdminService adminService = AdminService();
+  final AuthService authService = AuthService();
+
+  // Colors
+  static const Color primaryColor =
+      Color(0xFF03045E);
+
+  static const Color backgroundColor =
+      Color(0xFFF8FAFC);
+
+  static const Color cardColor =
+      Colors.white;
+
+  static const Color textColor =
+      Color(0xFF111827);
+
+  static const Color secondaryTextColor =
+      Color(0xFF6B7280);
+
+  static const Color borderColor =
+      Color(0xFFE5E7EB);
+
+  static const Color blueAccent =
+      Color(0xFF2563EB);
+
+  static const Color blueSoft =
+      Color(0xFFEFF6FF);
+
+  static const Color purpleAccent =
+      Color(0xFF7C3AED);
+
+  static const Color purpleSoft =
+      Color(0xFFF3E8FF);
+
+  static const Color orangeAccent =
+      Color(0xFFD97706);
+
+  static const Color orangeSoft =
+      Color(0xFFFFF7E6);
+
+  static const Color redAccent =
+      Color(0xFFDC2626);
+
+  static const Color redSoft =
+      Color(0xFFFEF2F2);
+
+  static const Color greenAccent =
+      Color(0xFF16A34A);
+
+  static const Color greenSoft =
+      Color(0xFFECFDF3);
 
   bool isLoading = true;
+
   String? errorMessage;
 
   int totalUsers = 0;
@@ -32,7 +88,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     loadDashboard();
   }
 
-  // Load real dashboard data
+  // Load Dashboard
   Future<void> loadDashboard() async {
     try {
       if (mounted) {
@@ -43,7 +99,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       }
 
       final Map<String, dynamic> data =
-          await adminService.getDashboardSummary();
+          await adminService
+              .getDashboardSummary();
 
       final Map<String, dynamic> stats =
           Map<String, dynamic>.from(
@@ -61,7 +118,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         totalUsers =
             int.tryParse(
               stats["total_users"]
-                  ?.toString() ??
+                      ?.toString() ??
                   "0",
             ) ??
             0;
@@ -69,7 +126,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         totalProperties =
             int.tryParse(
               stats["total_properties"]
-                  ?.toString() ??
+                      ?.toString() ??
                   "0",
             ) ??
             0;
@@ -77,7 +134,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         pendingProperties =
             int.tryParse(
               stats["pending_properties"]
-                  ?.toString() ??
+                      ?.toString() ??
                   "0",
             ) ??
             0;
@@ -85,7 +142,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         suspendedUsers =
             int.tryParse(
               stats["suspended_users"]
-                  ?.toString() ??
+                      ?.toString() ??
                   "0",
             ) ??
             0;
@@ -106,10 +163,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return;
       }
 
-      String message = e.toString();
+      String message =
+          e.toString();
 
-      if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -122,13 +183,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  // Fix Laravel localhost URL for Android emulator
-  String getImageUrl(dynamic value) {
+  // Image URL
+  String getImageUrl(
+    dynamic value,
+  ) {
     if (value == null) {
       return "";
     }
 
-    String url = value.toString();
+    String url =
+        value.toString();
 
     url = url.replaceFirst(
       "http://localhost:8000",
@@ -143,6 +207,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return url;
   }
 
+  // Pending
   void goToPendingVerification() {
     final AdminNavController controller =
         Get.find<AdminNavController>();
@@ -150,6 +215,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     controller.changePage(1);
   }
 
+  // Properties
   void goToManageProperties() {
     final AdminNavController controller =
         Get.find<AdminNavController>();
@@ -157,6 +223,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     controller.changePage(2);
   }
 
+  // Users
   void goToManageUsers() {
     final AdminNavController controller =
         Get.find<AdminNavController>();
@@ -164,10 +231,239 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     controller.changePage(3);
   }
 
+  // Logout
+  void showLogoutDialog() {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor:
+            Colors.white,
+
+        shape:
+            RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.circular(
+            20,
+          ),
+        ),
+
+        contentPadding:
+            const EdgeInsets.fromLTRB(
+          24,
+          26,
+          24,
+          18,
+        ),
+
+        content: Column(
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+
+              decoration:
+                  const BoxDecoration(
+                color: redSoft,
+                shape:
+                    BoxShape.circle,
+              ),
+
+              child:
+                  const Icon(
+                Icons.logout_rounded,
+                color:
+                    redAccent,
+                size: 27,
+              ),
+            ),
+
+            const SizedBox(
+              height: 16,
+            ),
+
+            const Text(
+              "Leave Admin Panel?",
+
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight:
+                    FontWeight.bold,
+                color:
+                    textColor,
+              ),
+            ),
+
+            const SizedBox(
+              height: 8,
+            ),
+
+            const Text(
+              "You will be logged out of your admin account.",
+
+              textAlign:
+                  TextAlign.center,
+
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.4,
+                color:
+                    secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+
+        actionsPadding:
+            const EdgeInsets.fromLTRB(
+          20,
+          0,
+          20,
+          20,
+        ),
+
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+
+                  child:
+                      OutlinedButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+
+                    style:
+                        OutlinedButton
+                            .styleFrom(
+                      foregroundColor:
+                          const Color(
+                        0xFF374151,
+                      ),
+
+                      side:
+                          const BorderSide(
+                        color:
+                            borderColor,
+                      ),
+
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                          12,
+                        ),
+                      ),
+                    ),
+
+                    child:
+                        const Text(
+                      "Cancel",
+
+                      style:
+                          TextStyle(
+                        fontWeight:
+                            FontWeight
+                                .w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(
+                width: 10,
+              ),
+
+              Expanded(
+                child: SizedBox(
+                  height: 44,
+
+                  child:
+                      ElevatedButton(
+                    onPressed:
+                        () async {
+                      Get.back();
+
+                      try {
+                        await authService
+                            .logout();
+
+                        Get.offAll(
+                          () =>
+                              LoginScreen(),
+                        );
+                      } catch (e) {
+                        Get.snackbar(
+                          "Logout Failed",
+                          e.toString(),
+
+                          snackPosition:
+                              SnackPosition
+                                  .TOP,
+
+                          backgroundColor:
+                              redAccent,
+
+                          colorText:
+                              Colors.white,
+                        );
+                      }
+                    },
+
+                    style:
+                        ElevatedButton
+                            .styleFrom(
+                      backgroundColor:
+                          redAccent,
+
+                      foregroundColor:
+                          Colors.white,
+
+                      elevation: 0,
+
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                          12,
+                        ),
+                      ),
+                    ),
+
+                    child:
+                        const Text(
+                      "Log out",
+
+                      style:
+                          TextStyle(
+                        fontWeight:
+                            FontWeight
+                                .w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 247, 250, 248),
+      backgroundColor:
+          backgroundColor,
 
       body: SafeArea(
         child: isLoading
@@ -175,180 +471,214 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             : errorMessage != null
                 ? buildErrorState()
                 : RefreshIndicator(
-                    color: const Color(0xFF03045E),
+                    color:
+                        primaryColor,
 
-                    onRefresh: loadDashboard,
+                    onRefresh:
+                        loadDashboard,
 
-                    child: SingleChildScrollView(
+                    child:
+                        SingleChildScrollView(
                       physics:
                           const AlwaysScrollableScrollPhysics(),
 
-                      padding: const EdgeInsets.fromLTRB(
-                        20,
-                        20,
-                        20,
+                      padding:
+                          const EdgeInsets.fromLTRB(
+                        18,
+                        16,
+                        18,
                         30,
                       ),
 
                       child: Column(
                         crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                            CrossAxisAlignment
+                                .start,
 
                         children: [
                           buildHeader(),
 
-                          const SizedBox(height: 28),
+                          const SizedBox(
+                            height: 26,
+                          ),
 
                           buildSectionTitle(
                             "Overview",
                           ),
 
-                          const SizedBox(height: 14),
+                          const SizedBox(
+                            height: 13,
+                          ),
 
                           Row(
                             children: [
                               Expanded(
-                                child: buildStatCard(
-                                  title: "Total Users",
+                                child:
+                                    buildStatCard(
+                                  title:
+                                      "Total Users",
                                   value:
-                                      totalUsers.toString(),
+                                      totalUsers
+                                          .toString(),
                                   subtitle:
                                       "Registered accounts",
                                   icon: Icons
                                       .people_outline_rounded,
                                   iconColor:
-                                      const Color(
-                                    0xFF3B82F6,
-                                  ),
+                                      blueAccent,
                                   iconBackground:
-                                      const Color(
-                                    0xFFEFF6FF,
-                                  ),
+                                      blueSoft,
                                 ),
                               ),
 
-                              const SizedBox(width: 12),
+                              const SizedBox(
+                                width: 12,
+                              ),
 
                               Expanded(
-                                child: buildStatCard(
-                                  title: "Properties",
-                                  value: totalProperties
-                                      .toString(),
+                                child:
+                                    buildStatCard(
+                                  title:
+                                      "Properties",
+                                  value:
+                                      totalProperties
+                                          .toString(),
                                   subtitle:
                                       "Rental listings",
                                   icon: Icons
                                       .home_work_outlined,
                                   iconColor:
-                                      const Color(
-                                    0xFF03045E,
-                                  ),
+                                      purpleAccent,
                                   iconBackground:
-                                      const Color(
-                                    0xFF90E0EF,
-                                  ).withOpacity(
-                                    0.35,
-                                  ),
+                                      purpleSoft,
                                 ),
                               ),
                             ],
                           ),
 
-                          const SizedBox(height: 12),
+                          const SizedBox(
+                            height: 12,
+                          ),
 
                           Row(
                             children: [
                               Expanded(
-                                child: buildStatCard(
-                                  title: "Pending",
-                                  value: pendingProperties
-                                      .toString(),
+                                child:
+                                    buildStatCard(
+                                  title:
+                                      "Pending",
+                                  value:
+                                      pendingProperties
+                                          .toString(),
                                   subtitle:
                                       "Needs verification",
                                   icon: Icons
                                       .pending_actions_rounded,
                                   iconColor:
-                                      const Color(
-                                    0xFFD97706,
-                                  ),
+                                      orangeAccent,
                                   iconBackground:
-                                      const Color(
-                                    0xFFFFF3D6,
-                                  ),
+                                      orangeSoft,
                                 ),
                               ),
 
-                              const SizedBox(width: 12),
+                              const SizedBox(
+                                width: 12,
+                              ),
 
                               Expanded(
-                                child: buildStatCard(
-                                  title: "Suspended",
-                                  value: suspendedUsers
-                                      .toString(),
+                                child:
+                                    buildStatCard(
+                                  title:
+                                      "Suspended",
+                                  value:
+                                      suspendedUsers
+                                          .toString(),
                                   subtitle:
                                       "Restricted accounts",
                                   icon: Icons
                                       .block_outlined,
                                   iconColor:
-                                      const Color(
-                                    0xFFDC2626,
-                                  ),
+                                      redAccent,
                                   iconBackground:
-                                      const Color(
-                                    0xFFFEF2F2,
-                                  ),
+                                      redSoft,
                                 ),
                               ),
                             ],
                           ),
 
-                          const SizedBox(height: 30),
+                          const SizedBox(
+                            height: 30,
+                          ),
 
                           buildPendingHeader(),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(
+                            height: 10,
+                          ),
 
                           buildRecentPending(),
 
-                          const SizedBox(height: 30),
+                          const SizedBox(
+                            height: 30,
+                          ),
 
                           buildSectionTitle(
                             "Quick Management",
                           ),
 
-                          const SizedBox(height: 14),
+                          const SizedBox(
+                            height: 13,
+                          ),
 
                           buildManagementButton(
                             title:
                                 "Property Verification",
                             subtitle:
-                                "Review owner documents and property details",
+                                "Review property and owner documents",
                             icon: Icons
                                 .verified_user_outlined,
+                            iconColor:
+                                orangeAccent,
+                            iconBackground:
+                                orangeSoft,
                             onTap:
                                 goToPendingVerification,
                           ),
 
-                          const SizedBox(height: 12),
+                          const SizedBox(
+                            height: 12,
+                          ),
 
                           buildManagementButton(
                             title:
                                 "Manage Properties",
                             subtitle:
-                                "Control property availability and status",
+                                "Control listings and availability",
                             icon: Icons
                                 .home_work_outlined,
+                            iconColor:
+                                purpleAccent,
+                            iconBackground:
+                                purpleSoft,
                             onTap:
                                 goToManageProperties,
                           ),
 
-                          const SizedBox(height: 12),
+                          const SizedBox(
+                            height: 12,
+                          ),
 
                           buildManagementButton(
-                            title: "Manage Users",
+                            title:
+                                "Manage Users",
                             subtitle:
-                                "Review renter and house owner accounts",
+                                "Review renter and owner accounts",
                             icon: Icons
                                 .manage_accounts_outlined,
+                            iconColor:
+                                blueAccent,
+                            iconBackground:
+                                blueSoft,
                             onTap:
                                 goToManageUsers,
                           ),
@@ -360,83 +690,124 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Loading
   Widget buildLoadingState() {
     return const Center(
-      child: CircularProgressIndicator(
-        color: Color(0xFF03045E),
+      child:
+          CircularProgressIndicator(
+        color: primaryColor,
       ),
     );
   }
 
+  // Error
   Widget buildErrorState() {
     return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(30),
+      child:
+          SingleChildScrollView(
+        padding:
+            const EdgeInsets.all(
+          30,
+        ),
 
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize:
+              MainAxisSize.min,
 
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 70,
+              height: 70,
 
-              decoration: const BoxDecoration(
-                color: Color(0xFFFEF2F2),
-                shape: BoxShape.circle,
+              decoration:
+                  const BoxDecoration(
+                color: redSoft,
+                shape:
+                    BoxShape.circle,
               ),
 
-              child: const Icon(
-                Icons.error_outline_rounded,
-                size: 34,
-                color: Color(0xFFDC2626),
+              child:
+                  const Icon(
+                Icons
+                    .error_outline_rounded,
+                size: 33,
+                color:
+                    redAccent,
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(
+              height: 16,
+            ),
 
             const Text(
               "Unable to load dashboard",
 
               style: TextStyle(
                 fontSize: 17,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2923),
+                fontWeight:
+                    FontWeight.bold,
+                color:
+                    textColor,
               ),
             ),
 
-            const SizedBox(height: 7),
+            const SizedBox(
+              height: 7,
+            ),
 
             Text(
               errorMessage ?? "",
 
-              textAlign: TextAlign.center,
+              textAlign:
+                  TextAlign.center,
 
-              style: const TextStyle(
+              style:
+                  const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF68756D),
+                color:
+                    secondaryTextColor,
               ),
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(
+              height: 18,
+            ),
 
             ElevatedButton.icon(
-              onPressed: loadDashboard,
+              onPressed:
+                  loadDashboard,
 
-              icon: const Icon(
-                Icons.refresh_rounded,
+              icon:
+                  const Icon(
+                Icons
+                    .refresh_rounded,
               ),
 
-              label: const Text(
+              label:
+                  const Text(
                 "Try Again",
               ),
 
-              style: ElevatedButton.styleFrom(
+              style:
+                  ElevatedButton
+                      .styleFrom(
                 backgroundColor:
-                    const Color(0xFF03045E),
+                    primaryColor,
 
                 foregroundColor:
                     Colors.white,
+
+                elevation: 0,
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius
+                          .circular(
+                    12,
+                  ),
+                ),
               ),
             ),
           ],
@@ -445,82 +816,151 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Header
   Widget buildHeader() {
     return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
-
       children: [
         const Expanded(
           child: Column(
             crossAxisAlignment:
-                CrossAxisAlignment.start,
+                CrossAxisAlignment
+                    .start,
 
             children: [
               Text(
                 "Admin Dashboard",
 
                 style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2923),
+                  fontSize: 25,
+                  fontWeight:
+                      FontWeight
+                          .w800,
+                  color:
+                      textColor,
+                  letterSpacing:
+                      -0.4,
                 ),
               ),
 
-              SizedBox(height: 5),
+              SizedBox(
+                height: 4,
+              ),
 
               Text(
-                "Manage and verify rental listings.",
+                "Manage your rental platform.",
 
                 style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF68756D),
+                  fontSize: 13,
+                  color:
+                      secondaryTextColor,
                 ),
               ),
             ],
           ),
         ),
 
-        const SizedBox(width: 15),
-
+        // Admin
         Container(
-          width: 48,
-          height: 48,
+          width: 44,
+          height: 44,
 
-          decoration: BoxDecoration(
-            color: const Color(0xFF03045E),
+          decoration:
+              BoxDecoration(
+            color:
+                primaryColor,
 
             borderRadius:
-                BorderRadius.circular(15),
+                BorderRadius.circular(
+              13,
+            ),
 
             boxShadow: [
               BoxShadow(
-                color: const Color(
-                  0xFF03045E,
-                ).withOpacity(0.18),
+                color:
+                    primaryColor
+                        .withOpacity(
+                  0.16,
+                ),
 
                 blurRadius: 12,
 
                 offset:
-                    const Offset(0, 4),
+                    const Offset(
+                  0,
+                  4,
+                ),
               ),
             ],
           ),
 
-          child: const Icon(
-            Icons.admin_panel_settings_outlined,
-            color: Colors.white,
-            size: 25,
+          child:
+              const Icon(
+            Icons
+                .admin_panel_settings_outlined,
+            color:
+                Colors.white,
+            size: 23,
+          ),
+        ),
+
+        const SizedBox(
+          width: 8,
+        ),
+
+        // Logout
+        InkWell(
+          onTap:
+              showLogoutDialog,
+
+          borderRadius:
+              BorderRadius.circular(
+            13,
+          ),
+
+          child: Container(
+            width: 42,
+            height: 42,
+
+            decoration:
+                BoxDecoration(
+              color:
+                  redSoft,
+
+              borderRadius:
+                  BorderRadius
+                      .circular(
+                13,
+              ),
+
+              border:
+                  Border.all(
+                color:
+                    const Color(
+                  0xFFFECACA,
+                ),
+              ),
+            ),
+
+            child:
+                const Icon(
+              Icons
+                  .logout_rounded,
+              color:
+                  redAccent,
+              size: 20,
+            ),
           ),
         ),
       ],
     );
   }
 
+  // Pending Header
   Widget buildPendingHeader() {
     return Row(
       mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
+          MainAxisAlignment
+              .spaceBetween,
 
       children: [
         buildSectionTitle(
@@ -531,28 +971,42 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           onPressed:
               goToPendingVerification,
 
-          style: TextButton.styleFrom(
+          style:
+              TextButton.styleFrom(
             foregroundColor:
-                const Color(0xFF03045E),
+                primaryColor,
           ),
 
           child: const Row(
+            mainAxisSize:
+                MainAxisSize.min,
+
             children: [
               Text(
                 "View all",
 
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF03045E),
+                style:
+                    TextStyle(
+                  fontSize:
+                      12,
+                  fontWeight:
+                      FontWeight
+                          .w700,
+                  color:
+                      primaryColor,
                 ),
               ),
 
-              SizedBox(width: 3),
+              SizedBox(
+                width: 3,
+              ),
 
               Icon(
-                Icons.arrow_forward_rounded,
-                size: 17,
-                color: Color(0xFF03045E),
+                Icons
+                    .arrow_forward_rounded,
+                size: 16,
+                color:
+                    primaryColor,
               ),
             ],
           ),
@@ -561,59 +1015,115 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Recent Pending
   Widget buildRecentPending() {
     if (recentPending.isEmpty) {
       return Container(
         width: double.infinity,
 
-        padding: const EdgeInsets.symmetric(
-          vertical: 28,
+        padding:
+            const EdgeInsets.symmetric(
+          vertical: 30,
           horizontal: 20,
         ),
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+        decoration:
+            BoxDecoration(
+          color:
+              cardColor,
 
           borderRadius:
-              BorderRadius.circular(16),
-
-          border: Border.all(
-            color: const Color(
-              0xFFE1E9E4,
-            ),
+              BorderRadius.circular(
+            18,
           ),
+
+          border:
+              Border.all(
+            color:
+                borderColor,
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Colors.black
+                      .withOpacity(
+                0.025,
+              ),
+
+              blurRadius: 12,
+
+              offset:
+                  const Offset(
+                0,
+                4,
+              ),
+            ),
+          ],
         ),
 
-        child: const Column(
+        child: Column(
           children: [
-            Icon(
-              Icons.verified_rounded,
-              color: Color(0xFF03045E),
-              size: 34,
-            ),
+            Container(
+              width: 52,
+              height: 52,
 
-            SizedBox(height: 10),
+              decoration:
+                  BoxDecoration(
+                color:
+                    greenSoft,
 
-            Text(
-              "No pending submissions",
+                borderRadius:
+                    BorderRadius
+                        .circular(
+                  15,
+                ),
+              ),
 
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2923),
+              child:
+                  const Icon(
+                Icons
+                    .verified_rounded,
+                color:
+                    greenAccent,
+                size: 27,
               ),
             ),
 
-            SizedBox(height: 4),
+            const SizedBox(
+              height: 12,
+            ),
 
-            Text(
+            const Text(
+              "No pending submissions",
+
+              style:
+                  TextStyle(
+                fontSize: 14,
+                fontWeight:
+                    FontWeight
+                        .w700,
+                color:
+                    textColor,
+              ),
+            ),
+
+            const SizedBox(
+              height: 4,
+            ),
+
+            const Text(
               "All property submissions have been reviewed.",
 
-              textAlign: TextAlign.center,
+              textAlign:
+                  TextAlign.center,
 
-              style: TextStyle(
-                fontSize: 11.5,
-                color: Color(0xFF68756D),
+              style:
+                  TextStyle(
+                fontSize:
+                    11.5,
+                color:
+                    secondaryTextColor,
               ),
             ),
           ],
@@ -622,28 +1132,38 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
 
     return Column(
-      children: List.generate(
+      children:
+          List.generate(
         recentPending.length,
         (index) {
-          final Map<String, dynamic> property =
+          final Map<String, dynamic>
+              property =
               recentPending[index];
 
           final Widget card =
               buildPendingPropertyCard(
             title:
-                property["title"]?.toString() ??
+                property["title"]
+                        ?.toString() ??
+                    property["name"]
+                        ?.toString() ??
                     "Property",
 
             owner:
-                property["owner"]?.toString() ??
+                property["owner"]
+                        ?.toString() ??
                     "Unknown Owner",
 
             location:
-                property["location"]?.toString() ??
+                property["location"]
+                        ?.toString() ??
+                    property["address"]
+                        ?.toString() ??
                     "-",
 
             date:
-                property["submitted"]?.toString() ??
+                property["submitted"]
+                        ?.toString() ??
                     "-",
 
             image: getImageUrl(
@@ -655,14 +1175,18 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           );
 
           if (index ==
-              recentPending.length - 1) {
+              recentPending.length -
+                  1) {
             return card;
           }
 
           return Column(
             children: [
               card,
-              const SizedBox(height: 12),
+
+              const SizedBox(
+                height: 12,
+              ),
             ],
           );
         },
@@ -670,20 +1194,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Section Title
   Widget buildSectionTitle(
     String title,
   ) {
     return Text(
       title,
 
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF1F2923),
+      style:
+          const TextStyle(
+        fontSize: 17,
+        fontWeight:
+            FontWeight.w800,
+        color:
+            textColor,
+        letterSpacing:
+            -0.2,
       ),
     );
   }
 
+  // Stat Card
   Widget buildStatCard({
     required String title,
     required String value,
@@ -693,35 +1224,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required Color iconBackground,
   }) {
     return Container(
-      padding: const EdgeInsets.all(15),
+      padding:
+          const EdgeInsets.all(
+        15,
+      ),
 
-      decoration: BoxDecoration(
-        color: Colors.white,
+      decoration:
+          BoxDecoration(
+        color:
+            cardColor,
 
         borderRadius:
-            BorderRadius.circular(16),
+            BorderRadius.circular(
+          18,
+        ),
 
-        border: Border.all(
-          color: const Color(0xFFE1E9E4),
+        border:
+            Border.all(
+          color:
+              borderColor,
         ),
 
         boxShadow: [
           BoxShadow(
-            color: const Color(
-              0xFF1F2923,
-            ).withOpacity(0.035),
+            color:
+                Colors.black
+                    .withOpacity(
+              0.025,
+            ),
 
-            blurRadius: 10,
+            blurRadius: 12,
 
             offset:
-                const Offset(0, 3),
+                const Offset(
+              0,
+              4,
+            ),
           ),
         ],
       ),
 
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.start,
+            CrossAxisAlignment
+                .start,
 
         children: [
           Row(
@@ -730,23 +1276,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 width: 40,
                 height: 40,
 
-                decoration: BoxDecoration(
-                  color: iconBackground,
+                decoration:
+                    BoxDecoration(
+                  color:
+                      iconBackground,
 
                   borderRadius:
-                      BorderRadius.circular(
-                    11,
+                      BorderRadius
+                          .circular(
+                    12,
                   ),
                 ),
 
                 child: Icon(
                   icon,
-                  color: iconColor,
-                  size: 21,
+                  color:
+                      iconColor,
+                  size: 20,
                 ),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(
+                width: 10,
+              ),
 
               Expanded(
                 child: Text(
@@ -755,34 +1307,48 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   maxLines: 1,
 
                   overflow:
-                      TextOverflow.ellipsis,
+                      TextOverflow
+                          .ellipsis,
 
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style:
+                      const TextStyle(
+                    fontSize:
+                        11.5,
                     fontWeight:
-                        FontWeight.w600,
+                        FontWeight
+                            .w600,
                     color:
-                        Color(0xFF68756D),
+                        secondaryTextColor,
                   ),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: 18,
+          ),
 
           Text(
             value,
 
-            style: const TextStyle(
-              fontSize: 27,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2923),
+            style:
+                const TextStyle(
+              fontSize: 29,
+              fontWeight:
+                  FontWeight
+                      .w800,
+              color:
+                  textColor,
               height: 1,
+              letterSpacing:
+                  -0.5,
             ),
           ),
 
-          const SizedBox(height: 7),
+          const SizedBox(
+            height: 7,
+          ),
 
           Text(
             subtitle,
@@ -790,11 +1356,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             maxLines: 1,
 
             overflow:
-                TextOverflow.ellipsis,
+                TextOverflow
+                    .ellipsis,
 
-            style: const TextStyle(
-              fontSize: 10.5,
-              color: Color(0xFF94A099),
+            style:
+                const TextStyle(
+              fontSize:
+                  10.5,
+              color:
+                  Color(
+                0xFF9CA3AF,
+              ),
             ),
           ),
         ],
@@ -802,6 +1374,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Pending Card
   Widget buildPendingPropertyCard({
     required String title,
     required String owner,
@@ -814,33 +1387,47 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       onTap: onTap,
 
       borderRadius:
-          BorderRadius.circular(16),
+          BorderRadius.circular(
+        18,
+      ),
 
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding:
+            const EdgeInsets.all(
+          12,
+        ),
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+        decoration:
+            BoxDecoration(
+          color:
+              cardColor,
 
           borderRadius:
-              BorderRadius.circular(16),
+              BorderRadius.circular(
+            18,
+          ),
 
-          border: Border.all(
-            color: const Color(
-              0xFFE1E9E4,
-            ),
+          border:
+              Border.all(
+            color:
+                borderColor,
           ),
 
           boxShadow: [
             BoxShadow(
-              color: const Color(
-                0xFF1F2923,
-              ).withOpacity(0.03),
+              color:
+                  Colors.black
+                      .withOpacity(
+                0.025,
+              ),
 
-              blurRadius: 10,
+              blurRadius: 12,
 
               offset:
-                  const Offset(0, 3),
+                  const Offset(
+                0,
+                4,
+              ),
             ),
           ],
         ),
@@ -849,7 +1436,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           children: [
             ClipRRect(
               borderRadius:
-                  BorderRadius.circular(12),
+                  BorderRadius
+                      .circular(
+                13,
+              ),
 
               child: image.isEmpty
                   ? buildImagePlaceholder()
@@ -871,74 +1461,61 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(
+              width: 13,
+            ),
 
             Expanded(
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    CrossAxisAlignment
+                        .start,
 
                 children: [
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                        const EdgeInsets
+                            .symmetric(
+                      horizontal:
+                          8,
+                      vertical:
+                          4,
                     ),
 
-                    decoration: BoxDecoration(
-                      color: const Color(
-                        0xFFFFF3D6,
-                      ),
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          orangeSoft,
 
                       borderRadius:
-                          BorderRadius.circular(
+                          BorderRadius
+                              .circular(
                         20,
                       ),
                     ),
 
-                    child: Row(
-                      mainAxisSize:
-                          MainAxisSize.min,
-
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-
-                          decoration:
-                              const BoxDecoration(
-                            color: Color(
-                              0xFFD97706,
-                            ),
-
-                            shape:
-                                BoxShape.circle,
-                          ),
-                        ),
-
-                        const SizedBox(width: 5),
-
+                    child:
                         const Text(
-                          "Pending",
+                      "Pending",
 
-                          style: TextStyle(
-                            color:
-                                Color(
-                              0xFFB45309,
-                            ),
+                      style:
+                          TextStyle(
+                        color:
+                            orangeAccent,
 
-                            fontSize: 10,
+                        fontSize:
+                            10,
 
-                            fontWeight:
-                                FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                        fontWeight:
+                            FontWeight
+                                .w600,
+                      ),
                     ),
                   ),
 
-                  const SizedBox(height: 7),
+                  const SizedBox(
+                    height: 7,
+                  ),
 
                   Text(
                     title,
@@ -946,117 +1523,70 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     maxLines: 1,
 
                     overflow:
-                        TextOverflow.ellipsis,
+                        TextOverflow
+                            .ellipsis,
 
-                    style: const TextStyle(
+                    style:
+                        const TextStyle(
                       fontSize: 14,
                       fontWeight:
-                          FontWeight.bold,
+                          FontWeight
+                              .w700,
                       color:
-                          Color(0xFF1F2923),
+                          textColor,
                     ),
                   ),
 
-                  const SizedBox(height: 6),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.person_outline,
-                        size: 14,
-                        color:
-                            Color(0xFF68756D),
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Expanded(
-                        child: Text(
-                          owner,
-
-                          maxLines: 1,
-
-                          overflow:
-                              TextOverflow
-                                  .ellipsis,
-
-                          style:
-                              const TextStyle(
-                            fontSize: 11.5,
-
-                            color: Color(
-                              0xFF68756D,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(
+                    height: 6,
                   ),
 
-                  const SizedBox(height: 4),
-
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons
-                            .location_on_outlined,
-
-                        size: 14,
-
-                        color:
-                            Color(0xFF68756D),
-                      ),
-
-                      const SizedBox(width: 4),
-
-                      Expanded(
-                        child: Text(
-                          location,
-
-                          maxLines: 1,
-
-                          overflow:
-                              TextOverflow
-                                  .ellipsis,
-
-                          style:
-                              const TextStyle(
-                            fontSize: 11.5,
-
-                            color: Color(
-                              0xFF68756D,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  buildSmallInfo(
+                    Icons
+                        .person_outline,
+                    owner,
                   ),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(
+                    height: 4,
+                  ),
+
+                  buildSmallInfo(
+                    Icons
+                        .location_on_outlined,
+                    location,
+                  ),
+
+                  const SizedBox(
+                    height: 5,
+                  ),
 
                   Row(
                     children: [
                       const Icon(
                         Icons
                             .calendar_today_outlined,
-
                         size: 12,
-
                         color:
-                            Color(0xFF94A099),
+                            Color(
+                          0xFF9CA3AF,
+                        ),
                       ),
 
-                      const SizedBox(width: 5),
+                      const SizedBox(
+                        width: 5,
+                      ),
 
                       Text(
                         date,
 
                         style:
                             const TextStyle(
-                          fontSize: 10.5,
-
-                          color: Color(
-                            0xFF94A099,
+                          fontSize:
+                              10.5,
+                          color:
+                              Color(
+                            0xFF9CA3AF,
                           ),
                         ),
                       ),
@@ -1066,23 +1596,30 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ),
 
-            const SizedBox(width: 5),
+            const SizedBox(
+              width: 6,
+            ),
 
             Container(
               width: 32,
               height: 32,
 
-              decoration: BoxDecoration(
-                color: const Color(
-                  0xFF90E0EF,
-                ).withOpacity(0.25),
-
-                shape: BoxShape.circle,
+              decoration:
+                  const BoxDecoration(
+                color:
+                    Color(
+                  0xFFF3F4F6,
+                ),
+                shape:
+                    BoxShape.circle,
               ),
 
-              child: const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF03045E),
+              child:
+                  const Icon(
+                Icons
+                    .chevron_right_rounded,
+                color:
+                    primaryColor,
                 size: 20,
               ),
             ),
@@ -1092,60 +1629,125 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
+  // Small Info
+  Widget buildSmallInfo(
+    IconData icon,
+    String text,
+  ) {
+    return Row(
+      children: [
+        const SizedBox(
+          width: 0,
+        ),
+
+        Icon(
+          icon,
+          size: 14,
+          color:
+              secondaryTextColor,
+        ),
+
+        const SizedBox(
+          width: 4,
+        ),
+
+        Expanded(
+          child: Text(
+            text,
+
+            maxLines: 1,
+
+            overflow:
+                TextOverflow
+                    .ellipsis,
+
+            style:
+                const TextStyle(
+              fontSize:
+                  11.5,
+              color:
+                  secondaryTextColor,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Placeholder
   Widget buildImagePlaceholder() {
     return Container(
       width: 88,
       height: 100,
 
-      color: const Color(
-        0xFF90E0EF,
-      ).withOpacity(0.25),
+      color:
+          purpleSoft,
 
-      child: const Icon(
-        Icons.home_work_outlined,
-        color: Color(0xFF03045E),
+      child:
+          const Icon(
+        Icons
+            .home_work_outlined,
+        color:
+            purpleAccent,
         size: 30,
       ),
     );
   }
 
+  // Management Button
   Widget buildManagementButton({
     required String title,
     required String subtitle,
     required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
 
       borderRadius:
-          BorderRadius.circular(16),
+          BorderRadius.circular(
+        18,
+      ),
 
       child: Container(
-        padding: const EdgeInsets.all(15),
+        padding:
+            const EdgeInsets.all(
+          15,
+        ),
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+        decoration:
+            BoxDecoration(
+          color:
+              cardColor,
 
           borderRadius:
-              BorderRadius.circular(16),
+              BorderRadius.circular(
+            18,
+          ),
 
-          border: Border.all(
-            color: const Color(
-              0xFFE1E9E4,
-            ),
+          border:
+              Border.all(
+            color:
+                borderColor,
           ),
 
           boxShadow: [
             BoxShadow(
-              color: const Color(
-                0xFF1F2923,
-              ).withOpacity(0.025),
+              color:
+                  Colors.black
+                      .withOpacity(
+                0.02,
+              ),
 
-              blurRadius: 10,
+              blurRadius: 12,
 
               offset:
-                  const Offset(0, 3),
+                  const Offset(
+                0,
+                4,
+              ),
             ),
           ],
         ),
@@ -1156,54 +1758,65 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               width: 46,
               height: 46,
 
-              decoration: BoxDecoration(
-                color: const Color(
-                  0xFF90E0EF,
-                ).withOpacity(0.30),
+              decoration:
+                  BoxDecoration(
+                color:
+                    iconBackground,
 
                 borderRadius:
-                    BorderRadius.circular(13),
+                    BorderRadius
+                        .circular(
+                  13,
+                ),
               ),
 
               child: Icon(
                 icon,
-                color: const Color(
-                  0xFF03045E,
-                ),
-                size: 23,
+                color:
+                    iconColor,
+                size: 22,
               ),
             ),
 
-            const SizedBox(width: 14),
+            const SizedBox(
+              width: 14,
+            ),
 
             Expanded(
               child: Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                    CrossAxisAlignment
+                        .start,
 
                 children: [
                   Text(
                     title,
 
-                    style: const TextStyle(
+                    style:
+                        const TextStyle(
                       fontSize: 14,
                       fontWeight:
-                          FontWeight.bold,
+                          FontWeight
+                              .w700,
                       color:
-                          Color(0xFF1F2923),
+                          textColor,
                     ),
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(
+                    height: 4,
+                  ),
 
                   Text(
                     subtitle,
 
-                    style: const TextStyle(
-                      fontSize: 11.5,
+                    style:
+                        const TextStyle(
+                      fontSize:
+                          11.5,
                       height: 1.3,
                       color:
-                          Color(0xFF68756D),
+                          secondaryTextColor,
                     ),
                   ),
                 ],
@@ -1214,17 +1827,20 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               width: 32,
               height: 32,
 
-              decoration: BoxDecoration(
-                color: const Color(
-                  0xFF90E0EF,
-                ).withOpacity(0.20),
+              decoration:
+                  BoxDecoration(
+                color:
+                    iconBackground,
 
-                shape: BoxShape.circle,
+                shape:
+                    BoxShape.circle,
               ),
 
-              child: const Icon(
-                Icons.chevron_right_rounded,
-                color: Color(0xFF03045E),
+              child: Icon(
+                Icons
+                    .chevron_right_rounded,
+                color:
+                    iconColor,
                 size: 20,
               ),
             ),

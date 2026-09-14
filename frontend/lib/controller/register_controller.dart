@@ -1,18 +1,21 @@
 import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/widget/bottom_nav.dart';
 import 'package:final_project/widget/owner_bottom_nav.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RegisterController extends GetxController {
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController =
+      TextEditingController();
 
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController emailController =
+      TextEditingController();
 
-  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController phoneController =
+      TextEditingController();
 
-  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordController =
+      TextEditingController();
 
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -25,18 +28,23 @@ class RegisterController extends GetxController {
 
   final AuthService authService = AuthService();
 
+  // Select Role
   void selectRole(String role) {
     selectedRole.value = role;
   }
 
+  // Password
   void togglePassword() {
     hidePassword.value = !hidePassword.value;
   }
 
+  // Confirm Password
   void toggleConfirmPassword() {
-    hideConfirmPassword.value = !hideConfirmPassword.value;
+    hideConfirmPassword.value =
+        !hideConfirmPassword.value;
   }
 
+  // Success Notification
   void showSuccessNotification({
     required String title,
     required String message,
@@ -47,11 +55,15 @@ class RegisterController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       borderRadius: 18,
       borderColor: const Color(0xFFE5E7EB),
       borderWidth: 1,
       duration: const Duration(seconds: 3),
+
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
@@ -110,18 +122,26 @@ class RegisterController extends GetxController {
     );
   }
 
-  void showErrorNotification({required String title, required String message}) {
+  // Error Notification
+  void showErrorNotification({
+    required String title,
+    required String message,
+  }) {
     Get.snackbar(
       '',
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
       borderRadius: 18,
       borderColor: const Color(0xFFF3D2D2),
       borderWidth: 1,
       duration: const Duration(seconds: 3),
+
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
@@ -180,17 +200,28 @@ class RegisterController extends GetxController {
     );
   }
 
+  // Register
   Future<void> register() async {
-    final String name = nameController.text.trim();
+    if (isLoading.value) {
+      return;
+    }
 
-    final String email = emailController.text.trim();
+    final String name =
+        nameController.text.trim();
 
-    final String phone = phoneController.text.trim();
+    final String email =
+        emailController.text.trim();
 
-    final String password = passwordController.text.trim();
+    final String phone =
+        phoneController.text.trim();
 
-    final String confirmPassword = confirmPasswordController.text.trim();
+    final String password =
+        passwordController.text.trim();
 
+    final String confirmPassword =
+        confirmPasswordController.text.trim();
+
+    // Validation
     if (name.isEmpty ||
         email.isEmpty ||
         phone.isEmpty ||
@@ -199,6 +230,15 @@ class RegisterController extends GetxController {
       showErrorNotification(
         title: "Missing Information",
         message: "Please fill in all fields.",
+      );
+
+      return;
+    }
+
+    if (!GetUtils.isEmail(email)) {
+      showErrorNotification(
+        title: "Invalid Email",
+        message: "Please enter a valid email address.",
       );
 
       return;
@@ -216,74 +256,80 @@ class RegisterController extends GetxController {
     if (password.length < 6) {
       showErrorNotification(
         title: "Password Error",
-        message: "Password must contain at least 6 characters.",
+        message:
+            "Password must contain at least 6 characters.",
       );
 
       return;
     }
 
+    final String role =
+        selectedRole.value == "Renter"
+            ? "renter"
+            : "house_owner";
+
     try {
       isLoading.value = true;
 
-      final UserCredential userCredential = await authService.registerWithEmail(
-        email: email,
-        password: password,
-      );
-
-      final User? user = userCredential.user;
-
-      if (user == null) {
-        throw Exception("Firebase user was not created");
-      }
-
-      await user.updateDisplayName(name);
-
-      final String role = selectedRole.value == "Renter"
-          ? "renter"
-          : "house_owner";
-
-      await authService.saveUserToLaravel(
-        firebaseUid: user.uid,
+      // Laravel Register
+      final Map<String, dynamic> userData =
+          await authService.registerWithEmail(
         name: name,
         email: email,
         phone: phone,
+        password: password,
+        passwordConfirmation: confirmPassword,
         role: role,
       );
 
+      final String userRole =
+          userData["role"]?.toString() ?? role;
+
+      final String status =
+          userData["status"]?.toString() ?? "active";
+
+      print("Laravel user ID: ${userData["id"]}");
+      print("Name: ${userData["name"]}");
+      print("Email: ${userData["email"]}");
+      print("Role: $userRole");
+      print("Status: $status");
+
       showSuccessNotification(
         title: "Account Created",
-        message: "Your account was created successfully.",
+        message:
+            "Your account was created successfully.",
       );
 
-      if (selectedRole.value == "Renter") {
-        Get.offAll(() => BottomNav());
-      } else if (selectedRole.value == "House Owner") {
-        Get.offAll(() => OwnerBottomNav());
-      }
-
-      print("Firebase UID: ${user.uid}");
-      print("Name: $name");
-      print("Email: $email");
-      print("Phone: $phone");
-      print("Role: $role");
-    } on FirebaseAuthException catch (e) {
-      String message = "Registration failed.";
-
-      if (e.code == "email-already-in-use") {
-        message = "This email is already registered.";
-      } else if (e.code == "invalid-email") {
-        message = "Please enter a valid email.";
-      } else if (e.code == "weak-password") {
-        message = "Your password is too weak.";
+      // Role Routing
+      if (userRole == "renter") {
+        Get.offAll(
+          () => BottomNav(),
+        );
+      } else if (userRole == "house_owner") {
+        Get.offAll(
+          () => OwnerBottomNav(),
+        );
       } else {
-        message = e.message ?? "Registration failed.";
+        await authService.logout();
+
+        showErrorNotification(
+          title: "Role Error",
+          message: "User role is not recognized.",
+        );
+      }
+    } catch (e) {
+      String message = e.toString();
+
+      if (message.startsWith("Exception: ")) {
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
+        );
       }
 
-      showErrorNotification(title: "Registration Failed", message: message);
-    } catch (e) {
       showErrorNotification(
         title: "Registration Failed",
-        message: e.toString(),
+        message: message,
       );
     } finally {
       isLoading.value = false;

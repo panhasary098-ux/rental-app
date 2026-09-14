@@ -1,271 +1,403 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
   FirebaseAuth auth = FirebaseAuth.instance;
   GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
+  FlutterSecureStorage storage = FlutterSecureStorage();
+
   String baseUrl = "http://10.0.2.2:8000/api";
 
-  // Register
-  Future<UserCredential> registerWithEmail({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      throw (e);
-    }
+  // Save Token
+  Future<void> saveToken(String token) async {
+    await storage.write(
+      key: "auth_token",
+      value: token,
+    );
   }
 
-  // Save user to Laravel/postgreSQL
-  Future<void> saveUserToLaravel({
-    required String firebaseUid,
+  // Get Token
+  Future<String?> getToken() async {
+    return await storage.read(
+      key: "auth_token",
+    );
+  }
+
+  // Delete Token
+  Future<void> deleteToken() async {
+    await storage.delete(
+      key: "auth_token",
+    );
+  }
+
+  // Has Token
+  Future<bool> hasToken() async {
+    String? token = await getToken();
+
+    return token != null && token.isNotEmpty;
+  }
+
+  // Auth Headers
+  Future<Map<String, String>> getAuthHeaders() async {
+    String? token = await getToken();
+
+    if (token == null || token.isEmpty) {
+      throw Exception("User is not logged in");
+    }
+
+    return {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+  }
+
+  // Register
+  Future<Map<String, dynamic>> registerWithEmail({
     required String name,
     required String email,
     required String phone,
+    required String password,
+    required String passwordConfirmation,
     required String role,
   }) async {
-    try {
-      var response = await http.post(
-        Uri.parse("$baseUrl/users"),
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        body: jsonEncode({
-          "firebase_uid": firebaseUid,
-          "name": name,
-          "email": email,
-          "phone": phone,
-          "role": role,
-        }),
-      );
+    final response = await http.post(
+      Uri.parse("$baseUrl/register"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "name": name,
+        "email": email,
+        "phone": phone,
+        "password": password,
+        "password_confirmation": passwordConfirmation,
+        "role": role,
+      }),
+    );
 
-      if (response.statusCode != 201) {
-        throw Exception("Failed to save user: ${response.body}");
-      }
-    } catch (e) {
-      throw Exception("Laravel connection failed: $e");
+    Map<String, dynamic> data = jsonDecode(response.body);
+
+    if (response.statusCode == 200 ||
+        response.statusCode == 201) {
+      String token = data["token"];
+
+      // Save Token
+      await saveToken(token);
+
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
     }
+
+    throw Exception(
+      data["message"] ?? "Registration failed",
+    );
   }
 
   // Login
-  Future<UserCredential> loginWithEamil({
+  Future<Map<String, dynamic>> loginWithEamil({
     required String email,
     required String password,
   }) async {
-    try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      throw e;
-    }
-  }
-
-  // Get user from Laravel by firebase UID
-  Future<Map<String, dynamic>> getUserFromLaravel(String firebaseUid) async {
-    try {
-      var response = await http.get(
-        Uri.parse("$baseUrl/users/firebase/$firebaseUid"),
-        headers: {"Accept": "application/json"},
-      );
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-
-        return data["user"];
-      }
-
-      throw Exception("User not found: ${response.body}");
-    } catch (e) {
-      throw Exception("Failed to get user from Laravel: $e");
-    }
-  }
-
-  // Forgot password
-  Future<void> resetPassword(String email) async {
-    try {
-      await auth.sendPasswordResetEmail(email: email);
-    } on FirebaseAuthException catch (e) {
-      throw (e);
-    }
-  }
-
-  // Google login
-  Future<UserCredential> loginWithGoogle() async {
-    await googleSignIn.initialize();
-
-    GoogleSignInAccount googleUser = await googleSignIn.authenticate();
-
-    GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-    OAuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
+    final response = await http.post(
+      Uri.parse("$baseUrl/login"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "email": email,
+        "password": password,
+      }),
     );
 
-    return await auth.signInWithCredential(credential);
-  }
-
-  // Facebook login
-  Future<UserCredential> loginWithFacebook() async {
-    LoginResult loginResult = await FacebookAuth.instance.login(
-      permissions: ["email", "public_profile"],
-    );
-
-    if (loginResult.status != LoginStatus.success) {
-      throw Exception(loginResult.message ?? "Facebook login failed");
-    }
-
-    AccessToken? accessToken = loginResult.accessToken;
-
-    if (accessToken == null) {
-      throw Exception("Facebook access token not found");
-    }
-
-    OAuthCredential credential = FacebookAuthProvider.credential(
-      accessToken.tokenString,
-    );
-
-    return await auth.signInWithCredential(credential);
-  }
-
-  Future<Map<String, dynamic>> getMe() async {
-    User? user = auth.currentUser;
-
-    if (user == null) {
-      throw Exception("Firebase user not found");
-    }
-
-    String? token = await user.getIdToken();
-
-    final response = await http.get(
-      Uri.parse("$baseUrl/me"),
-      headers: {"Authorization": "Bearer $token", "Accept": "application/json"},
-    );
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      String token = data["token"];
 
-      return data["user"];
-    }
+      // Save Token
+      await saveToken(token);
 
-    if (response.statusCode == 403) {
-      final data = jsonDecode(response.body);
-
-      throw Exception(data["message"] ?? "Access forbidden");
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
     }
 
     if (response.statusCode == 401) {
-      final data = jsonDecode(response.body);
-
-      throw Exception(data["message"] ?? "Unauthorized");
+      throw Exception(
+        data["message"] ?? "Invalid email or password",
+      );
     }
 
-    throw Exception("Failed to get user: ${response.body}");
+    if (response.statusCode == 403) {
+      throw Exception(
+        data["message"] ?? "Account suspended",
+      );
+    }
+
+    throw Exception(
+      data["message"] ?? "Login failed",
+    );
   }
 
-  Future<Map<String, dynamic>> checkSocialUser() async {
+  // Google Login
+  Future<UserCredential> loginWithGoogle() async {
+    await googleSignIn.initialize();
+
+    GoogleSignInAccount googleUser =
+        await googleSignIn.authenticate();
+
+    GoogleSignInAuthentication googleAuth =
+        googleUser.authentication;
+
+    OAuthCredential credential =
+        GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+    );
+
+    return await auth.signInWithCredential(
+      credential,
+    );
+  }
+
+  // Facebook Login
+  Future<UserCredential> loginWithFacebook() async {
+    LoginResult loginResult =
+        await FacebookAuth.instance.login(
+      permissions: [
+        "email",
+        "public_profile",
+      ],
+    );
+
+    if (loginResult.status !=
+        LoginStatus.success) {
+      throw Exception(
+        loginResult.message ??
+            "Facebook login failed",
+      );
+    }
+
+    AccessToken? accessToken =
+        loginResult.accessToken;
+
+    if (accessToken == null) {
+      throw Exception(
+        "Facebook access token not found",
+      );
+    }
+
+    OAuthCredential credential =
+        FacebookAuthProvider.credential(
+      accessToken.tokenString,
+    );
+
+    return await auth.signInWithCredential(
+      credential,
+    );
+  }
+
+  // Check Social User
+  Future<Map<String, dynamic>>
+      checkSocialUser() async {
     User? user = auth.currentUser;
 
     if (user == null) {
-      throw Exception("Firebase user not found");
+      throw Exception(
+        "Firebase social user not found",
+      );
     }
 
-    String? token = await user.getIdToken();
+    String? firebaseToken =
+        await user.getIdToken();
 
     final response = await http.post(
       Uri.parse("$baseUrl/auth/social-sync"),
       headers: {
-        "Authorization": "Bearer $token",
+        "Authorization":
+            "Bearer $firebaseToken",
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
     );
 
-    Map<String, dynamic> data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
     if (response.statusCode == 200) {
+      // Laravel Token
+      if (data["token"] != null) {
+        await saveToken(data["token"]);
+      }
+
       return data;
     }
 
-    throw Exception(data["message"] ?? "Failed to check social user");
+    throw Exception(
+      data["message"] ??
+          "Failed to check social user",
+    );
   }
 
-  Future<Map<String, dynamic>> createSocialUser(String role) async {
+  // Create Social User
+  Future<Map<String, dynamic>>
+      createSocialUser(String role) async {
     User? user = auth.currentUser;
 
     if (user == null) {
-      throw Exception("Firebase user not found");
+      throw Exception(
+        "Firebase social user not found",
+      );
     }
 
-    String? token = await user.getIdToken();
+    String? firebaseToken =
+        await user.getIdToken();
 
     final response = await http.post(
-      Uri.parse("$baseUrl/auth/social-register"),
+      Uri.parse(
+        "$baseUrl/auth/social-register",
+      ),
       headers: {
-        "Authorization": "Bearer $token",
+        "Authorization":
+            "Bearer $firebaseToken",
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
-      body: jsonEncode({"role": role}),
+      body: jsonEncode({
+        "role": role,
+      }),
     );
 
-    Map<String, dynamic> data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return data["user"];
+    if (response.statusCode == 200 ||
+        response.statusCode == 201) {
+      // Laravel Token
+      if (data["token"] != null) {
+        await saveToken(data["token"]);
+      }
+
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
     }
 
-    throw Exception(data["message"] ?? "Failed to create social user");
+    throw Exception(
+      data["message"] ??
+          "Failed to create social user",
+    );
   }
 
-  Future<Map<String, dynamic>> getCurrentUserFromLaravel() async {
-    User? firebaseUser = FirebaseAuth.instance.currentUser;
-
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
-    }
-
-    String? token = await firebaseUser.getIdToken();
+  // Current User
+  Future<Map<String, dynamic>>
+      getCurrentUserFromLaravel() async {
+    Map<String, String> headers =
+        await getAuthHeaders();
 
     final response = await http.get(
       Uri.parse("$baseUrl/me"),
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+      headers: headers,
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
-      return data["user"];
-    } else {
-      throw Exception("Failed to get user: ${response.body}");
+    if (response.statusCode == 200) {
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
     }
+
+    if (response.statusCode == 401) {
+      // Invalid Token
+      await deleteToken();
+
+      throw Exception(
+        data["message"] ?? "Unauthorized",
+      );
+    }
+
+    if (response.statusCode == 403) {
+      throw Exception(
+        data["message"] ?? "Access forbidden",
+      );
+    }
+
+    throw Exception(
+      data["message"] ??
+          "Failed to get user",
+    );
   }
 
-  Future<String?> uploadProfileImage(File image) async {
-    User? firebaseUser = auth.currentUser;
+  // Get Me
+  Future<Map<String, dynamic>> getMe() async {
+    return await getCurrentUserFromLaravel();
+  }
 
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
+  // Update User
+  Future<Map<String, dynamic>>
+      updateCurrentUser({
+    required String name,
+    required String phone,
+  }) async {
+    String? token = await getToken();
+
+    if (token == null || token.isEmpty) {
+      throw Exception(
+        "User is not logged in",
+      );
     }
 
-    String? token = await firebaseUser.getIdToken();
+    final response = await http.put(
+      Uri.parse("$baseUrl/me"),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({
+        "name": name,
+        "phone": phone,
+      }),
+    );
+
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
+    }
+
+    throw Exception(
+      data["message"] ??
+          "Unable to update profile",
+    );
+  }
+
+  // Upload Profile Image
+  Future<String?> uploadProfileImage(
+    File image,
+  ) async {
+    String? token = await getToken();
+
+    if (token == null || token.isEmpty) {
+      throw Exception(
+        "User is not logged in",
+      );
+    }
 
     var request = http.MultipartRequest(
       "POST",
@@ -278,167 +410,146 @@ class AuthService {
     });
 
     request.files.add(
-      await http.MultipartFile.fromPath("profile_image", image.path),
+      await http.MultipartFile.fromPath(
+        "profile_image",
+        image.path,
+      ),
     );
 
-    var streamedResponse = await request.send();
+    var streamedResponse =
+        await request.send();
 
-    var response = await http.Response.fromStream(streamedResponse);
+    var response =
+        await http.Response.fromStream(
+      streamedResponse,
+    );
+
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
       return data["profile_image"];
-    } else {
-      throw Exception("Failed to upload profile image: ${response.body}");
     }
+
+    throw Exception(
+      data["message"] ??
+          "Failed to upload profile image",
+    );
   }
 
-  // ======================================================
-  // NEW: NATIONAL ID
-  // CHECK IF OWNER ALREADY HAS NATIONAL ID
-  // ======================================================
-
+  // Check National ID
   Future<bool> checkNationalIdStatus() async {
-    // Get currently logged-in Firebase user
-    User? firebaseUser = auth.currentUser;
-
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
-    }
-
-    // Get Firebase authentication token
-    String? token = await firebaseUser.getIdToken();
+    String? token = await getToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception("Unable to get authentication token");
+      throw Exception(
+        "User is not logged in",
+      );
     }
 
-    // Call Laravel National ID status API
     final response = await http.get(
-      Uri.parse("$baseUrl/owner/national-id/status"),
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+      Uri.parse(
+        "$baseUrl/owner/national-id/status",
+      ),
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      },
     );
 
-    // Convert Laravel response to Map
-    final data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
-    // Successful request
-    if (response.statusCode == 200 && data["success"] == true) {
-      // true  = National ID already uploaded
-      // false = National ID not uploaded yet
+    if (response.statusCode == 200 &&
+        data["success"] == true) {
       return data["has_national_id"] == true;
     }
 
-    // Laravel returned an error
-    throw Exception(data["message"] ?? "Unable to check National ID status.");
+    throw Exception(
+      data["message"] ??
+          "Unable to check National ID status",
+    );
   }
 
-  // ======================================================
-  // NEW: NATIONAL ID
-  // UPLOAD NATIONAL ID TO LARAVEL
-  // ======================================================
-
-  Future<bool> uploadNationalId(File image) async {
-    // Get currently logged-in Firebase user
-    User? firebaseUser = auth.currentUser;
-
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
-    }
-
-    // Get Firebase authentication token
-    String? token = await firebaseUser.getIdToken();
+  // Upload National ID
+  Future<bool> uploadNationalId(
+    File image,
+  ) async {
+    String? token = await getToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception("Unable to get authentication token");
+      throw Exception(
+        "User is not logged in",
+      );
     }
 
-    // Create multipart request because we are sending an image
     final request = http.MultipartRequest(
       "POST",
-      Uri.parse("$baseUrl/owner/national-id"),
+      Uri.parse(
+        "$baseUrl/owner/national-id",
+      ),
     );
 
-    // Add authentication headers
     request.headers.addAll({
       "Accept": "application/json",
       "Authorization": "Bearer $token",
     });
 
-    // Add National ID image
-    //
-    // IMPORTANT:
-    // "national_id" must match Laravel validation:
-    //
-    // $request->file('national_id')
-    //
     request.files.add(
-      await http.MultipartFile.fromPath("national_id", image.path),
+      await http.MultipartFile.fromPath(
+        "national_id",
+        image.path,
+      ),
     );
 
-    // Send request
-    final streamedResponse = await request.send();
+    final streamedResponse =
+        await request.send();
 
-    // Convert streamed response to normal HTTP response
-    final response = await http.Response.fromStream(streamedResponse);
+    final response =
+        await http.Response.fromStream(
+      streamedResponse,
+    );
 
-    // Convert response body to Map
-    final data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
-    // Upload successful
-    if (response.statusCode == 200 && data["success"] == true) {
+    if (response.statusCode == 200 &&
+        data["success"] == true) {
       return true;
     }
 
-    // Upload failed
-    throw Exception(data["message"] ?? "Unable to upload National ID.");
-  }
-
-  // Update User
-  Future<Map<String, dynamic>> updateCurrentUser({
-    required String name,
-    required String phone,
-  }) async {
-    User? firebaseUser = auth.currentUser;
-
-    if (firebaseUser == null) {
-      throw Exception("User is not logged in");
-    }
-
-    String? token = await firebaseUser.getIdToken();
-
-    if (token == null || token.isEmpty) {
-      throw Exception("Unable to get authentication token");
-    }
-
-    final response = await http.put(
-      Uri.parse("$baseUrl/me"),
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
-      },
-      body: jsonEncode({"name": name, "phone": phone}),
+    throw Exception(
+      data["message"] ??
+          "Unable to upload National ID",
     );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      return Map<String, dynamic>.from(data["user"]);
-    }
-
-    final data = jsonDecode(response.body);
-
-    throw Exception(data["message"] ?? "Unable to update profile");
   }
 
   // Logout
   Future<void> logout() async {
+    String? token = await getToken();
+
+    if (token != null && token.isNotEmpty) {
+      try {
+        await http.post(
+          Uri.parse("$baseUrl/logout"),
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+          },
+        );
+      } catch (e) {
+        // Continue Logout
+      }
+    }
+
+    // Delete Laravel Token
+    await deleteToken();
+
+    // Firebase Social Logout
     await auth.signOut();
   }
 
-  // Current user
+  // Current Firebase User
   User? getCurrentUser() {
     return auth.currentUser;
   }

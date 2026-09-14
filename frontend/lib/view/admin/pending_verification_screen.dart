@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PendingVerificationScreen extends StatefulWidget {
-  const PendingVerificationScreen({super.key});
+  const PendingVerificationScreen({
+    super.key,
+  });
 
   @override
   State<PendingVerificationScreen> createState() =>
@@ -17,6 +19,55 @@ class _PendingVerificationScreenState
 
   final TextEditingController searchController =
       TextEditingController();
+
+  // Colors
+  static const Color primaryColor =
+      Color(0xFF03045E);
+
+  static const Color backgroundColor =
+      Color(0xFFF8FAFC);
+
+  static const Color cardColor =
+      Colors.white;
+
+  static const Color textColor =
+      Color(0xFF111827);
+
+  static const Color secondaryTextColor =
+      Color(0xFF6B7280);
+
+  static const Color borderColor =
+      Color(0xFFE5E7EB);
+
+  static const Color orangeAccent =
+      Color(0xFFD97706);
+
+  static const Color orangeSoft =
+      Color(0xFFFFF7E6);
+
+  static const Color blueAccent =
+      Color(0xFF2563EB);
+
+  static const Color blueSoft =
+      Color(0xFFEFF6FF);
+
+  static const Color purpleAccent =
+      Color(0xFF7C3AED);
+
+  static const Color purpleSoft =
+      Color(0xFFF3E8FF);
+
+  static const Color greenAccent =
+      Color(0xFF16A34A);
+
+  static const Color greenSoft =
+      Color(0xFFECFDF3);
+
+  static const Color redAccent =
+      Color(0xFFDC2626);
+
+  static const Color redSoft =
+      Color(0xFFFEF2F2);
 
   List<Map<String, dynamic>> pendingProperties = [];
   List<Map<String, dynamic>> filteredProperties = [];
@@ -38,18 +89,21 @@ class _PendingVerificationScreenState
   @override
   void dispose() {
     searchController.dispose();
+
     super.dispose();
   }
 
-  // Load real pending properties from Laravel
+  // Load Pending
   Future<void> loadPendingProperties() async {
     try {
-      setState(() {
-        isLoading = true;
-        errorMessage = null;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = true;
+          errorMessage = null;
+        });
+      }
 
-      final properties =
+      final List<Map<String, dynamic>> properties =
           await adminService.getPendingProperties();
 
       if (!mounted) {
@@ -58,7 +112,12 @@ class _PendingVerificationScreenState
 
       setState(() {
         pendingProperties = properties;
-        filteredProperties = properties;
+
+        filteredProperties =
+            List<Map<String, dynamic>>.from(
+          properties,
+        );
+
         isLoading = false;
       });
 
@@ -68,10 +127,14 @@ class _PendingVerificationScreenState
         return;
       }
 
-      String message = e.toString();
+      String message =
+          e.toString();
 
-      if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
+      if (message.startsWith(
+        "Exception: ",
+      )) {
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -84,10 +147,12 @@ class _PendingVerificationScreenState
     }
   }
 
-  // Search property, owner or location
+  // Search
   void filterProperties() {
     final String query =
-        searchController.text.trim().toLowerCase();
+        searchController.text
+            .trim()
+            .toLowerCase();
 
     if (!mounted) {
       return;
@@ -106,39 +171,50 @@ class _PendingVerificationScreenState
 
     setState(() {
       filteredProperties =
-          pendingProperties.where((property) {
-        final String title =
-            property["title"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+          pendingProperties.where(
+        (property) {
+          final String title =
+              property["title"]
+                      ?.toString()
+                      .toLowerCase() ??
+                  property["name"]
+                      ?.toString()
+                      .toLowerCase() ??
+                  "";
 
-        final String owner =
-            property["owner"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+          final String owner =
+              property["owner"]
+                      ?.toString()
+                      .toLowerCase() ??
+                  "";
 
-        final String location =
-            property["location"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+          final String location =
+              property["location"]
+                      ?.toString()
+                      .toLowerCase() ??
+                  property["address"]
+                      ?.toString()
+                      .toLowerCase() ??
+                  "";
 
-        return title.contains(query) ||
-            owner.contains(query) ||
-            location.contains(query);
-      }).toList();
+          return title.contains(query) ||
+              owner.contains(query) ||
+              location.contains(query);
+        },
+      ).toList();
     });
   }
 
-  // Fix Laravel localhost URL for Android emulator
-  String getImageUrl(dynamic value) {
+  // Image URL
+  String getImageUrl(
+    dynamic value,
+  ) {
     if (value == null) {
       return "";
     }
 
-    String url = value.toString();
+    String url =
+        value.toString();
 
     url = url.replaceFirst(
       "http://localhost:8000",
@@ -153,32 +229,66 @@ class _PendingVerificationScreenState
     return url;
   }
 
+  // Open Review
+  Future<void> openReview(
+    Map<String, dynamic> property,
+  ) async {
+    final dynamic result =
+        await Get.to(
+      () => PropertyReviewScreen(
+        property: property,
+      ),
+    );
+
+    if (result is Map &&
+        result["success"] == true) {
+      await loadPendingProperties();
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
-      backgroundColor: Color(0xFFF7FAF8),
+      backgroundColor:
+          backgroundColor,
 
       appBar: AppBar(
-        backgroundColor: Color(0xFFF7FAF8),
+        backgroundColor:
+            backgroundColor,
+
         elevation: 0,
+
         scrolledUnderElevation: 0,
 
         leading: IconButton(
           onPressed: () {
             Get.back();
           },
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF1F2923),
+
+          icon: const Icon(
+            Icons
+                .arrow_back_ios_new_rounded,
+
+            color: textColor,
+
+            size: 20,
           ),
         ),
 
-        title: Text(
+        title: const Text(
           "Pending Verification",
+
           style: TextStyle(
-            color: Color(0xFF1F2923),
-            fontWeight: FontWeight.bold,
+            color: textColor,
+
+            fontWeight:
+                FontWeight.w800,
+
             fontSize: 20,
+
+            letterSpacing: -0.2,
           ),
         ),
 
@@ -188,226 +298,37 @@ class _PendingVerificationScreenState
       body: SafeArea(
         child: Column(
           children: [
-            // Pending summary
+            // Summary
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
+              padding:
+                  const EdgeInsets.fromLTRB(
+                18,
+                8,
+                18,
+                8,
               ),
 
-              child: Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(16),
-
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius:
-                      BorderRadius.circular(16),
-
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color(0xFF1F2923)
-                          .withOpacity(0.05),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF59E0B),
-                        borderRadius:
-                            BorderRadius.circular(
-                          13,
-                        ),
-                      ),
-
-                      child: Icon(
-                        Icons.pending_actions_rounded,
-                        color: Colors.white,
-                        size: 25,
-                      ),
-                    ),
-
-                    SizedBox(width: 14),
-
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
-
-                        children: [
-                          Text(
-                            "${pendingProperties.length} submissions waiting",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight:
-                                  FontWeight.bold,
-                              color:
-                                  Color(0xFF1F2923),
-                            ),
-                          ),
-
-                          SizedBox(height: 4),
-
-                          Text(
-                            "Review property and owner documents before approval.",
-                            style: TextStyle(
-                              fontSize: 12,
-                              height: 1.35,
-                              color:
-                                  Color(0xFF68756D),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(width: 8),
-
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(
-                        horizontal: 11,
-                        vertical: 6,
-                      ),
-
-                      decoration: BoxDecoration(
-                        color: Color(0xFFFFF3D6),
-                        borderRadius:
-                            BorderRadius.circular(
-                          20,
-                        ),
-                      ),
-
-                      child: Text(
-                        pendingProperties.length
-                            .toString(),
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight:
-                              FontWeight.bold,
-                          color:
-                              Color(0xFFD97706),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              child: buildSummaryCard(),
             ),
 
             // Search
             Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 8,
+              padding:
+                  const EdgeInsets.fromLTRB(
+                18,
+                6,
+                18,
+                8,
               ),
 
-              child: TextField(
-                controller: searchController,
-
-                decoration: InputDecoration(
-                  hintText:
-                      "Search property or owner",
-
-                  hintStyle: TextStyle(
-                    color: Color(0xFF94A099),
-                    fontSize: 14,
-                  ),
-
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: Color(0xFF68756D),
-                  ),
-
-                  suffixIcon: searchController
-                          .text
-                          .isNotEmpty
-                      ? IconButton(
-                          onPressed: () {
-                            searchController.clear();
-                          },
-                          icon: Icon(
-                            Icons.close_rounded,
-                            color:
-                                Color(0xFF03045E),
-                          ),
-                        )
-                      : Container(
-                          margin:
-                              EdgeInsets.all(8),
-
-                          decoration:
-                              BoxDecoration(
-                            color: Color(
-                              0xFF90E0EF,
-                            ).withOpacity(0.25),
-
-                            borderRadius:
-                                BorderRadius.circular(
-                              9,
-                            ),
-                          ),
-
-                          child: Icon(
-                            Icons.tune_rounded,
-                            color:
-                                Color(0xFF03045E),
-                            size: 20,
-                          ),
-                        ),
-
-                  filled: true,
-                  fillColor: Colors.white,
-
-                  contentPadding:
-                      EdgeInsets.symmetric(
-                    vertical: 14,
-                  ),
-
-                  border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
-
-                    borderSide: BorderSide(
-                      color: Color(0xFFE1E9E4),
-                    ),
-                  ),
-
-                  enabledBorder:
-                      OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
-
-                    borderSide: BorderSide(
-                      color: Color(0xFFE1E9E4),
-                    ),
-                  ),
-
-                  focusedBorder:
-                      OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
-
-                    borderSide: BorderSide(
-                      color: Color(0xFF03045E),
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-              ),
+              child: buildSearchField(),
             ),
 
-            SizedBox(height: 5),
+            const SizedBox(
+              height: 4,
+            ),
 
-            // Main content
+            // Content
             Expanded(
               child: buildContent(),
             ),
@@ -417,217 +338,672 @@ class _PendingVerificationScreenState
     );
   }
 
-  // Loading, error, empty or property list
+  // Summary
+  Widget buildSummaryCard() {
+    return Container(
+      width: double.infinity,
+
+      padding:
+          const EdgeInsets.all(
+        16,
+      ),
+
+      decoration:
+          BoxDecoration(
+        color: cardColor,
+
+        borderRadius:
+            BorderRadius.circular(
+          18,
+        ),
+
+        border:
+            Border.all(
+          color: borderColor,
+        ),
+
+        boxShadow: [
+          BoxShadow(
+            color:
+                Colors.black
+                    .withOpacity(
+              0.025,
+            ),
+
+            blurRadius: 12,
+
+            offset:
+                const Offset(
+              0,
+              4,
+            ),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+
+            decoration:
+                BoxDecoration(
+              color:
+                  orangeSoft,
+
+              borderRadius:
+                  BorderRadius
+                      .circular(
+                14,
+              ),
+            ),
+
+            child:
+                const Icon(
+              Icons
+                  .pending_actions_rounded,
+
+              color:
+                  orangeAccent,
+
+              size: 25,
+            ),
+          ),
+
+          const SizedBox(
+            width: 14,
+          ),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment
+                      .start,
+
+              children: [
+                Text(
+                  "${pendingProperties.length} submissions waiting",
+
+                  style:
+                      const TextStyle(
+                    fontSize: 16,
+
+                    fontWeight:
+                        FontWeight
+                            .w800,
+
+                    color:
+                        textColor,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: 4,
+                ),
+
+                const Text(
+                  "Review property details and verification documents.",
+
+                  style:
+                      TextStyle(
+                    fontSize:
+                        11.5,
+
+                    height: 1.35,
+
+                    color:
+                        secondaryTextColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(
+            width: 10,
+          ),
+
+          Container(
+            width: 36,
+
+            padding:
+                const EdgeInsets
+                    .symmetric(
+              horizontal: 10,
+              vertical: 7,
+            ),
+
+            decoration:
+                BoxDecoration(
+              color:
+                  orangeSoft,
+
+              borderRadius:
+                  BorderRadius
+                      .circular(
+                20,
+              ),
+
+              border:
+                  Border.all(
+                color:
+                    const Color(
+                  0xFFFDE3B0,
+                ),
+              ),
+            ),
+
+            child: Text(
+              pendingProperties.length
+                  .toString(),
+
+              textAlign:
+                  TextAlign.center,
+
+              style:
+                  const TextStyle(
+                fontSize: 12,
+
+                fontWeight:
+                    FontWeight
+                        .w800,
+
+                color:
+                    orangeAccent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Search
+  Widget buildSearchField() {
+    return TextField(
+      controller:
+          searchController,
+
+      decoration:
+          InputDecoration(
+        hintText:
+            "Search property, owner or location",
+
+        hintStyle:
+            const TextStyle(
+          color:
+              Color(0xFF9CA3AF),
+
+          fontSize: 13,
+        ),
+
+        prefixIcon:
+            const Icon(
+          Icons.search_rounded,
+
+          color:
+              secondaryTextColor,
+
+          size: 21,
+        ),
+
+        suffixIcon:
+            searchController
+                    .text
+                    .isNotEmpty
+                ? IconButton(
+                    onPressed: () {
+                      searchController
+                          .clear();
+                    },
+
+                    icon:
+                        const Icon(
+                      Icons
+                          .close_rounded,
+
+                      color:
+                          secondaryTextColor,
+
+                      size: 20,
+                    ),
+                  )
+                : Container(
+                    margin:
+                        const EdgeInsets
+                            .all(
+                      8,
+                    ),
+
+                    decoration:
+                        BoxDecoration(
+                      color:
+                          blueSoft,
+
+                      borderRadius:
+                          BorderRadius
+                              .circular(
+                        9,
+                      ),
+                    ),
+
+                    child:
+                        const Icon(
+                      Icons
+                          .tune_rounded,
+
+                      color:
+                          blueAccent,
+
+                      size: 19,
+                    ),
+                  ),
+
+        filled: true,
+
+        fillColor:
+            cardColor,
+
+        contentPadding:
+            const EdgeInsets
+                .symmetric(
+          vertical: 14,
+        ),
+
+        border:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            14,
+          ),
+
+          borderSide:
+              const BorderSide(
+            color:
+                borderColor,
+          ),
+        ),
+
+        enabledBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            14,
+          ),
+
+          borderSide:
+              const BorderSide(
+            color:
+                borderColor,
+          ),
+        ),
+
+        focusedBorder:
+            OutlineInputBorder(
+          borderRadius:
+              BorderRadius.circular(
+            14,
+          ),
+
+          borderSide:
+              const BorderSide(
+            color:
+                primaryColor,
+
+            width: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Content
   Widget buildContent() {
     if (isLoading) {
-      return Center(
-        child: CircularProgressIndicator(
-          color: Color(0xFF03045E),
+      return const Center(
+        child:
+            CircularProgressIndicator(
+          color:
+              primaryColor,
         ),
       );
     }
 
     if (errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(25),
-
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-
-            children: [
-              Icon(
-                Icons.error_outline_rounded,
-                size: 50,
-                color: Color(0xFFDC2626),
-              ),
-
-              SizedBox(height: 12),
-
-              Text(
-                "Unable to load pending properties",
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2923),
-                ),
-              ),
-
-              SizedBox(height: 7),
-
-              Text(
-                errorMessage!,
-                textAlign: TextAlign.center,
-
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Color(0xFF68756D),
-                ),
-              ),
-
-              SizedBox(height: 18),
-
-              ElevatedButton.icon(
-                onPressed: loadPendingProperties,
-
-                icon: Icon(
-                  Icons.refresh_rounded,
-                ),
-
-                label: Text(
-                  "Try Again",
-                ),
-
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Color(0xFF03045E),
-                  foregroundColor:
-                      Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      return buildErrorState();
     }
 
     if (filteredProperties.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-
-          children: [
-            Container(
-              width: 70,
-              height: 70,
-
-              decoration: BoxDecoration(
-                color: Color(0xFF90E0EF)
-                    .withOpacity(0.25),
-                shape: BoxShape.circle,
-              ),
-
-              child: Icon(
-                Icons.verified_user_outlined,
-                size: 35,
-                color: Color(0xFF03045E),
-              ),
-            ),
-
-            SizedBox(height: 14),
-
-            Text(
-              searchController.text.isEmpty
-                  ? "No pending submissions"
-                  : "No results found",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2923),
-              ),
-            ),
-
-            SizedBox(height: 5),
-
-            Text(
-              searchController.text.isEmpty
-                  ? "New property submissions will appear here."
-                  : "Try searching with another property or owner name.",
-              textAlign: TextAlign.center,
-
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF68756D),
-              ),
-            ),
-          ],
-        ),
-      );
+      return buildEmptyState();
     }
 
     return RefreshIndicator(
-      color: Color(0xFF03045E),
+      color: primaryColor,
 
-      onRefresh: loadPendingProperties,
+      onRefresh:
+          loadPendingProperties,
 
-      child: ListView.separated(
-        padding: EdgeInsets.fromLTRB(
-          20,
+      child:
+          ListView.separated(
+        padding:
+            const EdgeInsets.fromLTRB(
+          18,
           10,
-          20,
+          18,
           25,
         ),
 
         itemCount:
-            filteredProperties.length,
+            filteredProperties
+                .length,
 
         separatorBuilder:
-            (context, index) {
-          return SizedBox(height: 14);
+            (
+          context,
+          index,
+        ) {
+          return const SizedBox(
+            height: 14,
+          );
         },
 
         itemBuilder:
-            (context, index) {
-          final Map<String, dynamic>
-              property =
-              filteredProperties[index];
-
+            (
+          context,
+          index,
+        ) {
           return buildPropertyCard(
-            property,
+            filteredProperties[index],
           );
         },
       ),
     );
   }
 
-  // Property card
+  // Error
+  Widget buildErrorState() {
+    return Center(
+      child: Padding(
+        padding:
+            const EdgeInsets.all(
+          25,
+        ),
+
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+
+              decoration:
+                  const BoxDecoration(
+                color: redSoft,
+
+                shape:
+                    BoxShape.circle,
+              ),
+
+              child:
+                  const Icon(
+                Icons
+                    .error_outline_rounded,
+
+                size: 34,
+
+                color:
+                    redAccent,
+              ),
+            ),
+
+            const SizedBox(
+              height: 14,
+            ),
+
+            const Text(
+              "Unable to load pending properties",
+
+              textAlign:
+                  TextAlign.center,
+
+              style:
+                  TextStyle(
+                fontSize: 16,
+
+                fontWeight:
+                    FontWeight
+                        .w700,
+
+                color:
+                    textColor,
+              ),
+            ),
+
+            const SizedBox(
+              height: 7,
+            ),
+
+            Text(
+              errorMessage ?? "",
+
+              textAlign:
+                  TextAlign.center,
+
+              style:
+                  const TextStyle(
+                fontSize: 13,
+
+                color:
+                    secondaryTextColor,
+              ),
+            ),
+
+            const SizedBox(
+              height: 18,
+            ),
+
+            ElevatedButton.icon(
+              onPressed:
+                  loadPendingProperties,
+
+              icon:
+                  const Icon(
+                Icons
+                    .refresh_rounded,
+              ),
+
+              label:
+                  const Text(
+                "Try Again",
+              ),
+
+              style:
+                  ElevatedButton
+                      .styleFrom(
+                backgroundColor:
+                    primaryColor,
+
+                foregroundColor:
+                    Colors.white,
+
+                elevation: 0,
+
+                shape:
+                    RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius
+                          .circular(
+                    12,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Empty
+  Widget buildEmptyState() {
+    final bool searching =
+        searchController
+            .text
+            .isNotEmpty;
+
+    return Center(
+      child: Padding(
+        padding:
+            const EdgeInsets.symmetric(
+          horizontal: 30,
+        ),
+
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+
+              decoration:
+                  BoxDecoration(
+                color: searching
+                    ? blueSoft
+                    : greenSoft,
+
+                borderRadius:
+                    BorderRadius
+                        .circular(
+                  22,
+                ),
+              ),
+
+              child: Icon(
+                searching
+                    ? Icons
+                        .search_off_rounded
+                    : Icons
+                        .verified_user_outlined,
+
+                size: 34,
+
+                color: searching
+                    ? blueAccent
+                    : greenAccent,
+              ),
+            ),
+
+            const SizedBox(
+              height: 14,
+            ),
+
+            Text(
+              searching
+                  ? "No results found"
+                  : "No pending submissions",
+
+              style:
+                  const TextStyle(
+                fontSize: 16,
+
+                fontWeight:
+                    FontWeight
+                        .w700,
+
+                color:
+                    textColor,
+              ),
+            ),
+
+            const SizedBox(
+              height: 5,
+            ),
+
+            Text(
+              searching
+                  ? "Try another property, owner or location."
+                  : "New property submissions will appear here.",
+
+              textAlign:
+                  TextAlign.center,
+
+              style:
+                  const TextStyle(
+                fontSize: 12,
+
+                color:
+                    secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Property Card
   Widget buildPropertyCard(
     Map<String, dynamic> property,
   ) {
     final String imageUrl =
-        getImageUrl(property["image"]);
+        getImageUrl(
+      property["image"],
+    );
 
     return InkWell(
-      // Open review screen when the card is tapped
-      onTap: () async {
-        final dynamic result =
-            await Get.to(
-          () => PropertyReviewScreen(
-            property: property,
-          ),
+      onTap: () {
+        openReview(
+          property,
         );
-
-        // Reload list after approve or reject
-        if (result == true) {
-          await loadPendingProperties();
-        }
       },
 
       borderRadius:
-          BorderRadius.circular(16),
+          BorderRadius.circular(
+        18,
+      ),
 
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding:
+            const EdgeInsets.all(
+          12,
+        ),
 
-        decoration: BoxDecoration(
-          color: Colors.white,
+        decoration:
+            BoxDecoration(
+          color:
+              cardColor,
 
           borderRadius:
-              BorderRadius.circular(16),
+              BorderRadius.circular(
+            18,
+          ),
 
-          border: Border.all(
-            color: Color(0xFFE1E9E4),
+          border:
+              Border.all(
+            color:
+                borderColor,
           ),
 
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF1F2923)
-                  .withOpacity(0.035),
+              color:
+                  Colors.black
+                      .withOpacity(
+                0.025,
+              ),
+
               blurRadius: 12,
-              offset: Offset(0, 4),
+
+              offset:
+                  const Offset(
+                0,
+                4,
+              ),
             ),
           ],
         ),
@@ -636,163 +1012,210 @@ class _PendingVerificationScreenState
           children: [
             Row(
               crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  CrossAxisAlignment
+                      .start,
 
               children: [
-                // Property image
+                // Image
                 ClipRRect(
                   borderRadius:
-                      BorderRadius.circular(
-                    12,
+                      BorderRadius
+                          .circular(
+                    13,
                   ),
 
-                  child: imageUrl.isEmpty
-                      ? buildImagePlaceholder()
-                      : Image.network(
-                          imageUrl,
-                          width: 105,
-                          height: 105,
-                          fit: BoxFit.cover,
+                  child:
+                      imageUrl.isEmpty
+                          ? buildImagePlaceholder()
+                          : Image.network(
+                              imageUrl,
 
-                          errorBuilder: (
-                            context,
-                            error,
-                            stackTrace,
-                          ) {
-                            return buildImagePlaceholder();
-                          },
-                        ),
+                              width: 105,
+                              height: 105,
+
+                              fit:
+                                  BoxFit.cover,
+
+                              errorBuilder:
+                                  (
+                                context,
+                                error,
+                                stackTrace,
+                              ) {
+                                return buildImagePlaceholder();
+                              },
+                            ),
                 ),
 
-                SizedBox(width: 13),
+                const SizedBox(
+                  width: 13,
+                ),
 
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
 
                     children: [
-                      // Status
+                      // Pending
                       Container(
                         padding:
-                            EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 5,
+                            const EdgeInsets
+                                .symmetric(
+                          horizontal:
+                              9,
+                          vertical:
+                              5,
                         ),
 
                         decoration:
                             BoxDecoration(
                           color:
-                              Color(0xFFFFF3D6),
+                              orangeSoft,
 
                           borderRadius:
-                              BorderRadius.circular(
+                              BorderRadius
+                                  .circular(
                             20,
                           ),
                         ),
 
-                        child: Row(
+                        child:
+                            const Row(
                           mainAxisSize:
-                              MainAxisSize.min,
+                              MainAxisSize
+                                  .min,
 
                           children: [
-                            Container(
-                              width: 6,
-                              height: 6,
+                            Icon(
+                              Icons
+                                  .schedule_rounded,
 
-                              decoration:
-                                  BoxDecoration(
-                                color: Color(
-                                  0xFFD97706,
-                                ),
-                                shape:
-                                    BoxShape.circle,
-                              ),
+                              size:
+                                  13,
+
+                              color:
+                                  orangeAccent,
                             ),
 
-                            SizedBox(width: 5),
+                            SizedBox(
+                              width:
+                                  4,
+                            ),
 
                             Text(
                               "Pending Verification",
-                              style: TextStyle(
-                                fontSize: 10,
+
+                              style:
+                                  TextStyle(
+                                fontSize:
+                                    9.5,
+
                                 fontWeight:
                                     FontWeight.w600,
-                                color: Color(
-                                  0xFFB45309,
-                                ),
+
+                                color:
+                                    orangeAccent,
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      SizedBox(height: 8),
+                      const SizedBox(
+                        height: 8,
+                      ),
 
                       Text(
                         property["title"]
                                 ?.toString() ??
+                            property["name"]
+                                ?.toString() ??
                             "Property",
 
                         maxLines: 2,
-                        overflow:
-                            TextOverflow.ellipsis,
 
-                        style: TextStyle(
+                        overflow:
+                            TextOverflow
+                                .ellipsis,
+
+                        style:
+                            const TextStyle(
                           fontSize: 16,
+
                           fontWeight:
-                              FontWeight.bold,
+                              FontWeight
+                                  .w700,
+
                           color:
-                              Color(0xFF1F2923),
+                              textColor,
                         ),
                       ),
 
-                      SizedBox(height: 7),
+                      const SizedBox(
+                        height: 7,
+                      ),
 
                       Text(
                         property["price"]
                                 ?.toString() ??
                             "-",
 
-                        style: TextStyle(
+                        style:
+                            const TextStyle(
                           fontSize: 14,
+
                           fontWeight:
-                              FontWeight.bold,
+                              FontWeight
+                                  .w800,
+
                           color:
-                              Color(0xFF03045E),
+                              primaryColor,
                         ),
                       ),
 
-                      SizedBox(height: 7),
+                      const SizedBox(
+                        height: 7,
+                      ),
 
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons
                                 .location_on_outlined,
+
                             size: 15,
+
                             color:
-                                Color(0xFF68756D),
+                                secondaryTextColor,
                           ),
 
-                          SizedBox(width: 4),
+                          const SizedBox(
+                            width: 4,
+                          ),
 
                           Expanded(
                             child: Text(
                               property["location"]
                                       ?.toString() ??
+                                  property["address"]
+                                      ?.toString() ??
                                   "-",
 
                               maxLines: 1,
+
                               overflow:
                                   TextOverflow
                                       .ellipsis,
 
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(
-                                  0xFF68756D,
-                                ),
+                              style:
+                                  const TextStyle(
+                                fontSize:
+                                    12,
+
+                                color:
+                                    secondaryTextColor,
                               ),
                             ),
                           ),
@@ -804,64 +1227,91 @@ class _PendingVerificationScreenState
               ],
             ),
 
-            SizedBox(height: 14),
+            const SizedBox(
+              height: 14,
+            ),
 
-            Divider(
-              color: Color(0xFFE8EEEA),
+            const Divider(
+              color: borderColor,
               height: 1,
             ),
 
-            SizedBox(height: 13),
+            const SizedBox(
+              height: 13,
+            ),
 
-            // Owner information
+            // Owner
             Row(
               children: [
                 Container(
-                  width: 38,
-                  height: 38,
+                  width: 40,
+                  height: 40,
 
-                  decoration: BoxDecoration(
-                    color: Color(0xFF90E0EF)
-                        .withOpacity(0.25),
-                    shape: BoxShape.circle,
+                  decoration:
+                      const BoxDecoration(
+                    color:
+                        blueSoft,
+
+                    shape:
+                        BoxShape.circle,
                   ),
 
-                  child: Icon(
-                    Icons.person_outline,
-                    color: Color(0xFF03045E),
+                  child:
+                      const Icon(
+                    Icons
+                        .person_outline_rounded,
+
+                    color:
+                        blueAccent,
+
                     size: 20,
                   ),
                 ),
 
-                SizedBox(width: 10),
+                const SizedBox(
+                  width: 10,
+                ),
 
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                        CrossAxisAlignment
+                            .start,
 
                     children: [
-                      Text(
+                      const Text(
                         "House Owner",
-                        style: TextStyle(
+
+                        style:
+                            TextStyle(
                           color:
-                              Color(0xFF94A099),
-                          fontSize: 11,
+                              Color(
+                            0xFF9CA3AF,
+                          ),
+
+                          fontSize:
+                              10.5,
                         ),
                       ),
 
-                      SizedBox(height: 2),
+                      const SizedBox(
+                        height: 2,
+                      ),
 
                       Text(
                         property["owner"]
                                 ?.toString() ??
                             "Unknown Owner",
 
-                        style: TextStyle(
+                        style:
+                            const TextStyle(
                           color:
-                              Color(0xFF526058),
+                              textColor,
+
                           fontWeight:
-                              FontWeight.w600,
+                              FontWeight
+                                  .w600,
+
                           fontSize: 13,
                         ),
                       ),
@@ -874,28 +1324,40 @@ class _PendingVerificationScreenState
                       CrossAxisAlignment.end,
 
                   children: [
-                    Text(
+                    const Text(
                       "Submitted",
-                      style: TextStyle(
+
+                      style:
+                          TextStyle(
                         color:
-                            Color(0xFF94A099),
-                        fontSize: 11,
+                            Color(
+                          0xFF9CA3AF,
+                        ),
+
+                        fontSize:
+                            10.5,
                       ),
                     ),
 
-                    SizedBox(height: 2),
+                    const SizedBox(
+                      height: 2,
+                    ),
 
                     Text(
                       property["submitted"]
                               ?.toString() ??
                           "-",
 
-                      style: TextStyle(
+                      style:
+                          const TextStyle(
                         color:
-                            Color(0xFF68756D),
+                            secondaryTextColor,
+
                         fontSize: 12,
+
                         fontWeight:
-                            FontWeight.w500,
+                            FontWeight
+                                .w500,
                       ),
                     ),
                   ],
@@ -903,62 +1365,70 @@ class _PendingVerificationScreenState
               ],
             ),
 
-            SizedBox(height: 14),
+            const SizedBox(
+              height: 14,
+            ),
 
-            // Review button
+            // Review
             SizedBox(
               width: double.infinity,
               height: 46,
 
-              child: ElevatedButton(
-                onPressed: () async {
-                  final dynamic result =
-                      await Get.to(
-                    () => PropertyReviewScreen(
-                      property: property,
-                    ),
+              child:
+                  ElevatedButton(
+                onPressed: () {
+                  openReview(
+                    property,
                   );
-
-                  // Reload list after approve or reject
-                  if (result == true) {
-                    await loadPendingProperties();
-                  }
                 },
 
                 style:
-                    ElevatedButton.styleFrom(
+                    ElevatedButton
+                        .styleFrom(
                   backgroundColor:
-                      Color(0xFF03045E),
+                      primaryColor,
+
                   foregroundColor:
                       Colors.white,
+
                   elevation: 0,
 
                   shape:
                       RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(
-                      12,
+                        BorderRadius
+                            .circular(
+                      13,
                     ),
                   ),
                 ),
 
-                child: Row(
+                child:
+                    const Row(
                   mainAxisAlignment:
-                      MainAxisAlignment.center,
+                      MainAxisAlignment
+                          .center,
 
                   children: [
                     Icon(
-                      Icons.fact_check_outlined,
-                      size: 20,
+                      Icons
+                          .fact_check_outlined,
+
+                      size: 19,
                     ),
 
-                    SizedBox(width: 8),
+                    SizedBox(
+                      width: 8,
+                    ),
 
                     Text(
                       "Review Submission",
-                      style: TextStyle(
+
+                      style:
+                          TextStyle(
                         fontWeight:
-                            FontWeight.bold,
+                            FontWeight
+                                .w700,
                       ),
                     ),
                   ],
@@ -971,24 +1441,32 @@ class _PendingVerificationScreenState
     );
   }
 
-  // Property image placeholder
+  // Image Placeholder
   Widget buildImagePlaceholder() {
     return Container(
       width: 105,
       height: 105,
 
-      decoration: BoxDecoration(
+      decoration:
+          BoxDecoration(
         color:
-            Color(0xFF90E0EF).withOpacity(0.25),
+            purpleSoft,
 
         borderRadius:
-            BorderRadius.circular(12),
+            BorderRadius.circular(
+          13,
+        ),
       ),
 
-      child: Icon(
-        Icons.home_work_outlined,
-        color: Color(0xFF03045E),
-        size: 35,
+      child:
+          const Icon(
+        Icons
+            .home_work_outlined,
+
+        color:
+            purpleAccent,
+
+        size: 34,
       ),
     );
   }
