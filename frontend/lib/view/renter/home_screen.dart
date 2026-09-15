@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:final_project/model/property.dart';
 import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/ai_screen/ai_chat_screen.dart';
 import 'package:final_project/view/renter/all_properties_screen.dart';
 import 'package:final_project/view/renter/filter_screen.dart';
 import 'package:final_project/view/renter/propertiesFound_screen.dart';
@@ -302,6 +303,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     return buildPropertyCard(property);
                   },
                 ),
+                FloatingActionButton(onPressed: (){
+                  Get.to(()=>AiChatScreen());
+                },
+                child: Text("AI Assistant"),
+                )
             ],
           ),
         ),

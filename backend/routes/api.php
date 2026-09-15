@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\AdminPropertyController;
+use App\Http\Controllers\Api\AiChatController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\AuthController;
 
@@ -57,6 +58,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put(
         '/me',
         [UserController::class, 'updateMe']
+    );
+
+
+    // AI Rental Assistant
+    Route::post(
+        '/ai/chat',
+        [AiChatController::class, 'chat']
+    );
+
+    // AI Chat
+    Route::post(
+        '/ai/chat',
+        [AiChatController::class, 'chat']
+    );
+
+    // AI Chat History
+    Route::get(
+        '/ai/chat/history',
+        [AiChatController::class, 'history']
+    );
+
+    // Clear AI Chat
+    Route::delete(
+        '/ai/chat/history',
+        [AiChatController::class, 'clearHistory']
     );
 
     // Logout
