@@ -26,765 +26,564 @@ const Color lightSecondaryColor = Color(0xFFE6F9FC);
 class PostRoomStep2 extends StatelessWidget {
   PostRoomStep2({super.key});
 
-  final PostPropertyController controller =
-      Get.find<PostPropertyController>();
+  final PostPropertyController controller = Get.find<PostPropertyController>();
 
-  final String storageBaseUrl =
-      "http://10.0.2.2:8000/storage";
+  final String storageBaseUrl = "http://10.0.2.2:8000/storage";
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        final bool isEditMode =
-            controller.isEditMode.value;
+    return Obx(() {
+      final bool isEditMode = controller.isEditMode.value;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ======================================================
-            // HEADER
-            // ======================================================
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ======================================================
+          // HEADER
+          // ======================================================
+          Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  // ==============================================
+                  // EDIT MODE
+                  // ==============================================
 
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    // ==============================================
-                    // EDIT MODE
-                    // ==============================================
+                  if (isEditMode) {
+                    Get.back();
+                    return;
+                  }
 
-                    if (isEditMode) {
-                      Get.back();
-                      return;
-                    }
+                  // ==============================================
+                  // CREATE MODE
+                  // ==============================================
 
-                    // ==============================================
-                    // CREATE MODE
-                    // ==============================================
+                  controller.currentStep.value = 1;
+                },
 
-                    controller.currentStep.value = 1;
-                  },
-
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new,
-                    color: primaryColor,
-                    size: 20,
-                  ),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: primaryColor,
+                  size: 20,
                 ),
+              ),
 
-                Text(
-                  isEditMode
-                      ? "Edit Room"
-                      : "Room",
+              Text(
+                isEditMode ? "Edit Room" : "Room",
 
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: primaryColor,
-                  ),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: primaryColor,
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
 
-            // ======================================================
-            // FORM
-            // ======================================================
+          // ======================================================
+          // FORM
+          // ======================================================
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isEditMode
+                        ? "Update your room information"
+                        : "Input your room information",
 
-                  children: [
-                    Text(
-                      isEditMode
-                          ? "Update your room information"
-                          : "Input your room information",
+                    style: const TextStyle(fontSize: 15, color: Colors.black45),
+                  ),
 
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.black45,
-                      ),
-                    ),
+                  const SizedBox(height: 15),
 
-                    const SizedBox(height: 15),
+                  // ==================================================
+                  // NAME
+                  // ==================================================
+                  customInputTitle(title: "Name"),
 
-                    // ==================================================
-                    // NAME
-                    // ==================================================
+                  const SizedBox(height: 5),
 
-                    customInputTitle(
-                      title: "Name",
-                    ),
+                  CustomTextFormField(
+                    hintText: "Enter room name",
 
-                    const SizedBox(height: 5),
+                    controller: controller.nameController,
 
-                    CustomTextFormField(
-                      hintText:
-                          "Enter room name",
+                    prefixIcon: Icons.home_outlined,
+                  ),
 
-                      controller:
-                          controller.nameController,
+                  const SizedBox(height: 10),
 
-                      prefixIcon:
-                          Icons.home_outlined,
-                    ),
+                  // ==================================================
+                  // SIZE
+                  // ==================================================
+                  customInputTitle(title: "Size"),
 
-                    const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
-                    // ==================================================
-                    // SIZE
-                    // ==================================================
+                  CustomTextFormField(
+                    hintText: "Enter room size",
 
-                    customInputTitle(
-                      title: "Size",
-                    ),
+                    controller: controller.sizeController,
 
-                    const SizedBox(height: 5),
+                    keyboardType: TextInputType.number,
 
-                    CustomTextFormField(
-                      hintText:
-                          "Enter room size",
+                    prefixIcon: Icons.square_foot,
 
-                      controller:
-                          controller.sizeController,
+                    suffixText: "m²",
+                  ),
 
-                      keyboardType:
-                          TextInputType.number,
+                  const SizedBox(height: 10),
 
-                      prefixIcon:
-                          Icons.square_foot,
+                  // ==================================================
+                  // LOCATION
+                  // ==================================================
+                  customInputTitle(title: "Location"),
 
-                      suffixText: "m²",
-                    ),
+                  const SizedBox(height: 5),
 
-                    const SizedBox(height: 10),
+                  PropertyLocationPicker(
+                    address: controller.address.value,
 
-                    // ==================================================
-                    // LOCATION
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Location",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    PropertyLocationPicker(
-                      address:
-                          controller.address.value,
-
-                      onTap: () async {
-                        final PropertyLocation?
-                            location =
-                            await Get.to<
-                                PropertyLocation>(
-                          () =>
-                              const SelectLocationScreen(),
-                        );
-
-                        if (location != null) {
-                          controller.address.value =
-                              location.address;
-
-                          controller.latitude.value =
-                              location.latitude;
-
-                          controller.longitude.value =
-                              location.longitude;
-                        }
-                      },
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // ==================================================
-                    // PRICE
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Price",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    CustomTextFormField(
-                      hintText:
-                          "Enter rent price",
-
-                      controller:
-                          controller.priceController,
-
-                      keyboardType:
-                          TextInputType.number,
-
-                      prefixIcon:
-                          Icons.attach_money,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // ==================================================
-                    // DESCRIPTION
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Description",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    CustomDescriptionField(
-                      hintText:
-                          "Describe your room...",
-
-                      controller: controller
-                          .descriptionController,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // ==================================================
-                    // STATUS
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Status",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    CustomStatusDropdown(
-                      value:
-                          controller.status.value,
-
-                      onChanged: (value) {
-                        controller.status.value =
-                            value;
-                      },
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // ==================================================
-                    // CONTACT
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Contact",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    CustomTextFormField(
-                      hintText:
-                          "Enter contact number",
-
-                      controller:
-                          controller.contactController,
-
-                      keyboardType:
-                          TextInputType.phone,
-
-                      prefixIcon:
-                          Icons.phone_outlined,
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // ==================================================
-                    // ROOM DETAIL TITLE
-                    // ==================================================
-
-                    CustomRoomDetailTitle(),
-
-                    const SizedBox(height: 10),
-
-                    // ==================================================
-                    // ROOM DETAILS
-                    // ==================================================
-
-                    RoomDetail(
-                      totalFloor:
-                          controller
-                              .roomTotalFloor
-                              .value,
-
-                      availableFloors:
-                          controller
-                              .roomAvailableFloors,
-
-                      // Total floor +
-                      onFloorIncrease: () {
-                        controller
-                            .roomTotalFloor
-                            .value++;
-                      },
-
-                      // Total floor -
-                      onFloorDecrease: () {
-                        if (controller
-                                .roomTotalFloor
-                                .value >
-                            1) {
-                          controller
-                              .roomTotalFloor
-                              .value--;
-
-                          // Remove selected floors that
-                          // are now higher than total floors.
-                          controller
-                              .roomAvailableFloors
-                              .removeWhere(
-                            (floor) =>
-                                floor >
-                                controller
-                                    .roomTotalFloor
-                                    .value,
+                    onTap: () async {
+                      final PropertyLocation? location =
+                          await Get.to<PropertyLocation>(
+                            () => const SelectLocationScreen(),
                           );
-                        }
-                      },
 
-                      // ==============================================
-                      // AVAILABLE FLOORS
-                      // ==============================================
+                      if (location != null) {
+                        controller.address.value = location.address;
 
-                      onAvailableFloorsTap: () {
-                        Get.bottomSheet(
-                          Container(
-                            padding:
-                                const EdgeInsets.all(
-                              20,
-                            ),
+                        controller.latitude.value = location.latitude;
 
-                            decoration:
-                                const BoxDecoration(
-                              color:
-                                  backgroundColor,
+                        controller.longitude.value = location.longitude;
+                      }
+                    },
+                  ),
 
-                              borderRadius:
-                                  BorderRadius.vertical(
-                                top:
-                                    Radius.circular(
-                                  20,
-                                ),
-                              ),
-                            ),
+                  const SizedBox(height: 10),
 
-                            child: Obx(
-                              () =>
-                                  SingleChildScrollView(
-                                child: Column(
-                                  mainAxisSize:
-                                      MainAxisSize.min,
+                  // ==================================================
+                  // PRICE
+                  // ==================================================
+                  customInputTitle(title: "Price"),
 
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment
-                                          .start,
+                  const SizedBox(height: 5),
 
-                                  children: [
-                                    const Text(
-                                      "Select Available Floors",
+                  CustomTextFormField(
+                    hintText: "Enter rent price",
 
-                                      style:
-                                          TextStyle(
-                                        color:
-                                            primaryColor,
+                    controller: controller.priceController,
 
-                                        fontSize: 18,
+                    keyboardType: TextInputType.number,
 
-                                        fontWeight:
-                                            FontWeight
-                                                .w700,
-                                      ),
-                                    ),
+                    prefixIcon: Icons.attach_money,
+                  ),
 
-                                    const SizedBox(
-                                      height: 15,
-                                    ),
+                  const SizedBox(height: 10),
 
-                                    Wrap(
-                                      spacing: 10,
-                                      runSpacing: 10,
+                  // ==================================================
+                  // DESCRIPTION
+                  // ==================================================
+                  customInputTitle(title: "Description"),
 
-                                      children:
-                                          List.generate(
-                                        controller
-                                            .roomTotalFloor
-                                            .value,
+                  const SizedBox(height: 5),
 
-                                        (index) {
-                                          final int
-                                              floor =
-                                              index + 1;
+                  CustomDescriptionField(
+                    hintText: "Describe your room...",
 
-                                          final bool
-                                              isSelected =
-                                              controller
-                                                  .roomAvailableFloors
-                                                  .contains(
-                                            floor,
-                                          );
+                    controller: controller.descriptionController,
+                  ),
 
-                                          return ChoiceChip(
-                                            label: Text(
-                                              "Floor $floor",
-                                            ),
+                  const SizedBox(height: 10),
 
-                                            selected:
-                                                isSelected,
+                  // ==================================================
+                  // STATUS
+                  // ==================================================
+                  customInputTitle(title: "Status"),
 
-                                            onSelected:
-                                                (selected) {
-                                              if (selected) {
-                                                if (!controller
-                                                    .roomAvailableFloors
-                                                    .contains(
-                                                  floor,
-                                                )) {
-                                                  controller
-                                                      .roomAvailableFloors
-                                                      .add(
-                                                    floor,
-                                                  );
+                  const SizedBox(height: 5),
 
-                                                  controller
-                                                      .roomAvailableFloors
-                                                      .sort();
-                                                }
-                                              } else {
-                                                controller
-                                                    .roomAvailableFloors
-                                                    .remove(
-                                                  floor,
-                                                );
-                                              }
-                                            },
+                  CustomStatusDropdown(
+                    value: controller.status.value,
 
-                                            selectedColor:
-                                                secondaryColor,
+                    onChanged: (value) {
+                      controller.status.value = value;
+                    },
+                  ),
 
-                                            backgroundColor:
-                                                Colors
-                                                    .white,
+                  const SizedBox(height: 10),
 
-                                            side:
-                                                BorderSide(
-                                              color:
-                                                  isSelected
-                                                      ? primaryColor
-                                                      : secondaryColor.withOpacity(
-                                                          0.7,
-                                                        ),
+                  // ==================================================
+                  // CONTACT
+                  // ==================================================
+                  customInputTitle(title: "Contact"),
 
-                                              width:
-                                                  isSelected
-                                                      ? 1.3
-                                                      : 1,
-                                            ),
+                  const SizedBox(height: 5),
 
-                                            labelStyle:
-                                                TextStyle(
-                                              color:
-                                                  primaryColor,
+                  CustomTextFormField(
+                    hintText: "Enter contact number",
 
-                                              fontWeight:
-                                                  isSelected
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w500,
-                                            ),
+                    controller: controller.contactController,
 
-                                            checkmarkColor:
-                                                primaryColor,
+                    keyboardType: TextInputType.phone,
+                    prefixIcon: Icons.send_rounded,
+                  ),
 
-                                            shape:
-                                                RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                12,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
+                  const SizedBox(height: 15),
 
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
+                  // ==================================================
+                  // ROOM DETAIL TITLE
+                  // ==================================================
+                  CustomRoomDetailTitle(),
 
-                                    SizedBox(
-                                      width:
-                                          double.infinity,
+                  const SizedBox(height: 10),
 
-                                      height: 48,
+                  // ==================================================
+                  // ROOM DETAILS
+                  // ==================================================
+                  RoomDetail(
+                    totalFloor: controller.roomTotalFloor.value,
 
-                                      child:
-                                          ElevatedButton(
-                                        onPressed: () {
-                                          Get.back();
-                                        },
+                    availableFloors: controller.roomAvailableFloors,
 
-                                        style:
-                                            ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              primaryColor,
+                    // Total floor +
+                    onFloorIncrease: () {
+                      controller.roomTotalFloor.value++;
+                    },
 
-                                          foregroundColor:
-                                              Colors.white,
+                    // Total floor -
+                    onFloorDecrease: () {
+                      if (controller.roomTotalFloor.value > 1) {
+                        controller.roomTotalFloor.value--;
 
-                                          elevation: 0,
+                        // Remove selected floors that
+                        // are now higher than total floors.
+                        controller.roomAvailableFloors.removeWhere(
+                          (floor) => floor > controller.roomTotalFloor.value,
+                        );
+                      }
+                    },
 
-                                          shape:
-                                              RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                        ),
+                    // ==============================================
+                    // AVAILABLE FLOORS
+                    // ==============================================
+                    onAvailableFloorsTap: () {
+                      Get.bottomSheet(
+                        Container(
+                          padding: const EdgeInsets.all(20),
 
-                                        child:
-                                            const Text(
-                                          "Done",
+                          decoration: const BoxDecoration(
+                            color: backgroundColor,
 
-                                          style:
-                                              TextStyle(
-                                            fontSize:
-                                                15,
-
-                                            fontWeight:
-                                                FontWeight
-                                                    .w700,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
                             ),
                           ),
 
-                          isScrollControlled: true,
-                        );
-                      },
-                    ),
+                          child: Obx(
+                            () => SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
 
-                    const SizedBox(height: 20),
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
-                    // ==================================================
-                    // FURNISHED
-                    // ==================================================
+                                children: [
+                                  const Text(
+                                    "Select Available Floors",
 
-                    customInputTitle(
-                      title: "Furnished",
-                    ),
+                                    style: TextStyle(
+                                      color: primaryColor,
 
-                    const SizedBox(height: 5),
+                                      fontSize: 18,
 
-                    FurnishedSelector(
-                      value:
-                          controller
-                              .furnished
-                              .value,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
 
-                      onChanged: (value) {
-                        controller
-                            .furnished
-                            .value = value;
-                      },
-                    ),
+                                  const SizedBox(height: 15),
+
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
+
+                                    children: List.generate(
+                                      controller.roomTotalFloor.value,
+
+                                      (index) {
+                                        final int floor = index + 1;
+
+                                        final bool isSelected = controller
+                                            .roomAvailableFloors
+                                            .contains(floor);
+
+                                        return ChoiceChip(
+                                          label: Text("Floor $floor"),
+
+                                          selected: isSelected,
+
+                                          onSelected: (selected) {
+                                            if (selected) {
+                                              if (!controller
+                                                  .roomAvailableFloors
+                                                  .contains(floor)) {
+                                                controller.roomAvailableFloors
+                                                    .add(floor);
+
+                                                controller.roomAvailableFloors
+                                                    .sort();
+                                              }
+                                            } else {
+                                              controller.roomAvailableFloors
+                                                  .remove(floor);
+                                            }
+                                          },
+
+                                          selectedColor: secondaryColor,
+
+                                          backgroundColor: Colors.white,
+
+                                          side: BorderSide(
+                                            color: isSelected
+                                                ? primaryColor
+                                                : secondaryColor.withOpacity(
+                                                    0.7,
+                                                  ),
+
+                                            width: isSelected ? 1.3 : 1,
+                                          ),
+
+                                          labelStyle: TextStyle(
+                                            color: primaryColor,
+
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ),
+
+                                          checkmarkColor: primaryColor,
+
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
+                                  SizedBox(
+                                    width: double.infinity,
+
+                                    height: 48,
+
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColor,
+
+                                        foregroundColor: Colors.white,
+
+                                        elevation: 0,
+
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+
+                                      child: const Text(
+                                        "Done",
+
+                                        style: TextStyle(
+                                          fontSize: 15,
+
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        isScrollControlled: true,
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // ==================================================
+                  // FURNISHED
+                  // ==================================================
+                  customInputTitle(title: "Furnished"),
+
+                  const SizedBox(height: 5),
+
+                  FurnishedSelector(
+                    value: controller.furnished.value,
+
+                    onChanged: (value) {
+                      controller.furnished.value = value;
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // ==================================================
+                  // FACILITIES
+                  // ==================================================
+                  customInputTitle(title: "Choose facilities"),
+
+                  const SizedBox(height: 5),
+
+                  FacilitiesSelector(),
+
+                  const SizedBox(height: 20),
+
+                  // ==================================================
+                  // VERIFICATION
+                  // ==================================================
+                  VerificationTitle(),
+
+                  const SizedBox(height: 15),
+
+                  // ==================================================
+                  // PROPERTY IMAGES
+                  // ==================================================
+                  customInputTitle(title: "Property Images"),
+
+                  const SizedBox(height: 5),
+
+                  // ==================================================
+                  // EXISTING IMAGES
+                  // ==================================================
+                  if (isEditMode &&
+                      controller.selectedImages.isEmpty &&
+                      controller.existingImagePaths.isNotEmpty) ...[
+                    buildExistingImages(),
 
                     const SizedBox(height: 10),
 
-                    // ==================================================
-                    // FACILITIES
-                    // ==================================================
+                    buildInformationBox(
+                      icon: Icons.info_outline,
 
-                    customInputTitle(
-                      title:
-                          "Choose facilities",
+                      text:
+                          "These are your current property photos. "
+                          "If you select new photos, all current photos "
+                          "will be replaced.",
                     ),
 
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 12),
+                  ],
 
-                    FacilitiesSelector(),
+                  // ==================================================
+                  // NEW IMAGES NOTICE
+                  // ==================================================
+                  if (isEditMode && controller.selectedImages.isNotEmpty) ...[
+                    buildInformationBox(
+                      icon: Icons.swap_horiz_rounded,
 
-                    const SizedBox(height: 20),
-
-                    // ==================================================
-                    // VERIFICATION
-                    // ==================================================
-
-                    VerificationTitle(),
-
-                    const SizedBox(height: 15),
-
-                    // ==================================================
-                    // PROPERTY IMAGES
-                    // ==================================================
-
-                    customInputTitle(
-                      title: "Property Images",
+                      text:
+                          "The new photos below will replace your current property photos when you save changes.",
                     ),
 
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 10),
+                  ],
 
-                    // ==================================================
-                    // EXISTING IMAGES
-                    // ==================================================
+                  // ==================================================
+                  // IMAGE PICKER
+                  // ==================================================
+                  Imagepicker(
+                    title: isEditMode
+                        ? "Select New Property Photos"
+                        : "Add property photos",
 
-                    if (isEditMode &&
-                        controller
-                            .selectedImages
-                            .isEmpty &&
-                        controller
-                            .existingImagePaths
-                            .isNotEmpty) ...[
-                      buildExistingImages(),
+                    subtitle: isEditMode
+                        ? "Optional — leave empty to keep current photos"
+                        : "Tap to select property images",
 
-                      const SizedBox(height: 10),
+                    icon: Icons.add_photo_alternate_outlined,
 
-                      buildInformationBox(
-                        icon:
-                            Icons.info_outline,
+                    images: controller.selectedImages.toList(),
 
-                        text:
-                            "These are your current property photos. "
-                            "If you select new photos, all current photos "
-                            "will be replaced.",
-                      ),
+                    onRemove: (index) {
+                      controller.removeImage(index);
+                    },
 
-                      const SizedBox(height: 12),
-                    ],
+                    onTap: () {
+                      controller.pickImages();
+                    },
+                  ),
 
-                    // ==================================================
-                    // NEW IMAGES NOTICE
-                    // ==================================================
+                  const SizedBox(height: 15),
 
-                    if (isEditMode &&
-                        controller
-                            .selectedImages
-                            .isNotEmpty) ...[
-                      buildInformationBox(
-                        icon: Icons
-                            .swap_horiz_rounded,
+                  // ==================================================
+                  // OWNERSHIP DOCUMENT
+                  // ==================================================
+                  customInputTitle(title: "Ownership Document"),
 
-                        text:
-                            "The new photos below will replace your current property photos when you save changes.",
-                      ),
+                  const SizedBox(height: 5),
 
-                      const SizedBox(height: 10),
-                    ],
+                  // ==================================================
+                  // EXISTING DOCUMENT
+                  // ==================================================
+                  if (isEditMode &&
+                      controller.hasExistingOwnershipDocument.value) ...[
+                    buildExistingDocumentBox(),
 
-                    // ==================================================
-                    // IMAGE PICKER
-                    // ==================================================
+                    const SizedBox(height: 10),
+                  ],
 
-                    Imagepicker(
-                      title: isEditMode
-                          ? "Select New Property Photos"
-                          : "Add property photos",
-
-                      subtitle: isEditMode
-                          ? "Optional — leave empty to keep current photos"
-                          : "Tap to select property images",
-
-                      icon: Icons
-                          .add_photo_alternate_outlined,
-
-                      images: controller
-                          .selectedImages
-                          .toList(),
-
-                      onRemove: (index) {
-                        controller
-                            .removeImage(index);
-                      },
-
-                      onTap: () {
-                        controller.pickImages();
-                      },
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // ==================================================
-                    // OWNERSHIP DOCUMENT
-                    // ==================================================
-
-                    customInputTitle(
-                      title:
-                          "Ownership Document",
-                    ),
-
-                    const SizedBox(height: 5),
-
-                    // ==================================================
-                    // EXISTING DOCUMENT
-                    // ==================================================
-
-                    if (isEditMode &&
-                        controller
-                            .hasExistingOwnershipDocument
-                            .value) ...[
-                      buildExistingDocumentBox(),
-
-                      const SizedBox(height: 10),
-                    ],
-
-                    // ==================================================
-                    // OWNERSHIP PICKER
-                    // ==================================================
-
-                    SingleImagePicker(
-                      title: isEditMode
-                          ? controller
-                                      .ownershipDocumentImage
-                                      .value ==
-                                  null
+                  // ==================================================
+                  // OWNERSHIP PICKER
+                  // ==================================================
+                  SingleImagePicker(
+                    title: isEditMode
+                        ? controller.ownershipDocumentImage.value == null
                               ? "Replace Ownership Document"
                               : "New Ownership Document"
-                          : "Upload Ownership Document",
+                        : "Upload Ownership Document",
 
-                      subtitle: isEditMode
-                          ? controller
-                                      .ownershipDocumentImage
-                                      .value ==
-                                  null
+                    subtitle: isEditMode
+                        ? controller.ownershipDocumentImage.value == null
                               ? "Optional — current document will be kept"
                               : "New document selected"
-                          : "Tap to select proof of ownership",
+                        : "Tap to select proof of ownership",
 
-                      icon:
-                          Icons.description_outlined,
+                    icon: Icons.description_outlined,
 
-                      image: controller
-                          .ownershipDocumentImage
-                          .value,
+                    image: controller.ownershipDocumentImage.value,
 
-                      onTap: () {
-                        controller
-                            .pickOwnershipDocumentImage();
-                      },
+                    onTap: () {
+                      controller.pickOwnershipDocumentImage();
+                    },
 
-                      onRemove: () {
-                        controller
-                            .removeOwnershipDocumentImage();
-                      },
-                    ),
+                    onRemove: () {
+                      controller.removeOwnershipDocumentImage();
+                    },
+                  ),
 
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          ],
-        );
-      },
-    );
+          ),
+        ],
+      );
+    });
   }
 
   // ======================================================
@@ -796,59 +595,39 @@ class PostRoomStep2 extends StatelessWidget {
       height: 105,
 
       child: ListView.separated(
-        scrollDirection:
-            Axis.horizontal,
+        scrollDirection: Axis.horizontal,
 
-        itemCount:
-            controller.existingImagePaths.length,
+        itemCount: controller.existingImagePaths.length,
 
-        separatorBuilder: (
-          context,
-          index,
-        ) {
-          return const SizedBox(
-            width: 10,
-          );
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 10);
         },
 
-        itemBuilder: (
-          context,
-          index,
-        ) {
-          final String path =
-              controller
-                  .existingImagePaths[index];
+        itemBuilder: (context, index) {
+          final String path = controller.existingImagePaths[index];
 
-          final String imageUrl =
-              path.startsWith("http")
+          final String imageUrl = path.startsWith("http")
               ? path
               : "$storageBaseUrl/$path";
 
           return ClipRRect(
-            borderRadius:
-                BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12),
 
             child: Container(
               width: 130,
               height: 105,
 
-              color:
-                  lightSecondaryColor,
+              color: lightSecondaryColor,
 
               child: Image.network(
                 imageUrl,
 
                 fit: BoxFit.cover,
 
-                errorBuilder: (
-                  context,
-                  error,
-                  stackTrace,
-                ) {
+                errorBuilder: (context, error, stackTrace) {
                   return const Center(
                     child: Icon(
-                      Icons
-                          .broken_image_outlined,
+                      Icons.broken_image_outlined,
 
                       size: 35,
 
@@ -872,32 +651,22 @@ class PostRoomStep2 extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding:
-          const EdgeInsets.all(13),
+      padding: const EdgeInsets.all(13),
 
       decoration: BoxDecoration(
-        color: const Color(
-          0xFFECFDF3,
-        ),
+        color: const Color(0xFFECFDF3),
 
-        borderRadius:
-            BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(
-          color: const Color(
-            0xFF16A34A,
-          ).withOpacity(0.30),
-        ),
+        border: Border.all(color: const Color(0xFF16A34A).withOpacity(0.30)),
       ),
 
       child: const Row(
         children: [
           Icon(
-            Icons
-                .check_circle_outline_rounded,
+            Icons.check_circle_outline_rounded,
 
-            color:
-                Color(0xFF16A34A),
+            color: Color(0xFF16A34A),
 
             size: 22,
           ),
@@ -906,8 +675,7 @@ class PostRoomStep2 extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
@@ -916,11 +684,9 @@ class PostRoomStep2 extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
 
-                    fontWeight:
-                        FontWeight.w700,
+                    fontWeight: FontWeight.w700,
 
-                    color:
-                        primaryColor,
+                    color: primaryColor,
                   ),
                 ),
 
@@ -929,12 +695,7 @@ class PostRoomStep2 extends StatelessWidget {
                 Text(
                   "Your current document will remain unless you select a new one.",
 
-                  style: TextStyle(
-                    fontSize: 11,
-
-                    color:
-                        Color(0xFF667085),
-                  ),
+                  style: TextStyle(fontSize: 11, color: Color(0xFF667085)),
                 ),
               ],
             ),
@@ -948,43 +709,25 @@ class PostRoomStep2 extends StatelessWidget {
   // INFORMATION BOX
   // ======================================================
 
-  Widget buildInformationBox({
-    required IconData icon,
-    required String text,
-  }) {
+  Widget buildInformationBox({required IconData icon, required String text}) {
     return Container(
       width: double.infinity,
 
-      padding:
-          const EdgeInsets.all(11),
+      padding: const EdgeInsets.all(11),
 
       decoration: BoxDecoration(
-        color:
-            secondaryColor.withOpacity(
-          0.12,
-        ),
+        color: secondaryColor.withOpacity(0.12),
 
-        borderRadius:
-            BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10),
 
-        border: Border.all(
-          color:
-              secondaryColor.withOpacity(
-            0.40,
-          ),
-        ),
+        border: Border.all(color: secondaryColor.withOpacity(0.40)),
       ),
 
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Icon(
-            icon,
-            size: 18,
-            color: primaryColor,
-          ),
+          Icon(icon, size: 18, color: primaryColor),
 
           const SizedBox(width: 8),
 
@@ -995,8 +738,7 @@ class PostRoomStep2 extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 11,
 
-                color:
-                    Color(0xFF667085),
+                color: Color(0xFF667085),
 
                 height: 1.4,
               ),
@@ -1016,20 +758,11 @@ Widget CustomRoomDetailTitle() {
   return Row(
     children: [
       Expanded(
-        child: Divider(
-          color:
-              secondaryColor.withOpacity(
-            0.8,
-          ),
-          thickness: 1,
-        ),
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
       ),
 
       const Padding(
-        padding:
-            EdgeInsets.symmetric(
-          horizontal: 12,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 12),
 
         child: Text(
           "ROOM DETAIL",
@@ -1037,20 +770,13 @@ Widget CustomRoomDetailTitle() {
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
 
       Expanded(
-        child: Divider(
-          color:
-              secondaryColor.withOpacity(
-            0.8,
-          ),
-          thickness: 1,
-        ),
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
       ),
     ],
   );
@@ -1064,20 +790,11 @@ Widget VerificationTitle() {
   return Row(
     children: [
       Expanded(
-        child: Divider(
-          color:
-              secondaryColor.withOpacity(
-            0.8,
-          ),
-          thickness: 1,
-        ),
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
       ),
 
       const Padding(
-        padding:
-            EdgeInsets.symmetric(
-          horizontal: 12,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 12),
 
         child: Text(
           "VERIFICATION DOCUMENTS",
@@ -1085,20 +802,13 @@ Widget VerificationTitle() {
           style: TextStyle(
             color: primaryColor,
             fontSize: 13,
-            fontWeight:
-                FontWeight.w700,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
 
       Expanded(
-        child: Divider(
-          color:
-              secondaryColor.withOpacity(
-            0.8,
-          ),
-          thickness: 1,
-        ),
+        child: Divider(color: secondaryColor.withOpacity(0.8), thickness: 1),
       ),
     ],
   );

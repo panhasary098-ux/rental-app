@@ -49,6 +49,7 @@ class PropertyController extends Controller
             'description' =>
                 'required|string',
 
+            // Contact stores Telegram username
             'contact' =>
                 'required|string|max:255',
 
@@ -193,6 +194,7 @@ class PropertyController extends Controller
                 'description' =>
                     $validated['description'],
 
+                // Telegram username
                 'contact' =>
                     $validated['contact'],
 
@@ -349,6 +351,9 @@ class PropertyController extends Controller
             'payment',
         ]);
 
+        // Phone number comes from owner's account
+        $property->owner_phone = $user->phone;
+
         return response()->json([
             'success' => true,
 
@@ -392,7 +397,7 @@ class PropertyController extends Controller
             ->latest()
             ->get();
 
-        $properties->each(function ($property) {
+        $properties->each(function ($property) use ($user) {
             // Cover image
             $coverImage =
                 $property->images
@@ -410,6 +415,10 @@ class PropertyController extends Controller
                 $coverImage
                     ? $coverImage->image_path
                     : null;
+
+            // Phone comes from owner account
+            $property->owner_phone =
+                $user->phone;
 
             // Pending and rejected are editable.
             // Approved is not editable.
@@ -467,10 +476,22 @@ class PropertyController extends Controller
             ->latest()
             ->get();
 
+        // Get phone numbers of all property owners
+        $ownerIds =
+            $properties
+                ->pluck('owner_id')
+                ->filter()
+                ->unique()
+                ->values();
+
+        $ownerPhones = DB::table('users')
+            ->whereIn('id', $ownerIds)
+            ->pluck('phone', 'id');
+
         // Format properties for renter Flutter app
         $formattedProperties =
             $properties->map(
-                function ($property) {
+                function ($property) use ($ownerPhones) {
                     // Images
                     $images =
                         $property->images
@@ -590,8 +611,15 @@ class PropertyController extends Controller
                         'description' =>
                             $property->description,
 
+                        // Telegram username
                         'contact' =>
                             $property->contact,
+
+                        // Phone from users table
+                        'owner_phone' =>
+                            $ownerPhones[
+                                $property->owner_id
+                            ] ?? null,
 
                         'furnished' =>
                             (bool) $property->furnished,
@@ -690,6 +718,9 @@ class PropertyController extends Controller
                 $validated['rental_status'],
         ]);
 
+        $property->owner_phone =
+            $user->phone;
+
         return response()->json([
             'success' => true,
 
@@ -753,6 +784,7 @@ class PropertyController extends Controller
             'description' =>
                 'required|string',
 
+            // Contact stores Telegram username
             'contact' =>
                 'required|string|max:255',
 
@@ -897,6 +929,7 @@ class PropertyController extends Controller
                 'description' =>
                     $validated['description'],
 
+                // Telegram username
                 'contact' =>
                     $validated['contact'],
 
@@ -1111,6 +1144,10 @@ class PropertyController extends Controller
         ]);
 
         $property->can_edit = true;
+
+        // Phone number from owner account
+        $property->owner_phone =
+            $user->phone;
 
         return response()->json([
             'success' => true,

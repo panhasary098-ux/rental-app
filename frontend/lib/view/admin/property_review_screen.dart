@@ -13,14 +13,10 @@ const Color lightSecondaryColor = Color(0xFFE6F9FC);
 class PropertyReviewScreen extends StatefulWidget {
   final Map<String, dynamic> property;
 
-  const PropertyReviewScreen({
-    super.key,
-    required this.property,
-  });
+  const PropertyReviewScreen({super.key, required this.property});
 
   @override
-  State<PropertyReviewScreen> createState() =>
-      _PropertyReviewScreenState();
+  State<PropertyReviewScreen> createState() => _PropertyReviewScreenState();
 }
 
 class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
@@ -38,10 +34,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }
 
   int get totalFloor {
-    return int.tryParse(
-          property["total_floor"]?.toString() ?? "0",
-        ) ??
-        0;
+    return int.tryParse(property["total_floor"]?.toString() ?? "0") ?? 0;
   }
 
   List<int> get availableFloors {
@@ -55,17 +48,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     for (final dynamic item in value) {
       if (item is Map) {
-        final int? floor = int.tryParse(
-          item["floor_number"]?.toString() ?? "",
-        );
+        final int? floor = int.tryParse(item["floor_number"]?.toString() ?? "");
 
         if (floor != null) {
           floors.add(floor);
         }
       } else {
-        final int? floor = int.tryParse(
-          item.toString(),
-        );
+        final int? floor = int.tryParse(item.toString());
 
         if (floor != null) {
           floors.add(floor);
@@ -106,9 +95,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     information.add({
       "icon": Icons.chair_outlined,
-      "text": getBool(property["furnished"])
-          ? "Furnished"
-          : "Unfurnished",
+      "text": getBool(property["furnished"]) ? "Furnished" : "Unfurnished",
     });
 
     return information;
@@ -121,65 +108,42 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return [];
     }
 
-    final Map<String, dynamic> facilities =
-        Map<String, dynamic>.from(rawFacilities);
+    final Map<String, dynamic> facilities = Map<String, dynamic>.from(
+      rawFacilities,
+    );
 
     final List<Map<String, dynamic>> result = [];
 
     if (getBool(facilities["wifi"])) {
-      result.add({
-        "icon": Icons.wifi,
-        "text": "WiFi",
-      });
+      result.add({"icon": Icons.wifi, "text": "WiFi"});
     }
 
     if (getBool(facilities["parking"])) {
-      result.add({
-        "icon": Icons.local_parking_outlined,
-        "text": "Parking",
-      });
+      result.add({"icon": Icons.local_parking_outlined, "text": "Parking"});
     }
 
     if (getBool(facilities["air_conditioning"])) {
-      result.add({
-        "icon": Icons.ac_unit,
-        "text": "Air Con",
-      });
+      result.add({"icon": Icons.ac_unit, "text": "Air Con"});
     }
 
     if (getBool(facilities["pet_allowed"])) {
-      result.add({
-        "icon": Icons.pets_outlined,
-        "text": "Pet Allowed",
-      });
+      result.add({"icon": Icons.pets_outlined, "text": "Pet Allowed"});
     }
 
     if (getBool(facilities["balcony"])) {
-      result.add({
-        "icon": Icons.balcony_outlined,
-        "text": "Balcony",
-      });
+      result.add({"icon": Icons.balcony_outlined, "text": "Balcony"});
     }
 
     if (getBool(facilities["swimming_pool"])) {
-      result.add({
-        "icon": Icons.pool_outlined,
-        "text": "Swimming Pool",
-      });
+      result.add({"icon": Icons.pool_outlined, "text": "Swimming Pool"});
     }
 
     if (getBool(facilities["kitchen"])) {
-      result.add({
-        "icon": Icons.kitchen_outlined,
-        "text": "Kitchen",
-      });
+      result.add({"icon": Icons.kitchen_outlined, "text": "Kitchen"});
     }
 
     if (getBool(facilities["elevator"])) {
-      result.add({
-        "icon": Icons.elevator_outlined,
-        "text": "Elevator",
-      });
+      result.add({"icon": Icons.elevator_outlined, "text": "Elevator"});
     }
 
     return result;
@@ -190,17 +154,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return value;
     }
 
-    final String text =
-        value?.toString().toLowerCase() ?? "";
+    final String text = value?.toString().toLowerCase() ?? "";
 
     return text == "1" || text == "true";
   }
 
   String formatSize(dynamic value) {
-    final double? size =
-        double.tryParse(
-      value?.toString() ?? "",
-    );
+    final double? size = double.tryParse(value?.toString() ?? "");
 
     if (size == null) {
       return "-";
@@ -231,10 +191,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
   String formatRentalStatus() {
     final String status =
-        property["rental_status"]
-                ?.toString()
-                .toLowerCase() ??
-            "available";
+        property["rental_status"]?.toString().toLowerCase() ?? "available";
 
     if (status == "rented") {
       return "Rented";
@@ -252,18 +209,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }
 
   String getPrice() {
-    final dynamic rawPrice =
-        property["raw_price"];
+    final dynamic rawPrice = property["raw_price"];
 
     if (rawPrice != null) {
-      final double? value =
-          double.tryParse(
-        rawPrice.toString(),
-      );
+      final double? value = double.tryParse(rawPrice.toString());
 
       if (value != null) {
-        if (value ==
-            value.roundToDouble()) {
+        if (value == value.roundToDouble()) {
           return value.toStringAsFixed(0);
         }
 
@@ -271,30 +223,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       }
     }
 
-    final String formatted =
-        property["price"]?.toString() ?? "";
+    final String formatted = property["price"]?.toString() ?? "";
 
-    final RegExpMatch? match =
-        RegExp(r'[\d,.]+').firstMatch(
-      formatted,
-    );
+    final RegExpMatch? match = RegExp(r'[\d,.]+').firstMatch(formatted);
 
     if (match != null) {
-      final String number =
-          match
-                  .group(0)
-                  ?.replaceAll(
-                    ",",
-                    "",
-                  ) ??
-              "";
+      final String number = match.group(0)?.replaceAll(",", "") ?? "";
 
-      final double? value =
-          double.tryParse(number);
+      final double? value = double.tryParse(number);
 
       if (value != null) {
-        if (value ==
-            value.roundToDouble()) {
+        if (value == value.roundToDouble()) {
           return value.toStringAsFixed(0);
         }
 
@@ -308,44 +247,27 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   List<String> getPropertyImages() {
     final List<String> images = [];
 
-    final dynamic rawImages =
-        property["images"];
+    final dynamic rawImages = property["images"];
 
     if (rawImages is List) {
-      for (final dynamic item
-          in rawImages) {
+      for (final dynamic item in rawImages) {
         if (item is Map) {
           final dynamic rawUrl =
-              item["image_url"] ??
-              item["image"] ??
-              item["url"];
+              item["image_url"] ?? item["image"] ?? item["url"];
 
-          if (rawUrl != null &&
-              rawUrl
-                  .toString()
-                  .isNotEmpty) {
-            images.add(
-              getImageUrl(rawUrl),
-            );
+          if (rawUrl != null && rawUrl.toString().isNotEmpty) {
+            images.add(getImageUrl(rawUrl));
           }
         } else if (item != null) {
-          images.add(
-            getImageUrl(item),
-          );
+          images.add(getImageUrl(item));
         }
       }
     }
 
     if (images.isEmpty &&
         property["image"] != null &&
-        property["image"]
-            .toString()
-            .isNotEmpty) {
-      images.add(
-        getImageUrl(
-          property["image"],
-        ),
-      );
+        property["image"].toString().isNotEmpty) {
+      images.add(getImageUrl(property["image"]));
     }
 
     return images;
@@ -358,20 +280,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     String url = value.toString();
 
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
 
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
 
     return url;
   }
 
-  // Floor
   void floorList() {
     setState(() {
       showFloor = !showFloor;
@@ -384,24 +299,22 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       backgroundColor: backgroundColor,
 
       appBar: AppBar(
-        backgroundColor:
-            backgroundColor,
+        backgroundColor: backgroundColor,
+
         elevation: 0,
+
         centerTitle: true,
+
         scrolledUnderElevation: 0,
 
-        iconTheme:
-            const IconThemeData(
-          color: primaryColor,
-        ),
+        iconTheme: const IconThemeData(color: primaryColor),
 
         title: const Text(
           "Review Submission",
 
           style: TextStyle(
             fontSize: 20,
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
             color: primaryColor,
           ),
         ),
@@ -409,127 +322,79 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       body: Column(
         children: [
-          // Property Images
           SizedBox(
             height: 300,
             width: double.infinity,
-            child:
-                buildImageSlideshow(),
+            child: buildImageSlideshow(),
           ),
 
           Expanded(
-            child:
-                SingleChildScrollView(
-              padding:
-                  const EdgeInsets
-                      .fromLTRB(
-                16,
-                20,
-                16,
-                30,
-              ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 30),
 
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-                  // Property Name
                   Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
                       Expanded(
                         child: Text(
-                          property["title"]
-                                  ?.toString() ??
-                              property["name"]
-                                  ?.toString() ??
+                          property["title"]?.toString() ??
+                              property["name"]?.toString() ??
                               "Property",
 
                           maxLines: 2,
 
-                          overflow:
-                              TextOverflow
-                                  .ellipsis,
+                          overflow: TextOverflow.ellipsis,
 
-                          style:
-                              const TextStyle(
+                          style: const TextStyle(
                             fontSize: 22,
-                            color:
-                                primaryColor,
-                            fontWeight:
-                                FontWeight
-                                    .w900,
+                            color: primaryColor,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
                       ),
 
-                      const SizedBox(
-                        width: 10,
-                      ),
+                      const SizedBox(width: 10),
 
-                      buildStatusBadge(
-                        formatRentalStatus(),
-                      ),
+                      buildStatusBadge(formatRentalStatus()),
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
-                  // Location
                   Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
 
                     children: [
                       Expanded(
                         child: Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             const Icon(
-                              Icons
-                                  .location_on_outlined,
-                              color:
-                                  primaryColor,
+                              Icons.location_on_outlined,
+
+                              color: primaryColor,
+
                               size: 20,
                             ),
 
-                            const SizedBox(
-                              width: 3,
-                            ),
+                            const SizedBox(width: 3),
 
                             Expanded(
                               child: Text(
-                                property["location"]
-                                        ?.toString() ??
-                                    property["address"]
-                                        ?.toString() ??
+                                property["location"]?.toString() ??
+                                    property["address"]?.toString() ??
                                     "Unknown location",
 
-                                style:
-                                    TextStyle(
-                                  fontSize:
-                                      15,
+                                style: TextStyle(
+                                  fontSize: 13,
 
-                                  color: Colors
-                                      .black
-                                      .withOpacity(
-                                    0.65,
-                                  ),
-
-                                  fontWeight:
-                                      FontWeight
-                                          .w700,
+                                  color: Colors.black.withOpacity(0.65),
                                 ),
                               ),
                             ),
@@ -537,57 +402,36 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         ),
                       ),
 
-                      const SizedBox(
-                        width: 12,
-                      ),
+                      const SizedBox(width: 12),
 
-                      // Price
                       Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
 
                         children: [
                           Text(
                             "\$${getPrice()}",
 
-                            style:
-                                const TextStyle(
-                              fontSize:
-                                  23,
+                            style: const TextStyle(
+                              fontSize: 23,
 
-                              fontWeight:
-                                  FontWeight
-                                      .w800,
+                              fontWeight: FontWeight.w800,
 
-                              color:
-                                  primaryColor,
+                              color: primaryColor,
                             ),
                           ),
 
                           const Padding(
-                            padding:
-                                EdgeInsets
-                                    .only(
-                              bottom:
-                                  3,
-                            ),
+                            padding: EdgeInsets.only(bottom: 3),
 
-                            child:
-                                Text(
+                            child: Text(
                               "/Month",
 
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    13,
+                              style: TextStyle(
+                                fontSize: 13,
 
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
+                                fontWeight: FontWeight.w600,
 
-                                color:
-                                    primaryColor,
+                                color: primaryColor,
                               ),
                             ),
                           ),
@@ -596,381 +440,226 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
 
-                  // Property Info
                   Container(
                     height: 1,
-                    width:
-                        double.infinity,
-                    color:
-                        secondaryColor
-                            .withOpacity(
-                      0.6,
-                    ),
+                    width: double.infinity,
+                    color: secondaryColor.withOpacity(0.6),
                   ),
 
                   Padding(
-                    padding:
-                        const EdgeInsets
-                            .symmetric(
-                      vertical: 13,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
 
                     child: Wrap(
                       spacing: 18,
                       runSpacing: 10,
 
-                      children:
-                          mainInfo.map(
-                        (item) {
-                          return Row(
-                            mainAxisSize:
-                                MainAxisSize
-                                    .min,
+                      children: mainInfo.map((item) {
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
 
-                            children: [
-                              Icon(
-                                item[
-                                    "icon"],
-                                size: 17,
-                                color:
-                                    primaryColor,
+                          children: [
+                            Icon(item["icon"], size: 17, color: primaryColor),
+
+                            const SizedBox(width: 5),
+
+                            Text(
+                              item["text"],
+
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: primaryColor,
+                                fontWeight: FontWeight.w500,
                               ),
-
-                              const SizedBox(
-                                width:
-                                    5,
-                              ),
-
-                              Text(
-                                item[
-                                    "text"],
-
-                                style:
-                                    const TextStyle(
-                                  fontSize:
-                                      13,
-
-                                  color:
-                                      primaryColor,
-
-                                  fontWeight:
-                                      FontWeight
-                                          .w500,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ).toList(),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
 
                   Container(
                     height: 1,
-                    width:
-                        double.infinity,
-                    color:
-                        secondaryColor
-                            .withOpacity(
-                      0.6,
-                    ),
+                    width: double.infinity,
+                    color: secondaryColor.withOpacity(0.6),
                   ),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
-                  // Floor
                   buildFloorSection(),
 
-                  const SizedBox(
-                    height: 15,
-                  ),
+                  const SizedBox(height: 15),
 
-                  // Description
                   const Text(
                     "About this place",
 
                     style: TextStyle(
                       fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          primaryColor,
+                      fontWeight: FontWeight.w800,
+                      color: primaryColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 7,
-                  ),
+                  const SizedBox(height: 7),
 
                   Text(
-                    property[
-                                "description"]
-                            ?.toString() ??
-                        "-",
+                    property["description"]?.toString() ?? "-",
 
-                    style:
-                        const TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-
-                      color:
-                          Colors.black87,
-
+                      color: Colors.black87,
                       height: 1.5,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 18,
-                  ),
+                  const SizedBox(height: 18),
 
-                  // Facilities
                   const Text(
                     "Facilities",
 
                     style: TextStyle(
                       fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          primaryColor,
+                      fontWeight: FontWeight.w800,
+                      color: primaryColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   buildFacilities(),
 
-                  const SizedBox(
-                    height: 28,
-                  ),
+                  const SizedBox(height: 28),
 
-                  // Owner Info
                   const Text(
                     "House Owner Information",
 
                     style: TextStyle(
                       fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          primaryColor,
+                      fontWeight: FontWeight.w800,
+                      color: primaryColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   buildOwnerInfoCard(),
 
-                  const SizedBox(
-                    height: 28,
-                  ),
+                  const SizedBox(height: 28),
 
-                  // Documents
                   Row(
                     children: [
                       const Expanded(
                         child: Text(
                           "Verification Documents",
 
-                          style:
-                              TextStyle(
-                            fontSize:
-                                17,
-
-                            fontWeight:
-                                FontWeight
-                                    .w800,
-
-                            color:
-                                primaryColor,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                            color: primaryColor,
                           ),
                         ),
                       ),
 
                       Container(
-                        padding:
-                            const EdgeInsets
-                                .symmetric(
-                          horizontal:
-                              10,
-                          vertical:
-                              5,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
 
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              secondaryColor
-                                  .withOpacity(
-                            0.20,
-                          ),
+                        decoration: BoxDecoration(
+                          color: secondaryColor.withOpacity(0.20),
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            20,
-                          ),
+                          borderRadius: BorderRadius.circular(20),
                         ),
 
-                        child:
-                            const Text(
+                        child: const Text(
                           "3 documents",
 
-                          style:
-                              TextStyle(
-                            fontSize:
-                                11,
-
-                            fontWeight:
-                                FontWeight
-                                    .w600,
-
-                            color:
-                                primaryColor,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: primaryColor,
                           ),
                         ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   buildDocumentCard(
-                    title:
-                        "National ID",
-                    subtitle:
-                        "Owner identity verification",
-                    icon:
-                        Icons.badge_outlined,
-                    onTap:
-                        showNationalIdPreview,
+                    title: "National ID",
+                    subtitle: "Owner identity verification",
+                    icon: Icons.badge_outlined,
+                    onTap: showNationalIdPreview,
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   buildDocumentCard(
-                    title:
-                        "Property Ownership Document",
-                    subtitle:
-                        "Ownership / rental authorization evidence",
-                    icon: Icons
-                        .description_outlined,
-                    onTap:
-                        showOwnershipDocumentPreview,
+                    title: "Property Ownership Document",
+                    subtitle: "Ownership / rental authorization evidence",
+                    icon: Icons.description_outlined,
+                    onTap: showOwnershipDocumentPreview,
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   buildDocumentCard(
-                    title:
-                        "Payment Proof",
-                    subtitle:
-                        "Property posting fee payment evidence",
-                    icon: Icons
-                        .receipt_long_outlined,
-                    onTap:
-                        showPaymentProofPreview,
+                    title: "Payment Proof",
+                    subtitle: "Property posting fee payment evidence",
+                    icon: Icons.receipt_long_outlined,
+                    onTap: showPaymentProofPreview,
                   ),
 
-                  const SizedBox(
-                    height: 28,
-                  ),
+                  const SizedBox(height: 28),
 
-                  // Checklist
                   const Text(
                     "Verification Checklist",
 
                     style: TextStyle(
                       fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          primaryColor,
+                      fontWeight: FontWeight.w800,
+                      color: primaryColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
 
                   Text(
                     "Confirm each item before making a decision.",
 
-                    style:
-                        TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
 
-                      color: Colors
-                          .black
-                          .withOpacity(
-                        0.45,
-                      ),
+                      color: Colors.black.withOpacity(0.45),
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+                  const SizedBox(height: 12),
 
                   buildChecklistItem(
                     "Owner identity matches submitted information",
                   ),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   buildChecklistItem(
                     "Ownership document matches property information",
                   ),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
-                  buildChecklistItem(
-                    "Payment proof appears valid",
-                  ),
+                  buildChecklistItem("Payment proof appears valid"),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   buildChecklistItem(
                     "Property details appear valid and complete",
                   ),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   buildChecklistItem(
                     "Submitted property images are appropriate",
@@ -982,28 +671,19 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ],
       ),
 
-      bottomNavigationBar:
-          buildBottomButtons(),
+      bottomNavigationBar: buildBottomButtons(),
     );
   }
 
-  // Image Slideshow
   Widget buildImageSlideshow() {
-    final List<String> images =
-        getPropertyImages();
+    final List<String> images = getPropertyImages();
 
     if (images.isEmpty) {
       return Container(
-        color:
-            lightSecondaryColor,
+        color: lightSecondaryColor,
 
         child: const Center(
-          child: Icon(
-            Icons
-                .home_work_outlined,
-            size: 60,
-            color: primaryColor,
-          ),
+          child: Icon(Icons.home_work_outlined, size: 60, color: primaryColor),
         ),
       );
     }
@@ -1014,134 +694,100 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       initialPage: 0,
 
-      indicatorColor:
-          primaryColor,
+      indicatorColor: primaryColor,
 
-      indicatorBackgroundColor:
-          Colors.white70,
+      indicatorBackgroundColor: Colors.white70,
 
-      autoPlayInterval:
-          images.length > 1
-              ? 3000
-              : 0,
+      autoPlayInterval: images.length > 1 ? 3000 : 0,
 
-      isLoop:
-          images.length > 1,
+      isLoop: images.length > 1,
 
-      children:
-          images.map(
-        (image) {
-          return Image.network(
-            image,
+      children: images.map((image) {
+        return Image.network(
+          image,
 
-            fit: BoxFit.cover,
+          fit: BoxFit.cover,
 
-            errorBuilder: (
-              context,
-              error,
-              stackTrace,
-            ) {
-              return Container(
-                color:
-                    lightSecondaryColor,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: lightSecondaryColor,
 
-                child:
-                    const Icon(
-                  Icons
-                      .home_work_outlined,
+              child: const Icon(
+                Icons.home_work_outlined,
 
-                  size: 55,
+                size: 55,
 
-                  color:
-                      primaryColor,
-                ),
-              );
-            },
-          );
-        },
-      ).toList(),
+                color: primaryColor,
+              ),
+            );
+          },
+        );
+      }).toList(),
     );
   }
 
-  // Status Badge
-  Widget buildStatusBadge(
-    String status,
-  ) {
-    final String value =
-        status.toLowerCase();
+  // ==========================================
+  // UPDATED RENTAL STATUS DESIGN
+  // ==========================================
 
-    Color color;
-    IconData icon;
+  Widget buildStatusBadge(String status) {
+    Color statusColor;
 
-    if (value == "available" ||
-        value == "available now") {
-      color = const Color(
-        0xFF16A34A,
-      );
+    final String value = status.toLowerCase();
 
-      icon =
-          Icons.check_circle_rounded;
-    } else if (value ==
-        "rented") {
-      color = const Color(
-        0xFFDC2626,
-      );
-
-      icon =
-          Icons.cancel_rounded;
+    if (value == "available" || value == "available now") {
+      statusColor = const Color(0xFF16A34A);
+    } else if (value == "rented") {
+      statusColor = const Color(0xFFDC2626);
     } else {
-      color = const Color(
-        0xFFF59E0B,
-      );
-
-      icon =
-          Icons.access_time_rounded;
+      statusColor = const Color(0xFFF59E0B);
     }
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 
       decoration: BoxDecoration(
-        color: color,
+        color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          12,
-        ),
+        borderRadius: BorderRadius.circular(20),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+
+            blurRadius: 5,
+
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
       child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
 
         children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 15,
+          Container(
+            width: 8,
+            height: 8,
+
+            decoration: BoxDecoration(
+              color: statusColor,
+
+              shape: BoxShape.circle,
+            ),
           ),
 
-          const SizedBox(
-            width: 4,
-          ),
+          const SizedBox(width: 5),
 
           Text(
             status,
 
-            style:
-                const TextStyle(
-              color:
-                  Colors.white,
+            style: TextStyle(
+              color: statusColor,
 
-              fontSize: 12,
+              fontSize: 13,
 
-              fontWeight:
-                  FontWeight
-                      .w600,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -1149,18 +795,14 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // Floor
   Widget buildFloorSection() {
     if (totalFloor <= 0) {
-      return const SizedBox
-          .shrink();
+      return const SizedBox.shrink();
     }
 
     if (hasAvailableFloorList) {
       return Column(
-        crossAxisAlignment:
-            CrossAxisAlignment
-                .start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           Row(
@@ -1168,17 +810,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               const Text(
                 "Floor",
 
-                style:
-                    TextStyle(
-                  fontSize:
-                      17,
-
-                  fontWeight:
-                      FontWeight
-                          .w800,
-
-                  color:
-                      primaryColor,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: primaryColor,
                 ),
               ),
 
@@ -1187,30 +822,20 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Text(
                 "$totalFloor Floors",
 
-                style:
-                    const TextStyle(
-                  color:
-                      Colors.black54,
-                  fontSize:
-                      12,
-                ),
+                style: const TextStyle(color: Colors.black54, fontSize: 12),
               ),
 
               IconButton(
-                onPressed:
-                    floorList,
+                onPressed: floorList,
 
                 icon: Icon(
                   showFloor
-                      ? Icons
-                          .keyboard_arrow_up
-                      : Icons
-                          .keyboard_arrow_down,
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
 
                   size: 25,
 
-                  color:
-                      primaryColor,
+                  color: primaryColor,
                 ),
               ),
             ],
@@ -1219,196 +844,107 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           Visibility(
             visible: showFloor,
 
-            child:
-                hasFloorAvailabilityData
-                    ? Container(
-                        constraints:
-                            const BoxConstraints(
-                          maxHeight:
-                              220,
-                        ),
+            child: hasFloorAvailabilityData
+                ? Container(
+                    constraints: const BoxConstraints(maxHeight: 220),
 
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            12,
-                          ),
+                      borderRadius: BorderRadius.circular(12),
 
-                          border:
-                              Border.all(
-                            color:
-                                secondaryColor
-                                    .withOpacity(
-                              0.5,
-                            ),
-                          ),
-                        ),
-
-                        child:
-                            ListView
-                                .separated(
-                          shrinkWrap:
-                              true,
-
-                          padding:
-                              EdgeInsets
-                                  .zero,
-
-                          itemCount:
-                              totalFloor,
-
-                          separatorBuilder:
-                              (
-                            context,
-                            index,
-                          ) {
-                            return Container(
-                              height:
-                                  1,
-
-                              color:
-                                  secondaryColor
-                                      .withOpacity(
-                                0.4,
-                              ),
-                            );
-                          },
-
-                          itemBuilder:
-                              (
-                            context,
-                            index,
-                          ) {
-                            final int
-                                floor =
-                                index +
-                                    1;
-
-                            final bool
-                                available =
-                                availableFloors
-                                    .contains(
-                              floor,
-                            );
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets
-                                      .all(
-                                10,
-                              ),
-
-                              child:
-                                  Row(
-                                children: [
-                                  const Icon(
-                                    Icons.apartment,
-                                    size:
-                                        20,
-                                    color:
-                                        primaryColor,
-                                  ),
-
-                                  const SizedBox(
-                                    width:
-                                        6,
-                                  ),
-
-                                  Text(
-                                    "Floor $floor",
-
-                                    style:
-                                        const TextStyle(
-                                      fontSize:
-                                          14,
-
-                                      color:
-                                          primaryColor,
-
-                                      fontWeight:
-                                          FontWeight.w500,
-                                    ),
-                                  ),
-
-                                  const Spacer(),
-
-                                  Text(
-                                    available
-                                        ? "Available"
-                                        : "Not available",
-
-                                    style:
-                                        TextStyle(
-                                      fontSize:
-                                          13,
-
-                                      fontWeight: available
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
-
-                                      color: available
-                                          ? const Color(
-                                              0xFF16A34A,
-                                            )
-                                          : Colors.black45,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      )
-                    : Container(
-                        width:
-                            double.infinity,
-
-                        padding:
-                            const EdgeInsets
-                                .all(
-                          14,
-                        ),
-
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              Colors.white,
-
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            12,
-                          ),
-
-                          border:
-                              Border.all(
-                            color:
-                                secondaryColor
-                                    .withOpacity(
-                              0.5,
-                            ),
-                          ),
-                        ),
-
-                        child:
-                            const Text(
-                          "Floor availability information is not available.",
-
-                          style:
-                              TextStyle(
-                            color:
-                                Colors.black54,
-
-                            fontSize:
-                                13,
-                          ),
-                        ),
+                      border: Border.all(
+                        color: secondaryColor.withOpacity(0.5),
                       ),
+                    ),
+
+                    child: ListView.separated(
+                      shrinkWrap: true,
+
+                      padding: EdgeInsets.zero,
+
+                      itemCount: totalFloor,
+
+                      separatorBuilder: (context, index) {
+                        return Container(
+                          height: 1,
+
+                          color: secondaryColor.withOpacity(0.4),
+                        );
+                      },
+
+                      itemBuilder: (context, index) {
+                        final int floor = index + 1;
+
+                        final bool available = availableFloors.contains(floor);
+
+                        return Padding(
+                          padding: const EdgeInsets.all(10),
+
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.apartment,
+                                size: 20,
+                                color: primaryColor,
+                              ),
+
+                              const SizedBox(width: 6),
+
+                              Text(
+                                "Floor $floor",
+
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+
+                              const Spacer(),
+
+                              Text(
+                                available ? "Available" : "Not available",
+
+                                style: TextStyle(
+                                  fontSize: 13,
+
+                                  fontWeight: available
+                                      ? FontWeight.w600
+                                      : FontWeight.w400,
+
+                                  color: available
+                                      ? const Color(0xFF16A34A)
+                                      : Colors.black45,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                : Container(
+                    width: double.infinity,
+
+                    padding: const EdgeInsets.all(14),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+
+                      borderRadius: BorderRadius.circular(12),
+
+                      border: Border.all(
+                        color: secondaryColor.withOpacity(0.5),
+                      ),
+                    ),
+
+                    child: const Text(
+                      "Floor availability information is not available.",
+
+                      style: TextStyle(color: Colors.black54, fontSize: 13),
+                    ),
+                  ),
           ),
         ],
       );
@@ -1421,84 +957,53 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           style: TextStyle(
             fontSize: 17,
-
-            fontWeight:
-                FontWeight.w800,
-
+            fontWeight: FontWeight.w800,
             color: primaryColor,
           ),
         ),
 
         const Spacer(),
 
-        const Icon(
-          Icons.layers_outlined,
-          color: primaryColor,
-          size: 19,
-        ),
+        const Icon(Icons.layers_outlined, color: primaryColor, size: 19),
 
-        const SizedBox(
-          width: 5,
-        ),
+        const SizedBox(width: 5),
 
         Text(
           "$totalFloor ${totalFloor == 1 ? "Floor" : "Floors"}",
 
-          style:
-              const TextStyle(
+          style: const TextStyle(
             color: primaryColor,
 
             fontSize: 14,
 
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
     );
   }
 
-  // Facilities
   Widget buildFacilities() {
-    final List<Map<String, dynamic>>
-        facilities =
-        availableFacilities;
+    final List<Map<String, dynamic>> facilities = availableFacilities;
 
     if (facilities.isEmpty) {
       return Container(
         width: double.infinity,
 
-        padding:
-            const EdgeInsets.all(
-          16,
-        ),
+        padding: const EdgeInsets.all(16),
 
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(
-            12,
-          ),
+          borderRadius: BorderRadius.circular(12),
 
-          border: Border.all(
-            color:
-                secondaryColor
-                    .withOpacity(
-              0.4,
-            ),
-          ),
+          border: Border.all(color: secondaryColor.withOpacity(0.4)),
         ),
 
         child: const Text(
           "No facilities listed",
 
-          style: TextStyle(
-            color:
-                Colors.black54,
-            fontSize: 13,
-          ),
+          style: TextStyle(color: Colors.black54, fontSize: 13),
         ),
       );
     }
@@ -1506,78 +1011,42 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return SizedBox(
       height: 70,
 
-      child:
-          ListView.separated(
-        scrollDirection:
-            Axis.horizontal,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
 
-        itemCount:
-            facilities.length,
+        itemCount: facilities.length,
 
-        itemBuilder: (
-          context,
-          index,
-        ) {
-          final Map<String, dynamic>
-              item =
-              facilities[index];
+        itemBuilder: (context, index) {
+          final Map<String, dynamic> item = facilities[index];
 
           return Container(
-            padding:
-                const EdgeInsets
-                    .symmetric(
-              horizontal: 13,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 13),
 
-            decoration:
-                BoxDecoration(
-              color:
-                  lightSecondaryColor,
+            decoration: BoxDecoration(
+              color: lightSecondaryColor,
 
-              borderRadius:
-                  BorderRadius
-                      .circular(
-                13,
-              ),
+              borderRadius: BorderRadius.circular(13),
 
-              border:
-                  Border.all(
-                color:
-                    secondaryColor,
-              ),
+              border: Border.all(color: secondaryColor),
             ),
 
             child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
+              mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
-                Icon(
-                  item["icon"],
-                  size: 20,
-                  color:
-                      primaryColor,
-                ),
+                Icon(item["icon"], size: 20, color: primaryColor),
 
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
 
                 Text(
                   item["text"],
 
-                  style:
-                      const TextStyle(
-                    fontSize:
-                        12,
+                  style: const TextStyle(
+                    fontSize: 12,
 
-                    color:
-                        primaryColor,
+                    color: primaryColor,
 
-                    fontWeight:
-                        FontWeight
-                            .w600,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -1585,44 +1054,25 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           );
         },
 
-        separatorBuilder:
-            (
-          context,
-          index,
-        ) {
-          return const SizedBox(
-            width: 12,
-          );
+        separatorBuilder: (context, index) {
+          return const SizedBox(width: 12);
         },
       ),
     );
   }
 
-  // Owner Info
   Widget buildOwnerInfoCard() {
     return Container(
       width: double.infinity,
 
-      padding:
-          const EdgeInsets.all(
-        16,
-      ),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
+        borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(
-          color:
-              secondaryColor
-                  .withOpacity(
-            0.4,
-          ),
-        ),
+        border: Border.all(color: secondaryColor.withOpacity(0.4)),
       ),
 
       child: Column(
@@ -1630,9 +1080,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.person_outline,
             "Owner Name",
-            property["owner"]
-                    ?.toString() ??
-                "-",
+            property["owner"]?.toString() ?? "-",
           ),
 
           buildOwnerDivider(),
@@ -1640,9 +1088,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.email_outlined,
             "Email",
-            property["email"]
-                    ?.toString() ??
-                "-",
+            property["email"]?.toString() ?? "-",
           ),
 
           buildOwnerDivider(),
@@ -1650,9 +1096,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerRow(
             Icons.phone_outlined,
             "Phone",
-            property["phone"]
-                    ?.toString() ??
-                "-",
+            property["phone"]?.toString() ?? "-",
           ),
 
           buildOwnerDivider(),
@@ -1666,93 +1110,57 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           buildOwnerDivider(),
 
           buildOwnerRow(
-            Icons
-                .calendar_today_outlined,
+            Icons.calendar_today_outlined,
             "Submitted",
-            property["submitted"]
-                    ?.toString() ??
-                "-",
+            property["submitted"]?.toString() ?? "-",
           ),
         ],
       ),
     );
   }
 
-  // Owner Row
-  Widget buildOwnerRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+  Widget buildOwnerRow(IconData icon, String title, String value) {
     return Row(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
         Container(
           width: 38,
           height: 38,
 
-          decoration:
-              BoxDecoration(
-            color:
-                lightSecondaryColor,
+          decoration: BoxDecoration(
+            color: lightSecondaryColor,
 
-            borderRadius:
-                BorderRadius.circular(
-              10,
-            ),
+            borderRadius: BorderRadius.circular(10),
           ),
 
-          child: Icon(
-            icon,
-            size: 20,
-            color: primaryColor,
-          ),
+          child: Icon(icon, size: 20, color: primaryColor),
         ),
 
-        const SizedBox(
-          width: 12,
-        ),
+        const SizedBox(width: 12),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Text(
                 title,
 
-                style:
-                    const TextStyle(
-                  fontSize:
-                      12,
-
-                  color:
-                      Colors.black45,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
               ),
 
-              const SizedBox(
-                height: 3,
-              ),
+              const SizedBox(height: 3),
 
               Text(
                 value,
 
-                style:
-                    const TextStyle(
-                  fontSize:
-                      14,
+                style: const TextStyle(
+                  fontSize: 14,
 
-                  fontWeight:
-                      FontWeight
-                          .w600,
+                  fontWeight: FontWeight.w600,
 
-                  color:
-                      Colors.black87,
+                  color: Colors.black87,
                 ),
               ),
             ],
@@ -1762,28 +1170,14 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // Owner Divider
   Widget buildOwnerDivider() {
     return Padding(
-      padding:
-          const EdgeInsets
-              .symmetric(
-        vertical: 13,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 13),
 
-      child: Divider(
-        height: 1,
-
-        color:
-            secondaryColor
-                .withOpacity(
-          0.35,
-        ),
-      ),
+      child: Divider(height: 1, color: secondaryColor.withOpacity(0.35)),
     );
   }
 
-  // Document Card
   Widget buildDocumentCard({
     required String title,
     required String subtitle,
@@ -1793,33 +1187,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     return InkWell(
       onTap: onTap,
 
-      borderRadius:
-          BorderRadius.circular(
-        14,
-      ),
+      borderRadius: BorderRadius.circular(14),
 
       child: Container(
-        padding:
-            const EdgeInsets.all(
-          14,
-        ),
+        padding: const EdgeInsets.all(14),
 
-        decoration:
-            BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+          borderRadius: BorderRadius.circular(14),
 
-          border: Border.all(
-            color:
-                secondaryColor
-                    .withOpacity(
-              0.5,
-            ),
-          ),
+          border: Border.all(color: secondaryColor.withOpacity(0.5)),
         ),
 
         child: Row(
@@ -1828,70 +1206,45 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               width: 46,
               height: 46,
 
-              decoration:
-                  BoxDecoration(
-                color:
-                    lightSecondaryColor,
+              decoration: BoxDecoration(
+                color: lightSecondaryColor,
 
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  12,
-                ),
+                borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                color:
-                    primaryColor,
-              ),
+              child: Icon(icon, color: primaryColor),
             ),
 
-            const SizedBox(
-              width: 12,
-            ),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Text(
                     title,
 
-                    style:
-                        const TextStyle(
-                      fontSize:
-                          14,
+                    style: const TextStyle(
+                      fontSize: 14,
 
-                      fontWeight:
-                          FontWeight
-                              .bold,
+                      fontWeight: FontWeight.bold,
 
-                      color:
-                          primaryColor,
+                      color: primaryColor,
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
 
                   Text(
                     subtitle,
 
-                    style:
-                        const TextStyle(
-                      fontSize:
-                          12,
+                    style: const TextStyle(
+                      fontSize: 12,
 
-                      height:
-                          1.35,
+                      height: 1.35,
 
-                      color:
-                          Colors.black54,
+                      color: Colors.black54,
                     ),
                   ),
                 ],
@@ -1902,22 +1255,16 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               width: 36,
               height: 36,
 
-              decoration:
-                  const BoxDecoration(
-                color:
-                    lightSecondaryColor,
+              decoration: const BoxDecoration(
+                color: lightSecondaryColor,
 
-                shape:
-                    BoxShape.circle,
+                shape: BoxShape.circle,
               ),
 
-              child:
-                  const Icon(
-                Icons
-                    .visibility_outlined,
+              child: const Icon(
+                Icons.visibility_outlined,
 
-                color:
-                    primaryColor,
+                color: primaryColor,
 
                 size: 19,
               ),
@@ -1928,32 +1275,16 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // Checklist Item
-  Widget buildChecklistItem(
-    String text,
-  ) {
+  Widget buildChecklistItem(String text) {
     return Container(
-      padding:
-          const EdgeInsets.all(
-        14,
-      ),
+      padding: const EdgeInsets.all(14),
 
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
+        borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(
-          color:
-              secondaryColor
-                  .withOpacity(
-            0.4,
-          ),
-        ),
+        border: Border.all(color: secondaryColor.withOpacity(0.4)),
       ),
 
       child: Row(
@@ -1962,42 +1293,33 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             width: 30,
             height: 30,
 
-            decoration:
-                const BoxDecoration(
-              color:
-                  lightSecondaryColor,
+            decoration: const BoxDecoration(
+              color: lightSecondaryColor,
 
-              shape:
-                  BoxShape.circle,
+              shape: BoxShape.circle,
             ),
 
-            child:
-                const Icon(
+            child: const Icon(
               Icons.check_rounded,
 
-              color:
-                  primaryColor,
+              color: primaryColor,
 
               size: 18,
             ),
           ),
 
-          const SizedBox(
-            width: 12,
-          ),
+          const SizedBox(width: 12),
 
           Expanded(
             child: Text(
               text,
 
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 fontSize: 13,
 
                 height: 1.35,
 
-                color:
-                    Colors.black87,
+                color: Colors.black87,
               ),
             ),
           ),
@@ -2006,170 +1328,91 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // Bottom Buttons
   Widget buildBottomButtons() {
     return Container(
       height: 90,
 
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.white,
 
         boxShadow: [
           BoxShadow(
-            color:
-                primaryColor
-                    .withOpacity(
-              0.10,
-            ),
+            color: primaryColor.withOpacity(0.10),
 
             blurRadius: 10,
 
             spreadRadius: 1,
 
-            offset:
-                const Offset(
-              0,
-              -2,
-            ),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
 
       child: Padding(
-        padding:
-            const EdgeInsets
-                .fromLTRB(
-          16,
-          20,
-          16,
-          20,
-        ),
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
 
         child: Row(
           children: [
-            // Reject
             Expanded(
-              child:
-                  TextButton(
-                onPressed:
-                    showRejectDialog,
+              child: TextButton(
+                onPressed: showRejectDialog,
 
-                style:
-                    TextButton
-                        .styleFrom(
-                  foregroundColor:
-                      const Color(
-                    0xFFDC2626,
-                  ),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFDC2626),
 
-                  backgroundColor:
-                      const Color(
-                    0xFFFEF2F2,
-                  ),
+                  backgroundColor: const Color(0xFFFEF2F2),
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      15,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
                 ),
 
-                child:
-                    const Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .center,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(
-                      Icons
-                          .close_rounded,
-                      size:
-                          23,
-                    ),
+                    Icon(Icons.close_rounded, size: 23),
 
-                    SizedBox(
-                      width:
-                          5,
-                    ),
+                    SizedBox(width: 5),
 
                     Text(
                       "Reject",
 
-                      style:
-                          TextStyle(
-                        fontWeight:
-                            FontWeight
-                                .w800,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
               ),
             ),
 
-            const SizedBox(
-              width: 10,
-            ),
+            const SizedBox(width: 10),
 
-            // Approve
             Expanded(
-              child:
-                  TextButton(
-                onPressed:
-                    showApproveDialog,
+              child: TextButton(
+                onPressed: showApproveDialog,
 
-                style:
-                    TextButton
-                        .styleFrom(
-                  foregroundColor:
-                      Colors.white,
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
 
-                  backgroundColor:
-                      primaryColor,
+                  backgroundColor: primaryColor,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      15,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
                 ),
 
-                child:
-                    const Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .center,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(
-                      Icons
-                          .check_rounded,
-                      size:
-                          23,
-                    ),
+                    Icon(Icons.check_rounded, size: 23),
 
-                    SizedBox(
-                      width:
-                          5,
-                    ),
+                    SizedBox(width: 5),
 
                     Text(
                       "Approve",
 
-                      style:
-                          TextStyle(
-                        fontWeight:
-                            FontWeight
-                                .w800,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
@@ -2181,44 +1424,34 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // Property ID
   int? getPropertyId() {
     if (property["id"] == null) {
       return null;
     }
 
-    return int.tryParse(
-      property["id"].toString(),
-    );
+    return int.tryParse(property["id"].toString());
   }
 
-  // National ID
   void showNationalIdPreview() {
-    final dynamic rawOwnerId =
-        property["owner_id"];
+    final dynamic rawOwnerId = property["owner_id"];
 
     if (rawOwnerId == null) {
       Get.snackbar(
         "Unable to Open",
         "Owner information is missing.",
-        snackPosition:
-            SnackPosition.TOP,
+        snackPosition: SnackPosition.TOP,
       );
 
       return;
     }
 
-    final int? ownerId =
-        int.tryParse(
-      rawOwnerId.toString(),
-    );
+    final int? ownerId = int.tryParse(rawOwnerId.toString());
 
     if (ownerId == null) {
       Get.snackbar(
         "Unable to Open",
         "Owner information is invalid.",
-        snackPosition:
-            SnackPosition.TOP,
+        snackPosition: SnackPosition.TOP,
       );
 
       return;
@@ -2227,17 +1460,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     showPrivateDocumentPreview(
       title: "National ID",
       icon: Icons.badge_outlined,
-      future:
-          adminService.getNationalId(
-        ownerId,
-      ),
+      future: adminService.getNationalId(ownerId),
     );
   }
 
-  // Ownership Document
   void showOwnershipDocumentPreview() {
-    final int? propertyId =
-        getPropertyId();
+    final int? propertyId = getPropertyId();
 
     if (propertyId == null) {
       showMissingPropertyId();
@@ -2245,23 +1473,16 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     }
 
     showPrivateDocumentPreview(
-      title:
-          "Property Ownership Document",
+      title: "Property Ownership Document",
 
-      icon:
-          Icons.description_outlined,
+      icon: Icons.description_outlined,
 
-      future: adminService
-          .getOwnershipDocument(
-        propertyId,
-      ),
+      future: adminService.getOwnershipDocument(propertyId),
     );
   }
 
-  // Payment Proof
   void showPaymentProofPreview() {
-    final int? propertyId =
-        getPropertyId();
+    final int? propertyId = getPropertyId();
 
     if (propertyId == null) {
       showMissingPropertyId();
@@ -2271,28 +1492,21 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     showPrivateDocumentPreview(
       title: "Payment Proof",
 
-      icon:
-          Icons.receipt_long_outlined,
+      icon: Icons.receipt_long_outlined,
 
-      future:
-          adminService.getPaymentProof(
-        propertyId,
-      ),
+      future: adminService.getPaymentProof(propertyId),
     );
   }
 
-  // Missing Property
   void showMissingPropertyId() {
     Get.snackbar(
       "Unable to Open",
       "Property information is missing.",
 
-      snackPosition:
-          SnackPosition.TOP,
+      snackPosition: SnackPosition.TOP,
     );
   }
 
-  // Document Preview
   void showPrivateDocumentPreview({
     required String title,
     required IconData icon,
@@ -2300,60 +1514,35 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }) {
     Get.bottomSheet(
       Container(
-        constraints:
-            BoxConstraints(
-          maxHeight:
-              Get.height * 0.85,
-        ),
+        constraints: BoxConstraints(maxHeight: Get.height * 0.85),
 
-        padding:
-            const EdgeInsets.all(
-          20,
-        ),
+        padding: const EdgeInsets.all(20),
 
-        decoration:
-            const BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-              BorderRadius.vertical(
-            top:
-                Radius.circular(
-              24,
-            ),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
 
         child: SafeArea(
           top: false,
 
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
               Container(
                 width: 45,
                 height: 5,
 
-                decoration:
-                    BoxDecoration(
-                  color:
-                      const Color(
-                    0xFFD1D9D4,
-                  ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1D9D4),
 
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    20,
-                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
 
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
 
               Row(
                 children: [
@@ -2361,172 +1550,96 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     width: 46,
                     height: 46,
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          lightSecondaryColor,
+                    decoration: BoxDecoration(
+                      color: lightSecondaryColor,
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        12,
-                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(
-                      icon,
-                      color:
-                          primaryColor,
-                    ),
+                    child: Icon(icon, color: primaryColor),
                   ),
 
-                  const SizedBox(
-                    width: 12,
-                  ),
+                  const SizedBox(width: 12),
 
                   Expanded(
                     child: Text(
                       title,
 
-                      style:
-                          const TextStyle(
-                        fontSize:
-                            18,
+                      style: const TextStyle(
+                        fontSize: 18,
 
-                        fontWeight:
-                            FontWeight
-                                .bold,
+                        fontWeight: FontWeight.bold,
 
-                        color:
-                            primaryColor,
+                        color: primaryColor,
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
 
               Flexible(
-                child:
-                    FutureBuilder<
-                        Uint8List>(
+                child: FutureBuilder<Uint8List>(
                   future: future,
 
-                  builder: (
-                    context,
-                    snapshot,
-                  ) {
-                    if (snapshot
-                            .connectionState ==
-                        ConnectionState
-                            .waiting) {
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
                       return Container(
-                        width:
-                            double.infinity,
+                        width: double.infinity,
 
-                        height:
-                            280,
+                        height: 280,
 
-                        color:
-                            backgroundColor,
+                        color: backgroundColor,
 
-                        child:
-                            const Center(
-                          child:
-                              CircularProgressIndicator(
-                            color:
-                                primaryColor,
-                          ),
+                        child: const Center(
+                          child: CircularProgressIndicator(color: primaryColor),
                         ),
                       );
                     }
 
-                    if (snapshot
-                            .hasError ||
-                        snapshot
-                                .data ==
-                            null) {
+                    if (snapshot.hasError || snapshot.data == null) {
                       String message =
-                          snapshot.error
-                                  ?.toString() ??
-                              "Document could not be loaded.";
+                          snapshot.error?.toString() ??
+                          "Document could not be loaded.";
 
-                      if (message
-                          .startsWith(
-                        "Exception: ",
-                      )) {
-                        message =
-                            message
-                                .replaceFirst(
-                          "Exception: ",
-                          "",
-                        );
+                      if (message.startsWith("Exception: ")) {
+                        message = message.replaceFirst("Exception: ", "");
                       }
 
-                      return buildDocumentError(
-                        message,
-                      );
+                      return buildDocumentError(message);
                     }
 
                     return Container(
-                      width:
-                          double.infinity,
+                      width: double.infinity,
 
-                      constraints:
-                          const BoxConstraints(
-                        minHeight:
-                            230,
-                        maxHeight:
-                            430,
+                      constraints: const BoxConstraints(
+                        minHeight: 230,
+                        maxHeight: 430,
                       ),
 
-                      decoration:
-                          BoxDecoration(
-                        color:
-                            backgroundColor,
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
 
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          16,
-                        ),
+                        borderRadius: BorderRadius.circular(16),
 
-                        border:
-                            Border.all(
-                          color:
-                              secondaryColor,
-                        ),
+                        border: Border.all(color: secondaryColor),
                       ),
 
-                      child:
-                          ClipRRect(
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          16,
-                        ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
 
-                        child:
-                            InteractiveViewer(
-                          minScale:
-                              1,
+                        child: InteractiveViewer(
+                          minScale: 1,
 
-                          maxScale:
-                              5,
+                          maxScale: 5,
 
-                          child:
-                              Image.memory(
-                            snapshot
-                                .data!,
+                          child: Image.memory(
+                            snapshot.data!,
 
-                            width:
-                                double.infinity,
+                            width: double.infinity,
 
-                            fit:
-                                BoxFit.contain,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
@@ -2535,52 +1648,32 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 ),
               ),
 
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
 
               SizedBox(
-                width:
-                    double.infinity,
+                width: double.infinity,
+
                 height: 48,
 
-                child:
-                    ElevatedButton(
-                  onPressed:
-                      Get.back,
+                child: ElevatedButton(
+                  onPressed: Get.back,
 
-                  style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        primaryColor,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
 
-                    foregroundColor:
-                        Colors.white,
+                    foregroundColor: Colors.white,
 
-                    elevation:
-                        0,
+                    elevation: 0,
 
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        13,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
                     ),
                   ),
 
-                  child:
-                      const Text(
+                  child: const Text(
                     "Close",
 
-                    style:
-                        TextStyle(
-                      fontWeight:
-                          FontWeight
-                              .bold,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -2589,103 +1682,431 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ),
       ),
 
-      isScrollControlled:
-          true,
+      isScrollControlled: true,
     );
   }
 
-  // Document Error
-  Widget buildDocumentError(
-    String message,
-  ) {
+  Widget buildDocumentError(String message) {
     return Container(
       width: double.infinity,
       height: 230,
 
-      padding:
-          const EdgeInsets
-              .symmetric(
-        horizontal: 20,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
 
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: backgroundColor,
 
-        borderRadius:
-            BorderRadius.circular(
-          16,
-        ),
+        borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(
-          color:
-              secondaryColor
-                  .withOpacity(
-            0.5,
-          ),
-        ),
+        border: Border.all(color: secondaryColor.withOpacity(0.5)),
       ),
 
       child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment
-                .center,
+        mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
           const Icon(
-            Icons
-                .error_outline_rounded,
+            Icons.error_outline_rounded,
+
             size: 42,
-            color:
-                Color(0xFFDC2626),
+
+            color: Color(0xFFDC2626),
           ),
 
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
 
           Text(
             message,
 
-            textAlign:
-                TextAlign.center,
+            textAlign: TextAlign.center,
 
-            style:
-                const TextStyle(
-              fontSize: 13,
-
-              color:
-                  Colors.black54,
-            ),
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
           ),
         ],
       ),
     );
   }
 
-  // Approve
+  void showSuccessNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+
+      snackPosition: SnackPosition.TOP,
+
+      backgroundColor: Colors.white,
+
+      margin: const EdgeInsets.all(16),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+
+      borderRadius: 18,
+
+      borderColor: const Color(0xFFD1FAE5),
+
+      borderWidth: 1,
+
+      duration: const Duration(seconds: 3),
+
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+
+          blurRadius: 18,
+
+          offset: const Offset(0, 6),
+        ),
+      ],
+
+      icon: Container(
+        width: 36,
+        height: 36,
+
+        decoration: const BoxDecoration(
+          color: Color(0xFFECFDF5),
+
+          shape: BoxShape.circle,
+        ),
+
+        child: const Icon(
+          Icons.check_rounded,
+
+          color: Color(0xFF16A34A),
+
+          size: 20,
+        ),
+      ),
+
+      titleText: Text(
+        title,
+
+        style: const TextStyle(
+          color: Color(0xFF16A34A),
+
+          fontSize: 16,
+
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+
+      messageText: Text(
+        message,
+
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+
+          fontSize: 13,
+
+          height: 1.35,
+        ),
+      ),
+
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+
+        child: const Icon(
+          Icons.close_rounded,
+
+          color: Color(0xFF9CA3AF),
+
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  void showWarningNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+
+      snackPosition: SnackPosition.TOP,
+
+      backgroundColor: Colors.white,
+
+      margin: const EdgeInsets.all(16),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+
+      borderRadius: 18,
+
+      borderColor: const Color(0xFFFDE68A),
+
+      borderWidth: 1,
+
+      duration: const Duration(seconds: 3),
+
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+
+          blurRadius: 18,
+
+          offset: const Offset(0, 6),
+        ),
+      ],
+
+      icon: Container(
+        width: 36,
+        height: 36,
+
+        decoration: const BoxDecoration(
+          color: Color(0xFFFFF7ED),
+
+          shape: BoxShape.circle,
+        ),
+
+        child: const Icon(
+          Icons.warning_amber_rounded,
+
+          color: Color(0xFFF59E0B),
+
+          size: 20,
+        ),
+      ),
+
+      titleText: Text(
+        title,
+
+        style: const TextStyle(
+          color: Color(0xFFD97706),
+
+          fontSize: 16,
+
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+
+      messageText: Text(
+        message,
+
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+
+          fontSize: 13,
+
+          height: 1.35,
+        ),
+      ),
+
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+
+        child: const Icon(
+          Icons.close_rounded,
+
+          color: Color(0xFF9CA3AF),
+
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  void showErrorNotification({required String title, required String message}) {
+    Get.snackbar(
+      '',
+      '',
+
+      snackPosition: SnackPosition.TOP,
+
+      backgroundColor: Colors.white,
+
+      margin: const EdgeInsets.all(16),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+
+      borderRadius: 18,
+
+      borderColor: const Color(0xFFF3D2D2),
+
+      borderWidth: 1,
+
+      duration: const Duration(seconds: 3),
+
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+
+          blurRadius: 18,
+
+          offset: const Offset(0, 6),
+        ),
+      ],
+
+      icon: Container(
+        width: 36,
+        height: 36,
+
+        decoration: const BoxDecoration(
+          color: Color(0xFFFDECEC),
+
+          shape: BoxShape.circle,
+        ),
+
+        child: const Icon(
+          Icons.priority_high_rounded,
+
+          color: Color(0xFFDC2626),
+
+          size: 20,
+        ),
+      ),
+
+      titleText: Text(
+        title,
+
+        style: const TextStyle(
+          color: Color(0xFFDC2626),
+
+          fontSize: 16,
+
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+
+      messageText: Text(
+        message,
+
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+
+          fontSize: 13,
+
+          height: 1.35,
+        ),
+      ),
+
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+
+        child: const Icon(
+          Icons.close_rounded,
+
+          color: Color(0xFF9CA3AF),
+
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  void showRejectedNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+
+      snackPosition: SnackPosition.TOP,
+
+      backgroundColor: Colors.white,
+
+      margin: const EdgeInsets.all(16),
+
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+
+      borderRadius: 18,
+
+      borderColor: const Color(0xFFF3D2D2),
+
+      borderWidth: 1,
+
+      duration: const Duration(seconds: 3),
+
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+
+          blurRadius: 18,
+
+          offset: const Offset(0, 6),
+        ),
+      ],
+
+      icon: Container(
+        width: 36,
+        height: 36,
+
+        decoration: const BoxDecoration(
+          color: Color(0xFFFDECEC),
+
+          shape: BoxShape.circle,
+        ),
+
+        child: const Icon(
+          Icons.close_rounded,
+
+          color: Color(0xFFDC2626),
+
+          size: 20,
+        ),
+      ),
+
+      titleText: Text(
+        title,
+
+        style: const TextStyle(
+          color: Color(0xFFDC2626),
+
+          fontSize: 16,
+
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+
+      messageText: Text(
+        message,
+
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+
+          fontSize: 13,
+
+          height: 1.35,
+        ),
+      ),
+
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+
+        child: const Icon(
+          Icons.close_rounded,
+
+          color: Color(0xFF9CA3AF),
+
+          size: 21,
+        ),
+      ),
+    );
+  }
+
   void showApproveDialog() {
     Get.dialog(
       AlertDialog(
-        backgroundColor:
-            Colors.white,
+        backgroundColor: Colors.white,
 
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
         title: const Text(
           "Approve Property",
 
-          style: TextStyle(
-            fontWeight:
-                FontWeight.bold,
-            color: primaryColor,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
         ),
 
         content: const Text(
@@ -2693,313 +2114,136 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ),
 
         actions: [
-          // Cancel
           TextButton(
             onPressed: () {
               Get.back();
             },
 
-            child:
-                const Text(
-              "Cancel",
-            ),
+            child: const Text("Cancel"),
           ),
 
-          // Approve
           ElevatedButton(
-            onPressed:
-                () async {
-              final int?
-                  propertyId =
-                  getPropertyId();
+            onPressed: () async {
+              final int? propertyId = getPropertyId();
 
-              if (propertyId ==
-                  null) {
-                Get.snackbar(
-                  "Error",
-                  "Property ID is missing.",
-
-                  snackPosition:
-                      SnackPosition
-                          .TOP,
-
-                  backgroundColor:
-                      const Color(
-                    0xFFDC2626,
-                  ),
-
-                  colorText:
-                      Colors.white,
+              if (propertyId == null) {
+                showErrorNotification(
+                  title: "Error",
+                  message: "Property ID is missing.",
                 );
 
                 return;
               }
 
-              // Close Dialog
               Get.back();
 
               try {
-                // Loading
                 Get.dialog(
                   const Center(
-                    child:
-                        CircularProgressIndicator(
-                      color:
-                          primaryColor,
-                    ),
+                    child: CircularProgressIndicator(color: primaryColor),
                   ),
 
-                  barrierDismissible:
-                      false,
+                  barrierDismissible: false,
                 );
 
-                // Approve Property
-                final bool
-                    success =
-                    await adminService
-                        .approveProperty(
+                final bool success = await adminService.approveProperty(
                   propertyId,
                 );
 
-                // Close Loading
-                if (Get
-                        .isDialogOpen ==
-                    true) {
+                if (Get.isDialogOpen == true) {
                   Get.back();
                 }
 
                 if (success) {
-                  // Leave Review Page
-                  Get.back(
-                    result: {
-                      "success":
-                          true,
-                      "action":
-                          "approved",
-                    },
-                  );
+                  Get.back(result: {"success": true, "action": "approved"});
 
-                  // Snackbar
-                  Future.delayed(
-                    const Duration(
-                      milliseconds:
-                          250,
-                    ),
-                    () {
-                      Get.snackbar(
-                        "Property Approved",
-                        "The property has been approved successfully.",
-
-                        snackPosition:
-                            SnackPosition
-                                .TOP,
-
-                        backgroundColor:
-                            const Color(
-                          0xFF16A34A,
-                        ),
-
-                        colorText:
-                            Colors.white,
-
-                        icon:
-                            const Icon(
-                          Icons
-                              .check_circle_outline_rounded,
-                          color:
-                              Colors.white,
-                        ),
-
-                        margin:
-                            const EdgeInsets
-                                .all(
-                          12,
-                        ),
-
-                        borderRadius:
-                            12,
-
-                        duration:
-                            const Duration(
-                          seconds:
-                              3,
-                        ),
-                      );
-                    },
-                  );
+                  Future.delayed(const Duration(milliseconds: 250), () {
+                    showSuccessNotification(
+                      title: "Property Approved",
+                      message: "The property has been approved successfully.",
+                    );
+                  });
                 }
               } catch (e) {
-                // Close Loading
-                if (Get
-                        .isDialogOpen ==
-                    true) {
+                if (Get.isDialogOpen == true) {
                   Get.back();
                 }
 
-                String message =
-                    e.toString();
+                String message = e.toString();
 
-                if (message
-                    .startsWith(
-                  "Exception: ",
-                )) {
-                  message =
-                      message
-                          .replaceFirst(
-                    "Exception: ",
-                    "",
-                  );
+                if (message.startsWith("Exception: ")) {
+                  message = message.replaceFirst("Exception: ", "");
                 }
 
-                Get.snackbar(
-                  "Approval Failed",
-                  message,
-
-                  snackPosition:
-                      SnackPosition
-                          .TOP,
-
-                  backgroundColor:
-                      const Color(
-                    0xFFDC2626,
-                  ),
-
-                  colorText:
-                      Colors.white,
-
-                  icon:
-                      const Icon(
-                    Icons
-                        .error_outline_rounded,
-                    color:
-                        Colors.white,
-                  ),
-
-                  margin:
-                      const EdgeInsets
-                          .all(
-                    12,
-                  ),
-
-                  borderRadius:
-                      12,
-
-                  duration:
-                      const Duration(
-                    seconds: 3,
-                  ),
+                showErrorNotification(
+                  title: "Approval Failed",
+                  message: message,
                 );
               }
             },
 
-            style:
-                ElevatedButton
-                    .styleFrom(
-              backgroundColor:
-                  primaryColor,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
 
-              foregroundColor:
-                  Colors.white,
+              foregroundColor: Colors.white,
             ),
 
-            child:
-                const Text(
-              "Approve",
-            ),
+            child: const Text("Approve"),
           ),
         ],
       ),
     );
   }
 
-  // Reject
   void showRejectDialog() {
-    final TextEditingController
-        reasonController =
-        TextEditingController();
+    final TextEditingController reasonController = TextEditingController();
 
     Get.dialog(
       AlertDialog(
-        backgroundColor:
-            Colors.white,
+        backgroundColor: Colors.white,
 
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
         title: const Text(
           "Reject Property",
 
           style: TextStyle(
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
 
-            color:
-                Color(0xFFDC2626),
+            color: Color(0xFFDC2626),
           ),
         ),
 
         content: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
 
-          crossAxisAlignment:
-              CrossAxisAlignment
-                  .start,
+          crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            const Text(
-              "Provide a reason for rejecting this submission.",
-            ),
+            const Text("Provide a reason for rejecting this submission."),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             TextField(
-              controller:
-                  reasonController,
+              controller: reasonController,
 
               maxLines: 4,
 
-              decoration:
-                  InputDecoration(
-                hintText:
-                    "Enter rejection reason",
+              decoration: InputDecoration(
+                hintText: "Enter rejection reason",
 
                 filled: true,
 
-                fillColor:
-                    Colors.white,
+                fillColor: Colors.white,
 
-                border:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
 
-                focusedBorder:
-                    OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
 
-                  borderSide:
-                      const BorderSide(
-                    color:
-                        Color(
-                      0xFFDC2626,
-                    ),
-                  ),
+                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
                 ),
               ),
             ),
@@ -3007,250 +2251,94 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         ),
 
         actions: [
-          // Cancel
           TextButton(
             onPressed: () {
               Get.back();
             },
 
-            child:
-                const Text(
-              "Cancel",
-            ),
+            child: const Text("Cancel"),
           ),
 
-          // Reject
           ElevatedButton(
-            onPressed:
-                () async {
-              final String reason =
-                  reasonController
-                      .text
-                      .trim();
+            onPressed: () async {
+              final String reason = reasonController.text.trim();
 
               if (reason.isEmpty) {
-                Get.snackbar(
-                  "Reason Required",
-                  "Please enter a rejection reason.",
-
-                  snackPosition:
-                      SnackPosition
-                          .TOP,
-
-                  backgroundColor:
-                      const Color(
-                    0xFFF59E0B,
-                  ),
-
-                  colorText:
-                      Colors.white,
+                showWarningNotification(
+                  title: "Reason Required",
+                  message: "Please enter a rejection reason.",
                 );
 
                 return;
               }
 
-              final int?
-                  propertyId =
-                  getPropertyId();
+              final int? propertyId = getPropertyId();
 
-              if (propertyId ==
-                  null) {
-                Get.snackbar(
-                  "Error",
-                  "Property ID is missing.",
-
-                  snackPosition:
-                      SnackPosition
-                          .TOP,
-
-                  backgroundColor:
-                      const Color(
-                    0xFFDC2626,
-                  ),
-
-                  colorText:
-                      Colors.white,
+              if (propertyId == null) {
+                showErrorNotification(
+                  title: "Error",
+                  message: "Property ID is missing.",
                 );
 
                 return;
               }
 
-              // Close Dialog
               Get.back();
 
               try {
-                // Loading
                 Get.dialog(
                   const Center(
-                    child:
-                        CircularProgressIndicator(
-                      color:
-                          primaryColor,
-                    ),
+                    child: CircularProgressIndicator(color: primaryColor),
                   ),
 
-                  barrierDismissible:
-                      false,
+                  barrierDismissible: false,
                 );
 
-                // Reject Property
-                final bool
-                    success =
-                    await adminService
-                        .rejectProperty(
-                  propertyId:
-                      propertyId,
-                  reason:
-                      reason,
+                final bool success = await adminService.rejectProperty(
+                  propertyId: propertyId,
+
+                  reason: reason,
                 );
 
-                // Close Loading
-                if (Get
-                        .isDialogOpen ==
-                    true) {
+                if (Get.isDialogOpen == true) {
                   Get.back();
                 }
 
                 if (success) {
-                  // Leave Review Page
-                  Get.back(
-                    result: {
-                      "success":
-                          true,
-                      "action":
-                          "rejected",
-                    },
-                  );
+                  Get.back(result: {"success": true, "action": "rejected"});
 
-                  // Snackbar
-                  Future.delayed(
-                    const Duration(
-                      milliseconds:
-                          250,
-                    ),
-                    () {
-                      Get.snackbar(
-                        "Property Rejected",
-                        "The property submission has been rejected.",
-
-                        snackPosition:
-                            SnackPosition
-                                .TOP,
-
-                        backgroundColor:
-                            const Color(
-                          0xFFDC2626,
-                        ),
-
-                        colorText:
-                            Colors.white,
-
-                        icon:
-                            const Icon(
-                          Icons
-                              .cancel_outlined,
-                          color:
-                              Colors.white,
-                        ),
-
-                        margin:
-                            const EdgeInsets
-                                .all(
-                          12,
-                        ),
-
-                        borderRadius:
-                            12,
-
-                        duration:
-                            const Duration(
-                          seconds:
-                              3,
-                        ),
-                      );
-                    },
-                  );
+                  Future.delayed(const Duration(milliseconds: 250), () {
+                    showRejectedNotification(
+                      title: "Property Rejected",
+                      message: "The property submission has been rejected.",
+                    );
+                  });
                 }
               } catch (e) {
-                // Close Loading
-                if (Get
-                        .isDialogOpen ==
-                    true) {
+                if (Get.isDialogOpen == true) {
                   Get.back();
                 }
 
-                String message =
-                    e.toString();
+                String message = e.toString();
 
-                if (message
-                    .startsWith(
-                  "Exception: ",
-                )) {
-                  message =
-                      message
-                          .replaceFirst(
-                    "Exception: ",
-                    "",
-                  );
+                if (message.startsWith("Exception: ")) {
+                  message = message.replaceFirst("Exception: ", "");
                 }
 
-                Get.snackbar(
-                  "Rejection Failed",
-                  message,
-
-                  snackPosition:
-                      SnackPosition
-                          .TOP,
-
-                  backgroundColor:
-                      const Color(
-                    0xFFDC2626,
-                  ),
-
-                  colorText:
-                      Colors.white,
-
-                  icon:
-                      const Icon(
-                    Icons
-                        .error_outline_rounded,
-                    color:
-                        Colors.white,
-                  ),
-
-                  margin:
-                      const EdgeInsets
-                          .all(
-                    12,
-                  ),
-
-                  borderRadius:
-                      12,
-
-                  duration:
-                      const Duration(
-                    seconds: 3,
-                  ),
+                showErrorNotification(
+                  title: "Rejection Failed",
+                  message: message,
                 );
               }
             },
 
-            style:
-                ElevatedButton
-                    .styleFrom(
-              backgroundColor:
-                  const Color(
-                0xFFDC2626,
-              ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
 
-              foregroundColor:
-                  Colors.white,
+              foregroundColor: Colors.white,
             ),
 
-            child:
-                const Text(
-              "Reject",
-            ),
+            child: const Text("Reject"),
           ),
         ],
       ),

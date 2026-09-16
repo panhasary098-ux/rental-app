@@ -6,10 +6,6 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
 
-// ======================================================
-// COLORS
-// ======================================================
-
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
 const Color backgroundColor = Color(0xFFF4FCFE);
@@ -22,29 +18,13 @@ class VerifyIdentityScreen extends StatefulWidget {
 }
 
 class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
-  // ======================================================
-  // SERVICE
-  // ======================================================
-
   final AuthService authService = AuthService();
-
-  // ======================================================
-  // IMAGE PICKER
-  // ======================================================
 
   final ImagePicker imagePicker = ImagePicker();
 
   File? selectedNationalId;
 
-  // ======================================================
-  // LOADING
-  // ======================================================
-
   bool isUploading = false;
-
-  // ======================================================
-  // PICK NATIONAL ID
-  // ======================================================
 
   Future<void> pickNationalId() async {
     try {
@@ -61,17 +41,12 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
         selectedNationalId = File(image.path);
       });
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Unable to select image.",
-        snackPosition: SnackPosition.BOTTOM,
+      showErrorNotification(
+        title: "Unable to Select Image",
+        message: "Unable to select your National ID image.",
       );
     }
   }
-
-  // ======================================================
-  // REMOVE SELECTED IMAGE
-  // ======================================================
 
   void removeNationalId() {
     setState(() {
@@ -79,16 +54,11 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
     });
   }
 
-  // ======================================================
-  // UPLOAD NATIONAL ID
-  // ======================================================
-
   Future<void> uploadNationalId() async {
     if (selectedNationalId == null) {
-      Get.snackbar(
-        "National ID Required",
-        "Please select your National ID first.",
-        snackPosition: SnackPosition.BOTTOM,
+      showWarningNotification(
+        title: "National ID Required",
+        message: "Please select your National ID first.",
       );
 
       return;
@@ -108,11 +78,11 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       }
 
       if (success) {
-        Get.snackbar(
-          "Success",
-          "National ID uploaded successfully.",
-          snackPosition: SnackPosition.TOP,
+        showSuccessNotification(
+          title: "Identity Verified",
+          message: "Your National ID was uploaded successfully.",
         );
+
         Get.off(() => const Postpropertyscreen());
       }
     } catch (e) {
@@ -126,11 +96,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
         message = message.replaceFirst("Exception: ", "");
       }
 
-      Get.snackbar(
-        "Upload Failed",
-        message,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      showErrorNotification(title: "Upload Failed", message: message);
     } finally {
       if (mounted) {
         setState(() {
@@ -140,18 +106,200 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
     }
   }
 
-  // ======================================================
-  // BUILD
-  // ======================================================
+  void showSuccessNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderRadius: 18,
+      borderColor: const Color(0xFFD1FAE5),
+      borderWidth: 1,
+      duration: const Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFECFDF5),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.check_rounded,
+          color: Color(0xFF16A34A),
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFF16A34A),
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+        child: const Icon(
+          Icons.close_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  void showWarningNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderRadius: 18,
+      borderColor: const Color(0xFFFDE68A),
+      borderWidth: 1,
+      duration: const Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFFFF7ED),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.warning_amber_rounded,
+          color: Color(0xFFF59E0B),
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFFD97706),
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+        child: const Icon(
+          Icons.close_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  void showErrorNotification({required String title, required String message}) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderRadius: 18,
+      borderColor: const Color(0xFFF3D2D2),
+      borderWidth: 1,
+      duration: const Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFFDECEC),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.priority_high_rounded,
+          color: Color(0xFFDC2626),
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFFDC2626),
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+        child: const Icon(
+          Icons.close_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 21,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
 
-      // ==================================================
-      // APP BAR
-      // ==================================================
       appBar: AppBar(
         title: const Text(
           "Verify Your Identity",
@@ -167,9 +315,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
         iconTheme: const IconThemeData(color: primaryColor),
       ),
 
-      // ==================================================
-      // BODY
-      // ==================================================
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(18),
@@ -178,17 +323,16 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              // ============================================
-              // HEADER ICON
-              // ============================================
               Center(
                 child: Container(
                   width: 85,
                   height: 85,
+
                   decoration: BoxDecoration(
                     color: secondaryColor.withOpacity(0.35),
                     shape: BoxShape.circle,
                   ),
+
                   child: const Icon(
                     Icons.badge_outlined,
                     size: 44,
@@ -199,9 +343,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
               const SizedBox(height: 20),
 
-              // ============================================
-              // TITLE
-              // ============================================
               const Center(
                 child: Text(
                   "Identity Verification",
@@ -216,9 +357,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
               const SizedBox(height: 10),
 
-              // ============================================
-              // DESCRIPTION
-              // ============================================
               const Center(
                 child: Text(
                   "Before posting a property, please upload your National ID to verify your identity.",
@@ -233,9 +371,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
               const SizedBox(height: 28),
 
-              // ============================================
-              // LABEL
-              // ============================================
               const Text(
                 "National ID",
                 style: TextStyle(
@@ -247,20 +382,15 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
               const SizedBox(height: 10),
 
-              // ============================================
-              // IMAGE AREA
-              // ============================================
               selectedNationalId == null
                   ? buildUploadBox()
                   : buildSelectedImage(),
 
               const SizedBox(height: 18),
 
-              // ============================================
-              // PRIVACY INFO
-              // ============================================
               Container(
                 padding: const EdgeInsets.all(14),
+
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -291,9 +421,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
 
               const SizedBox(height: 30),
 
-              // ============================================
-              // CONTINUE BUTTON
-              // ============================================
               SizedBox(
                 width: double.infinity,
                 height: 52,
@@ -304,11 +431,8 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
-
                     disabledBackgroundColor: secondaryColor,
-
                     elevation: 0,
-
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -338,10 +462,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       ),
     );
   }
-
-  // ======================================================
-  // UPLOAD BOX
-  // ======================================================
 
   Widget buildUploadBox() {
     return InkWell(
@@ -391,10 +511,6 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
       ),
     );
   }
-
-  // ======================================================
-  // SELECTED IMAGE
-  // ======================================================
 
   Widget buildSelectedImage() {
     return Container(

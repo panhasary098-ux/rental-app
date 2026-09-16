@@ -1,6 +1,6 @@
 import 'package:final_project/service/admin_service.dart';
+import 'package:final_project/view/admin/admin_property_detail_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:get/get.dart';
 
 const Color _primaryColor = Color(0xFF03045E);
@@ -12,16 +12,13 @@ class ManagePropertiesScreen extends StatefulWidget {
   const ManagePropertiesScreen({super.key});
 
   @override
-  State<ManagePropertiesScreen> createState() =>
-      _ManagePropertiesScreenState();
+  State<ManagePropertiesScreen> createState() => _ManagePropertiesScreenState();
 }
 
-class _ManagePropertiesScreenState
-    extends State<ManagePropertiesScreen> {
+class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
   final AdminService adminService = AdminService();
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   String selectedFilter = "All";
 
@@ -55,8 +52,7 @@ class _ManagePropertiesScreenState
         errorMessage = null;
       });
 
-      final result =
-          await adminService.getManagedProperties();
+      final result = await adminService.getManagedProperties();
 
       if (!mounted) {
         return;
@@ -74,10 +70,7 @@ class _ManagePropertiesScreenState
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
       setState(() {
@@ -87,61 +80,38 @@ class _ManagePropertiesScreenState
     }
   }
 
-  List<Map<String, dynamic>>
-  get filteredProperties {
-    final String query =
-        searchController.text
-            .trim()
-            .toLowerCase();
+  List<Map<String, dynamic>> get filteredProperties {
+    final String query = searchController.text.trim().toLowerCase();
 
-    return properties.where(
-      (property) {
-        final String title =
-            property["title"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+    return properties.where((property) {
+      final String title = property["title"]?.toString().toLowerCase() ?? "";
 
-        final String owner =
-            property["owner"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+      final String owner = property["owner"]?.toString().toLowerCase() ?? "";
 
-        final String location =
-            property["location"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+      final String location =
+          property["location"]?.toString().toLowerCase() ?? "";
 
-        final String postStatus =
-            property["post_status"]
-                    ?.toString()
-                    .toLowerCase() ??
-                "";
+      final String postStatus =
+          property["post_status"]?.toString().toLowerCase() ?? "";
 
-        final bool matchesSearch =
-            query.isEmpty ||
-            title.contains(query) ||
-            owner.contains(query) ||
-            location.contains(query);
+      final bool matchesSearch =
+          query.isEmpty ||
+          title.contains(query) ||
+          owner.contains(query) ||
+          location.contains(query);
 
-        bool matchesFilter = true;
+      bool matchesFilter = true;
 
-        if (selectedFilter == "Active") {
-          matchesFilter =
-              postStatus == "active";
-        }
+      if (selectedFilter == "Active") {
+        matchesFilter = postStatus == "active";
+      }
 
-        if (selectedFilter == "Removed") {
-          matchesFilter =
-              postStatus == "removed";
-        }
+      if (selectedFilter == "Removed") {
+        matchesFilter = postStatus == "removed";
+      }
 
-        return matchesSearch &&
-            matchesFilter;
-      },
-    ).toList();
+      return matchesSearch && matchesFilter;
+    }).toList();
   }
 
   String getImageUrl(dynamic value) {
@@ -151,23 +121,15 @@ class _ManagePropertiesScreenState
 
     String url = value.toString();
 
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
 
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
 
     return url;
   }
 
   String formatPostStatus(dynamic value) {
-    final String status =
-        value?.toString().toLowerCase() ??
-            "";
+    final String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "active") {
       return "Active";
@@ -177,17 +139,11 @@ class _ManagePropertiesScreenState
       return "Removed";
     }
 
-    return status.isEmpty
-        ? "-"
-        : status;
+    return status.isEmpty ? "-" : status;
   }
 
-  String formatRentalStatus(
-    dynamic value,
-  ) {
-    final String status =
-        value?.toString().toLowerCase() ??
-            "";
+  String formatRentalStatus(dynamic value) {
+    final String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "available") {
       return "Available";
@@ -197,24 +153,17 @@ class _ManagePropertiesScreenState
       return "Rented";
     }
 
-    return status.isEmpty
-        ? "-"
-        : status;
+    return status.isEmpty ? "-" : status;
   }
 
-  String getPrice(
-    Map<String, dynamic> property,
-  ) {
-    final dynamic price =
-        property["price"];
+  String getPrice(Map<String, dynamic> property) {
+    final dynamic price = property["price"];
 
-    if (price != null &&
-        price.toString().isNotEmpty) {
+    if (price != null && price.toString().isNotEmpty) {
       return price.toString();
     }
 
-    final dynamic rawPrice =
-        property["raw_price"];
+    final dynamic rawPrice = property["raw_price"];
 
     if (rawPrice != null) {
       return "\$$rawPrice / month";
@@ -225,16 +174,13 @@ class _ManagePropertiesScreenState
 
   @override
   Widget build(BuildContext context) {
-    final displayedProperties =
-        filteredProperties;
+    final displayedProperties = filteredProperties;
 
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF7FAF8),
+      backgroundColor: const Color(0xFFF7FAF8),
 
       appBar: AppBar(
-        backgroundColor:
-            const Color(0xFFF7FAF8),
+        backgroundColor: const Color(0xFFF7FAF8),
 
         elevation: 0,
 
@@ -246,11 +192,9 @@ class _ManagePropertiesScreenState
           },
 
           icon: const Icon(
-            Icons
-                .arrow_back_ios_new_rounded,
+            Icons.arrow_back_ios_new_rounded,
 
-            color:
-                Color(0xFF1F2923),
+            color: Color(0xFF1F2923),
           ),
         ),
 
@@ -260,11 +204,9 @@ class _ManagePropertiesScreenState
           style: TextStyle(
             fontSize: 20,
 
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
 
-            color:
-                Color(0xFF1F2923),
+            color: Color(0xFF1F2923),
           ),
         ),
       ),
@@ -273,104 +215,55 @@ class _ManagePropertiesScreenState
         child: Column(
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                18,
-                10,
-                18,
-                0,
-              ),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
 
               child: TextField(
-                controller:
-                    searchController,
+                controller: searchController,
 
-                decoration:
-                    InputDecoration(
-                  hintText:
-                      "Search properties...",
+                decoration: InputDecoration(
+                  hintText: "Search properties...",
 
-                  hintStyle:
-                      const TextStyle(
-                    color:
-                        Color(
-                      0xFF94A099,
-                    ),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF94A099),
 
                     fontSize: 14,
                   ),
 
-                  prefixIcon:
-                      const Icon(
+                  prefixIcon: const Icon(
                     Icons.search_rounded,
 
-                    color:
-                        Color(
-                      0xFF68756D,
-                    ),
+                    color: Color(0xFF68756D),
                   ),
 
-                  suffixIcon:
-                      searchController
-                              .text
-                              .isEmpty
-                          ? null
-                          : IconButton(
-                              onPressed:
-                                  searchController
-                                      .clear,
+                  suffixIcon: searchController.text.isEmpty
+                      ? null
+                      : IconButton(
+                          onPressed: searchController.clear,
 
-                              icon:
-                                  const Icon(
-                                Icons
-                                    .close_rounded,
+                          icon: const Icon(
+                            Icons.close_rounded,
 
-                                color:
-                                    _primaryColor,
-                              ),
-                            ),
+                            color: _primaryColor,
+                          ),
+                        ),
 
                   filled: true,
 
-                  fillColor:
-                      Colors.white,
+                  fillColor: Colors.white,
 
-                  contentPadding:
-                      const EdgeInsets
-                          .symmetric(
-                    vertical: 14,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+
+                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.4)),
                   ),
 
-                  enabledBorder:
-                      OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      14,
-                    ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
 
-                    borderSide:
-                        BorderSide(
-                      color:
-                          Colors.grey
-                              .withOpacity(
-                        0.4,
-                      ),
-                    ),
-                  ),
-
-                  focusedBorder:
-                      OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      14,
-                    ),
-
-                    borderSide:
-                        const BorderSide(
-                      color:
-                          _primaryColor,
+                    borderSide: const BorderSide(
+                      color: _primaryColor,
 
                       width: 1.5,
                     ),
@@ -382,82 +275,56 @@ class _ManagePropertiesScreenState
             const SizedBox(height: 14),
 
             SingleChildScrollView(
-              scrollDirection:
-                  Axis.horizontal,
+              scrollDirection: Axis.horizontal,
 
-              padding:
-                  const EdgeInsets.symmetric(
-                horizontal: 18,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
 
               child: Row(
                 children: [
-                  buildFilterChip(
-                    "All",
-                  ),
+                  buildFilterChip("All"),
 
                   const SizedBox(width: 8),
 
-                  buildFilterChip(
-                    "Active",
-                  ),
+                  buildFilterChip("Active"),
 
                   const SizedBox(width: 8),
 
-                  buildFilterChip(
-                    "Removed",
-                  ),
+                  buildFilterChip("Removed"),
                 ],
               ),
             ),
 
             const SizedBox(height: 16),
 
-            Expanded(
-              child: buildContent(
-                displayedProperties,
-              ),
-            ),
+            Expanded(child: buildContent(displayedProperties)),
           ],
         ),
       ),
     );
   }
 
-  Widget buildContent(
-    List<Map<String, dynamic>>
-        displayedProperties,
-  ) {
+  Widget buildContent(List<Map<String, dynamic>> displayedProperties) {
     if (isLoading) {
       return const Center(
-        child:
-            CircularProgressIndicator(
-          color: _primaryColor,
-        ),
+        child: CircularProgressIndicator(color: _primaryColor),
       );
     }
 
     if (errorMessage != null) {
       return Center(
         child: Padding(
-          padding:
-              const EdgeInsets.all(
-            25,
-          ),
+          padding: const EdgeInsets.all(25),
 
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
               const Icon(
-                Icons
-                    .error_outline_rounded,
+                Icons.error_outline_rounded,
 
                 size: 48,
 
-                color:
-                    Color(0xFFDC2626),
+                color: Color(0xFFDC2626),
               ),
 
               const SizedBox(height: 12),
@@ -468,13 +335,9 @@ class _ManagePropertiesScreenState
                 style: TextStyle(
                   fontSize: 16,
 
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
 
-                  color:
-                      Color(
-                    0xFF1F2923,
-                  ),
+                  color: Color(0xFF1F2923),
                 ),
               ),
 
@@ -483,42 +346,24 @@ class _ManagePropertiesScreenState
               Text(
                 errorMessage!,
 
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
 
-                style:
-                    const TextStyle(
-                  fontSize: 13,
-
-                  color:
-                      Color(
-                    0xFF68756D,
-                  ),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF68756D)),
               ),
 
               const SizedBox(height: 18),
 
               ElevatedButton.icon(
-                onPressed:
-                    loadProperties,
+                onPressed: loadProperties,
 
-                icon: const Icon(
-                  Icons.refresh_rounded,
-                ),
+                icon: const Icon(Icons.refresh_rounded),
 
-                label: const Text(
-                  "Try Again",
-                ),
+                label: const Text("Try Again"),
 
-                style:
-                    ElevatedButton
-                        .styleFrom(
-                  backgroundColor:
-                      _primaryColor,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryColor,
 
-                  foregroundColor:
-                      Colors.white,
+                  foregroundColor: Colors.white,
                 ),
               ),
             ],
@@ -530,8 +375,7 @@ class _ManagePropertiesScreenState
     if (displayedProperties.isEmpty) {
       return Center(
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Container(
@@ -539,22 +383,15 @@ class _ManagePropertiesScreenState
               height: 72,
 
               decoration: BoxDecoration(
-                color:
-                    _secondaryColor
-                        .withOpacity(
-                  0.25,
-                ),
+                color: _secondaryColor.withOpacity(0.25),
 
-                shape:
-                    BoxShape.circle,
+                shape: BoxShape.circle,
               ),
 
               child: const Icon(
-                Icons
-                    .home_work_outlined,
+                Icons.home_work_outlined,
 
-                color:
-                    _primaryColor,
+                color: _primaryColor,
 
                 size: 32,
               ),
@@ -568,13 +405,9 @@ class _ManagePropertiesScreenState
               style: TextStyle(
                 fontSize: 16,
 
-                fontWeight:
-                    FontWeight.bold,
+                fontWeight: FontWeight.bold,
 
-                color:
-                    Color(
-                  0xFF1F2923,
-                ),
+                color: Color(0xFF1F2923),
               ),
             ),
 
@@ -583,14 +416,7 @@ class _ManagePropertiesScreenState
             const Text(
               "There are no properties in this category.",
 
-              style: TextStyle(
-                fontSize: 12,
-
-                color:
-                    Color(
-                  0xFF68756D,
-                ),
-              ),
+              style: TextStyle(fontSize: 12, color: Color(0xFF68756D)),
             ),
           ],
         ),
@@ -603,40 +429,23 @@ class _ManagePropertiesScreenState
       onRefresh: loadProperties,
 
       child: ListView.separated(
-        padding:
-            const EdgeInsets.fromLTRB(
-          18,
-          0,
-          18,
-          25,
-        ),
+        padding: const EdgeInsets.fromLTRB(18, 0, 18, 25),
 
-        itemCount:
-            displayedProperties.length,
+        itemCount: displayedProperties.length,
 
-        separatorBuilder:
-            (context, index) {
-          return const SizedBox(
-            height: 14,
-          );
+        separatorBuilder: (context, index) {
+          return const SizedBox(height: 14);
         },
 
-        itemBuilder:
-            (context, index) {
-          return buildPropertyCard(
-            displayedProperties[
-                index],
-          );
+        itemBuilder: (context, index) {
+          return buildPropertyCard(displayedProperties[index]);
         },
       ),
     );
   }
 
-  Widget buildFilterChip(
-    String title,
-  ) {
-    final bool isSelected =
-        selectedFilter == title;
+  Widget buildFilterChip(String title) {
+    final bool isSelected = selectedFilter == title;
 
     return InkWell(
       onTap: () {
@@ -645,38 +454,20 @@ class _ManagePropertiesScreenState
         });
       },
 
-      borderRadius:
-          BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(20),
 
       child: AnimatedContainer(
-        duration:
-            const Duration(
-          milliseconds: 180,
-        ),
+        duration: const Duration(milliseconds: 180),
 
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 17,
-          vertical: 9,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
 
         decoration: BoxDecoration(
-          color: isSelected
-              ? _primaryColor
-              : Colors.white,
+          color: isSelected ? _primaryColor : Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
+          borderRadius: BorderRadius.circular(20),
 
           border: Border.all(
-            color: isSelected
-                ? _primaryColor
-                : Colors.grey
-                    .withOpacity(
-                    0.4,
-                  ),
+            color: isSelected ? _primaryColor : Colors.grey.withOpacity(0.4),
           ),
         ),
 
@@ -686,71 +477,39 @@ class _ManagePropertiesScreenState
           style: TextStyle(
             fontSize: 12,
 
-            fontWeight:
-                FontWeight.w600,
+            fontWeight: FontWeight.w600,
 
-            color: isSelected
-                ? Colors.white
-                : const Color(
-                    0xFF68756D,
-                  ),
+            color: isSelected ? Colors.white : const Color(0xFF68756D),
           ),
         ),
       ),
     );
   }
 
-  Widget buildPropertyCard(
-    Map<String, dynamic> property,
-  ) {
-    final String imageUrl =
-        getImageUrl(
-      property["image"],
-    );
+  Widget buildPropertyCard(Map<String, dynamic> property) {
+    final String imageUrl = getImageUrl(property["image"]);
 
-    final String postStatus =
-        formatPostStatus(
-      property["post_status"],
-    );
+    final String postStatus = formatPostStatus(property["post_status"]);
 
-    final String rentalStatus =
-        formatRentalStatus(
-      property["rental_status"],
-    );
+    final String rentalStatus = formatRentalStatus(property["rental_status"]);
 
     return Container(
-      padding:
-          const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          18,
-        ),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color:
-              Colors.grey.withOpacity(
-            0.4,
-          ),
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.4)),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.grey.withOpacity(
-              0.12,
-            ),
+            color: Colors.grey.withOpacity(0.12),
 
             blurRadius: 12,
 
-            offset:
-                const Offset(
-              0,
-              4,
-            ),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -758,92 +517,63 @@ class _ManagePropertiesScreenState
       child: Column(
         children: [
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               ClipRRect(
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  13,
-                ),
+                borderRadius: BorderRadius.circular(13),
 
-                child:
-                    imageUrl.isEmpty
-                        ? buildImagePlaceholder()
-                        : Image.network(
-                            imageUrl,
+                child: imageUrl.isEmpty
+                    ? buildImagePlaceholder()
+                    : Image.network(
+                        imageUrl,
 
-                            width: 105,
+                        width: 105,
 
-                            height: 105,
+                        height: 105,
 
-                            fit:
-                                BoxFit.cover,
+                        fit: BoxFit.cover,
 
-                            errorBuilder:
-                                (
-                              context,
-                              error,
-                              stackTrace,
-                            ) {
-                              return buildImagePlaceholder();
-                            },
-                          ),
+                        errorBuilder: (context, error, stackTrace) {
+                          return buildImagePlaceholder();
+                        },
+                      ),
               ),
 
               const SizedBox(width: 14),
 
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
 
                   children: [
                     Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
                         Expanded(
                           child: Text(
-                            property["title"]
-                                    ?.toString() ??
-                                "Property",
+                            property["title"]?.toString() ?? "Property",
 
                             maxLines: 2,
 
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
+                            overflow: TextOverflow.ellipsis,
 
-                            style:
-                                const TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
 
                               height: 1.3,
 
-                              fontWeight:
-                                  FontWeight
-                                      .bold,
+                              fontWeight: FontWeight.bold,
 
-                              color: Color(
-                                0xFF1F2923,
-                              ),
+                              color: Color(0xFF1F2923),
                             ),
                           ),
                         ),
 
-                        const SizedBox(
-                          width: 8,
-                        ),
+                        const SizedBox(width: 8),
 
-                        buildPostStatusBadge(
-                          postStatus,
-                        ),
+                        buildPostStatusBadge(postStatus),
                       ],
                     ),
 
@@ -852,15 +582,12 @@ class _ManagePropertiesScreenState
                     Text(
                       getPrice(property),
 
-                      style:
-                          const TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
 
-                        fontWeight:
-                            FontWeight.bold,
+                        fontWeight: FontWeight.bold,
 
-                        color:
-                            _primaryColor,
+                        color: _primaryColor,
                       ),
                     ),
 
@@ -873,20 +600,12 @@ class _ManagePropertiesScreenState
 
                           size: 9,
 
-                          color:
-                              rentalStatus ==
-                                      "Available"
-                                  ? const Color(
-                                      0xFF16A34A,
-                                    )
-                                  : const Color(
-                                      0xFFDC2626,
-                                    ),
+                          color: rentalStatus == "Available"
+                              ? const Color(0xFF16A34A)
+                              : const Color(0xFFDC2626),
                         ),
 
-                        const SizedBox(
-                          width: 6,
-                        ),
+                        const SizedBox(width: 6),
 
                         Text(
                           rentalStatus,
@@ -894,19 +613,11 @@ class _ManagePropertiesScreenState
                           style: TextStyle(
                             fontSize: 12,
 
-                            fontWeight:
-                                FontWeight
-                                    .w600,
+                            fontWeight: FontWeight.w600,
 
-                            color:
-                                rentalStatus ==
-                                        "Available"
-                                    ? const Color(
-                                        0xFF16A34A,
-                                      )
-                                    : const Color(
-                                        0xFFDC2626,
-                                      ),
+                            color: rentalStatus == "Available"
+                                ? const Color(0xFF16A34A)
+                                : const Color(0xFFDC2626),
                           ),
                         ),
                       ],
@@ -917,38 +628,27 @@ class _ManagePropertiesScreenState
                     Row(
                       children: [
                         const Icon(
-                          Icons
-                              .person_outline_rounded,
+                          Icons.person_outline_rounded,
 
                           size: 16,
 
-                          color:
-                              Color(
-                            0xFF68756D,
-                          ),
+                          color: Color(0xFF68756D),
                         ),
 
                         const SizedBox(width: 5),
 
                         Expanded(
                           child: Text(
-                            property["owner"]
-                                    ?.toString() ??
-                                "Unknown Owner",
+                            property["owner"]?.toString() ?? "Unknown Owner",
 
                             maxLines: 1,
 
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
+                            overflow: TextOverflow.ellipsis,
 
-                            style:
-                                const TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
 
-                              color: Color(
-                                0xFF68756D,
-                              ),
+                              color: Color(0xFF68756D),
                             ),
                           ),
                         ),
@@ -960,38 +660,27 @@ class _ManagePropertiesScreenState
                     Row(
                       children: [
                         const Icon(
-                          Icons
-                              .location_on_outlined,
+                          Icons.location_on_outlined,
 
                           size: 16,
 
-                          color:
-                              Color(
-                            0xFF68756D,
-                          ),
+                          color: Color(0xFF68756D),
                         ),
 
                         const SizedBox(width: 5),
 
                         Expanded(
                           child: Text(
-                            property["location"]
-                                    ?.toString() ??
-                                "-",
+                            property["location"]?.toString() ?? "-",
 
                             maxLines: 1,
 
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
+                            overflow: TextOverflow.ellipsis,
 
-                            style:
-                                const TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
 
-                              color: Color(
-                                0xFF68756D,
-                              ),
+                              color: Color(0xFF68756D),
                             ),
                           ),
                         ),
@@ -1005,14 +694,7 @@ class _ManagePropertiesScreenState
 
           const SizedBox(height: 16),
 
-          Divider(
-            height: 1,
-
-            color:
-                Colors.grey.withOpacity(
-              0.25,
-            ),
-          ),
+          Divider(height: 1, color: Colors.grey.withOpacity(0.25)),
 
           const SizedBox(height: 16),
 
@@ -1022,49 +704,28 @@ class _ManagePropertiesScreenState
                 child: SizedBox(
                   height: 50,
 
-                  child:
-                      ElevatedButton.icon(
+                  child: ElevatedButton.icon(
                     onPressed: () {
-                      showPropertyPost(
-                        property,
-                      );
+                      showPropertyPost(property);
                     },
 
-                    icon: const Icon(
-                      Icons
-                          .visibility_outlined,
+                    icon: const Icon(Icons.visibility_outlined, size: 20),
 
-                      size: 20,
-                    ),
-
-                    label:
-                        const Text(
+                    label: const Text(
                       "View Post",
 
-                      style: TextStyle(
-                        fontWeight:
-                            FontWeight.bold,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
 
-                    style:
-                        ElevatedButton
-                            .styleFrom(
-                      backgroundColor:
-                          _primaryColor,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryColor,
 
-                      foregroundColor:
-                          Colors.white,
+                      foregroundColor: Colors.white,
 
                       elevation: 0,
 
-                      shape:
-                          RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          13,
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(13),
                       ),
                     ),
                   ),
@@ -1079,43 +740,20 @@ class _ManagePropertiesScreenState
 
                 child: OutlinedButton(
                   onPressed: () {
-                    showManagePostSheet(
-                      property,
-                    );
+                    showManagePostSheet(property);
                   },
 
-                  style:
-                      OutlinedButton
-                          .styleFrom(
-                    foregroundColor:
-                        const Color(
-                      0xFF68756D,
-                    ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF68756D),
 
-                    side: BorderSide(
-                      color:
-                          Colors.grey
-                              .withOpacity(
-                        0.4,
-                      ),
-                    ),
+                    side: BorderSide(color: Colors.grey.withOpacity(0.4)),
 
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        13,
-                      ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(13),
                     ),
                   ),
 
-                  child: const Icon(
-                    Icons
-                        .more_horiz_rounded,
-
-                    size: 24,
-                  ),
+                  child: const Icon(Icons.more_horiz_rounded, size: 24),
                 ),
               ),
             ],
@@ -1130,10 +768,7 @@ class _ManagePropertiesScreenState
       width: 105,
       height: 105,
 
-      color:
-          _secondaryColor.withOpacity(
-        0.25,
-      ),
+      color: _secondaryColor.withOpacity(0.25),
 
       child: const Icon(
         Icons.home_work_outlined,
@@ -1145,33 +780,18 @@ class _ManagePropertiesScreenState
     );
   }
 
-  Widget buildPostStatusBadge(
-    String status,
-  ) {
-    final bool active =
-        status == "Active";
+  Widget buildPostStatusBadge(String status) {
+    final bool active = status == "Active";
 
     return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
 
       decoration: BoxDecoration(
         color: active
-            ? _secondaryColor
-                .withOpacity(
-                0.25,
-              )
-            : const Color(
-                0xFFFEF2F2,
-              ),
+            ? _secondaryColor.withOpacity(0.25)
+            : const Color(0xFFFEF2F2),
 
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        borderRadius: BorderRadius.circular(20),
       ),
 
       child: Text(
@@ -1180,75 +800,46 @@ class _ManagePropertiesScreenState
         style: TextStyle(
           fontSize: 10,
 
-          fontWeight:
-              FontWeight.bold,
+          fontWeight: FontWeight.bold,
 
-          color: active
-              ? _primaryColor
-              : const Color(
-                  0xFFDC2626,
-                ),
+          color: active ? _primaryColor : const Color(0xFFDC2626),
         ),
       ),
     );
   }
 
-  void showPropertyPost(
-    Map<String, dynamic> property,
-  ) {
+  void showPropertyPost(Map<String, dynamic> property) {
     Get.to(
-      () =>
-          _ManagedPropertyDetailScreen(
+      () => AdminPropertyDetailScreen(
         property: property,
 
         onManagePost: () {
-          showManagePostSheet(
-            property,
-          );
+          showManagePostSheet(property);
         },
       ),
     );
   }
 
-  void showManagePostSheet(
-    Map<String, dynamic> property,
-  ) {
-    final String postStatus =
-        formatPostStatus(
-      property["post_status"],
-    );
+  void showManagePostSheet(Map<String, dynamic> property) {
+    final String postStatus = formatPostStatus(property["post_status"]);
 
     Get.bottomSheet(
       Container(
-        padding:
-            const EdgeInsets.fromLTRB(
-          20,
-          12,
-          20,
-          25,
-        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 25),
 
-        decoration:
-            const BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-              BorderRadius.vertical(
-            top: Radius.circular(
-              24,
-            ),
-          ),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
 
         child: SafeArea(
           top: false,
 
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
               Center(
@@ -1256,18 +847,10 @@ class _ManagePropertiesScreenState
                   width: 45,
                   height: 4,
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(
-                      0xFFD8E0DB,
-                    ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD8E0DB),
 
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      10,
-                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
@@ -1280,32 +863,18 @@ class _ManagePropertiesScreenState
                 style: TextStyle(
                   fontSize: 19,
 
-                  fontWeight:
-                      FontWeight.bold,
+                  fontWeight: FontWeight.bold,
 
-                  color:
-                      Color(
-                    0xFF1F2923,
-                  ),
+                  color: Color(0xFF1F2923),
                 ),
               ),
 
               const SizedBox(height: 5),
 
               Text(
-                property["title"]
-                        ?.toString() ??
-                    "Property",
+                property["title"]?.toString() ?? "Property",
 
-                style:
-                    const TextStyle(
-                  fontSize: 13,
-
-                  color:
-                      Color(
-                    0xFF68756D,
-                  ),
-                ),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF68756D)),
               ),
 
               const SizedBox(height: 20),
@@ -1314,47 +883,22 @@ class _ManagePropertiesScreenState
                 onTap: () {
                   Get.back();
 
-                  if (postStatus !=
-                      "Active") {
-                    updatePostStatus(
-                      property:
-                          property,
-
-                      postStatus:
-                          "active",
-                    );
+                  if (postStatus != "Active") {
+                    updatePostStatus(property: property, postStatus: "active");
                   }
                 },
 
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  14,
-                ),
+                borderRadius: BorderRadius.circular(14),
 
                 child: Container(
-                  padding:
-                      const EdgeInsets
-                          .all(
-                    14,
-                  ),
+                  padding: const EdgeInsets.all(14),
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
 
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      14,
-                    ),
+                    borderRadius: BorderRadius.circular(14),
 
-                    border:
-                        Border.all(
-                      color:
-                          _secondaryColor,
-                    ),
+                    border: Border.all(color: _secondaryColor),
                   ),
 
                   child: Row(
@@ -1363,84 +907,56 @@ class _ManagePropertiesScreenState
                         width: 40,
                         height: 40,
 
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              _lightSecondaryColor,
+                        decoration: BoxDecoration(
+                          color: _lightSecondaryColor,
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            11,
-                          ),
+                          borderRadius: BorderRadius.circular(11),
                         ),
 
-                        child:
-                            const Icon(
-                          Icons
-                              .check_circle_outline_rounded,
+                        child: const Icon(
+                          Icons.check_circle_outline_rounded,
 
-                          color:
-                              _primaryColor,
+                          color: _primaryColor,
                         ),
                       ),
 
-                      const SizedBox(
-                        width: 12,
-                      ),
+                      const SizedBox(width: 12),
 
                       const Expanded(
-                        child:
-                            Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text(
                               "Keep Post",
 
-                              style:
-                                  TextStyle(
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
 
-                                color:
-                                    _primaryColor,
+                                color: _primaryColor,
                               ),
                             ),
 
-                            SizedBox(
-                              height: 3,
-                            ),
+                            SizedBox(height: 3),
 
                             Text(
                               "Keep this property visible to renters.",
 
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    11,
+                              style: TextStyle(
+                                fontSize: 11,
 
-                                color:
-                                    Color(
-                                  0xFF68756D,
-                                ),
+                                color: Color(0xFF68756D),
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      if (postStatus ==
-                          "Active")
+                      if (postStatus == "Active")
                         const Icon(
-                          Icons
-                              .check_circle_rounded,
+                          Icons.check_circle_rounded,
 
-                          color:
-                              _primaryColor,
+                          color: _primaryColor,
                         ),
                     ],
                   ),
@@ -1453,48 +969,23 @@ class _ManagePropertiesScreenState
                 onTap: () {
                   Get.back();
 
-                  if (postStatus !=
-                      "Removed") {
-                    showRemoveConfirmation(
-                      property,
-                    );
+                  if (postStatus != "Removed") {
+                    showRemoveConfirmation(property);
                   }
                 },
 
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  14,
-                ),
+                borderRadius: BorderRadius.circular(14),
 
                 child: Container(
-                  padding:
-                      const EdgeInsets
-                          .all(
-                    14,
-                  ),
+                  padding: const EdgeInsets.all(14),
 
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        const Color(
-                      0xFFFEF2F2,
-                    ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEF2F2),
 
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      14,
-                    ),
+                    borderRadius: BorderRadius.circular(14),
 
-                    border:
-                        Border.all(
-                      color:
-                          const Color(
-                        0xFFDC2626,
-                      ).withOpacity(
-                        0.20,
-                      ),
+                    border: Border.all(
+                      color: const Color(0xFFDC2626).withOpacity(0.20),
                     ),
                   ),
 
@@ -1504,94 +995,56 @@ class _ManagePropertiesScreenState
                         width: 40,
                         height: 40,
 
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              const Color(
-                            0xFFDC2626,
-                          ).withOpacity(
-                            0.08,
-                          ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDC2626).withOpacity(0.08),
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            11,
-                          ),
+                          borderRadius: BorderRadius.circular(11),
                         ),
 
-                        child:
-                            const Icon(
-                          Icons
-                              .delete_outline_rounded,
+                        child: const Icon(
+                          Icons.delete_outline_rounded,
 
-                          color:
-                              Color(
-                            0xFFDC2626,
-                          ),
+                          color: Color(0xFFDC2626),
                         ),
                       ),
 
-                      const SizedBox(
-                        width: 12,
-                      ),
+                      const SizedBox(width: 12),
 
                       const Expanded(
-                        child:
-                            Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text(
                               "Remove Post",
 
-                              style:
-                                  TextStyle(
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
 
-                                color:
-                                    Color(
-                                  0xFFDC2626,
-                                ),
+                                color: Color(0xFFDC2626),
                               ),
                             ),
 
-                            SizedBox(
-                              height: 3,
-                            ),
+                            SizedBox(height: 3),
 
                             Text(
                               "Remove this property from public listings.",
 
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    11,
+                              style: TextStyle(
+                                fontSize: 11,
 
-                                color:
-                                    Color(
-                                  0xFF68756D,
-                                ),
+                                color: Color(0xFF68756D),
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      if (postStatus ==
-                          "Removed")
+                      if (postStatus == "Removed")
                         const Icon(
-                          Icons
-                              .check_circle_rounded,
+                          Icons.check_circle_rounded,
 
-                          color:
-                              Color(
-                            0xFFDC2626,
-                          ),
+                          color: Color(0xFFDC2626),
                         ),
                     ],
                   ),
@@ -1606,31 +1059,20 @@ class _ManagePropertiesScreenState
     );
   }
 
-  void showRemoveConfirmation(
-    Map<String, dynamic> property,
-  ) {
+  void showRemoveConfirmation(Map<String, dynamic> property) {
     Get.dialog(
       AlertDialog(
-        backgroundColor:
-            Colors.white,
+        backgroundColor: Colors.white,
 
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
         title: const Text(
           "Remove Post",
 
           style: TextStyle(
-            fontWeight:
-                FontWeight.bold,
+            fontWeight: FontWeight.bold,
 
-            color:
-                Color(0xFFDC2626),
+            color: Color(0xFFDC2626),
           ),
         ),
 
@@ -1639,41 +1081,22 @@ class _ManagePropertiesScreenState
         ),
 
         actions: [
-          TextButton(
-            onPressed: Get.back,
-
-            child: const Text(
-              "Cancel",
-            ),
-          ),
+          TextButton(onPressed: Get.back, child: const Text("Cancel")),
 
           ElevatedButton(
             onPressed: () {
               Get.back();
 
-              updatePostStatus(
-                property: property,
-
-                postStatus:
-                    "removed",
-              );
+              updatePostStatus(property: property, postStatus: "removed");
             },
 
-            style:
-                ElevatedButton
-                    .styleFrom(
-              backgroundColor:
-                  const Color(
-                0xFFDC2626,
-              ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
 
-              foregroundColor:
-                  Colors.white,
+              foregroundColor: Colors.white,
             ),
 
-            child: const Text(
-              "Remove",
-            ),
+            child: const Text("Remove"),
           ),
         ],
       ),
@@ -1681,23 +1104,18 @@ class _ManagePropertiesScreenState
   }
 
   Future<void> updatePostStatus({
-    required Map<String, dynamic>
-        property,
+    required Map<String, dynamic> property,
 
     required String postStatus,
   }) async {
-    final int? propertyId =
-        int.tryParse(
-      property["id"].toString(),
-    );
+    final int? propertyId = int.tryParse(property["id"].toString());
 
     if (propertyId == null) {
       Get.snackbar(
         "Error",
         "Property ID is missing.",
 
-        snackPosition:
-            SnackPosition.TOP,
+        snackPosition: SnackPosition.TOP,
       );
 
       return;
@@ -1705,26 +1123,18 @@ class _ManagePropertiesScreenState
 
     try {
       Get.dialog(
-        const Center(
-          child:
-              CircularProgressIndicator(
-            color: _primaryColor,
-          ),
-        ),
+        const Center(child: CircularProgressIndicator(color: _primaryColor)),
 
         barrierDismissible: false,
       );
 
-      final bool success =
-          await adminService
-              .updatePropertyPostStatus(
+      final bool success = await adminService.updatePropertyPostStatus(
         propertyId: propertyId,
 
         postStatus: postStatus,
       );
 
-      if (Get.isDialogOpen ==
-          true) {
+      if (Get.isDialogOpen == true) {
         Get.back();
       }
 
@@ -1734,1524 +1144,46 @@ class _ManagePropertiesScreenState
 
       if (success) {
         setState(() {
-          property["post_status"] =
-              postStatus;
+          property["post_status"] = postStatus;
         });
 
         Get.snackbar(
-          postStatus == "active"
-              ? "Post Activated"
-              : "Post Removed",
+          postStatus == "active" ? "Post Activated" : "Post Removed",
 
           postStatus == "active"
               ? "The property is visible to renters again."
               : "The property has been removed from public listings.",
 
-          snackPosition:
-              SnackPosition.TOP,
+          snackPosition: SnackPosition.TOP,
 
-          backgroundColor:
-              postStatus == "active"
-                  ? _primaryColor
-                  : const Color(
-                      0xFFDC2626,
-                    ),
+          backgroundColor: postStatus == "active"
+              ? _primaryColor
+              : const Color(0xFFDC2626),
 
-          colorText:
-              Colors.white,
+          colorText: Colors.white,
         );
       }
     } catch (e) {
-      if (Get.isDialogOpen ==
-          true) {
+      if (Get.isDialogOpen == true) {
         Get.back();
       }
 
-      String message =
-          e.toString();
+      String message = e.toString();
 
-      if (message.startsWith(
-        "Exception: ",
-      )) {
-        message =
-            message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+      if (message.startsWith("Exception: ")) {
+        message = message.replaceFirst("Exception: ", "");
       }
 
       Get.snackbar(
         "Update Failed",
         message,
 
-        snackPosition:
-            SnackPosition.TOP,
+        snackPosition: SnackPosition.TOP,
 
-        backgroundColor:
-            const Color(
-          0xFFDC2626,
-        ),
+        backgroundColor: const Color(0xFFDC2626),
 
-        colorText:
-            Colors.white,
+        colorText: Colors.white,
       );
     }
-  }
-}
-
-class _ManagedPropertyDetailScreen
-    extends StatefulWidget {
-  final Map<String, dynamic>
-      property;
-
-  final VoidCallback onManagePost;
-
-  const _ManagedPropertyDetailScreen({
-    required this.property,
-    required this.onManagePost,
-  });
-
-  @override
-  State<_ManagedPropertyDetailScreen>
-      createState() =>
-          _ManagedPropertyDetailScreenState();
-}
-
-class _ManagedPropertyDetailScreenState
-    extends State<
-        _ManagedPropertyDetailScreen> {
-  bool showFloor = false;
-
-  Map<String, dynamic> get property =>
-      widget.property;
-
-  String get propertyType =>
-      property["property_type"]
-          ?.toString()
-          .toLowerCase() ??
-      "";
-
-  bool get hasAvailableFloorList {
-    return propertyType == "room" ||
-        propertyType == "apartment";
-  }
-
-  int get totalFloor {
-    return int.tryParse(
-          property["total_floor"]
-                  ?.toString() ??
-              "0",
-        ) ??
-        0;
-  }
-
-  List<int> get availableFloors {
-    final dynamic value =
-        property["available_floors"];
-
-    if (value is! List) {
-      return [];
-    }
-
-    return value
-        .map(
-          (item) =>
-              int.tryParse(
-                item.toString(),
-              ) ??
-              0,
-        )
-        .where(
-          (floor) => floor > 0,
-        )
-        .toList();
-  }
-
-  bool getBool(dynamic value) {
-    if (value is bool) {
-      return value;
-    }
-
-    final String text =
-        value?.toString().toLowerCase() ??
-            "";
-
-    return text == "true" ||
-        text == "1";
-  }
-
-  String getImageUrl(dynamic value) {
-    if (value == null) {
-      return "";
-    }
-
-    String url =
-        value.toString();
-
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
-
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
-
-    return url;
-  }
-
-  List<String> get images {
-    final List<String> result = [];
-
-    final dynamic rawImages =
-        property["images"];
-
-    if (rawImages is List) {
-      for (final item
-          in rawImages) {
-        if (item is Map) {
-          final dynamic url =
-              item["image_url"];
-
-          if (url != null) {
-            result.add(
-              getImageUrl(url),
-            );
-          }
-        }
-      }
-    }
-
-    if (result.isEmpty &&
-        property["image"] != null) {
-      result.add(
-        getImageUrl(
-          property["image"],
-        ),
-      );
-    }
-
-    return result;
-  }
-
-  String get rentalStatus {
-    final String value =
-        property["rental_status"]
-            ?.toString()
-            .toLowerCase() ??
-        "";
-
-    if (value == "rented") {
-      return "Rented";
-    }
-
-    return "Available";
-  }
-
-  String get price {
-    final dynamic raw =
-        property["raw_price"];
-
-    final double? value =
-        double.tryParse(
-      raw?.toString() ?? "",
-    );
-
-    if (value == null) {
-      return "-";
-    }
-
-    if (value ==
-        value.roundToDouble()) {
-      return value.toStringAsFixed(
-        0,
-      );
-    }
-
-    return value.toStringAsFixed(2);
-  }
-
-  String get size {
-    final double? value =
-        double.tryParse(
-      property["size"]
-              ?.toString() ??
-          "",
-    );
-
-    if (value == null) {
-      return "-";
-    }
-
-    if (value ==
-        value.roundToDouble()) {
-      return value.toStringAsFixed(
-        0,
-      );
-    }
-
-    return value.toStringAsFixed(1);
-  }
-
-  List<Map<String, dynamic>>
-  get mainInfo {
-    final List<Map<String, dynamic>>
-        result = [];
-
-    if (propertyType == "house" ||
-        propertyType ==
-            "apartment") {
-      if (property["bedrooms"] !=
-          null) {
-        result.add({
-          "icon":
-              Icons.bed_outlined,
-
-          "text":
-              "${property["bedrooms"]} Bedrooms",
-        });
-      }
-
-      if (property["bathrooms"] !=
-          null) {
-        result.add({
-          "icon":
-              Icons.bathtub_outlined,
-
-          "text":
-              "${property["bathrooms"]} Bath",
-        });
-      }
-    }
-
-    result.add({
-      "icon": Icons.square_foot,
-
-      "text": "$size m²",
-    });
-
-    result.add({
-      "icon":
-          Icons.chair_outlined,
-
-      "text":
-          getBool(
-            property["furnished"],
-          )
-              ? "Furnished"
-              : "Unfurnished",
-    });
-
-    return result;
-  }
-
-  List<Map<String, dynamic>>
-  get facilities {
-    final dynamic raw =
-        property["facilities"];
-
-    if (raw is! Map) {
-      return [];
-    }
-
-    final Map<String, dynamic> data =
-        Map<String, dynamic>.from(
-      raw,
-    );
-
-    final List<Map<String, dynamic>>
-        result = [];
-
-    if (getBool(data["wifi"])) {
-      result.add({
-        "icon": Icons.wifi,
-
-        "text": "WiFi",
-      });
-    }
-
-    if (getBool(data["parking"])) {
-      result.add({
-        "icon": Icons
-            .local_parking_outlined,
-
-        "text": "Parking",
-      });
-    }
-
-    if (getBool(
-      data["air_conditioning"],
-    )) {
-      result.add({
-        "icon": Icons.ac_unit,
-
-        "text": "Air Con",
-      });
-    }
-
-    if (getBool(
-      data["pet_allowed"],
-    )) {
-      result.add({
-        "icon":
-            Icons.pets_outlined,
-
-        "text": "Pet Allowed",
-      });
-    }
-
-    if (getBool(data["balcony"])) {
-      result.add({
-        "icon":
-            Icons.balcony_outlined,
-
-        "text": "Balcony",
-      });
-    }
-
-    if (getBool(data["kitchen"])) {
-      result.add({
-        "icon":
-            Icons.kitchen_outlined,
-
-        "text": "Kitchen",
-      });
-    }
-
-    if (getBool(
-      data["swimming_pool"],
-    )) {
-      result.add({
-        "icon": Icons.pool_outlined,
-
-        "text": "Swimming Pool",
-      });
-    }
-
-    if (getBool(data["elevator"])) {
-      result.add({
-        "icon":
-            Icons.elevator_outlined,
-
-        "text": "Elevator",
-      });
-    }
-
-    return result;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor:
-          _backgroundColor,
-
-      appBar: AppBar(
-        backgroundColor:
-            _backgroundColor,
-
-        elevation: 0,
-
-        centerTitle: true,
-
-        scrolledUnderElevation: 0,
-
-        iconTheme:
-            const IconThemeData(
-          color: _primaryColor,
-        ),
-
-        title: const Text(
-          "Property Post",
-
-          style: TextStyle(
-            fontSize: 20,
-
-            fontWeight:
-                FontWeight.w600,
-
-            color:
-                _primaryColor,
-          ),
-        ),
-      ),
-
-      body: Column(
-        children: [
-          SizedBox(
-            width: double.infinity,
-            height: 300,
-
-            child:
-                buildImageSlideshow(),
-          ),
-
-          Expanded(
-            child:
-                SingleChildScrollView(
-              padding:
-                  const EdgeInsets
-                      .fromLTRB(
-                16,
-                20,
-                16,
-                30,
-              ),
-
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
-                children: [
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
-
-                    children: [
-                      Expanded(
-                        child: Text(
-                          property["title"]
-                                  ?.toString() ??
-                              "Property",
-
-                          maxLines: 2,
-
-                          overflow:
-                              TextOverflow
-                                  .ellipsis,
-
-                          style:
-                              const TextStyle(
-                            fontSize: 22,
-
-                            fontWeight:
-                                FontWeight
-                                    .w900,
-
-                            color:
-                                _primaryColor,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 10,
-                      ),
-
-                      buildRentalStatusBadge(),
-                    ],
-                  ),
-
-                  const SizedBox(
-                    height: 12,
-                  ),
-
-                  Row(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .end,
-
-                    children: [
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment:
-                              CrossAxisAlignment
-                                  .start,
-
-                          children: [
-                            const Icon(
-                              Icons
-                                  .location_on_outlined,
-
-                              size: 20,
-
-                              color:
-                                  _primaryColor,
-                            ),
-
-                            const SizedBox(
-                              width: 3,
-                            ),
-
-                            Expanded(
-                              child: Text(
-                                property["location"]
-                                        ?.toString() ??
-                                    "-",
-
-                                style:
-                                    TextStyle(
-                                  fontSize:
-                                      15,
-
-                                  color: Colors
-                                      .black
-                                      .withOpacity(
-                                    0.65,
-                                  ),
-
-                                  fontWeight:
-                                      FontWeight
-                                          .w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 12,
-                      ),
-
-                      Row(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .end,
-
-                        children: [
-                          Text(
-                            "\$$price",
-
-                            style:
-                                const TextStyle(
-                              fontSize:
-                                  23,
-
-                              fontWeight:
-                                  FontWeight
-                                      .w800,
-
-                              color:
-                                  _primaryColor,
-                            ),
-                          ),
-
-                          const Padding(
-                            padding:
-                                EdgeInsets
-                                    .only(
-                              bottom: 3,
-                            ),
-
-                            child: Text(
-                              "/Month",
-
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    13,
-
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
-
-                                color:
-                                    _primaryColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(
-                    height: 20,
-                  ),
-
-                  Container(
-                    height: 1,
-
-                    width:
-                        double.infinity,
-
-                    color:
-                        _secondaryColor
-                            .withOpacity(
-                      0.6,
-                    ),
-                  ),
-
-                  Padding(
-                    padding:
-                        const EdgeInsets
-                            .symmetric(
-                      vertical: 13,
-                    ),
-
-                    child: Wrap(
-                      spacing: 18,
-                      runSpacing: 10,
-
-                      children:
-                          mainInfo
-                              .map(
-                        (item) {
-                          return Row(
-                            mainAxisSize:
-                                MainAxisSize
-                                    .min,
-
-                            children: [
-                              Icon(
-                                item["icon"],
-
-                                size: 17,
-
-                                color:
-                                    _primaryColor,
-                              ),
-
-                              const SizedBox(
-                                width: 5,
-                              ),
-
-                              Text(
-                                item["text"],
-
-                                style:
-                                    const TextStyle(
-                                  fontSize:
-                                      13,
-
-                                  color:
-                                      _primaryColor,
-
-                                  fontWeight:
-                                      FontWeight
-                                          .w500,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  ),
-
-                  Container(
-                    height: 1,
-
-                    width:
-                        double.infinity,
-
-                    color:
-                        _secondaryColor
-                            .withOpacity(
-                      0.6,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 10,
-                  ),
-
-                  buildFloorSection(),
-
-                  const SizedBox(
-                    height: 15,
-                  ),
-
-                  const Text(
-                    "About this place",
-
-                    style: TextStyle(
-                      fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          _primaryColor,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 7,
-                  ),
-
-                  Text(
-                    property["description"]
-                            ?.toString() ??
-                        "-",
-
-                    style:
-                        const TextStyle(
-                      fontSize: 13,
-
-                      height: 1.5,
-
-                      color:
-                          Colors.black87,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 18,
-                  ),
-
-                  const Text(
-                    "Facilities",
-
-                    style: TextStyle(
-                      fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          _primaryColor,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 10,
-                  ),
-
-                  buildFacilities(),
-
-                  const SizedBox(
-                    height: 26,
-                  ),
-
-                  const Text(
-                    "Admin Management",
-
-                    style: TextStyle(
-                      fontSize: 17,
-
-                      fontWeight:
-                          FontWeight
-                              .w800,
-
-                      color:
-                          _primaryColor,
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 10,
-                  ),
-
-                  Container(
-                    width:
-                        double.infinity,
-
-                    padding:
-                        const EdgeInsets
-                            .all(
-                      15,
-                    ),
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          _lightSecondaryColor,
-
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        14,
-                      ),
-
-                      border: Border.all(
-                        color:
-                            _secondaryColor,
-                      ),
-                    ),
-
-                    child: Column(
-                      children: [
-                        adminInfoRow(
-                          Icons
-                              .person_outline_rounded,
-
-                          "Property Owner",
-
-                          property["owner"]
-                                  ?.toString() ??
-                              "-",
-                        ),
-
-                        const SizedBox(
-                          height: 12,
-                        ),
-
-                        adminInfoRow(
-                          Icons
-                              .visibility_outlined,
-
-                          "Post Status",
-
-                          formatPostStatus(
-                            property[
-                                "post_status"],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(
-                    height: 18,
-                  ),
-
-                  SizedBox(
-                    width:
-                        double.infinity,
-
-                    height: 50,
-
-                    child:
-                        ElevatedButton
-                            .icon(
-                      onPressed:
-                          widget
-                              .onManagePost,
-
-                      icon:
-                          const Icon(
-                        Icons
-                            .settings_outlined,
-                      ),
-
-                      label:
-                          const Text(
-                        "Manage Post",
-
-                        style:
-                            TextStyle(
-                          fontWeight:
-                              FontWeight
-                                  .w800,
-                        ),
-                      ),
-
-                      style:
-                          ElevatedButton
-                              .styleFrom(
-                        backgroundColor:
-                            _primaryColor,
-
-                        foregroundColor:
-                            Colors.white,
-
-                        elevation: 0,
-
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            15,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String formatPostStatus(
-    dynamic value,
-  ) {
-    final String status =
-        value?.toString().toLowerCase() ??
-            "";
-
-    if (status == "active") {
-      return "Active";
-    }
-
-    if (status == "removed") {
-      return "Removed";
-    }
-
-    return status.isEmpty
-        ? "-"
-        : status;
-  }
-
-  Widget buildImageSlideshow() {
-    if (images.isEmpty) {
-      return Container(
-        color:
-            _lightSecondaryColor,
-
-        child: const Icon(
-          Icons.home_work_outlined,
-
-          size: 60,
-
-          color:
-              _primaryColor,
-        ),
-      );
-    }
-
-    return ImageSlideshow(
-      width: double.infinity,
-
-      height: 300,
-
-      initialPage: 0,
-
-      indicatorColor:
-          _primaryColor,
-
-      indicatorBackgroundColor:
-          Colors.white70,
-
-      autoPlayInterval:
-          images.length > 1
-              ? 3000
-              : 0,
-
-      isLoop:
-          images.length > 1,
-
-      children:
-          images.map((image) {
-        return Image.network(
-          image,
-
-          fit: BoxFit.cover,
-
-          errorBuilder: (
-            context,
-            error,
-            stackTrace,
-          ) {
-            return Container(
-              color:
-                  _lightSecondaryColor,
-
-              child: const Icon(
-                Icons
-                    .home_work_outlined,
-
-                size: 55,
-
-                color:
-                    _primaryColor,
-              ),
-            );
-          },
-        );
-      }).toList(),
-    );
-  }
-
-  Widget buildRentalStatusBadge() {
-    final bool available =
-        rentalStatus ==
-            "Available";
-
-    final Color color =
-        available
-            ? const Color(
-                0xFF16A34A,
-              )
-            : const Color(
-                0xFFDC2626,
-              );
-
-    return Container(
-      padding:
-          const EdgeInsets.symmetric(
-        horizontal: 10,
-        vertical: 6,
-      ),
-
-      decoration: BoxDecoration(
-        color: color,
-
-        borderRadius:
-            BorderRadius.circular(
-          12,
-        ),
-      ),
-
-      child: Row(
-        mainAxisSize:
-            MainAxisSize.min,
-
-        children: [
-          Icon(
-            available
-                ? Icons
-                    .check_circle_rounded
-                : Icons
-                    .cancel_rounded,
-
-            color: Colors.white,
-
-            size: 15,
-          ),
-
-          const SizedBox(width: 4),
-
-          Text(
-            rentalStatus,
-
-            style:
-                const TextStyle(
-              color: Colors.white,
-
-              fontSize: 12,
-
-              fontWeight:
-                  FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildFloorSection() {
-    if (totalFloor <= 0) {
-      return const SizedBox.shrink();
-    }
-
-    if (hasAvailableFloorList) {
-      return Column(
-        children: [
-          Row(
-            children: [
-              const Text(
-                "Floor",
-
-                style: TextStyle(
-                  fontSize: 17,
-
-                  fontWeight:
-                      FontWeight
-                          .w800,
-
-                  color:
-                      _primaryColor,
-                ),
-              ),
-
-              const Spacer(),
-
-              Text(
-                "$totalFloor Floors",
-
-                style:
-                    const TextStyle(
-                  fontSize: 12,
-
-                  color:
-                      Colors.black54,
-                ),
-              ),
-
-              IconButton(
-                onPressed: () {
-                  setState(() {
-                    showFloor =
-                        !showFloor;
-                  });
-                },
-
-                icon: Icon(
-                  showFloor
-                      ? Icons
-                          .keyboard_arrow_up
-                      : Icons
-                          .keyboard_arrow_down,
-
-                  color:
-                      _primaryColor,
-                ),
-              ),
-            ],
-          ),
-
-          Visibility(
-            visible: showFloor,
-
-            child: Container(
-              constraints:
-                  const BoxConstraints(
-                maxHeight: 220,
-              ),
-
-              decoration:
-                  BoxDecoration(
-                color: Colors.white,
-
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  12,
-                ),
-
-                border: Border.all(
-                  color:
-                      _secondaryColor
-                          .withOpacity(
-                    0.5,
-                  ),
-                ),
-              ),
-
-              child:
-                  ListView.separated(
-                shrinkWrap: true,
-
-                padding:
-                    EdgeInsets.zero,
-
-                itemCount:
-                    totalFloor,
-
-                separatorBuilder:
-                    (
-                  context,
-                  index,
-                ) {
-                  return Divider(
-                    height: 1,
-
-                    color:
-                        _secondaryColor
-                            .withOpacity(
-                      0.4,
-                    ),
-                  );
-                },
-
-                itemBuilder:
-                    (
-                  context,
-                  index,
-                ) {
-                  final int floor =
-                      index + 1;
-
-                  final bool
-                      available =
-                      availableFloors
-                          .contains(
-                    floor,
-                  );
-
-                  return Padding(
-                    padding:
-                        const EdgeInsets
-                            .all(
-                      10,
-                    ),
-
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons
-                              .apartment,
-
-                          color:
-                              _primaryColor,
-
-                          size: 20,
-                        ),
-
-                        const SizedBox(
-                          width: 6,
-                        ),
-
-                        Text(
-                          "Floor $floor",
-
-                          style:
-                              const TextStyle(
-                            color:
-                                _primaryColor,
-
-                            fontWeight:
-                                FontWeight
-                                    .w500,
-                          ),
-                        ),
-
-                        const Spacer(),
-
-                        Text(
-                          available
-                              ? "Available"
-                              : "Not available",
-
-                          style:
-                              TextStyle(
-                            color: available
-                                ? const Color(
-                                    0xFF16A34A,
-                                  )
-                                : Colors
-                                    .black45,
-
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        const Text(
-          "Floor",
-
-          style: TextStyle(
-            fontSize: 17,
-
-            fontWeight:
-                FontWeight.w800,
-
-            color:
-                _primaryColor,
-          ),
-        ),
-
-        const Spacer(),
-
-        const Icon(
-          Icons.layers_outlined,
-
-          color:
-              _primaryColor,
-
-          size: 19,
-        ),
-
-        const SizedBox(width: 5),
-
-        Text(
-          "$totalFloor ${totalFloor == 1 ? "Floor" : "Floors"}",
-
-          style:
-              const TextStyle(
-            color:
-                _primaryColor,
-
-            fontWeight:
-                FontWeight.w600,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildFacilities() {
-    if (facilities.isEmpty) {
-      return Container(
-        width:
-            double.infinity,
-
-        padding:
-            const EdgeInsets.all(
-          16,
-        ),
-
-        decoration:
-            BoxDecoration(
-          color: Colors.white,
-
-          borderRadius:
-              BorderRadius.circular(
-            12,
-          ),
-
-          border: Border.all(
-            color:
-                _secondaryColor
-                    .withOpacity(
-              0.4,
-            ),
-          ),
-        ),
-
-        child: const Text(
-          "No facilities listed",
-
-          style: TextStyle(
-            color:
-                Colors.black54,
-
-            fontSize: 13,
-          ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 70,
-
-      child:
-          ListView.separated(
-        scrollDirection:
-            Axis.horizontal,
-
-        itemCount:
-            facilities.length,
-
-        separatorBuilder:
-            (
-          context,
-          index,
-        ) {
-          return const SizedBox(
-            width: 12,
-          );
-        },
-
-        itemBuilder:
-            (
-          context,
-          index,
-        ) {
-          final item =
-              facilities[index];
-
-          return Container(
-            padding:
-                const EdgeInsets
-                    .symmetric(
-              horizontal: 13,
-            ),
-
-            decoration:
-                BoxDecoration(
-              color:
-                  _lightSecondaryColor,
-
-              borderRadius:
-                  BorderRadius
-                      .circular(
-                13,
-              ),
-
-              border: Border.all(
-                color:
-                    _secondaryColor,
-              ),
-            ),
-
-            child: Column(
-              mainAxisAlignment:
-                  MainAxisAlignment
-                      .center,
-
-              children: [
-                Icon(
-                  item["icon"],
-
-                  size: 20,
-
-                  color:
-                      _primaryColor,
-                ),
-
-                const SizedBox(
-                  height: 4,
-                ),
-
-                Text(
-                  item["text"],
-
-                  style:
-                      const TextStyle(
-                    fontSize: 12,
-
-                    color:
-                        _primaryColor,
-
-                    fontWeight:
-                        FontWeight
-                            .w600,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget adminInfoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
-    return Row(
-      children: [
-        Icon(
-          icon,
-
-          size: 20,
-
-          color:
-              _primaryColor,
-        ),
-
-        const SizedBox(width: 10),
-
-        Text(
-          "$title:",
-
-          style:
-              const TextStyle(
-            fontSize: 13,
-
-            color:
-                Colors.black54,
-          ),
-        ),
-
-        const SizedBox(width: 7),
-
-        Expanded(
-          child: Text(
-            value,
-
-            textAlign:
-                TextAlign.end,
-
-            style:
-                const TextStyle(
-              fontSize: 13,
-
-              fontWeight:
-                  FontWeight.w700,
-
-              color:
-                  _primaryColor,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }

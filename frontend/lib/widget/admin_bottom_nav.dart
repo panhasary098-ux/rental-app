@@ -7,6 +7,7 @@ import '../view/admin/pending_verification_screen.dart';
 import '../view/admin/manage_properties_screen.dart';
 import '../view/admin/manage_users_screen.dart';
 
+
 class AdminBottomNav extends StatelessWidget {
   AdminBottomNav({super.key});
 

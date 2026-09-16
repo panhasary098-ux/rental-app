@@ -213,15 +213,15 @@ class PostHouseStep2 extends StatelessWidget {
                   // ==================================================
                   // CONTACT
                   // ==================================================
-                  customInputTitle(title: "Contact"),
+                  customInputTitle(title: "Telegram contect"),
 
                   const SizedBox(height: 5),
 
                   CustomTextFormField(
-                    hintText: "Enter contact number",
+                    hintText: "Enter telegram username",
                     controller: controller.contactController,
                     keyboardType: TextInputType.phone,
-                    prefixIcon: Icons.phone_outlined,
+                    prefixIcon: Icons.send_rounded,
                   ),
 
                   const SizedBox(height: 15),

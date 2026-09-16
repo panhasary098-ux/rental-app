@@ -7,8 +7,10 @@ import 'package:final_project/model/room.dart';
 import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/renter/map_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
@@ -39,7 +41,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     loadFavoriteStatus();
   }
 
-  // Check if this property is already saved
   Future<void> loadFavoriteStatus() async {
     final int? propertyId = widget.property.id;
 
@@ -72,7 +73,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     }
   }
 
-  // Add or remove favorite
   Future<void> toggleFavorite() async {
     final int? propertyId = widget.property.id;
 
@@ -140,7 +140,174 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     });
   }
 
-  // Main property information
+  Future<void> copyPhoneNumber() async {
+    final String phone = widget.property.ownerPhone.trim();
+
+    if (phone.isEmpty) {
+      showErrorNotification(
+        title: "Phone Unavailable",
+        message: "The owner has not provided a phone number.",
+      );
+
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: phone));
+
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderRadius: 18,
+      borderColor: const Color(0xFFE5E7EB),
+      borderWidth: 1,
+      duration: const Duration(seconds: 2),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFE6F0FF),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.copy_rounded, color: primaryColor, size: 19),
+      ),
+      titleText: const Text(
+        "Phone Number Copied",
+        style: TextStyle(
+          color: Color(0xFF111827),
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: const Text(
+        "The owner's phone number has been copied.",
+        style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, height: 1.35),
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+        child: const Icon(
+          Icons.close_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 21,
+        ),
+      ),
+    );
+  }
+
+  Future<void> openTelegram() async {
+    String username = widget.property.contact.trim();
+
+    if (username.isEmpty) {
+      showErrorNotification(
+        title: "Telegram Unavailable",
+        message: "The owner has not provided a Telegram username.",
+      );
+      return;
+    }
+
+    if (username.startsWith("@")) {
+      username = username.substring(1);
+    }
+
+    username = username.trim();
+
+    final Uri telegramUrl = Uri.parse("https://t.me/$username");
+
+    try {
+      final bool opened = await launchUrl(
+        telegramUrl,
+        mode: LaunchMode.platformDefault,
+      );
+
+      if (!opened) {
+        showErrorNotification(
+          title: "Unable to Open Telegram",
+          message: "Unable to open the owner's Telegram account.",
+        );
+      }
+    } catch (e) {
+      print("TELEGRAM OPEN ERROR: $e");
+
+      showErrorNotification(
+        title: "Unable to Open Telegram",
+        message: "Unable to open the owner's Telegram account.",
+      );
+    }
+  }
+
+  void showErrorNotification({required String title, required String message}) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderRadius: 18,
+      borderColor: const Color(0xFFF3D2D2),
+      borderWidth: 1,
+      duration: const Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.10),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: const BoxDecoration(
+          color: Color(0xFFFDECEC),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.priority_high_rounded,
+          color: Color(0xFFDC2626),
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: const TextStyle(
+          color: Color(0xFFDC2626),
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFF6B7280),
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+      mainButton: TextButton(
+        onPressed: () {
+          Get.closeCurrentSnackbar();
+        },
+        child: const Icon(
+          Icons.close_rounded,
+          color: Color(0xFF9CA3AF),
+          size: 21,
+        ),
+      ),
+    );
+  }
+
   List<Map<String, dynamic>> get mainInfo {
     final Property property = widget.property;
 
@@ -173,7 +340,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     return information;
   }
 
-  // Facilities that are available
   List<Map<String, dynamic>> get availableFacilities {
     final facilities = widget.property.facilities;
 
@@ -266,7 +432,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
         title: const Text(
           "View detail info",
-
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -277,7 +442,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
       body: Column(
         children: [
-          // Property images
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
 
@@ -286,11 +450,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 SizedBox(
                   height: 300,
                   width: double.infinity,
-
                   child: buildImageSlideshow(),
                 ),
 
-                // Favorite
                 Positioned(
                   top: 10,
                   right: 10,
@@ -312,10 +474,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       child: favoriteLoading
                           ? const Padding(
                               padding: EdgeInsets.all(10),
-
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-
                                 color: primaryColor,
                               ),
                             )
@@ -323,9 +483,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                               isFavorite
                                   ? Icons.favorite_rounded
                                   : Icons.favorite_border_rounded,
-
                               color: isFavorite ? Colors.red : primaryColor,
-
                               size: 22,
                             ),
                     ),
@@ -346,7 +504,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   children: [
                     const SizedBox(height: 10),
 
-                    // Name + status
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -362,7 +519,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                             style: const TextStyle(
                               fontSize: 22,
                               color: primaryColor,
-
                               fontWeight: FontWeight.w900,
                             ),
                           ),
@@ -376,7 +532,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                     const SizedBox(height: 12),
 
-                    // Location + price
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
 
@@ -388,9 +543,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                             children: [
                               const Icon(
                                 Icons.location_on_outlined,
-
                                 color: primaryColor,
-
                                 size: 20,
                               ),
 
@@ -402,11 +555,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                                       "Unknown location",
 
                                   style: TextStyle(
-                                    fontSize: 15,
-
+                                    fontSize: 13,
                                     color: Colors.black.withOpacity(0.65),
-
-                                    fontWeight: FontWeight.w700,
+                                    //fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
@@ -425,24 +576,18 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                               style: const TextStyle(
                                 fontSize: 23,
-
                                 fontWeight: FontWeight.w800,
-
                                 color: primaryColor,
                               ),
                             ),
 
                             const Padding(
                               padding: EdgeInsets.only(bottom: 3),
-
                               child: Text(
                                 "/Month",
-
                                 style: TextStyle(
                                   fontSize: 13,
-
                                   fontWeight: FontWeight.w600,
-
                                   color: primaryColor,
                                 ),
                               ),
@@ -454,11 +599,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Main info
                     Container(
                       height: 1,
                       width: double.infinity,
-
                       color: secondaryColor.withOpacity(0.6),
                     ),
 
@@ -483,9 +626,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                                 style: const TextStyle(
                                   fontSize: 13,
-
                                   color: primaryColor,
-
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -498,26 +639,20 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     Container(
                       height: 1,
                       width: double.infinity,
-
                       color: secondaryColor.withOpacity(0.6),
                     ),
 
                     const SizedBox(height: 10),
 
-                    // Floor
                     buildFloorSection(),
 
                     const SizedBox(height: 15),
 
-                    // Description
                     const Text(
                       "About this place",
-
                       style: TextStyle(
                         fontSize: 17,
-
                         fontWeight: FontWeight.w800,
-
                         color: primaryColor,
                       ),
                     ),
@@ -526,27 +661,20 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                     Text(
                       property.description,
-
                       style: const TextStyle(
                         fontSize: 13,
-
                         color: Colors.black87,
-
                         height: 1.5,
                       ),
                     ),
 
                     const SizedBox(height: 18),
 
-                    // Facilities
                     const Text(
                       "Facilities",
-
                       style: TextStyle(
                         fontSize: 17,
-
                         fontWeight: FontWeight.w800,
-
                         color: primaryColor,
                       ),
                     ),
@@ -606,9 +734,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
               child: const Icon(
                 Icons.home_work_outlined,
-
                 size: 55,
-
                 color: primaryColor,
               ),
             );
@@ -619,49 +745,58 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   }
 
   Widget buildStatusBadge(String status) {
+    Color statusColor;
+
     final String value = status.toLowerCase();
 
-    Color color;
-    IconData icon;
-
     if (value == "available" || value == "available now") {
-      color = const Color(0xFF16A34A);
-
-      icon = Icons.check_circle_rounded;
+      statusColor = const Color(0xFF16A34A);
     } else if (value == "rented") {
-      color = const Color(0xFFDC2626);
-
-      icon = Icons.cancel_rounded;
+      statusColor = const Color(0xFFDC2626);
     } else {
-      color = const Color(0xFFF59E0B);
-
-      icon = Icons.access_time_rounded;
+      statusColor = const Color(0xFFF59E0B);
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
 
       decoration: BoxDecoration(
-        color: color,
+        color: Colors.white.withOpacity(0.95),
 
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
 
         children: [
-          Icon(icon, color: Colors.white, size: 15),
+          Container(
+            width: 8,
+            height: 8,
 
-          const SizedBox(width: 4),
+            decoration: BoxDecoration(
+              color: statusColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+
+          const SizedBox(width: 5),
 
           Text(
             status,
 
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -670,8 +805,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   }
 
   Widget buildFloorSection() {
-    // Apartment and Room have
-    // available-floor information.
     if (hasAvailableFloorList) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,9 +817,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                 style: TextStyle(
                   fontSize: 17,
-
                   fontWeight: FontWeight.w800,
-
                   color: primaryColor,
                 ),
               ),
@@ -708,7 +839,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       : Icons.keyboard_arrow_down,
 
                   size: 25,
-
                   color: primaryColor,
                 ),
               ),
@@ -756,9 +886,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       children: [
                         const Icon(
                           Icons.apartment,
-
                           size: 20,
-
                           color: primaryColor,
                         ),
 
@@ -769,9 +897,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                           style: const TextStyle(
                             fontSize: 14,
-
                             color: primaryColor,
-
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -804,7 +930,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       );
     }
 
-    // House only has total floor count.
     return Row(
       children: [
         const Text(
@@ -812,9 +937,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
           style: TextStyle(
             fontSize: 17,
-
             fontWeight: FontWeight.w800,
-
             color: primaryColor,
           ),
         ),
@@ -830,9 +953,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
           style: const TextStyle(
             color: primaryColor,
-
             fontSize: 14,
-
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -900,9 +1021,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                   style: const TextStyle(
                     fontSize: 12,
-
                     color: primaryColor,
-
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -918,6 +1037,305 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     );
   }
 
+  void showOwnerContact() {
+    final String phone = widget.property.ownerPhone.trim();
+
+    String telegram = widget.property.contact.trim();
+
+    if (telegram.startsWith("@")) {
+      telegram = telegram.substring(1);
+    }
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.fromLTRB(22, 14, 22, 28),
+
+        decoration: const BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+        ),
+
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Center(
+                child: Container(
+                  width: 42,
+                  height: 4,
+
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.30),
+
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Owner Contact",
+
+                style: TextStyle(
+                  color: primaryColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              // Phone
+              Container(
+                width: double.infinity,
+
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
+
+                decoration: BoxDecoration(
+                  color: lightSecondaryColor,
+
+                  borderRadius: BorderRadius.circular(14),
+
+                  border: Border.all(color: secondaryColor.withOpacity(0.6)),
+                ),
+
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+
+                      child: const Icon(
+                        Icons.phone_outlined,
+                        color: primaryColor,
+                        size: 21,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          const Text(
+                            "Phone Number",
+
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF7D8990),
+                            ),
+                          ),
+
+                          const SizedBox(height: 3),
+
+                          Text(
+                            phone.isNotEmpty ? phone : "Not available",
+
+                            style: const TextStyle(
+                              color: primaryColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: phone.isEmpty ? null : copyPhoneNumber,
+
+                      borderRadius: BorderRadius.circular(10),
+
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 11,
+                          vertical: 9,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: phone.isNotEmpty
+                              ? primaryColor
+                              : Colors.grey.withOpacity(0.30),
+
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            Icon(
+                              Icons.content_copy_rounded,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+
+                            SizedBox(width: 5),
+
+                            Text(
+                              "Copy",
+
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Telegram
+              Container(
+                width: double.infinity,
+
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 14,
+                ),
+
+                decoration: BoxDecoration(
+                  color: lightSecondaryColor,
+
+                  borderRadius: BorderRadius.circular(14),
+
+                  border: Border.all(color: secondaryColor.withOpacity(0.6)),
+                ),
+
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+
+                      child: const Icon(
+                        Icons.send_rounded,
+                        color: Color(0xFF229ED9),
+                        size: 21,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        children: [
+                          const Text(
+                            "Telegram",
+
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF7D8990),
+                            ),
+                          ),
+
+                          const SizedBox(height: 3),
+
+                          Text(
+                            telegram.isNotEmpty
+                                ? "@$telegram"
+                                : "Not available",
+
+                            maxLines: 1,
+
+                            overflow: TextOverflow.ellipsis,
+
+                            style: const TextStyle(
+                              color: primaryColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: telegram.isEmpty ? null : openTelegram,
+
+                      borderRadius: BorderRadius.circular(10),
+
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 11,
+                          vertical: 9,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: telegram.isNotEmpty
+                              ? const Color(0xFF229ED9)
+                              : Colors.grey.withOpacity(0.30),
+
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            Icon(
+                              Icons.open_in_new_rounded,
+                              size: 15,
+                              color: Colors.white,
+                            ),
+
+                            SizedBox(width: 5),
+
+                            Text(
+                              "Open",
+
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      isScrollControlled: true,
+    );
+  }
+
   Widget buildBottomButtons() {
     return Container(
       height: 90,
@@ -930,7 +1348,6 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             color: primaryColor.withOpacity(0.10),
 
             blurRadius: 10,
-
             spreadRadius: 1,
 
             offset: const Offset(0, -2),
@@ -981,73 +1398,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
             Expanded(
               child: TextButton(
-                onPressed: () {
-                  Get.bottomSheet(
-                    Container(
-                      padding: const EdgeInsets.all(22),
-
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(22),
-                        ),
-                      ),
-
-                      child: SafeArea(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            const Text(
-                              "Owner Contact",
-
-                              style: TextStyle(
-                                color: primaryColor,
-
-                                fontSize: 18,
-
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-
-                            const SizedBox(height: 15),
-
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.phone_outlined,
-
-                                  color: primaryColor,
-                                ),
-
-                                const SizedBox(width: 10),
-
-                                Expanded(
-                                  child: Text(
-                                    widget.property.contact,
-
-                                    style: const TextStyle(
-                                      color: primaryColor,
-
-                                      fontSize: 16,
-
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            const SizedBox(height: 10),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                onPressed: showOwnerContact,
 
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
