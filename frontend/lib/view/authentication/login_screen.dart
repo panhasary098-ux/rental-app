@@ -61,10 +61,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
 
-                      child: Icon(
-                        Icons.home_rounded,
-                        size: 36,
-                        color: Colors.white,
+                      child: Image.asset(
+                        "assets/logo.png",
+                        width: 15,
+                        height: 15,
                       ),
                     ),
 

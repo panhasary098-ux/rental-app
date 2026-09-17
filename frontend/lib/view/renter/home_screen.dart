@@ -10,24 +10,35 @@ import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-const Color primaryColor = Color(0xFF03045E);
-const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Color.fromARGB(255, 242, 242, 242);
-const Color lightSecondaryColor = Color(0xFFE6F9FC);
+// Colors
+// Colors
+const Color primaryColor = Color(0xFF080B78);
+const Color accentColor = Color(0xFF00B8F0);
+const Color backgroundColor = Color(0xFFF8F9FC);
+const Color cardColor = Colors.white;
+const Color borderColor = Color(0xFFF0F1F5);
+const Color mutedTextColor = Color(0xFF85899B);
+const Color imagePlaceholderColor = Color(0xFFF2F3F7);
 
 class HomeScreen extends StatefulWidget {
   final List<Property> properties;
 
-  const HomeScreen({super.key, required this.properties});
+  const HomeScreen({
+    super.key,
+    required this.properties,
+  });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() {
+    return _HomeScreenState();
+  }
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   final PropertyService propertyService = PropertyService();
 
   final Set<int> favoritePropertyIds = {};
+
   final Set<int> favoriteLoadingIds = {};
 
   @override
@@ -37,14 +48,17 @@ class _HomeScreenState extends State<HomeScreen> {
     loadFavorites();
   }
 
+  // Load Favorites
   Future<void> loadFavorites() async {
     try {
       final response = await propertyService.getFavorites();
 
       final dynamic decoded = jsonDecode(response.body);
 
-      if (response.statusCode == 200 && decoded["success"] == true) {
-        final List<dynamic> data = decoded["properties"] ?? [];
+      if (response.statusCode == 200 &&
+          decoded["success"] == true) {
+        final List<dynamic> data =
+            decoded["properties"] ?? [];
 
         final Set<int> ids = {};
 
@@ -52,7 +66,11 @@ class _HomeScreenState extends State<HomeScreen> {
           final dynamic id = item["id"];
 
           if (id != null) {
-            ids.add(int.parse(id.toString()));
+            ids.add(
+              int.parse(
+                id.toString(),
+              ),
+            );
           }
         }
 
@@ -67,11 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print("HOME FAVORITES LOAD ERROR: $e");
+      print(
+        "HOME FAVORITES LOAD ERROR: $e",
+      );
     }
   }
 
-  Future<void> toggleFavorite(Property property) async {
+  // Toggle Favorite
+  Future<void> toggleFavorite(
+    Property property,
+  ) async {
     final int? propertyId = property.id;
 
     if (propertyId == null) {
@@ -84,36 +107,55 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    if (favoriteLoadingIds.contains(propertyId)) {
+    if (favoriteLoadingIds.contains(
+      propertyId,
+    )) {
       return;
     }
 
-    final bool isFavorite = favoritePropertyIds.contains(propertyId);
+    final bool isFavorite =
+        favoritePropertyIds.contains(
+      propertyId,
+    );
 
     setState(() {
-      favoriteLoadingIds.add(propertyId);
+      favoriteLoadingIds.add(
+        propertyId,
+      );
     });
 
     try {
       final response = isFavorite
-          ? await propertyService.removeFavorite(propertyId: propertyId)
-          : await propertyService.addFavorite(propertyId: propertyId);
+          ? await propertyService.removeFavorite(
+              propertyId: propertyId,
+            )
+          : await propertyService.addFavorite(
+              propertyId: propertyId,
+            );
 
-      final dynamic decoded = jsonDecode(response.body);
+      final dynamic decoded =
+          jsonDecode(response.body);
 
-      if (response.statusCode == 200 && decoded["success"] == true) {
+      if (response.statusCode == 200 &&
+          decoded["success"] == true) {
         if (!mounted) {
           return;
         }
 
         setState(() {
           if (isFavorite) {
-            favoritePropertyIds.remove(propertyId);
+            favoritePropertyIds.remove(
+              propertyId,
+            );
           } else {
-            favoritePropertyIds.add(propertyId);
+            favoritePropertyIds.add(
+              propertyId,
+            );
           }
 
-          favoriteLoadingIds.remove(propertyId);
+          favoriteLoadingIds.remove(
+            propertyId,
+          );
         });
       } else {
         if (!mounted) {
@@ -121,12 +163,15 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         setState(() {
-          favoriteLoadingIds.remove(propertyId);
+          favoriteLoadingIds.remove(
+            propertyId,
+          );
         });
 
         Get.snackbar(
           "Error",
-          decoded["message"] ?? "Unable to update saved property",
+          decoded["message"] ??
+              "Unable to update saved property",
           snackPosition: SnackPosition.BOTTOM,
         );
       }
@@ -136,7 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
       }
 
       setState(() {
-        favoriteLoadingIds.remove(propertyId);
+        favoriteLoadingIds.remove(
+          propertyId,
+        );
       });
 
       Get.snackbar(
@@ -145,55 +192,93 @@ class _HomeScreenState extends State<HomeScreen> {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      print("HOME FAVORITE ERROR: $e");
+      print(
+        "HOME FAVORITE ERROR: $e",
+      );
     }
   }
 
-  // Quick filter: Student Budget $70 - $150
+  // Open Student Budget
   void openStudentBudgetProperties() {
-    final List<Property> results = widget.properties.where((property) {
-      return property.price >= 70 && property.price <= 150;
-    }).toList();
+    final List<Property> results =
+        widget.properties.where(
+      (property) {
+        return property.price >= 70 &&
+            property.price <= 150;
+      },
+    ).toList();
 
     Get.to(
       () => const PropertiesfoundScreen(),
-      arguments: {"properties": results, "search": ""},
+      arguments: {
+        "properties": results,
+        "search": "",
+      },
     );
   }
 
-  // Quick filter: Room
+  // Open Popular Rooms
   void openPopularRoomProperties() {
-    final List<Property> results = widget.properties.where((property) {
-      final String type = property.runtimeType.toString().toLowerCase();
+    final List<Property> results =
+        widget.properties.where(
+      (property) {
+        final String type =
+            property.runtimeType
+                .toString()
+                .toLowerCase();
 
-      return type.contains("room");
-    }).toList();
+        return type.contains(
+          "room",
+        );
+      },
+    ).toList();
 
     Get.to(
       () => const PropertiesfoundScreen(),
-      arguments: {"properties": results, "search": ""},
+      arguments: {
+        "properties": results,
+        "search": "",
+      },
+    );
+  }
+
+  // Open AI Assistant
+  void openAiAssistant() {
+    Get.to(
+      () => AiChatScreen(),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    final List<Property> recommendedProperties = widget.properties
-        .take(3)
-        .toList();
+  Widget build(
+    BuildContext context,
+  ) {
+    final List<Property> recommendedProperties =
+        widget.properties
+            .take(3)
+            .toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+          padding: const EdgeInsets.fromLTRB(
+            20,
+            10,
+            20,
+            24,
+          ),
 
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
 
             children: [
+              // Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
 
                 children: [
                   IconButton(
@@ -201,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     icon: const Icon(
                       Icons.menu_rounded,
-                      size: 27,
+                      size: 28,
                       color: primaryColor,
                     ),
                   ),
@@ -213,60 +298,82 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     icon: const Icon(
                       Icons.notifications_none_rounded,
-                      size: 27,
+                      size: 28,
                       color: primaryColor,
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 25),
+              const SizedBox(
+                height: 24,
+              ),
 
+              // Headline
               headline(),
 
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 18,
+              ),
 
-              searchBox(widget.properties),
+              // Search
+              searchBox(
+                widget.properties,
+              ),
 
-              const SizedBox(height: 18),
+              const SizedBox(
+                height: 16,
+              ),
 
+              // Quick Filters
               Row(
                 children: [
                   Expanded(
                     child: studentBudgetCard(
-                      onTap: openStudentBudgetProperties,
+                      onTap:
+                          openStudentBudgetProperties,
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  const SizedBox(
+                    width: 12,
+                  ),
 
                   Expanded(
-                    child: popularTypeCard(onTap: openPopularRoomProperties),
+                    child: popularTypeCard(
+                      onTap:
+                          openPopularRoomProperties,
+                    ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 22),
+              const SizedBox(
+                height: 24,
+              ),
 
+              // Recommended Header
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
 
                 children: [
                   const Text(
                     "Recommended for you",
-
                     style: TextStyle(
                       color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 18,
                     ),
                   ),
 
                   TextButton(
                     onPressed: () async {
                       await Get.to(
-                        () =>
-                            AllPropertiesScreen(properties: widget.properties),
+                        () => AllPropertiesScreen(
+                          properties:
+                              widget.properties,
+                        ),
                       );
 
                       await loadFavorites();
@@ -274,40 +381,56 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     child: const Text(
                       "See all",
-
                       style: TextStyle(
                         color: primaryColor,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 5),
+              const SizedBox(
+                height: 5,
+              ),
 
+              // Properties
               if (recommendedProperties.isEmpty)
                 buildEmptyPropertyState()
               else
                 ListView.builder(
                   shrinkWrap: true,
 
-                  physics: const NeverScrollableScrollPhysics(),
+                  physics:
+                      const NeverScrollableScrollPhysics(),
 
-                  itemCount: recommendedProperties.length,
+                  itemCount:
+                      recommendedProperties.length,
 
-                  itemBuilder: (context, index) {
-                    final Property property = recommendedProperties[index];
+                  itemBuilder: (
+                    context,
+                    index,
+                  ) {
+                    final Property property =
+                        recommendedProperties[index];
 
-                    return buildPropertyCard(property);
+                    return buildPropertyCard(
+                      property,
+                    );
                   },
                 ),
-                FloatingActionButton(onPressed: (){
-                  Get.to(()=>AiChatScreen());
-                },
-                child: Text("AI Assistant"),
-                )
+
+              const SizedBox(
+                height: 6,
+              ),
+
+              // AI Assistant
+              buildAiAssistantButton(),
+
+              const SizedBox(
+                height: 10,
+              ),
             ],
           ),
         ),
@@ -315,59 +438,95 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildPropertyCard(Property property) {
-    final int? propertyId = property.id;
+  // Property Card
+  Widget buildPropertyCard(
+    Property property,
+  ) {
+    final int? propertyId =
+        property.id;
 
     final bool isFavorite =
-        propertyId != null && favoritePropertyIds.contains(propertyId);
+        propertyId != null &&
+        favoritePropertyIds.contains(
+          propertyId,
+        );
 
     final bool isLoading =
-        propertyId != null && favoriteLoadingIds.contains(propertyId);
+        propertyId != null &&
+        favoriteLoadingIds.contains(
+          propertyId,
+        );
 
     return Container(
       width: double.infinity,
 
-      margin: const EdgeInsets.only(bottom: 15),
+      margin: const EdgeInsets.only(
+        bottom: 16,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(
+          20,
+        ),
+
+        border: Border.all(
+          color: borderColor,
+        ),
 
         boxShadow: [
           BoxShadow(
-            blurRadius: 12,
-
-            color: primaryColor.withOpacity(0.08),
-
-            offset: const Offset(0, 4),
+            blurRadius: 16,
+            color: Colors.black.withOpacity(
+              0.055,
+            ),
+            offset: const Offset(
+              0,
+              5,
+            ),
           ),
         ],
       ),
 
       child: InkWell(
         onTap: () async {
-          await Get.to(() => PropertyDetailScreen(property: property));
+          await Get.to(
+            () => PropertyDetailScreen(
+              property: property,
+            ),
+          );
 
           await loadFavorites();
         },
 
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(
+          20,
+        ),
 
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
 
           children: [
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(18),
+                  borderRadius:
+                      const BorderRadius.vertical(
+                    top: Radius.circular(
+                      20,
+                    ),
                   ),
 
-                  child: buildPropertyImage(property),
+                  child: buildPropertyImage(
+                    property,
+                  ),
                 ),
 
+                // Favorite
                 Positioned(
                   top: 10,
                   right: 10,
@@ -376,25 +535,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: isLoading
                         ? null
                         : () {
-                            toggleFavorite(property);
+                            toggleFavorite(
+                              property,
+                            );
                           },
 
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius:
+                        BorderRadius.circular(
+                      30,
+                    ),
 
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: 38,
+                      height: 38,
 
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(
+                              0.10,
+                            ),
+                            blurRadius: 7,
+                          ),
+                        ],
                       ),
 
                       child: isLoading
                           ? const Padding(
-                              padding: EdgeInsets.all(9),
+                              padding:
+                                  EdgeInsets.all(
+                                9,
+                              ),
 
-                              child: CircularProgressIndicator(
+                              child:
+                                  CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: primaryColor,
                               ),
@@ -404,7 +581,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? Icons.favorite_rounded
                                   : Icons.favorite_border_rounded,
 
-                              color: isFavorite ? Colors.red : primaryColor,
+                              color: isFavorite
+                                  ? Colors.red
+                                  : primaryColor,
 
                               size: 22,
                             ),
@@ -412,58 +591,72 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
+                // Status
                 Positioned(
                   top: 10,
                   left: 10,
 
-                  child: buildStatusBadge(property.status),
+                  child: buildStatusBadge(
+                    property.status,
+                  ),
                 ),
               ],
             ),
 
             Padding(
-              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              padding: const EdgeInsets.fromLTRB(
+                15,
+                12,
+                15,
+                14,
+              ),
 
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
 
                 children: [
                   Text(
                     property.name,
 
                     maxLines: 1,
-
-                    overflow: TextOverflow.ellipsis,
+                    overflow:
+                        TextOverflow.ellipsis,
 
                     style: const TextStyle(
                       color: primaryColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(
+                    height: 7,
+                  ),
 
                   Row(
                     children: [
                       const Icon(
                         Icons.location_on_outlined,
-                        size: 15,
+                        size: 16,
                         color: primaryColor,
                       ),
 
-                      const SizedBox(width: 3),
+                      const SizedBox(
+                        width: 4,
+                      ),
 
                       Expanded(
                         child: Text(
-                          property.location.address ?? "Unknown location",
+                          property.location.address ??
+                              "Unknown location",
 
                           maxLines: 1,
-
-                          overflow: TextOverflow.ellipsis,
+                          overflow:
+                              TextOverflow.ellipsis,
 
                           style: const TextStyle(
-                            color: Colors.black54,
+                            color: mutedTextColor,
                             fontSize: 12,
                           ),
                         ),
@@ -471,15 +664,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 5),
+                  const SizedBox(
+                    height: 7,
+                  ),
 
                   Text(
                     "\$${property.price.toInt()} / month",
 
                     style: const TextStyle(
                       color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
                     ),
                   ),
                 ],
@@ -490,14 +685,95 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  // AI Assistant
+  Widget buildAiAssistantButton() {
+    return Align(
+      alignment: Alignment.centerRight,
+
+      child: Material(
+        color: Colors.transparent,
+
+        child: InkWell(
+          onTap: openAiAssistant,
+
+          borderRadius:
+              BorderRadius.circular(
+            22,
+          ),
+
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 11,
+            ),
+
+            decoration: BoxDecoration(
+              color: primaryColor,
+
+              borderRadius:
+                  BorderRadius.circular(
+                22,
+              ),
+
+              boxShadow: [
+                BoxShadow(
+                  color: primaryColor.withOpacity(
+                    0.20,
+                  ),
+                  blurRadius: 14,
+                  offset: const Offset(
+                    0,
+                    5,
+                  ),
+                ),
+              ],
+            ),
+
+            child: const Row(
+              mainAxisSize:
+                  MainAxisSize.min,
+
+              children: [
+                // Robot Icon
+                Icon(
+                  Icons.smart_toy_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
+
+                SizedBox(
+                  width: 8,
+                ),
+
+                Text(
+                  "AI Assistant",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-Widget buildPropertyImage(Property property) {
+// Property Image
+Widget buildPropertyImage(
+  Property property,
+) {
   if (property.images.isEmpty) {
     return Container(
       height: 190,
       width: double.infinity,
-      color: lightSecondaryColor,
+      color: imagePlaceholderColor,
 
       child: const Icon(
         Icons.home_work_outlined,
@@ -509,15 +785,20 @@ Widget buildPropertyImage(Property property) {
 
   return Image.network(
     property.images.first,
+
     height: 190,
     width: double.infinity,
     fit: BoxFit.cover,
 
-    errorBuilder: (context, error, stackTrace) {
+    errorBuilder: (
+      context,
+      error,
+      stackTrace,
+    ) {
       return Container(
         height: 190,
         width: double.infinity,
-        color: lightSecondaryColor,
+        color: imagePlaceholderColor,
 
         child: const Icon(
           Icons.home_work_outlined,
@@ -529,29 +810,43 @@ Widget buildPropertyImage(Property property) {
   );
 }
 
+// Empty Property
 Widget buildEmptyPropertyState() {
   return Container(
     width: double.infinity,
 
-    padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 20),
+    padding: const EdgeInsets.symmetric(
+      vertical: 35,
+      horizontal: 20,
+    ),
 
     decoration: BoxDecoration(
       color: Colors.white,
 
-      borderRadius: BorderRadius.circular(18),
+      borderRadius:
+          BorderRadius.circular(
+        20,
+      ),
 
-      border: Border.all(color: primaryColor.withOpacity(0.08)),
+      border: Border.all(
+        color: borderColor,
+      ),
     ),
 
     child: const Column(
       children: [
-        Icon(Icons.home_work_outlined, size: 44, color: primaryColor),
+        Icon(
+          Icons.home_work_outlined,
+          size: 44,
+          color: primaryColor,
+        ),
 
-        SizedBox(height: 12),
+        SizedBox(
+          height: 12,
+        ),
 
         Text(
           "No properties available",
-
           style: TextStyle(
             color: primaryColor,
             fontSize: 16,
@@ -559,46 +854,68 @@ Widget buildEmptyPropertyState() {
           ),
         ),
 
-        SizedBox(height: 5),
+        SizedBox(
+          height: 5,
+        ),
 
         Text(
           "New rental properties will appear here.",
-
           textAlign: TextAlign.center,
-
-          style: TextStyle(color: Color(0xFF7D8990), fontSize: 12),
+          style: TextStyle(
+            color: mutedTextColor,
+            fontSize: 12,
+          ),
         ),
       ],
     ),
   );
 }
 
-Widget buildStatusBadge(String status) {
+// Status Badge
+Widget buildStatusBadge(
+  String status,
+) {
   Color statusColor;
 
-  final String value = status.toLowerCase();
+  final String value =
+      status.toLowerCase();
 
-  if (value == "available" || value == "available now") {
-    statusColor = const Color(0xFF16A34A);
+  if (value == "available" ||
+      value == "available now") {
+    statusColor =
+        const Color(0xFF16A34A);
   } else if (value == "rented") {
-    statusColor = const Color(0xFFDC2626);
+    statusColor =
+        const Color(0xFFDC2626);
   } else {
-    statusColor = const Color(0xFFF59E0B);
+    statusColor =
+        const Color(0xFFF59E0B);
   }
 
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+    padding: const EdgeInsets.symmetric(
+      horizontal: 9,
+      vertical: 5,
+    ),
 
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.95),
+      color: Colors.white,
 
-      borderRadius: BorderRadius.circular(20),
+      borderRadius:
+          BorderRadius.circular(
+        20,
+      ),
 
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.08),
+          color: Colors.black.withOpacity(
+            0.08,
+          ),
           blurRadius: 5,
-          offset: const Offset(0, 2),
+          offset: const Offset(
+            0,
+            2,
+          ),
         ),
       ],
     ),
@@ -611,10 +928,15 @@ Widget buildStatusBadge(String status) {
           width: 7,
           height: 7,
 
-          decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            color: statusColor,
+            shape: BoxShape.circle,
+          ),
         ),
 
-        const SizedBox(width: 5),
+        const SizedBox(
+          width: 5,
+        ),
 
         Text(
           status,
@@ -630,6 +952,7 @@ Widget buildStatusBadge(String status) {
   );
 }
 
+// App Name
 Widget appName() {
   return RichText(
     text: const TextSpan(
@@ -639,8 +962,8 @@ Widget appName() {
 
           style: TextStyle(
             color: primaryColor,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontSize: 23,
+            fontWeight: FontWeight.w800,
           ),
         ),
 
@@ -648,9 +971,9 @@ Widget appName() {
           text: "Now",
 
           style: TextStyle(
-            color: Color.fromARGB(255, 2, 216, 253),
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
+            color: accentColor,
+            fontSize: 23,
+            fontWeight: FontWeight.w800,
           ),
         ),
       ],
@@ -658,214 +981,332 @@ Widget appName() {
   );
 }
 
+// Headline
+// Headline
 Widget headline() {
-  return const Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-
-    children: [
-      Text(
-        "Find a place",
-
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: primaryColor,
-        ),
-      ),
-
-      Row(
-        children: [
-          Text(
-            "near your ",
-
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: primaryColor,
-            ),
-          ),
-
-          Text(
-            "school",
-
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 2, 216, 253),
-            ),
-          ),
-
-          Text(
-            " or ",
-
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: primaryColor,
-            ),
-          ),
-
-          Text(
-            "work",
-
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 2, 216, 253),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-Widget searchBox(List<Property> properties) {
   return Container(
+    width: double.infinity,
+    height: 130,
+    padding: const EdgeInsets.fromLTRB(
+      20,
+      16,
+      20,
+      15,
+    ),
     decoration: BoxDecoration(
-      color: Colors.white,
-
-      borderRadius: BorderRadius.circular(12),
-
+      color: primaryColor,
+      borderRadius: BorderRadius.circular(20),
       boxShadow: [
         BoxShadow(
-          color: primaryColor.withOpacity(0.08),
-          blurRadius: 8,
-          spreadRadius: 1,
-          offset: const Offset(0, 2),
+          color: primaryColor.withOpacity(0.16),
+          blurRadius: 18,
+          offset: const Offset(0, 6),
         ),
       ],
     ),
+    child: Stack(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RichText(
+              text: const TextSpan(
+                style: TextStyle(
+                  fontSize: 25,
+                  height: 1.22,
+                  fontWeight: FontWeight.w800,
+                ),
+                children: [
+                  TextSpan(
+                    text: "Find a place\n",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "near your ",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "school",
+                    style: TextStyle(
+                      color: Color(0xFF49CFF4),
+                    ),
+                  ),
+                  TextSpan(
+                    text: " or ",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "work",
+                    style: TextStyle(
+                      color: Color(0xFF49CFF4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
-    child: TextFormField(
-      style: const TextStyle(color: primaryColor),
+            const SizedBox(height: 7),
 
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.search, color: primaryColor),
-
-        hintText: 'Search Property name....',
-
-        hintStyle: const TextStyle(color: Colors.black38),
-
-        filled: true,
-        fillColor: Colors.white,
-
-        border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-
-          borderRadius: BorderRadius.circular(12),
+            const Text(
+              "Comfortable spaces. Brighter tomorrows.",
+              style: TextStyle(
+                color: Color(0xFFD2D5EC),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
 
-        suffixIcon: Padding(
-          padding: const EdgeInsets.all(7),
+        Positioned(
+          right: 0,
+          bottom: -3,
+          child: Icon(
+            Icons.holiday_village_rounded,
+            size: 62,
+            color: Colors.white.withOpacity(0.18),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
-          child: Tooltip(
-            message: "Filter",
+// Search And Filter
+Widget searchBox(
+  List<Property> properties,
+) {
+  return Row(
+    children: [
+      // Search
+      Expanded(
+        child: Container(
+          height: 58,
 
-            child: Material(
-              color: lightSecondaryColor,
+          decoration: BoxDecoration(
+            color: Colors.white,
 
-              borderRadius: BorderRadius.circular(9),
+            borderRadius:
+                BorderRadius.circular(
+              16,
+            ),
 
-              child: InkWell(
-                borderRadius: BorderRadius.circular(9),
+            border: Border.all(
+              color: borderColor,
+            ),
 
-                onTap: () {
-                  Get.to(() => FilterScreen(properties: properties));
-                },
-
-                child: const SizedBox(
-                  width: 40,
-                  height: 40,
-
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: primaryColor,
-                    size: 21,
-                  ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(
+                  0.055,
                 ),
+                blurRadius: 12,
+                offset: const Offset(
+                  0,
+                  4,
+                ),
+              ),
+            ],
+          ),
+
+          child: TextFormField(
+            style: const TextStyle(
+              color: primaryColor,
+              fontSize: 14,
+            ),
+
+            decoration:
+                const InputDecoration(
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: primaryColor,
+                size: 24,
+              ),
+
+              hintText:
+                  "Search Property name....",
+
+              hintStyle: TextStyle(
+                color: Color(0xFF9B9DA4),
+                fontSize: 14,
+              ),
+
+              border: InputBorder.none,
+
+              contentPadding:
+                  EdgeInsets.symmetric(
+                vertical: 19,
               ),
             ),
           ),
         ),
       ),
-    ),
+
+      const SizedBox(
+        width: 12,
+      ),
+
+      // Filter
+      Container(
+        width: 58,
+        height: 58,
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+              BorderRadius.circular(
+            16,
+          ),
+
+          border: Border.all(
+            color: borderColor,
+          ),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(
+                0.055,
+              ),
+              blurRadius: 12,
+              offset: const Offset(
+                0,
+                4,
+              ),
+            ),
+          ],
+        ),
+
+        child: Material(
+          color: Colors.transparent,
+
+          child: InkWell(
+            borderRadius:
+                BorderRadius.circular(
+              16,
+            ),
+
+            onTap: () {
+              Get.to(
+                () => FilterScreen(
+                  properties: properties,
+                ),
+              );
+            },
+
+            child: const Center(
+              child: Icon(
+                Icons.tune_rounded,
+                color: primaryColor,
+                size: 23,
+              ),
+            ),
+          ),
+        ),
+      ),
+    ],
   );
 }
 
-Widget studentBudgetCard({required VoidCallback onTap}) {
+// Student Budget
+Widget studentBudgetCard({
+  required VoidCallback onTap,
+}) {
   return InkWell(
     onTap: onTap,
 
-    borderRadius: BorderRadius.circular(17),
+    borderRadius:
+        BorderRadius.circular(
+      18,
+    ),
 
     child: Container(
-      height: 72,
+      height: 78,
 
-      padding: const EdgeInsets.symmetric(horizontal: 13),
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 15,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(17),
+        borderRadius:
+            BorderRadius.circular(
+          18,
+        ),
+
+        border: Border.all(
+          color: borderColor,
+        ),
 
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(
+              0.045,
+            ),
+            blurRadius: 12,
+            offset: const Offset(
+              0,
+              4,
+            ),
           ),
         ],
       ),
 
-      child: Row(
+      child: const Row(
         children: [
-          Container(
-            width: 38,
-            height: 38,
-
-            decoration: BoxDecoration(
-              color: lightSecondaryColor,
-
-              borderRadius: BorderRadius.circular(10),
-            ),
-
-            child: const Icon(
-              Icons.account_balance_wallet_outlined,
-              size: 22,
-              color: primaryColor,
-            ),
+          Icon(
+            Icons.account_balance_wallet_outlined,
+            size: 27,
+            color: primaryColor,
           ),
 
-          const SizedBox(width: 9),
+          SizedBox(
+            width: 12,
+          ),
 
-          const Expanded(
+          Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
                 Text(
                   "Student Budget",
-
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Color(0xFF6F6F6F),
+                    color: mutedTextColor,
                     fontSize: 11,
-                    fontWeight: FontWeight.w500,
+                    fontWeight:
+                        FontWeight.w500,
                   ),
                 ),
 
-                SizedBox(height: 4),
+                SizedBox(
+                  height: 5,
+                ),
 
                 Text(
                   "\$70 - \$150",
-
-                  overflow: TextOverflow.ellipsis,
-
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     color: primaryColor,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.w800,
                     fontSize: 15,
                   ),
                 ),
@@ -878,79 +1319,98 @@ Widget studentBudgetCard({required VoidCallback onTap}) {
   );
 }
 
-Widget popularTypeCard({required VoidCallback onTap}) {
+// Popular Type
+Widget popularTypeCard({
+  required VoidCallback onTap,
+}) {
   return InkWell(
     onTap: onTap,
 
-    borderRadius: BorderRadius.circular(17),
+    borderRadius:
+        BorderRadius.circular(
+      18,
+    ),
 
     child: Container(
-      height: 72,
+      height: 78,
 
-      padding: const EdgeInsets.symmetric(horizontal: 13),
+      padding:
+          const EdgeInsets.symmetric(
+        horizontal: 15,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(17),
+        borderRadius:
+            BorderRadius.circular(
+          18,
+        ),
+
+        border: Border.all(
+          color: borderColor,
+        ),
 
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.07),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(
+              0.045,
+            ),
+            blurRadius: 12,
+            offset: const Offset(
+              0,
+              4,
+            ),
           ),
         ],
       ),
 
-      child: Row(
+      child: const Row(
         children: [
-          Container(
-            width: 38,
-            height: 38,
-
-            decoration: BoxDecoration(
-              color: lightSecondaryColor,
-
-              borderRadius: BorderRadius.circular(10),
-            ),
-
-            child: const Icon(
-              Icons.bed_outlined,
-              size: 23,
-              color: primaryColor,
-            ),
+          Icon(
+            Icons.bed_outlined,
+            size: 28,
+            color: primaryColor,
           ),
 
-          const SizedBox(width: 9),
+          SizedBox(
+            width: 12,
+          ),
 
-          const Expanded(
+          Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment:
+                  MainAxisAlignment.center,
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
 
               children: [
                 Text(
                   "Popular Type",
-
+                  maxLines: 1,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: Color(0xFF6F6F6F),
+                    color: mutedTextColor,
                     fontSize: 11,
-                    fontWeight: FontWeight.w500,
+                    fontWeight:
+                        FontWeight.w500,
                   ),
                 ),
 
-                SizedBox(height: 4),
+                SizedBox(
+                  height: 5,
+                ),
 
                 Text(
                   "Room",
-
-                  overflow: TextOverflow.ellipsis,
-
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: TextStyle(
                     color: primaryColor,
-                    fontWeight: FontWeight.bold,
+                    fontWeight:
+                        FontWeight.w800,
                     fontSize: 15,
                   ),
                 ),
