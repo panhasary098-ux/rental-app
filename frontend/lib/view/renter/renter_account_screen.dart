@@ -5,21 +5,185 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RenterAccountScreen extends StatelessWidget {
-  RenterAccountScreen({super.key});
+  RenterAccountScreen({
+    super.key,
+  });
 
   final RenterAccountController controller =
       Get.put(RenterAccountController());
 
+  final AuthService authService = AuthService();
+
+  // Colors
+  static const Color primaryColor =
+      Color(0xFF03045E);
+
+  static const Color backgroundColor =
+      Color(0xFFF8FAFC);
+
+  static const Color textColor =
+      Color(0xFF111827);
+
+  static const Color secondaryTextColor =
+      Color(0xFF6B7280);
+
+  static const Color borderColor =
+      Color(0xFFE5E7EB);
+
+  static const Color blueAccent =
+      Color(0xFF2563EB);
+
+  static const Color blueSoft =
+      Color(0xFFEFF6FF);
+
+  static const Color purpleAccent =
+      Color(0xFF7C3AED);
+
+  static const Color purpleSoft =
+      Color(0xFFF3E8FF);
+
+  static const Color orangeAccent =
+      Color(0xFFD97706);
+
+  static const Color orangeSoft =
+      Color(0xFFFFF7E6);
+
+  static const Color greenAccent =
+      Color(0xFF16A34A);
+
+  static const Color greenSoft =
+      Color(0xFFECFDF3);
+
+  static const Color redAccent =
+      Color(0xFFDC2626);
+
+  static const Color redSoft =
+      Color(0xFFFEF2F2);
+
+  // Success
+  void showSuccessNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
+      borderRadius: 18,
+      borderColor: borderColor,
+      borderWidth: 1,
+      duration: Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.10),
+          blurRadius: 18,
+          offset: Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: greenSoft,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.check_rounded,
+          color: greenAccent,
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: TextStyle(
+          color: greenAccent,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: TextStyle(
+          color: secondaryTextColor,
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+    );
+  }
+
+  // Error
+  void showErrorNotification({
+    required String title,
+    required String message,
+  }) {
+    Get.snackbar(
+      '',
+      '',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
+      borderRadius: 18,
+      borderColor: Color(0xFFFECACA),
+      borderWidth: 1,
+      duration: Duration(seconds: 3),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.10),
+          blurRadius: 18,
+          offset: Offset(0, 6),
+        ),
+      ],
+      icon: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: redSoft,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.priority_high_rounded,
+          color: redAccent,
+          size: 20,
+        ),
+      ),
+      titleText: Text(
+        title,
+        style: TextStyle(
+          color: redAccent,
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      messageText: Text(
+        message,
+        style: TextStyle(
+          color: secondaryTextColor,
+          fontSize: 13,
+          height: 1.35,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAFC),
-      resizeToAvoidBottomInset: false,
+      backgroundColor: backgroundColor,
 
-      // App Bar
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFFF8FAFC),
+        backgroundColor: backgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         titleSpacing: 20,
@@ -28,89 +192,96 @@ class RenterAccountScreen extends StatelessWidget {
           "Account",
           style: TextStyle(
             fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF03045E),
+            fontWeight: FontWeight.w800,
+            color: textColor,
+            letterSpacing: -0.4,
           ),
         ),
 
         actions: [
-          IconButton(
-            onPressed: () {
-              showSettings();
-            },
-
-            icon: Icon(
-              Icons.settings_outlined,
-              size: 25,
-              color: Color(0xFF03045E),
+          Container(
+            margin: EdgeInsets.only(
+              right: 14,
+            ),
+            child: InkWell(
+              onTap: showSettingsSheet,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: borderColor,
+                  ),
+                ),
+                child: Icon(
+                  Icons.settings_outlined,
+                  size: 21,
+                  color: primaryColor,
+                ),
+              ),
             ),
           ),
-
-          SizedBox(width: 10),
         ],
       ),
 
-      // Body
       body: Obx(
         () {
           if (controller.isLoading.value) {
             return Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF03045E),
+                color: primaryColor,
               ),
             );
           }
 
           return SafeArea(
             top: false,
-
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
                 18,
-                8,
+                6,
                 18,
-                20,
+                28,
               ),
-
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Profile
                   buildProfileCard(),
 
-                  SizedBox(height: 16),
+                  SizedBox(height: 26),
 
                   // Account
-                  Align(
-                    alignment: Alignment.centerLeft,
-
-                    child: buildSectionTitle(
-                      "Account",
-                    ),
+                  buildSectionTitle(
+                    "Account",
                   ),
 
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
 
                   buildMenuCard(
                     children: [
                       buildMenuItem(
-                        icon:
-                            Icons.person_outline_rounded,
-                        title:
-                            "Personal Information",
-
-                        onTap: () {
-                          showEditProfile();
-                        },
+                        icon: Icons.person_outline_rounded,
+                        iconColor: blueAccent,
+                        iconBackground: blueSoft,
+                        title: "Personal Information",
+                        subtitle:
+                            "View and edit your account details",
+                        onTap: showPersonalInformation,
                       ),
 
                       buildDivider(),
 
                       buildMenuItem(
-                        icon:
-                            Icons.favorite_border_rounded,
-                        title:
-                            "Saved Properties",
-
+                        icon: Icons.favorite_border_rounded,
+                        iconColor: purpleAccent,
+                        iconBackground: purpleSoft,
+                        title: "Saved Properties",
+                        subtitle:
+                            "View properties you saved",
                         onTap: () {
                           showNotReady(
                             "Saved Properties",
@@ -121,109 +292,78 @@ class RenterAccountScreen extends StatelessWidget {
                       buildDivider(),
 
                       buildMenuItem(
-                        icon: Icons
-                            .notifications_none_rounded,
-                        title:
-                            "Notifications",
-
-                        onTap: () {
-                          showNotReady(
-                            "Notifications",
-                          );
-                        },
+                        icon: Icons.notifications_none_rounded,
+                        iconColor: orangeAccent,
+                        iconBackground: orangeSoft,
+                        title: "Notifications",
+                        subtitle:
+                            "Saved property and account updates",
+                        onTap: showNotificationsSheet,
                       ),
                     ],
                   ),
 
-                  SizedBox(height: 14),
+                  SizedBox(height: 24),
 
                   // Support
-                  Align(
-                    alignment: Alignment.centerLeft,
-
-                    child: buildSectionTitle(
-                      "Support",
-                    ),
+                  buildSectionTitle(
+                    "Support",
                   ),
 
-                  SizedBox(height: 8),
+                  SizedBox(height: 10),
 
                   buildMenuCard(
                     children: [
                       buildMenuItem(
-                        icon:
-                            Icons.help_outline_rounded,
+                        icon: Icons.help_outline_rounded,
+                        iconColor: greenAccent,
+                        iconBackground: greenSoft,
                         title: "Help Center",
-
-                        onTap: () {
-                          showHelpCenter();
-                        },
+                        subtitle:
+                            "Answers and renter guidance",
+                        onTap: showHelpCenter,
                       ),
 
                       buildDivider(),
 
                       buildMenuItem(
-                        icon:
-                            Icons.info_outline_rounded,
-                        title: "About Us",
-
-                        onTap: () {
-                          showAboutUs();
-                        },
+                        icon: Icons.info_outline_rounded,
+                        iconColor: purpleAccent,
+                        iconBackground: purpleSoft,
+                        title: "About JoulNow",
+                        subtitle:
+                            "Information about the platform",
+                        onTap: showAboutSheet,
                       ),
                     ],
                   ),
 
-                  SizedBox(height: 28),
+                  SizedBox(height: 26),
 
                   // Logout
                   SizedBox(
                     width: double.infinity,
-                    height: 48,
-
+                    height: 50,
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        showLogoutDialog();
-                      },
-
+                      onPressed: showLogoutDialog,
                       icon: Icon(
                         Icons.logout_rounded,
                         size: 19,
                       ),
-
                       label: Text(
                         "Log out",
-
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-
-                      style:
-                          OutlinedButton.styleFrom(
-                        foregroundColor:
-                            Color(0xFFEF4444),
-
-                        backgroundColor:
-                            Colors.white,
-
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: redAccent,
+                        backgroundColor: Colors.white,
                         side: BorderSide(
-                          color:
-                              Color(0xFFEF4444)
-                                  .withValues(
-                            alpha: 0.45,
-                          ),
-
-                          width: 1.2,
+                          color: Color(0xFFFECACA),
                         ),
-
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(
-                            14,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                     ),
@@ -241,354 +381,239 @@ class RenterAccountScreen extends StatelessWidget {
   Widget buildProfileCard() {
     return Container(
       width: double.infinity,
-
-      padding: EdgeInsets.symmetric(
-        horizontal: 18,
-        vertical: 18,
-      ),
-
       decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius: BorderRadius.circular(
-          22,
-        ),
-
-        border: Border.all(
-          color: Color(0xFFE8EAF0),
-        ),
-
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.05,
+            color: primaryColor.withValues(
+              alpha: 0.18,
             ),
-
-            blurRadius: 18,
-
+            blurRadius: 22,
             offset: Offset(
               0,
-              6,
+              8,
             ),
           ),
         ],
       ),
-
-      child: Row(
+      child: Stack(
         children: [
-          // Profile Image
-          Stack(
-            clipBehavior: Clip.none,
-
-            children: [
-              Obx(
-                () => Container(
-                  width: 98,
-                  height: 98,
-
-                  decoration: BoxDecoration(
-                    color:
-                        Color(0xFFE8E9FF),
-
-                    shape:
-                        BoxShape.circle,
-
-                    border: Border.all(
-                      color:
-                          Colors.white,
-
-                      width: 4,
-                    ),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Color(0xFF03045E)
-                                .withValues(
-                          alpha: 0.10,
-                        ),
-
-                        blurRadius: 14,
-
-                        offset: Offset(
-                          0,
-                          5,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  clipBehavior:
-                      Clip.antiAlias,
-
-                  child: controller
-                          .profileImage
-                          .value
-                          .isNotEmpty
-                      ? Image.network(
-                          getProfileImageUrl(
-                            controller
-                                .profileImage
-                                .value,
-                          ),
-
-                          fit:
-                              BoxFit.cover,
-
-                          errorBuilder: (
-                            context,
-                            error,
-                            stackTrace,
-                          ) {
-                            return Center(
-                              child: Text(
-                                controller
-                                    .getInitials(),
-
-                                style:
-                                    TextStyle(
-                                  fontSize:
-                                      30,
-
-                                  fontWeight:
-                                      FontWeight
-                                          .bold,
-
-                                  color:
-                                      Color(
-                                    0xFF03045E,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        )
-                      : Center(
-                          child: Text(
-                            controller
-                                .getInitials(),
-
-                            style:
-                                TextStyle(
-                              fontSize:
-                                  30,
-
-                              fontWeight:
-                                  FontWeight
-                                      .bold,
-
-                              color:
-                                  Color(
-                                0xFF03045E,
-                              ),
-                            ),
-                          ),
-                        ),
+          Positioned(
+            top: -40,
+            right: -30,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(
+                  alpha: 0.06,
                 ),
+                shape: BoxShape.circle,
               ),
-
-              // Camera
-              Positioned(
-                right: 0,
-                bottom: 1,
-
-                child:
-                    GestureDetector(
-                  onTap: () {
-                    controller
-                        .pickProfileImage();
-                  },
-
-                  child: Obx(
-                    () => Container(
-                      width: 32,
-                      height: 32,
-
-                      decoration:
-                          BoxDecoration(
-                        color: Color(
-                          0xFF03045E,
-                        ),
-
-                        shape:
-                            BoxShape.circle,
-
-                        border:
-                            Border.all(
-                          color:
-                              Colors.white,
-
-                          width: 3,
-                        ),
-                      ),
-
-                      child: controller
-                              .isUploadingImage
-                              .value
-                          ? Padding(
-                              padding:
-                                  EdgeInsets
-                                      .all(
-                                7,
-                              ),
-
-                              child:
-                                  CircularProgressIndicator(
-                                strokeWidth:
-                                    2,
-
-                                color:
-                                    Colors.white,
-                              ),
-                            )
-                          : Icon(
-                              Icons
-                                  .camera_alt_rounded,
-
-                              size: 15,
-
-                              color:
-                                  Colors.white,
-                            ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
 
-          SizedBox(width: 18),
+          Positioned(
+            bottom: -50,
+            left: -30,
+            child: Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                color: purpleAccent.withValues(
+                  alpha: 0.14,
+                ),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
 
-          // User Info
-          Expanded(
+          Padding(
+            padding: EdgeInsets.all(20),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
               children: [
-                // Name
-                Obx(
-                  () => Text(
-                    controller.name.value,
-
-                    maxLines: 1,
-
-                    overflow:
-                        TextOverflow.ellipsis,
-
-                    style: TextStyle(
-                      fontSize: 19,
-
-                      fontWeight:
-                          FontWeight.w800,
-
-                      color:
-                          Color(0xFF111827),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 5),
-
-                // Email
-                Obx(
-                  () => Text(
-                    controller.email.value,
-
-                    maxLines: 1,
-
-                    overflow:
-                        TextOverflow.ellipsis,
-
-                    style: TextStyle(
-                      fontSize: 12,
-
-                      color:
-                          Color(0xFF667085),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 10),
-
-                // Role
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-
-                  decoration:
-                      BoxDecoration(
-                    color:
-                        Color(0xFFE8E9FF),
-
-                    borderRadius:
-                        BorderRadius.circular(
-                      20,
-                    ),
-                  ),
-
-                  child: Obx(
-                    () => Text(
-                      formatRole(
-                        controller.role.value,
-                      ),
-
-                      style: TextStyle(
-                        fontSize: 11,
-
-                        fontWeight:
-                            FontWeight.w700,
-
-                        color:
-                            Color(0xFF03045E),
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 10),
-
-                // Edit Profile
-                GestureDetector(
-                  onTap: () {
-                    showEditProfile();
-                  },
-
-                  child: Row(
-                    mainAxisSize:
-                        MainAxisSize.min,
-
-                    children: [
-                      Icon(
-                        Icons.edit_outlined,
-
-                        size: 15,
-
-                        color:
-                            Color(0xFF03045E),
-                      ),
-
-                      SizedBox(width: 5),
-
-                      Text(
-                        "Edit profile",
-
-                        style: TextStyle(
-                          fontSize: 12,
-
-                          fontWeight:
-                              FontWeight.w700,
-
-                          color:
-                              Color(
-                            0xFF03045E,
+                Row(
+                  children: [
+                    // Image
+                    Stack(
+                      children: [
+                        Obx(
+                          () => Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 4,
+                              ),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: controller
+                                    .profileImage
+                                    .value
+                                    .isNotEmpty
+                                ? Image.network(
+                                    getProfileImageUrl(
+                                      controller
+                                          .profileImage
+                                          .value,
+                                    ),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (
+                                      context,
+                                      error,
+                                      stackTrace,
+                                    ) {
+                                      return buildInitialsAvatar();
+                                    },
+                                  )
+                                : buildInitialsAvatar(),
                           ),
                         ),
+
+                        Positioned(
+                          bottom: 1,
+                          right: 1,
+                          child: InkWell(
+                            onTap: () {
+                              controller.pickProfileImage();
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: purpleAccent,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2.5,
+                                ),
+                              ),
+                              child: Obx(
+                                () => controller
+                                        .isUploadingImage
+                                        .value
+                                    ? Padding(
+                                        padding: EdgeInsets.all(
+                                          7,
+                                        ),
+                                        child:
+                                            CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.camera_alt_rounded,
+                                        color: Colors.white,
+                                        size: 14,
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(width: 16),
+
+                    // Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Text(
+                              controller.name.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 5),
+
+                          Obx(
+                            () => Text(
+                              controller.email.value,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withValues(
+                                  alpha: 0.72,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 10),
+
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(
+                                alpha: 0.12,
+                              ),
+                              borderRadius:
+                                  BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.person_outline_rounded,
+                                  size: 13,
+                                  color: Colors.white,
+                                ),
+
+                                SizedBox(width: 5),
+
+                                Text(
+                                  "Renter",
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 18),
+
+                Container(
+                  height: 1,
+                  color: Colors.white.withValues(
+                    alpha: 0.12,
+                  ),
+                ),
+
+                SizedBox(height: 14),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: buildProfileAction(
+                    icon: Icons.edit_outlined,
+                    title: "Edit Profile",
+                    onTap: showEditProfileSheet,
                   ),
                 ),
               ],
@@ -599,27 +624,70 @@ class RenterAccountScreen extends StatelessWidget {
     );
   }
 
-  // Section Title
+  // Initials
+  Widget buildInitialsAvatar() {
+    return Center(
+      child: Obx(
+        () => Text(
+          controller.getInitials(),
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Profile Action
+  Widget buildProfileAction({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: 7,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: Colors.white,
+            ),
+
+            SizedBox(width: 6),
+
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Section
   Widget buildSectionTitle(
     String title,
   ) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 2,
-      ),
-
-      child: Text(
-        title,
-
-        style: TextStyle(
-          fontSize: 15,
-
-          fontWeight:
-              FontWeight.bold,
-
-          color:
-              Color(0xFF03045E),
-        ),
+    return Text(
+      title,
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.w800,
+        color: textColor,
       ),
     );
   }
@@ -630,21 +698,25 @@ class RenterAccountScreen extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-
       decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(
-          16,
-        ),
-
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color:
-              Color(0xFFE8EAF0),
+          color: borderColor,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(
+              alpha: 0.025,
+            ),
+            blurRadius: 12,
+            offset: Offset(
+              0,
+              4,
+            ),
+          ),
+        ],
       ),
-
       child: Column(
         children: children,
       ),
@@ -654,72 +726,67 @@ class RenterAccountScreen extends StatelessWidget {
   // Menu Item
   Widget buildMenuItem({
     required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
     required String title,
+    required String subtitle,
     required VoidCallback onTap,
   }) {
     return InkWell(
       onTap: onTap,
-
       child: Padding(
-        padding:
-            EdgeInsets.symmetric(
+        padding: EdgeInsets.symmetric(
           horizontal: 14,
-          vertical: 11,
+          vertical: 13,
         ),
-
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    Color(0xFFF0F1FF),
-
-                borderRadius:
-                    BorderRadius.circular(
-                  11,
-                ),
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: iconBackground,
+                borderRadius: BorderRadius.circular(12),
               ),
-
               child: Icon(
                 icon,
-
-                size: 20,
-
-                color:
-                    Color(0xFF03045E),
+                size: 21,
+                color: iconColor,
               ),
             ),
 
             SizedBox(width: 13),
 
             Expanded(
-              child: Text(
-                title,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                  ),
 
-                style: TextStyle(
-                  fontSize: 13,
+                  SizedBox(height: 3),
 
-                  fontWeight:
-                      FontWeight.w600,
-
-                  color:
-                      Color(0xFF111827),
-                ),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                ],
               ),
             ),
 
             Icon(
-              Icons
-                  .chevron_right_rounded,
-
+              Icons.chevron_right_rounded,
               size: 22,
-
-              color:
-                  Color(0xFF98A2B3),
+              color: Color(0xFF9CA3AF),
             ),
           ],
         ),
@@ -731,429 +798,416 @@ class RenterAccountScreen extends StatelessWidget {
   Widget buildDivider() {
     return Padding(
       padding: EdgeInsets.only(
-        left: 63,
+        left: 69,
         right: 14,
       ),
-
       child: Divider(
         height: 1,
-
-        thickness: 0.7,
-
-        color:
-            Color(0xFFE5E7EB),
+        color: borderColor,
       ),
     );
   }
 
-  // Edit Profile
-  void showEditProfile() {
-    controller.nameController.text =
-        controller.name.value;
+  // Personal Information
+  void showPersonalInformation() {
+    Get.bottomSheet(
+      buildSheet(
+        title: "Personal Information",
+        icon: Icons.person_outline_rounded,
+        iconColor: blueAccent,
+        iconBackground: blueSoft,
+        child: Column(
+          children: [
+            buildInfoRow(
+              "Full Name",
+              controller.name.value,
+            ),
 
-    controller.phoneController.text =
-        controller.phone.value;
+            buildInfoRow(
+              "Email",
+              controller.email.value,
+            ),
+
+            buildInfoRow(
+              "Phone",
+              controller.phone.value.isEmpty
+                  ? "Not provided"
+                  : controller.phone.value,
+            ),
+
+            buildInfoRow(
+              "Account Type",
+              "Renter",
+            ),
+
+            SizedBox(height: 10),
+
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Get.back();
+                  showEditProfileSheet();
+                },
+                icon: Icon(
+                  Icons.edit_outlined,
+                  size: 18,
+                ),
+                label: Text(
+                  "Edit Information",
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+    );
+  }
+
+  // Edit Profile
+  void showEditProfileSheet() {
+    final TextEditingController nameController =
+        TextEditingController(
+      text: controller.name.value,
+    );
+
+    final TextEditingController phoneController =
+        TextEditingController(
+      text: controller.phone.value,
+    );
+
+    bool isSaving = false;
 
     Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          18,
-          20,
-          25,
-        ),
-
-        decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius:
-              BorderRadius.vertical(
-            top: Radius.circular(
-              24,
-            ),
-          ),
-        ),
-
-        child: SafeArea(
-          top: false,
-
-          child: SingleChildScrollView(
+      StatefulBuilder(
+        builder: (
+          context,
+          setModalState,
+        ) {
+          return buildSheet(
+            title: "Edit Profile",
+            icon: Icons.edit_outlined,
+            iconColor: purpleAccent,
+            iconBackground: purpleSoft,
             child: Column(
-              mainAxisSize:
-                  MainAxisSize.min,
-
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 42,
-                    height: 5,
-
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          Color(0xFFD1D5DB),
-
-                      borderRadius:
-                          BorderRadius.circular(
-                        20,
-                      ),
-                    ),
-                  ),
+                buildFieldLabel(
+                  "Full Name",
                 ),
 
-                SizedBox(height: 20),
+                SizedBox(height: 7),
 
-                Text(
-                  "Edit Profile",
-
-                  style: TextStyle(
-                    fontSize: 20,
-
-                    fontWeight:
-                        FontWeight.bold,
-
-                    color:
-                        Color(0xFF03045E),
-                  ),
+                buildTextField(
+                  controller: nameController,
+                  hint: "Enter your name",
+                  icon: Icons.person_outline,
                 ),
 
-                SizedBox(height: 20),
+                SizedBox(height: 15),
 
-                // Name
-                TextField(
-                  controller:
-                      controller.nameController,
-
-                  decoration:
-                      InputDecoration(
-                    labelText:
-                        "Full Name",
-
-                    prefixIcon:
-                        Icon(
-                      Icons
-                          .person_outline,
-                    ),
-
-                    border:
-                        OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        12,
-                      ),
-                    ),
-                  ),
+                buildFieldLabel(
+                  "Phone Number",
                 ),
 
-                SizedBox(height: 14),
+                SizedBox(height: 7),
 
-                // Email
-                TextField(
-                  enabled: false,
-
-                  controller:
-                      TextEditingController(
-                    text:
-                        controller.email.value,
-                  ),
-
-                  decoration:
-                      InputDecoration(
-                    labelText:
-                        "Email",
-
-                    prefixIcon:
-                        Icon(
-                      Icons
-                          .email_outlined,
-                    ),
-
-                    filled: true,
-
-                    fillColor:
-                        Color(0xFFF3F4F6),
-
-                    border:
-                        OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        12,
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 14),
-
-                // Phone
-                TextField(
-                  controller:
-                      controller.phoneController,
-
+                buildTextField(
+                  controller: phoneController,
+                  hint: "Enter your phone number",
+                  icon: Icons.phone_outlined,
                   keyboardType:
                       TextInputType.phone,
-
-                  decoration:
-                      InputDecoration(
-                    labelText:
-                        "Phone",
-
-                    prefixIcon:
-                        Icon(
-                      Icons
-                          .phone_outlined,
-                    ),
-
-                    border:
-                        OutlineInputBorder(
-                      borderRadius:
-                          BorderRadius.circular(
-                        12,
-                      ),
-                    ),
-                  ),
                 ),
 
-                SizedBox(height: 22),
+                SizedBox(height: 20),
 
-                // Save
-                Obx(
-                  () => SizedBox(
-                    width:
-                        double.infinity,
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: isSaving
+                        ? null
+                        : () async {
+                            final String name =
+                                nameController.text.trim();
 
-                    height: 50,
+                            final String phone =
+                                phoneController.text.trim();
 
-                    child:
-                        ElevatedButton(
-                      onPressed: controller
-                              .isUpdating
-                              .value
-                          ? null
-                          : () async {
-                              bool
-                                  success =
-                                  await controller
-                                      .updateProfile();
+                            if (name.isEmpty) {
+                              showErrorNotification(
+                                title: "Name Required",
+                                message:
+                                    "Please enter your name.",
+                              );
 
-                              if (success) {
-                                Get.back();
-                              }
-                            },
+                              return;
+                            }
 
-                      style:
-                          ElevatedButton
-                              .styleFrom(
-                        backgroundColor:
-                            Color(
-                          0xFF03045E,
-                        ),
+                            try {
+                              setModalState(
+                                () {
+                                  isSaving = true;
+                                },
+                              );
 
-                        foregroundColor:
-                            Colors.white,
+                              await authService
+                                  .updateCurrentUser(
+                                name: name,
+                                phone: phone,
+                              );
 
-                        elevation: 0,
+                              await controller.loadUser();
 
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
-                        ),
+                              Get.back();
+
+                              showSuccessNotification(
+                                title:
+                                    "Profile Updated",
+                                message:
+                                    "Your profile information was updated successfully.",
+                              );
+                            } catch (e) {
+                              showErrorNotification(
+                                title: "Update Failed",
+                                message: e
+                                    .toString()
+                                    .replaceFirst(
+                                      "Exception: ",
+                                      "",
+                                    ),
+                              );
+                            } finally {
+                              setModalState(
+                                () {
+                                  isSaving = false;
+                                },
+                              );
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(13),
                       ),
-
-                      child: controller
-                              .isUpdating
-                              .value
-                          ? SizedBox(
-                              width: 22,
-                              height: 22,
-
-                              child:
-                                  CircularProgressIndicator(
-                                strokeWidth:
-                                    2,
-
-                                color:
-                                    Colors.white,
-                              ),
-                            )
-                          : Text(
-                              "Save Changes",
-
-                              style:
-                                  TextStyle(
-                                fontWeight:
-                                    FontWeight.bold,
-                              ),
-                            ),
                     ),
+                    child: isSaving
+                        ? SizedBox(
+                            width: 21,
+                            height: 21,
+                            child:
+                                CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            "Save Changes",
+                            style: TextStyle(
+                              fontWeight:
+                                  FontWeight.w700,
+                            ),
+                          ),
                   ),
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        },
       ),
-
       isScrollControlled: true,
     );
   }
 
   // Settings
-  void showSettings() {
+  void showSettingsSheet() {
     Get.bottomSheet(
-      Container(
-        padding: EdgeInsets.all(
-          20,
-        ),
-
-        decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius:
-              BorderRadius.vertical(
-            top: Radius.circular(
-              24,
+      buildSheet(
+        title: "Settings",
+        icon: Icons.settings_outlined,
+        iconColor: primaryColor,
+        iconBackground: blueSoft,
+        child: Column(
+          children: [
+            buildSimpleAction(
+              icon: Icons.edit_outlined,
+              title: "Edit Profile",
+              subtitle:
+                  "Update your account information",
+              onTap: () {
+                Get.back();
+                showEditProfileSheet();
+              },
             ),
-          ),
-        ),
 
-        child: SafeArea(
-          top: false,
+            SizedBox(height: 10),
 
-          child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            buildSimpleAction(
+              icon: Icons.image_outlined,
+              title: "Profile Photo",
+              subtitle:
+                  "Change your profile picture",
+              onTap: () {
+                Get.back();
+                controller.pickProfileImage();
+              },
+            ),
 
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons
-                      .person_outline,
+            SizedBox(height: 10),
 
-                  color:
-                      Color(0xFF03045E),
-                ),
+            buildSimpleAction(
+              icon: Icons.refresh_rounded,
+              title: "Refresh Account",
+              subtitle:
+                  "Reload your latest information",
+              onTap: () async {
+                Get.back();
 
-                title: Text(
-                  "Edit Profile",
-                ),
+                await controller.loadUser();
 
-                onTap: () {
-                  Get.back();
-
-                  showEditProfile();
-                },
-              ),
-
-              ListTile(
-                leading: Icon(
-                  Icons
-                      .logout_rounded,
-
-                  color:
-                      Color(0xFFDC2626),
-                ),
-
-                title: Text(
-                  "Log out",
-
-                  style: TextStyle(
-                    color:
-                        Color(0xFFDC2626),
-                  ),
-                ),
-
-                onTap: () {
-                  Get.back();
-
-                  showLogoutDialog();
-                },
-              ),
-            ],
-          ),
+                showSuccessNotification(
+                  title: "Refreshed",
+                  message:
+                      "Your account information is up to date.",
+                );
+              },
+            ),
+          ],
         ),
       ),
+      isScrollControlled: true,
+    );
+  }
 
+  // Notifications
+  void showNotificationsSheet() {
+    Get.bottomSheet(
+      buildSheet(
+        title: "Notifications",
+        icon: Icons.notifications_none_rounded,
+        iconColor: orangeAccent,
+        iconBackground: orangeSoft,
+        child: Column(
+          children: [
+            Icon(
+              Icons.notifications_none_rounded,
+              size: 44,
+              color: orangeAccent,
+            ),
+
+            SizedBox(height: 12),
+
+            Text(
+              "No notifications yet",
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+
+            SizedBox(height: 5),
+
+            Text(
+              "Saved property and account updates will appear here.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.4,
+                color: secondaryTextColor,
+              ),
+            ),
+          ],
+        ),
+      ),
       isScrollControlled: true,
     );
   }
 
   // Help Center
   void showHelpCenter() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor:
-            Colors.white,
+    Get.bottomSheet(
+      buildSheet(
+        title: "Help Center",
+        icon: Icons.help_outline_rounded,
+        iconColor: greenAccent,
+        iconBackground: greenSoft,
+        child: Column(
+          children: [
+            buildHelpItem(
+              "How do I find a property?",
+              "Browse available rooms, houses, and apartments from the home screen and open any property to view its details.",
+            ),
 
-        title: Text(
-          "Help Center",
+            buildHelpItem(
+              "How do I save a property?",
+              "Tap the favorite icon on a property to save it for later.",
+            ),
 
-          style: TextStyle(
-            color:
-                Color(0xFF03045E),
+            buildHelpItem(
+              "How do I contact a house owner?",
+              "Open a property and use the Contact Now option to contact the house owner.",
+            ),
 
-            fontWeight:
-                FontWeight.bold,
-          ),
+            buildHelpItem(
+              "Why are properties verified?",
+              "Properties are reviewed before becoming publicly available to help renters find more trusted listings.",
+            ),
+          ],
         ),
-
-        content: Text(
-          "For support with your account or property listings, please contact the JoulNow support team.",
-        ),
-
-        actions: [
-          TextButton(
-            onPressed:
-                Get.back,
-
-            child:
-                Text("Close"),
-          ),
-        ],
       ),
+      isScrollControlled: true,
     );
   }
 
-  // About Us
-  void showAboutUs() {
-    Get.dialog(
-      AlertDialog(
-        backgroundColor:
-            Colors.white,
+  // About
+  void showAboutSheet() {
+    Get.bottomSheet(
+      buildSheet(
+        title: "About JoulNow",
+        icon: Icons.info_outline_rounded,
+        iconColor: purpleAccent,
+        iconBackground: purpleSoft,
+        child: Column(
+          children: [
+            Text(
+              "JoulNow is a verified rental platform designed to help renters find trusted rooms, houses, and apartments.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: secondaryTextColor,
+              ),
+            ),
 
-        title: Text(
-          "About JoulNow",
+            SizedBox(height: 18),
 
-          style: TextStyle(
-            color:
-                Color(0xFF03045E),
-
-            fontWeight:
-                FontWeight.bold,
-          ),
+            Text(
+              "Version 1.0",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: primaryColor,
+              ),
+            ),
+          ],
         ),
-
-        content: Text(
-          "JoulNow is a verified rental platform that helps renters find trusted rooms, houses, and apartments.",
-        ),
-
-        actions: [
-          TextButton(
-            onPressed:
-                Get.back,
-
-            child:
-                Text("Close"),
-          ),
-        ],
       ),
+      isScrollControlled: true,
     );
   }
 
@@ -1164,15 +1218,288 @@ class RenterAccountScreen extends StatelessWidget {
     Get.snackbar(
       feature,
       "This feature will be available soon.",
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: primaryColor,
+      colorText: Colors.white,
+    );
+  }
 
-      snackPosition:
-          SnackPosition.TOP,
+  // Sheet
+  Widget buildSheet({
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
+    required Widget child,
+  }) {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: Get.height * 0.85,
+      ),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        14,
+        20,
+        28,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(26),
+        ),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 5,
+              decoration: BoxDecoration(
+                color: borderColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
 
-      backgroundColor:
-          Color(0xFF03045E),
+            SizedBox(height: 20),
 
-      colorText:
-          Colors.white,
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: iconBackground,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: 21,
+                  ),
+                ),
+
+                SizedBox(width: 12),
+
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                    ),
+                  ),
+                ),
+
+                IconButton(
+                  onPressed: Get.back,
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: secondaryTextColor,
+                  ),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Info Row
+  Widget buildInfoRow(
+    String title,
+    String value,
+  ) {
+    return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(
+        bottom: 10,
+      ),
+      padding: EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(13),
+        border: Border.all(
+          color: borderColor,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 10.5,
+              color: secondaryTextColor,
+            ),
+          ),
+
+          SizedBox(height: 4),
+
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Label
+  Widget buildFieldLabel(
+    String text,
+  ) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: textColor,
+      ),
+    );
+  }
+
+  // Field
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    TextInputType keyboardType =
+        TextInputType.text,
+  }) {
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        hintText: hint,
+        prefixIcon: Icon(
+          icon,
+          color: secondaryTextColor,
+        ),
+        filled: true,
+        fillColor: backgroundColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: BorderSide(
+            color: borderColor,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: BorderSide(
+            color: primaryColor,
+            width: 1.4,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Action
+  Widget buildSimpleAction({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: borderColor,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: primaryColor,
+            ),
+
+            SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                  ),
+
+                  SizedBox(height: 2),
+
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFF9CA3AF),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Help Item
+  Widget buildHelpItem(
+    String question,
+    String answer,
+  ) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.only(
+        bottom: 12,
+      ),
+      title: Text(
+        question,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+        ),
+      ),
+      children: [
+        Text(
+          answer,
+          style: TextStyle(
+            fontSize: 12,
+            height: 1.45,
+            color: secondaryTextColor,
+          ),
+        ),
+      ],
     );
   }
 
@@ -1180,49 +1507,29 @@ class RenterAccountScreen extends StatelessWidget {
   void showLogoutDialog() {
     Get.dialog(
       AlertDialog(
-        backgroundColor:
-            Colors.white,
-
-        shape:
-            RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(
-            20,
-          ),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
-
-        contentPadding:
-            EdgeInsets.fromLTRB(
+        contentPadding: EdgeInsets.fromLTRB(
           24,
           25,
           24,
           18,
         ),
-
         content: Column(
-          mainAxisSize:
-              MainAxisSize.min,
-
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 58,
               height: 58,
-
-              decoration:
-                  BoxDecoration(
-                color:
-                    Color(0xFFFFE8E8),
-
-                shape:
-                    BoxShape.circle,
+              decoration: BoxDecoration(
+                color: redSoft,
+                shape: BoxShape.circle,
               ),
-
               child: Icon(
                 Icons.logout_rounded,
-
-                color:
-                    Color(0xFFDC2626),
-
+                color: redAccent,
                 size: 27,
               ),
             ),
@@ -1230,16 +1537,11 @@ class RenterAccountScreen extends StatelessWidget {
             SizedBox(height: 16),
 
             Text(
-              "Log out",
-
+              "Log out?",
               style: TextStyle(
                 fontSize: 20,
-
-                fontWeight:
-                    FontWeight.bold,
-
-                color:
-                    Color(0xFF03045E),
+                fontWeight: FontWeight.bold,
+                color: textColor,
               ),
             ),
 
@@ -1247,45 +1549,31 @@ class RenterAccountScreen extends StatelessWidget {
 
             Text(
               "Are you sure you want to log out of your account?",
-
-              textAlign:
-                  TextAlign.center,
-
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
-
                 height: 1.4,
-
-                color:
-                    Color(0xFF667085),
+                color: secondaryTextColor,
               ),
             ),
           ],
         ),
-
+        actionsPadding: EdgeInsets.fromLTRB(
+          20,
+          0,
+          20,
+          20,
+        ),
         actions: [
           Row(
             children: [
               Expanded(
-                child:
-                    TextButton(
+                child: OutlinedButton(
                   onPressed: () {
                     Get.back();
                   },
-
                   child: Text(
                     "Cancel",
-
-                    style:
-                        TextStyle(
-                      fontWeight:
-                          FontWeight.w600,
-
-                      color:
-                          Color(
-                        0xFF667085,
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -1293,69 +1581,31 @@ class RenterAccountScreen extends StatelessWidget {
               SizedBox(width: 10),
 
               Expanded(
-                child:
-                    ElevatedButton(
-                  onPressed:
-                      () async {
+                child: ElevatedButton(
+                  onPressed: () async {
                     Get.back();
 
                     try {
-                      await AuthService()
-                          .logout();
+                      await authService.logout();
 
                       Get.offAll(
-                        () =>
-                            LoginScreen(),
+                        () => LoginScreen(),
                       );
                     } catch (e) {
-                      Get.snackbar(
-                        "Logout Failed",
-                        e.toString(),
-
-                        snackPosition:
-                            SnackPosition
-                                .TOP,
-
-                        backgroundColor:
-                            Colors.red,
-
-                        colorText:
-                            Colors.white,
+                      showErrorNotification(
+                        title: "Logout Failed",
+                        message:
+                            "Something went wrong. Please try again.",
                       );
                     }
                   },
-
-                  style:
-                      ElevatedButton
-                          .styleFrom(
-                    backgroundColor:
-                        Color(
-                      0xFFDC2626,
-                    ),
-
-                    foregroundColor:
-                        Colors.white,
-
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: redAccent,
+                    foregroundColor: Colors.white,
                     elevation: 0,
-
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        11,
-                      ),
-                    ),
                   ),
-
                   child: Text(
                     "Log out",
-
-                    style:
-                        TextStyle(
-                      fontWeight:
-                          FontWeight.w600,
-                    ),
                   ),
                 ),
               ),
@@ -1365,19 +1615,6 @@ class RenterAccountScreen extends StatelessWidget {
       ),
     );
   }
-}
-
-// Role
-String formatRole(String role) {
-  if (role == "house_owner") {
-    return "House Owner";
-  }
-
-  if (role == "admin") {
-    return "Admin";
-  }
-
-  return "Renter";
 }
 
 // Profile Image URL
@@ -1406,9 +1643,7 @@ String getProfileImageUrl(
     );
   }
 
-  if (image.startsWith(
-    "http",
-  )) {
+  if (image.startsWith("http")) {
     return image;
   }
 

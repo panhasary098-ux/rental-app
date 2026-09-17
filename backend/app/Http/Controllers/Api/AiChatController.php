@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AiChatMessage;
+use App\Models\Property;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -23,6 +24,12 @@ class AiChatController extends Controller
         $userMessage = trim($request->message);
         $history = $request->history ?? [];
 
+        // Search Real Properties
+        $propertyContext =
+            $this->getPropertyContext(
+                $userMessage
+            );
+
         $systemPrompt = <<<PROMPT
 Identity:
 - You are the JoulNow Rental Assistant.
@@ -31,7 +38,7 @@ Identity:
   "I was created by the JoulNow development team to help users with rental questions and guidance."
 - Do not mention Google, Gemini, or the underlying AI provider unless the user specifically asks about the technology powering you.
 
-Your purpose is to help renters understand renting and safely navigate the rental process.
+Your purpose is to help renters understand renting, safely navigate the rental process, and help them find properties available on JoulNow.
 
 You can help with:
 - Rental documents
@@ -46,6 +53,7 @@ You can help with:
 - Questions renters should ask owners
 - General rental safety
 - How to use JoulNow
+- Finding available JoulNow properties
 
 About JoulNow:
 JoulNow is a verified rental property platform.
@@ -56,7 +64,17 @@ House owners may provide:
 - Property ownership or authorization documents
 - National identification
 
-Rules:
+Property search rules:
+1. When property information is provided below, it comes from the real JoulNow property database.
+2. Only recommend properties contained in the provided JoulNow property information.
+3. Never invent a property.
+4. Never invent a property name, price, address, type, availability, bedroom count, bathroom count, or furnished status.
+5. If no matching JoulNow property is provided, clearly tell the user that no matching property was found.
+6. Do not claim that a property matches a requirement unless the provided property information supports it.
+7. Keep property recommendations concise and easy to read on a mobile screen.
+8. When recommending properties, include useful information such as property name, type, price, and address when available.
+
+General rules:
 1. Give clear and simple answers.
 2. Keep answers useful for students and workers.
 3. Do not invent laws.
@@ -76,6 +94,9 @@ Formatting rules:
 - Prefer 3 to 5 useful points.
 - Keep most answers under 120 words unless the user asks for more detail.
 - Avoid long introductions before the answer.
+
+JoulNow property information for the current request:
+$propertyContext
 PROMPT;
 
         try {
@@ -295,6 +316,205 @@ PROMPT;
                     $e->getMessage(),
             ], 500);
         }
+    }
+
+    // Get Property Context
+    private function getPropertyContext(
+        string $userMessage
+    ): string {
+        $message = strtolower(
+            $userMessage
+        );
+
+        // Detect Property Search
+        $searchWords = [
+            'find',
+            'search',
+            'show',
+            'looking for',
+            'need a',
+            'need an',
+            'property',
+            'properties',
+            'room',
+            'house',
+            'apartment',
+        ];
+
+        $isPropertySearch = false;
+
+        foreach ($searchWords as $word) {
+            if (
+                str_contains(
+                    $message,
+                    $word
+                )
+            ) {
+                $isPropertySearch = true;
+                break;
+            }
+        }
+
+        if (!$isPropertySearch) {
+            return
+                'No property database search was required for this question.';
+        }
+
+        // Public Properties
+        $query = Property::query()
+            ->where(
+                'rental_status',
+                'available'
+            )
+            ->where(
+                'verification_status',
+                'approved'
+            )
+            ->where(
+                'post_status',
+                'active'
+            );
+
+        // Property Type
+        if (
+            str_contains(
+                $message,
+                'room'
+            )
+        ) {
+            $query->where(
+                'property_type',
+                'room'
+            );
+        } elseif (
+            str_contains(
+                $message,
+                'house'
+            )
+        ) {
+            $query->where(
+                'property_type',
+                'house'
+            );
+        } elseif (
+            str_contains(
+                $message,
+                'apartment'
+            )
+        ) {
+            $query->where(
+                'property_type',
+                'apartment'
+            );
+        }
+
+        // Maximum Budget
+        $maxPrice =
+            $this->extractMaximumPrice(
+                $message
+            );
+
+        if ($maxPrice != null) {
+            $query->where(
+                'price',
+                '<=',
+                $maxPrice
+            );
+        }
+
+        // Get Matching Properties
+        $properties = $query
+            ->orderBy(
+                'price',
+                'asc'
+            )
+            ->limit(5)
+            ->get();
+
+        if ($properties->isEmpty()) {
+            return
+                'A real JoulNow property database search was performed, but no matching available properties were found.';
+        }
+
+        $propertyLines = [];
+
+        foreach ($properties as $property) {
+            $propertyLines[] =
+                'Property ID: '
+                . $property->id
+                . "\n"
+                . 'Name: '
+                . $property->name
+                . "\n"
+                . 'Type: '
+                . $property->property_type
+                . "\n"
+                . 'Price: $'
+                . number_format(
+                    $property->price,
+                    2
+                )
+                . ' per month'
+                . "\n"
+                . 'Address: '
+                . (
+                    $property->address
+                    ?? 'Not provided'
+                )
+                . "\n"
+                . 'Furnished: '
+                . (
+                    $property->furnished
+                    ? 'Yes'
+                    : 'No'
+                )
+                . "\n"
+                . 'Bedrooms: '
+                . (
+                    $property->bedrooms
+                    ?? 'Not provided'
+                )
+                . "\n"
+                . 'Bathrooms: '
+                . (
+                    $property->bathrooms
+                    ?? 'Not provided'
+                )
+                . "\n"
+                . 'Rental Status: '
+                . $property->rental_status;
+        }
+
+        return
+            "The following properties were retrieved from the real JoulNow database:\n\n"
+            . implode(
+                "\n\n",
+                $propertyLines
+            );
+    }
+
+    // Extract Maximum Price
+    private function extractMaximumPrice(
+        string $message
+    ): ?float {
+        $patterns = [
+            '/(?:under|below|less than|max|maximum|up to)\s*\$?\s*(\d+(?:\.\d+)?)/i',
+            '/\$\s*(\d+(?:\.\d+)?)\s*(?:or less|maximum|max)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $message,
+                    $matches
+                )
+            ) {
+                return (float) $matches[1];
+            }
+        }
+
+        return null;
     }
 
     // Get History

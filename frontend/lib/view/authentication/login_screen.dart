@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: screenHeight * 0.30,
 
                 padding: EdgeInsets.only(
-                  top: 40,
+                  top: 70,
                   left: 24,
                   right: 24,
                 ),
@@ -61,10 +61,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
 
-                      child: Image.asset(
-                        "assets/logo.png",
-                        width: 15,
-                        height: 15,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          "assets/logo.png",
+                          width: 15,
+                          height: 15,
+                        ),
                       ),
                     ),
 
@@ -81,15 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     SizedBox(height: 10),
 
-                    Text(
-                      "Find your next place simply and securely.",
-                      textAlign: TextAlign.center,
-
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.80),
-                      ),
-                    ),
                   ],
                 ),
               ),

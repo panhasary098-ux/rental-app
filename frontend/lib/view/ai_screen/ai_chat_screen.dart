@@ -1,206 +1,483 @@
 import 'package:final_project/controller/ai_chat_controller.dart';
-import 'package:final_project/view/admin/property_review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AiChatScreen extends StatelessWidget {
   AiChatScreen({super.key});
 
-  final AiChatController controller = Get.put(AiChatController());
+  final AiChatController controller = Get.put(
+    AiChatController(),
+  );
 
   final Color primaryColor = Color(0xFF03045E);
-  final Color backgroundColor = Color(0xFFF7F8FC);
+  final Color backgroundColor = Color(0xFFF5F6F8);
+  final Color borderColor = Color(0xFFE7E8EC);
+  final Color mutedTextColor = Color(0xFF7C7F8C);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
+
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
         surfaceTintColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.defaultDialog(
-                title: "Clear Chat",
-                middleText: "Are you sure you want to clear this conversation?",
-                textCancel: "Cancel",
-                textConfirm: "Clear",
-                confirmTextColor: Colors.white,
-                buttonColor: primaryColor,
-                onConfirm: () {
-                  controller.clearChat();
+        elevation: 0,
+        toolbarHeight: 76,
 
-                  Get.back();
-                },
-              );
+        // Back
+        leadingWidth: 58,
+
+        leading: Center(
+          child: GestureDetector(
+            onTap: () {
+              Get.back();
             },
-            icon: Icon(Icons.delete_outline_rounded, color: Colors.black87),
+
+            child: Container(
+              width: 38,
+              height: 38,
+
+              decoration: BoxDecoration(
+                color: Color(0xFFF5F6F8),
+                borderRadius: BorderRadius.circular(
+                  12,
+                ),
+                border: Border.all(
+                  color: borderColor,
+                ),
+              ),
+
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: primaryColor,
+                size: 17,
+              ),
+            ),
           ),
-        ],
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-          icon: Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
         ),
+
         titleSpacing: 0,
+
+        // AI Header
         title: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 44,
+              height: 44,
+
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: primaryColor,
+                borderRadius: BorderRadius.circular(
+                  14,
+                ),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(
+                      0.18,
+                    ),
+                    blurRadius: 12,
+                    offset: Offset(
+                      0,
+                      4,
+                    ),
+                  ),
+                ],
               ),
+
               child: Icon(
                 Icons.smart_toy_rounded,
-                color: primaryColor,
+                color: Colors.white,
                 size: 24,
               ),
             ),
-            SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "JoulNow Assistant",
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+
+            SizedBox(
+              width: 11,
+            ),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+
+                mainAxisSize: MainAxisSize.min,
+
+                children: [
+                  Text(
+                    "JoulNow AI",
+
+                    style: TextStyle(
+                      color: Color(0xFF161724),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                    ),
                   ),
-                ),
-                SizedBox(height: 2),
-                Row(
-                  children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
+
+                  SizedBox(
+                    height: 3,
+                  ),
+
+                  Row(
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+
+                        decoration: BoxDecoration(
+                          color: Color(0xFF22A06B),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      "Rental Assistant",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
+
+                      SizedBox(
+                        width: 6,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+
+                      Text(
+                        "Rental Assistant",
+
+                        style: TextStyle(
+                          color: mutedTextColor,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Obx(() {
-                return ListView.builder(
-                  padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
-                  itemCount:
-                      controller.messages.length +
-                      (controller.isLoading.value ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == controller.messages.length) {
-                      return _buildTypingIndicator();
-                    }
 
-                    var message = controller.messages[index];
-
-                    return _buildMessageBubble(message.message, message.isUser);
-                  },
-                );
-              }),
+        // Clear Chat
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(
+              right: 12,
             ),
 
-            // Quick questions
-            Container(
-              width: double.infinity,
-              color: Colors.white,
-              padding: EdgeInsets.only(left: 12, right: 12, top: 10),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _quickQuestion(
-                      icon: Icons.description_outlined,
-                      title: "Rental Documents",
+            child: Center(
+              child: GestureDetector(
+                onTap: () {
+                  showClearChatDialog();
+                },
+
+                child: Container(
+                  width: 38,
+                  height: 38,
+
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF5F6F8),
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      12,
                     ),
-                    _quickQuestion(
-                      icon: Icons.home_outlined,
-                      title: "Before Renting",
+
+                    border: Border.all(
+                      color: borderColor,
                     ),
-                    _quickQuestion(
-                      icon: Icons.payments_outlined,
-                      title: "Security Deposit",
-                    ),
-                    _quickQuestion(
-                      icon: Icons.edit_document,
-                      title: "Rental Contract",
-                    ),
-                  ],
+                  ),
+
+                  child: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Color(0xFF777A86),
+                    size: 20,
+                  ),
                 ),
               ),
             ),
+          ),
+        ],
 
-            // Message input
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(
+            1,
+          ),
+
+          child: Container(
+            height: 1,
+            color: Color(0xFFEEEFF2),
+          ),
+        ),
+      ),
+
+      body: SafeArea(
+        top: false,
+
+        child: Column(
+          children: [
+            // Messages
+            Expanded(
+              child: Obx(
+                () {
+                  if (controller.messages.isEmpty &&
+                      !controller.isLoading.value) {
+                    return buildEmptyState();
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      18,
+                      16,
+                      18,
+                    ),
+
+                    itemCount:
+                        controller.messages.length +
+                        (controller.isLoading.value
+                            ? 1
+                            : 0),
+
+                    itemBuilder: (
+                      context,
+                      index,
+                    ) {
+                      if (index ==
+                          controller.messages.length) {
+                        return buildTypingIndicator();
+                      }
+
+                      var message =
+                          controller.messages[index];
+
+                      return buildMessageBubble(
+                        message.message,
+                        message.isUser,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            // Composer Area
             Container(
-              color: Colors.white,
-              padding: EdgeInsets.fromLTRB(12, 10, 12, 12),
-              child: Row(
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                border: Border(
+                  top: BorderSide(
+                    color: Color(0xFFEEEFF2),
+                  ),
+                ),
+              ),
+
+              child: Column(
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF2F3F7),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: TextField(
-                        controller: controller.messageController,
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (value) {
-                          controller.sendMessage();
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Ask about renting...",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade500,
-                            fontSize: 14,
+                  // Quick Questions
+                  Container(
+                    width: double.infinity,
+
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 13,
+                    ),
+
+                    child: SingleChildScrollView(
+                      scrollDirection:
+                          Axis.horizontal,
+
+                      child: Row(
+                        children: [
+                          buildQuickQuestion(
+                            icon: Icons
+                                .description_outlined,
+                            title:
+                                "Rental Documents",
                           ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 13,
+
+                          buildQuickQuestion(
+                            icon: Icons
+                                .home_outlined,
+                            title:
+                                "Before Renting",
                           ),
-                          border: InputBorder.none,
-                        ),
+
+                          buildQuickQuestion(
+                            icon: Icons
+                                .payments_outlined,
+                            title:
+                                "Security Deposit",
+                          ),
+
+                          buildQuickQuestion(
+                            icon: Icons
+                                .edit_document,
+                            title:
+                                "Rental Contract",
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () {
-                      controller.sendMessage();
-                    },
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: primaryColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.send_rounded,
-                        color: Colors.white,
-                        size: 21,
+
+                  // Message Input
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      12,
+                      16,
+                      12,
+                    ),
+
+                    child: Row(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.end,
+
+                      children: [
+                        Expanded(
+                          child: Container(
+                            constraints: BoxConstraints(
+                              minHeight: 52,
+                              maxHeight: 120,
+                            ),
+
+                            decoration: BoxDecoration(
+                              color: Color(
+                                0xFFF6F7F9,
+                              ),
+
+                              borderRadius:
+                                  BorderRadius.circular(
+                                18,
+                              ),
+
+                              border: Border.all(
+                                color: borderColor,
+                              ),
+                            ),
+
+                            child: TextField(
+                              controller: controller
+                                  .messageController,
+
+                              minLines: 1,
+                              maxLines: 4,
+
+                              textInputAction:
+                                  TextInputAction.send,
+
+                              onSubmitted: (
+                                value,
+                              ) {
+                                controller
+                                    .sendMessage();
+                              },
+
+                              style: TextStyle(
+                                color: Color(
+                                  0xFF1E1F2B,
+                                ),
+                                fontSize: 14,
+                                height: 1.35,
+                              ),
+
+                              decoration:
+                                  InputDecoration(
+                                hintText:
+                                    "Ask JoulNow AI...",
+
+                                hintStyle:
+                                    TextStyle(
+                                  color: Color(
+                                    0xFF999CA8,
+                                  ),
+                                  fontSize: 14,
+                                ),
+
+                                contentPadding:
+                                    EdgeInsets
+                                        .symmetric(
+                                  horizontal: 17,
+                                  vertical: 15,
+                                ),
+
+                                border:
+                                    InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: 10,
+                        ),
+
+                        // Send Button
+                        GestureDetector(
+                          onTap: () {
+                            controller
+                                .sendMessage();
+                          },
+
+                          child: Container(
+                            width: 52,
+                            height: 52,
+
+                            decoration:
+                                BoxDecoration(
+                              color:
+                                  primaryColor,
+
+                              borderRadius:
+                                  BorderRadius
+                                      .circular(
+                                17,
+                              ),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color: primaryColor
+                                      .withOpacity(
+                                    0.20,
+                                  ),
+
+                                  blurRadius: 12,
+
+                                  offset: Offset(
+                                    0,
+                                    4,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            child: Icon(
+                              Icons
+                                  .arrow_upward_rounded,
+                              color:
+                                  Colors.white,
+                              size: 23,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Disclaimer
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: 8,
+                    ),
+
+                    child: Text(
+                      "AI responses may not always be accurate.",
+
+                      style: TextStyle(
+                        color: Color(
+                          0xFFA0A2AB,
+                        ),
+                        fontSize: 9.5,
+                        fontWeight:
+                            FontWeight.w400,
                       ),
                     ),
                   ),
@@ -213,69 +490,236 @@ class AiChatScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageBubble(String message, bool isUser) {
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(maxWidth: Get.width * 0.78),
-        margin: EdgeInsets.only(
-          bottom: 12,
-          left: isUser ? 50 : 0,
-          right: isUser ? 0 : 50,
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isUser ? primaryColor : Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(18),
-            topRight: Radius.circular(18),
-            bottomLeft: Radius.circular(isUser ? 18 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 18),
+  // AI Message
+  Widget buildMessageBubble(
+    String message,
+    bool isUser,
+  ) {
+    if (isUser) {
+      return Align(
+        alignment: Alignment.centerRight,
+
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: Get.width * 0.76,
           ),
-          boxShadow: [
-            if (!isUser)
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 8,
-                offset: Offset(0, 3),
+
+          margin: EdgeInsets.only(
+            left: 55,
+            bottom: 16,
+          ),
+
+          padding: EdgeInsets.symmetric(
+            horizontal: 17,
+            vertical: 13,
+          ),
+
+          decoration: BoxDecoration(
+            color: primaryColor,
+
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(
+                19,
               ),
-          ],
-        ),
-        child: Text(
-          message,
-          style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
-            fontSize: 14,
-            height: 1.45,
+              topRight: Radius.circular(
+                19,
+              ),
+              bottomLeft: Radius.circular(
+                19,
+              ),
+              bottomRight: Radius.circular(
+                6,
+              ),
+            ),
+
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(
+                  0.12,
+                ),
+                blurRadius: 10,
+                offset: Offset(
+                  0,
+                  4,
+                ),
+              ),
+            ],
+          ),
+
+          child: Text(
+            message,
+
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              height: 1.45,
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
+      );
+    }
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: 17,
+        right: 35,
+      ),
+
+      child: Row(
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
+        children: [
+          // Robot
+          Container(
+            width: 34,
+            height: 34,
+
+            decoration: BoxDecoration(
+              color: primaryColor,
+
+              borderRadius:
+                  BorderRadius.circular(
+                11,
+              ),
+            ),
+
+            child: Icon(
+              Icons.smart_toy_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+
+          SizedBox(
+            width: 9,
+          ),
+
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 13,
+              ),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+
+                borderRadius:
+                    BorderRadius.only(
+                  topLeft: Radius.circular(
+                    6,
+                  ),
+                  topRight: Radius.circular(
+                    19,
+                  ),
+                  bottomLeft:
+                      Radius.circular(
+                    19,
+                  ),
+                  bottomRight:
+                      Radius.circular(
+                    19,
+                  ),
+                ),
+
+                border: Border.all(
+                  color: borderColor,
+                ),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black
+                        .withOpacity(
+                      0.035,
+                    ),
+                    blurRadius: 12,
+                    offset: Offset(
+                      0,
+                      4,
+                    ),
+                  ),
+                ],
+              ),
+
+              child: Text(
+                message,
+
+                style: TextStyle(
+                  color: Color(
+                    0xFF292A35,
+                  ),
+                  fontSize: 14,
+                  height: 1.5,
+                  fontWeight:
+                      FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _quickQuestion({required IconData icon, required String title}) {
+  // Quick Question
+  Widget buildQuickQuestion({
+    required IconData icon,
+    required String title,
+  }) {
     return GestureDetector(
       onTap: () {
-        controller.sendQuickQuestion(title);
+        controller.sendQuickQuestion(
+          title,
+        );
       },
+
       child: Container(
-        margin: EdgeInsets.only(right: 8),
-        padding: EdgeInsets.symmetric(horizontal: 13, vertical: 9),
-        decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.06),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: primaryColor.withOpacity(0.12)),
+        margin: EdgeInsets.only(
+          right: 9,
         ),
+
+        padding: EdgeInsets.symmetric(
+          horizontal: 13,
+          vertical: 9,
+        ),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius:
+              BorderRadius.circular(
+            13,
+          ),
+
+          border: Border.all(
+            color: borderColor,
+          ),
+        ),
+
         child: Row(
           children: [
-            Icon(icon, color: primaryColor, size: 17),
-            SizedBox(width: 6),
+            Icon(
+              icon,
+              color: primaryColor,
+              size: 16,
+            ),
+
+            SizedBox(
+              width: 7,
+            ),
+
             Text(
               title,
+
               style: TextStyle(
-                color: primaryColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+                color: Color(
+                  0xFF40414D,
+                ),
+                fontSize: 11.5,
+                fontWeight:
+                    FontWeight.w600,
               ),
             ),
           ],
@@ -283,43 +727,376 @@ class AiChatScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget _buildTypingIndicator() {
-  return Align(
-    alignment: Alignment.centerLeft,
-    child: Container(
-      margin: EdgeInsets.only(bottom: 12, right: 100),
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
-        ],
+  // Typing Indicator
+  Widget buildTypingIndicator() {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: 17,
+        right: 80,
       ),
+
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
+
         children: [
-          SizedBox(
-            width: 15,
-            height: 15,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
+          Container(
+            width: 34,
+            height: 34,
+
+            decoration: BoxDecoration(
               color: primaryColor,
+
+              borderRadius:
+                  BorderRadius.circular(
+                11,
+              ),
+            ),
+
+            child: Icon(
+              Icons.smart_toy_rounded,
+              color: Colors.white,
+              size: 18,
             ),
           ),
-          SizedBox(width: 10),
-          Text(
-            "Thinking...",
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+
+          SizedBox(
+            width: 9,
+          ),
+
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 12,
+            ),
+
+            decoration: BoxDecoration(
+              color: Colors.white,
+
+              borderRadius:
+                  BorderRadius.circular(
+                16,
+              ),
+
+              border: Border.all(
+                color: borderColor,
+              ),
+            ),
+
+            child: Row(
+              mainAxisSize:
+                  MainAxisSize.min,
+
+              children: [
+                SizedBox(
+                  width: 14,
+                  height: 14,
+
+                  child:
+                      CircularProgressIndicator(
+                    strokeWidth: 1.8,
+                    color: primaryColor,
+                  ),
+                ),
+
+                SizedBox(
+                  width: 9,
+                ),
+
+                Text(
+                  "Thinking",
+
+                  style: TextStyle(
+                    color:
+                        mutedTextColor,
+                    fontSize: 12,
+                    fontWeight:
+                        FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
-    ),
-  );
+    );
+  }
+
+  // Empty State
+  Widget buildEmptyState() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: 32,
+        ),
+
+        child: Column(
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+
+              decoration: BoxDecoration(
+                color: primaryColor,
+
+                borderRadius:
+                    BorderRadius.circular(
+                  24,
+                ),
+
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor
+                        .withOpacity(
+                      0.18,
+                    ),
+                    blurRadius: 22,
+                    offset: Offset(
+                      0,
+                      8,
+                    ),
+                  ),
+                ],
+              ),
+
+              child: Icon(
+                Icons.smart_toy_rounded,
+                color: Colors.white,
+                size: 38,
+              ),
+            ),
+
+            SizedBox(
+              height: 22,
+            ),
+
+            Text(
+              "How can I help?",
+
+              style: TextStyle(
+                color: Color(
+                  0xFF171823,
+                ),
+                fontSize: 24,
+                fontWeight:
+                    FontWeight.w800,
+                letterSpacing: -0.5,
+              ),
+            ),
+
+            SizedBox(
+              height: 9,
+            ),
+
+            Text(
+              "Ask about renting, deposits, documents,\ncontracts, or finding the right place.",
+
+              textAlign: TextAlign.center,
+
+              style: TextStyle(
+                color: mutedTextColor,
+                fontSize: 13,
+                height: 1.55,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Clear Chat Dialog
+  void showClearChatDialog() {
+    Get.dialog(
+      Dialog(
+        backgroundColor:
+            Colors.transparent,
+
+        insetPadding:
+            EdgeInsets.symmetric(
+          horizontal: 28,
+        ),
+
+        child: Container(
+          padding: EdgeInsets.all(
+            22,
+          ),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(
+              22,
+            ),
+          ),
+
+          child: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+
+                decoration:
+                    BoxDecoration(
+                  color: Color(
+                    0xFFF4F4F7,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    16,
+                  ),
+                ),
+
+                child: Icon(
+                  Icons
+                      .delete_outline_rounded,
+                  color: primaryColor,
+                  size: 25,
+                ),
+              ),
+
+              SizedBox(
+                height: 17,
+              ),
+
+              Text(
+                "Clear conversation?",
+
+                style: TextStyle(
+                  color: Color(
+                    0xFF171823,
+                  ),
+                  fontSize: 18,
+                  fontWeight:
+                      FontWeight.w800,
+                ),
+              ),
+
+              SizedBox(
+                height: 8,
+              ),
+
+              Text(
+                "This will remove your current chat history.",
+
+                textAlign:
+                    TextAlign.center,
+
+                style: TextStyle(
+                  color:
+                      mutedTextColor,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+              ),
+
+              SizedBox(
+                height: 22,
+              ),
+
+              Row(
+                children: [
+                  Expanded(
+                    child:
+                        OutlinedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+
+                      style:
+                          OutlinedButton
+                              .styleFrom(
+                        foregroundColor:
+                            primaryColor,
+
+                        side: BorderSide(
+                          color:
+                              borderColor,
+                        ),
+
+                        padding:
+                            EdgeInsets
+                                .symmetric(
+                          vertical: 13,
+                        ),
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
+                        ),
+                      ),
+
+                      child: Text(
+                        "Cancel",
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: 10,
+                  ),
+
+                  Expanded(
+                    child:
+                        ElevatedButton(
+                      onPressed: () {
+                        controller
+                            .clearChat();
+
+                        Get.back();
+                      },
+
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            primaryColor,
+
+                        foregroundColor:
+                            Colors.white,
+
+                        elevation: 0,
+
+                        padding:
+                            EdgeInsets
+                                .symmetric(
+                          vertical: 13,
+                        ),
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
+                        ),
+                      ),
+
+                      child: Text(
+                        "Clear",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/house_owner/owner_notifications_screen.dart';
+import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -615,29 +616,27 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           }
         },
 
-        onEditAndResubmit: (notification) {
+        onEditAndResubmit: (notification) async {
           final Map<String, dynamic>? property = findPropertyById(
             notification.propertyId,
           );
 
           if (property == null) {
+            Get.snackbar(
+              "Unable to Edit",
+              "Property information could not be found.",
+              snackPosition: SnackPosition.BOTTOM,
+            );
+
             return;
           }
 
-          if (widget.onEditAndResubmit != null) {
-            Get.back();
+          final dynamic result = await Get.to(
+            () => Postpropertyscreen(propertyToEdit: property),
+          );
 
-            widget.onEditAndResubmit!(property);
-          } else {
-            Get.snackbar(
-              "Edit & Resubmit",
-              "The edit and resubmit flow will be connected next.",
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.white,
-              colorText: ownerPrimaryColor,
-              margin: const EdgeInsets.all(16),
-              borderRadius: 14,
-            );
+          if (result == true) {
+            await loadHomeData();
           }
         },
       ),
