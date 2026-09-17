@@ -58,7 +58,7 @@ class ApartDetail extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: lightSecondaryColor,
+            //color: lightSecondaryColor,
             borderRadius: BorderRadius.circular(9),
           ),
           child: Icon(icon, color: primaryColor, size: 22),
@@ -82,7 +82,7 @@ class ApartDetail extends StatelessWidget {
         IconButton(
           onPressed: onDecrease,
           style: IconButton.styleFrom(
-            backgroundColor: lightSecondaryColor,
+            // backgroundColor: lightSecondaryColor,
             foregroundColor: primaryColor,
           ),
           icon: const Icon(Icons.remove, size: 18),
@@ -106,8 +106,8 @@ class ApartDetail extends StatelessWidget {
         IconButton(
           onPressed: onIncrease,
           style: IconButton.styleFrom(
-            backgroundColor: primaryColor,
-            foregroundColor: Colors.white,
+            //backgroundColor: primaryColor,
+            foregroundColor: primaryColor,
           ),
           icon: const Icon(Icons.add, size: 18),
         ),
@@ -191,14 +191,14 @@ class ApartDetail extends StatelessWidget {
                 height: 38,
 
                 decoration: BoxDecoration(
-                  color: lightSecondaryColor,
+                  //scolor: lightSecondaryColor,
                   borderRadius: BorderRadius.circular(9),
                 ),
 
                 child: const Icon(
                   Icons.layers_outlined,
                   color: primaryColor,
-                  size: 22,
+                  size: 25,
                 ),
               ),
 

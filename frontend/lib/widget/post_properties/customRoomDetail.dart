@@ -40,14 +40,10 @@ class RoomDetail extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: lightSecondaryColor,
+            //color: lightSecondaryColor,
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(
-            icon,
-            color: primaryColor,
-            size: 22,
-          ),
+          child: Icon(icon, color: primaryColor, size: 22),
         ),
 
         const SizedBox(width: 12),
@@ -67,13 +63,10 @@ class RoomDetail extends StatelessWidget {
         IconButton(
           onPressed: onDecrease,
           style: IconButton.styleFrom(
-            backgroundColor: lightSecondaryColor,
+            //backgroundColor: lightSecondaryColor,
             foregroundColor: primaryColor,
           ),
-          icon: const Icon(
-            Icons.remove,
-            size: 18,
-          ),
+          icon: const Icon(Icons.remove, size: 18),
         ),
 
         SizedBox(
@@ -96,10 +89,7 @@ class RoomDetail extends StatelessWidget {
             backgroundColor: primaryColor,
             foregroundColor: Colors.white,
           ),
-          icon: const Icon(
-            Icons.add,
-            size: 18,
-          ),
+          icon: const Icon(Icons.add, size: 18),
         ),
       ],
     );
@@ -109,19 +99,15 @@ class RoomDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
 
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(
-          color: secondaryColor.withOpacity(0.35),
-        ),
-
+        // border: Border.all(
+        //   color: secondaryColor.withOpacity(0.35),
+        // ),
         boxShadow: [
           BoxShadow(
             color: primaryColor.withOpacity(0.05),
@@ -136,7 +122,6 @@ class RoomDetail extends StatelessWidget {
           // ======================================================
           // TOTAL FLOOR
           // ======================================================
-
           detailRow(
             icon: Icons.apartment_outlined,
             title: "Total Floors",
@@ -148,14 +133,11 @@ class RoomDetail extends StatelessWidget {
             onIncrease: onFloorIncrease,
           ),
 
-          Divider(
-            color: secondaryColor.withOpacity(0.45),
-          ),
+          Divider(color: Colors.black12),
 
           // ======================================================
           // AVAILABLE FLOOR
           // ======================================================
-
           Row(
             children: [
               Container(
@@ -163,7 +145,7 @@ class RoomDetail extends StatelessWidget {
                 height: 38,
 
                 decoration: BoxDecoration(
-                  color: lightSecondaryColor,
+                  //color: lightSecondaryColor,
                   borderRadius: BorderRadius.circular(9),
                 ),
 
@@ -206,10 +188,7 @@ class RoomDetail extends StatelessWidget {
 
               IconButton(
                 onPressed: onAvailableFloorsTap,
-                icon: const Icon(
-                  Icons.chevron_right,
-                  color: primaryColor,
-                ),
+                icon: const Icon(Icons.chevron_right, color: primaryColor),
               ),
             ],
           ),

@@ -12,6 +12,11 @@ class VerificationReview extends Model
         'action',
         'reason',
         'note',
+        'seen_at',
+    ];
+
+    protected $casts = [
+        'seen_at' => 'datetime',
     ];
 
     public function property()
@@ -21,6 +26,9 @@ class VerificationReview extends Model
 
     public function admin()
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(
+            User::class,
+            'admin_id'
+        );
     }
 }
