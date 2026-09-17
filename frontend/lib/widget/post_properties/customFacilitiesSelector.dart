@@ -146,17 +146,15 @@ class FacilitiesSelector extends StatelessWidget {
               decoration: BoxDecoration(
                 // Selected = soft cyan
                 // Unselected = white
-                color: isSelected ? lightSecondaryColor : Colors.white,
-
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
 
-                border: Border.all(
-                  color: isSelected
-                      ? primaryColor
-                      : secondaryColor.withOpacity(0.30),
-                  width: isSelected ? 1.5 : 1,
-                ),
-
+                // border: Border.all(
+                //   color: isSelected
+                //       ? primaryColor
+                //       : secondaryColor.withOpacity(0.30),
+                //   width: isSelected ? 1.1 : 1,
+                // ),
                 boxShadow: [
                   BoxShadow(
                     color: primaryColor.withOpacity(0.05),
@@ -187,10 +185,10 @@ class FacilitiesSelector extends StatelessWidget {
                         fontSize: 15,
 
                         fontWeight: isSelected
-                            ? FontWeight.w600
+                            ? FontWeight.w500
                             : FontWeight.w400,
 
-                        color: isSelected ? primaryColor : Colors.black87,
+                        //color: isSelected ? primaryColor : Colors.black87,
                       ),
                     ),
                   ),

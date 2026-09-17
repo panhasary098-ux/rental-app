@@ -2198,9 +2198,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   void showRejectDialog() {
     final TextEditingController reasonController = TextEditingController();
 
+    final TextEditingController noteController = TextEditingController();
+
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
+
+        insetPadding: const EdgeInsets.symmetric(horizontal: 22),
 
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
@@ -2208,47 +2212,168 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           "Reject Property",
 
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-
+            fontSize: 19,
+            fontWeight: FontWeight.w600,
             color: Color(0xFFDC2626),
           ),
         ),
 
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
 
-          crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
 
-          children: [
-            const Text("Provide a reason for rejecting this submission."),
+            children: [
+              const Text(
+                "Provide feedback so the owner knows what should be changed before resubmitting.",
 
-            const SizedBox(height: 14),
-
-            TextField(
-              controller: reasonController,
-
-              maxLines: 4,
-
-              decoration: InputDecoration(
-                hintText: "Enter rejection reason",
-
-                filled: true,
-
-                fillColor: Colors.white,
-
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-
-                  borderSide: const BorderSide(color: Color(0xFFDC2626)),
+                style: TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: Color(0xFF6B7280),
                 ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 18),
+
+              const Text(
+                "Reason",
+
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF111827),
+                ),
+              ),
+
+              const SizedBox(height: 7),
+
+              TextField(
+                controller: reasonController,
+
+                maxLines: 3,
+
+                minLines: 3,
+
+                textCapitalization: TextCapitalization.sentences,
+
+                decoration: InputDecoration(
+                  hintText: "Why is this property being rejected?",
+
+                  hintStyle: const TextStyle(
+                    fontSize: 12.5,
+                    color: Color(0xFF9CA3AF),
+                  ),
+
+                  filled: true,
+
+                  fillColor: const Color(0xFFF9FAFB),
+
+                  contentPadding: const EdgeInsets.all(13),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(
+                      color: Color(0xFFDC2626),
+                      width: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              Row(
+                children: [
+                  const Text(
+                    "Admin Note",
+
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF111827),
+                    ),
+                  ),
+
+                  const SizedBox(width: 5),
+
+                  Text(
+                    "(Optional)",
+
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: Colors.black.withOpacity(0.40),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 7),
+
+              TextField(
+                controller: noteController,
+
+                maxLines: 3,
+
+                minLines: 3,
+
+                textCapitalization: TextCapitalization.sentences,
+
+                decoration: InputDecoration(
+                  hintText: "Add instructions or suggestions for the owner",
+
+                  hintStyle: const TextStyle(
+                    fontSize: 12.5,
+                    color: Color(0xFF9CA3AF),
+                  ),
+
+                  filled: true,
+
+                  fillColor: const Color(0xFFF9FAFB),
+
+                  contentPadding: const EdgeInsets.all(13),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+
+                    borderSide: const BorderSide(
+                      color: primaryColor,
+                      width: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+
+        actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
 
         actions: [
           TextButton(
@@ -2256,12 +2381,21 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Get.back();
             },
 
-            child: const Text("Cancel"),
+            child: const Text(
+              "Cancel",
+
+              style: TextStyle(
+                color: Color(0xFF6B7280),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
 
           ElevatedButton(
             onPressed: () async {
               final String reason = reasonController.text.trim();
+
+              final String note = noteController.text.trim();
 
               if (reason.isEmpty) {
                 showWarningNotification(
@@ -2298,6 +2432,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   propertyId: propertyId,
 
                   reason: reason,
+
+                  note: note.isEmpty ? null : note,
                 );
 
                 if (Get.isDialogOpen == true) {
@@ -2310,6 +2446,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   Future.delayed(const Duration(milliseconds: 250), () {
                     showRejectedNotification(
                       title: "Property Rejected",
+
                       message: "The property submission has been rejected.",
                     );
                   });
@@ -2327,6 +2464,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                 showErrorNotification(
                   title: "Rejection Failed",
+
                   message: message,
                 );
               }
@@ -2336,9 +2474,21 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               backgroundColor: const Color(0xFFDC2626),
 
               foregroundColor: Colors.white,
+
+              elevation: 0,
+
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(11),
+              ),
             ),
 
-            child: const Text("Reject"),
+            child: const Text(
+              "Reject Property",
+
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),

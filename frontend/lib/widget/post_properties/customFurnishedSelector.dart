@@ -29,9 +29,7 @@ class FurnishedSelector extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(
-          color: secondaryColor.withOpacity(0.35),
-        ),
+        border: Border.all(color: secondaryColor.withOpacity(0.35)),
 
         boxShadow: [
           BoxShadow(
@@ -47,20 +45,19 @@ class FurnishedSelector extends StatelessWidget {
           // ==================================================
           // ICON
           // ==================================================
-
           Container(
             width: 42,
             height: 42,
 
             decoration: BoxDecoration(
-              color: lightSecondaryColor,
+              //color: lightSecondaryColor,
               borderRadius: BorderRadius.circular(10),
             ),
 
             child: const Icon(
               Icons.chair_outlined,
               color: primaryColor,
-              size: 24,
+              size: 27,
             ),
           ),
 
@@ -69,7 +66,6 @@ class FurnishedSelector extends StatelessWidget {
           // ==================================================
           // TEXT
           // ==================================================
-
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,10 +84,7 @@ class FurnishedSelector extends StatelessWidget {
 
                 Text(
                   "Furniture is included",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black45,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.black45),
                 ),
               ],
             ),
@@ -100,7 +93,6 @@ class FurnishedSelector extends StatelessWidget {
           // ==================================================
           // SWITCH
           // ==================================================
-
           Switch(
             value: value,
             onChanged: onChanged,

@@ -11,13 +11,10 @@ class PropertyService {
 
   // Get Token
   Future<String> _getToken() async {
-    final String? token =
-        await authService.getToken();
+    final String? token = await authService.getToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception(
-        "User is not logged in",
-      );
+      throw Exception("User is not logged in");
     }
 
     return token;
@@ -46,15 +43,11 @@ class PropertyService {
     String? transactionReference,
     required File paymentProof,
   }) async {
-    final String token =
-        await _getToken();
+    final String token = await _getToken();
 
-    final request =
-        http.MultipartRequest(
+    final request = http.MultipartRequest(
       "POST",
-      Uri.parse(
-        "$baseUrl/properties",
-      ),
+      Uri.parse("$baseUrl/properties"),
     );
 
     request.headers.addAll({
@@ -63,86 +56,56 @@ class PropertyService {
     });
 
     // Property
-    request.fields["name"] =
-        name;
+    request.fields["name"] = name;
 
-    request.fields["property_type"] =
-        propertyType;
+    request.fields["property_type"] = propertyType;
 
-    request.fields["size"] =
-        size.toString();
+    request.fields["size"] = size.toString();
 
-    request.fields["price"] =
-        price.toString();
+    request.fields["price"] = price.toString();
 
-    request.fields["description"] =
-        description;
+    request.fields["description"] = description;
 
-    request.fields["contact"] =
-        contact;
+    request.fields["contact"] = contact;
 
-    request.fields["furnished"] =
-        furnished ? "1" : "0";
+    request.fields["furnished"] = furnished ? "1" : "0";
 
     // Location
-    request.fields["address"] =
-        address;
+    request.fields["address"] = address;
 
-    request.fields["latitude"] =
-        latitude.toString();
+    request.fields["latitude"] = latitude.toString();
 
-    request.fields["longitude"] =
-        longitude.toString();
+    request.fields["longitude"] = longitude.toString();
 
     // Details
     if (bedrooms != null) {
-      request.fields["bedrooms"] =
-          bedrooms.toString();
+      request.fields["bedrooms"] = bedrooms.toString();
     }
 
     if (bathrooms != null) {
-      request.fields["bathrooms"] =
-          bathrooms.toString();
+      request.fields["bathrooms"] = bathrooms.toString();
     }
 
     if (totalFloor != null) {
-      request.fields["total_floor"] =
-          totalFloor.toString();
+      request.fields["total_floor"] = totalFloor.toString();
     }
 
-    request.fields["rental_status"] =
-        rentalStatus;
+    request.fields["rental_status"] = rentalStatus;
 
     // Facilities
-    facilities.forEach(
-      (key, value) {
-        request.fields[
-                "facilities[$key]"] =
-            value ? "1" : "0";
-      },
-    );
+    facilities.forEach((key, value) {
+      request.fields["facilities[$key]"] = value ? "1" : "0";
+    });
 
     // Available Floors
-    for (
-      int i = 0;
-      i < availableFloors.length;
-      i++
-    ) {
-      request.fields[
-              "available_floors[$i]"] =
-          availableFloors[i]
-              .toString();
+    for (int i = 0; i < availableFloors.length; i++) {
+      request.fields["available_floors[$i]"] = availableFloors[i].toString();
     }
 
     // Property Images
-    for (final File image
-        in propertyImages) {
+    for (final File image in propertyImages) {
       request.files.add(
-        await http.MultipartFile
-            .fromPath(
-          "property_images[]",
-          image.path,
-        ),
+        await http.MultipartFile.fromPath("property_images[]", image.path),
       );
     }
 
@@ -156,228 +119,163 @@ class PropertyService {
 
     // Transaction Reference
     if (transactionReference != null &&
-        transactionReference
-            .trim()
-            .isNotEmpty) {
-      request.fields[
-              "transaction_reference"] =
-          transactionReference.trim();
+        transactionReference.trim().isNotEmpty) {
+      request.fields["transaction_reference"] = transactionReference.trim();
     }
 
     // Payment Proof
     request.files.add(
-      await http.MultipartFile.fromPath(
-        "payment_proof",
-        paymentProof.path,
-      ),
+      await http.MultipartFile.fromPath("payment_proof", paymentProof.path),
     );
 
-    // Send
-    final streamedResponse =
-        await request.send();
+    final streamedResponse = await request.send();
 
-    final response =
-        await http.Response.fromStream(
-      streamedResponse,
-    );
+    final response = await http.Response.fromStream(streamedResponse);
 
-    print(
-      "PROPERTY SUBMIT STATUS: ${response.statusCode}",
-    );
+    print("PROPERTY SUBMIT STATUS: ${response.statusCode}");
 
-    print(
-      "PROPERTY SUBMIT RESPONSE: ${response.body}",
-    );
+    print("PROPERTY SUBMIT RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Get My Properties
-  Future<http.Response>
-      getMyProperties() async {
-    final String token =
-        await _getToken();
+  Future<http.Response> getMyProperties() async {
+    final String token = await _getToken();
 
-    final response =
-        await http.get(
-      Uri.parse(
-        "$baseUrl/owner/properties",
-      ),
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-            "Bearer $token",
-      },
+    final response = await http.get(
+      Uri.parse("$baseUrl/owner/properties"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "MY PROPERTIES STATUS: ${response.statusCode}",
+    print("MY PROPERTIES STATUS: ${response.statusCode}");
+
+    print("MY PROPERTIES RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Get Owner Admin Feedback Notifications
+  Future<http.Response> getOwnerNotifications() async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/owner/notifications"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "MY PROPERTIES RESPONSE: ${response.body}",
+    print("OWNER NOTIFICATIONS STATUS: ${response.statusCode}");
+
+    print("OWNER NOTIFICATIONS RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Mark Owner Notifications As Seen
+  Future<http.Response> markOwnerNotificationsSeen() async {
+    final String token = await _getToken();
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/owner/notifications/mark-seen"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
+
+    print("MARK NOTIFICATIONS SEEN STATUS: ${response.statusCode}");
+
+    print("MARK NOTIFICATIONS SEEN RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Get Renter Properties
-  Future<http.Response>
-      getRenterProperties() async {
-    final String token =
-        await _getToken();
+  Future<http.Response> getRenterProperties() async {
+    final String token = await _getToken();
 
-    final response =
-        await http.get(
-      Uri.parse(
-        "$baseUrl/renter/properties",
-      ),
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-            "Bearer $token",
-      },
+    final response = await http.get(
+      Uri.parse("$baseUrl/renter/properties"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "RENTER PROPERTIES STATUS: ${response.statusCode}",
-    );
+    print("RENTER PROPERTIES STATUS: ${response.statusCode}");
 
-    print(
-      "RENTER PROPERTIES RESPONSE: ${response.body}",
-    );
+    print("RENTER PROPERTIES RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Get Favorites
-  Future<http.Response>
-      getFavorites() async {
-    final String token =
-        await _getToken();
+  Future<http.Response> getFavorites() async {
+    final String token = await _getToken();
 
-    final response =
-        await http.get(
-      Uri.parse(
-        "$baseUrl/renter/favorites",
-      ),
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-            "Bearer $token",
-      },
+    final response = await http.get(
+      Uri.parse("$baseUrl/renter/favorites"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "GET FAVORITES STATUS: ${response.statusCode}",
-    );
+    print("GET FAVORITES STATUS: ${response.statusCode}");
 
-    print(
-      "GET FAVORITES RESPONSE: ${response.body}",
-    );
+    print("GET FAVORITES RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Add Favorite
-  Future<http.Response> addFavorite({
-    required int propertyId,
-  }) async {
-    final String token =
-        await _getToken();
+  Future<http.Response> addFavorite({required int propertyId}) async {
+    final String token = await _getToken();
 
-    final response =
-        await http.post(
-      Uri.parse(
-        "$baseUrl/renter/favorites/$propertyId",
-      ),
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-            "Bearer $token",
-      },
+    final response = await http.post(
+      Uri.parse("$baseUrl/renter/favorites/$propertyId"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "ADD FAVORITE STATUS: ${response.statusCode}",
-    );
+    print("ADD FAVORITE STATUS: ${response.statusCode}");
 
-    print(
-      "ADD FAVORITE RESPONSE: ${response.body}",
-    );
+    print("ADD FAVORITE RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Remove Favorite
-  Future<http.Response> removeFavorite({
-    required int propertyId,
-  }) async {
-    final String token =
-        await _getToken();
+  Future<http.Response> removeFavorite({required int propertyId}) async {
+    final String token = await _getToken();
 
-    final response =
-        await http.delete(
-      Uri.parse(
-        "$baseUrl/renter/favorites/$propertyId",
-      ),
-      headers: {
-        "Accept": "application/json",
-        "Authorization":
-            "Bearer $token",
-      },
+    final response = await http.delete(
+      Uri.parse("$baseUrl/renter/favorites/$propertyId"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
     );
 
-    print(
-      "REMOVE FAVORITE STATUS: ${response.statusCode}",
-    );
+    print("REMOVE FAVORITE STATUS: ${response.statusCode}");
 
-    print(
-      "REMOVE FAVORITE RESPONSE: ${response.body}",
-    );
+    print("REMOVE FAVORITE RESPONSE: ${response.body}");
 
     return response;
   }
 
   // Update Rental Status
-  Future<http.Response>
-      updateRentalStatus({
+  Future<http.Response> updateRentalStatus({
     required int propertyId,
     required String rentalStatus,
   }) async {
-    final String token =
-        await _getToken();
+    final String token = await _getToken();
 
-    final response =
-        await http.patch(
-      Uri.parse(
-        "$baseUrl/properties/$propertyId/rental-status",
-      ),
+    final response = await http.patch(
+      Uri.parse("$baseUrl/properties/$propertyId/rental-status"),
       headers: {
         "Accept": "application/json",
-        "Content-Type":
-            "application/json",
-        "Authorization":
-            "Bearer $token",
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
       },
-      body: jsonEncode({
-        "rental_status":
-            rentalStatus,
-      }),
+      body: jsonEncode({"rental_status": rentalStatus}),
     );
 
-    print(
-      "UPDATE STATUS CODE: ${response.statusCode}",
-    );
+    print("UPDATE STATUS CODE: ${response.statusCode}");
 
-    print(
-      "UPDATE STATUS RESPONSE: ${response.body}",
-    );
+    print("UPDATE STATUS RESPONSE: ${response.body}");
 
     return response;
   }
 
-  // Update Property
+  // Update Property / Resubmit For Review
   Future<http.Response> updateProperty({
     required int propertyId,
     required String name,
@@ -398,15 +296,11 @@ class PropertyService {
     List<File>? propertyImages,
     File? ownershipDocument,
   }) async {
-    final String token =
-        await _getToken();
+    final String token = await _getToken();
 
-    final request =
-        http.MultipartRequest(
+    final request = http.MultipartRequest(
       "POST",
-      Uri.parse(
-        "$baseUrl/properties/$propertyId",
-      ),
+      Uri.parse("$baseUrl/properties/$propertyId"),
     );
 
     request.headers.addAll({
@@ -414,87 +308,56 @@ class PropertyService {
       "Authorization": "Bearer $token",
     });
 
-    request.fields["_method"] =
-        "PUT";
+    request.fields["_method"] = "PUT";
 
     // Property
-    request.fields["name"] =
-        name;
+    request.fields["name"] = name;
 
-    request.fields["size"] =
-        size.toString();
+    request.fields["size"] = size.toString();
 
-    request.fields["price"] =
-        price.toString();
+    request.fields["price"] = price.toString();
 
-    request.fields["description"] =
-        description;
+    request.fields["description"] = description;
 
-    request.fields["contact"] =
-        contact;
+    request.fields["contact"] = contact;
 
-    request.fields["furnished"] =
-        furnished ? "1" : "0";
+    request.fields["furnished"] = furnished ? "1" : "0";
 
     // Location
-    request.fields["address"] =
-        address;
+    request.fields["address"] = address;
 
-    request.fields["latitude"] =
-        latitude.toString();
+    request.fields["latitude"] = latitude.toString();
 
-    request.fields["longitude"] =
-        longitude.toString();
+    request.fields["longitude"] = longitude.toString();
 
     // Details
     if (bedrooms != null) {
-      request.fields["bedrooms"] =
-          bedrooms.toString();
+      request.fields["bedrooms"] = bedrooms.toString();
     }
 
     if (bathrooms != null) {
-      request.fields["bathrooms"] =
-          bathrooms.toString();
+      request.fields["bathrooms"] = bathrooms.toString();
     }
 
-    request.fields["total_floor"] =
-        totalFloor.toString();
+    request.fields["total_floor"] = totalFloor.toString();
 
-    request.fields["rental_status"] =
-        rentalStatus;
+    request.fields["rental_status"] = rentalStatus;
 
     // Facilities
-    facilities.forEach(
-      (key, value) {
-        request.fields[
-                "facilities[$key]"] =
-            value ? "1" : "0";
-      },
-    );
+    facilities.forEach((key, value) {
+      request.fields["facilities[$key]"] = value ? "1" : "0";
+    });
 
     // Available Floors
-    for (
-      int i = 0;
-      i < availableFloors.length;
-      i++
-    ) {
-      request.fields[
-              "available_floors[$i]"] =
-          availableFloors[i]
-              .toString();
+    for (int i = 0; i < availableFloors.length; i++) {
+      request.fields["available_floors[$i]"] = availableFloors[i].toString();
     }
 
     // Property Images
-    if (propertyImages != null &&
-        propertyImages.isNotEmpty) {
-      for (final File image
-          in propertyImages) {
+    if (propertyImages != null && propertyImages.isNotEmpty) {
+      for (final File image in propertyImages) {
         request.files.add(
-          await http.MultipartFile
-              .fromPath(
-            "property_images[]",
-            image.path,
-          ),
+          await http.MultipartFile.fromPath("property_images[]", image.path),
         );
       }
     }
@@ -502,32 +365,21 @@ class PropertyService {
     // Ownership Document
     if (ownershipDocument != null) {
       request.files.add(
-        await http.MultipartFile
-            .fromPath(
+        await http.MultipartFile.fromPath(
           "ownership_document",
           ownershipDocument.path,
         ),
       );
     }
 
-    // Send
-    final streamedResponse =
-        await request.send();
+    final streamedResponse = await request.send();
 
-    final response =
-        await http.Response.fromStream(
-      streamedResponse,
-    );
+    final response = await http.Response.fromStream(streamedResponse);
 
-    print(
-      "PROPERTY UPDATE STATUS: ${response.statusCode}",
-    );
+    print("PROPERTY UPDATE STATUS: ${response.statusCode}");
 
-    print(
-      "PROPERTY UPDATE RESPONSE: ${response.body}",
-    );
+    print("PROPERTY UPDATE RESPONSE: ${response.body}");
 
     return response;
   }
 }
-

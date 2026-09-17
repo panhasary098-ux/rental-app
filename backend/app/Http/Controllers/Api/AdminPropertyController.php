@@ -72,8 +72,10 @@ class AdminPropertyController extends Controller
 
         return response()->json([
             'success' => true,
+
             'count' =>
                 $formattedProperties->count(),
+
             'properties' =>
                 $formattedProperties,
         ], 200);
@@ -171,7 +173,8 @@ class AdminPropertyController extends Controller
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only admin can update property post status',
+                'message' =>
+                    'Only admin can update property post status',
             ], 403);
         }
 
@@ -229,7 +232,8 @@ class AdminPropertyController extends Controller
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only admin can approve properties',
+                'message' =>
+                    'Only admin can approve properties',
             ], 403);
         }
 
@@ -275,6 +279,8 @@ class AdminPropertyController extends Controller
                 }
 
                 // Save admin review history
+                // seen_at stays null until owner
+                // opens the notification screen.
                 DB::table(
                     'verification_reviews'
                 )->insert([
@@ -291,6 +297,9 @@ class AdminPropertyController extends Controller
                         null,
 
                     'note' =>
+                        null,
+
+                    'seen_at' =>
                         null,
 
                     'created_at' =>
@@ -324,7 +333,8 @@ class AdminPropertyController extends Controller
         ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only admin can reject properties',
+                'message' =>
+                    'Only admin can reject properties',
             ], 403);
         }
 
@@ -367,6 +377,9 @@ class AdminPropertyController extends Controller
                 // Owner can edit and resubmit
                 // without paying again.
 
+                // Save admin feedback history.
+                // seen_at stays null until owner
+                // opens the notification screen.
                 DB::table(
                     'verification_reviews'
                 )->insert([
@@ -385,6 +398,9 @@ class AdminPropertyController extends Controller
                     'note' =>
                         $validated['note']
                             ?? null,
+
+                    'seen_at' =>
+                        null,
 
                     'created_at' =>
                         now(),

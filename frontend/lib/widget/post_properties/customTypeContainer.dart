@@ -29,8 +29,8 @@ Widget customTypeContainer({
         borderRadius: BorderRadius.circular(15),
 
         border: Border.all(
-          color: isSeleted ? primaryColor : Colors.transparent,
-          width: 1.8,
+          color: isSeleted ? Colors.black : Colors.transparent,
+          width: 1,
         ),
 
         boxShadow: [
@@ -53,16 +53,11 @@ Widget customTypeContainer({
             Container(
               decoration: BoxDecoration(
                 //color: isSeleted ? secondaryColor : lightSecondaryColor,
-                color: lightSecondaryColor,
-
+                //scolor: lightSecondaryColor,
                 borderRadius: BorderRadius.circular(8),
               ),
 
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-
-                child: Icon(icon, size: 45, color: primaryColor),
-              ),
+              child: Icon(icon, size: 40, color: Colors.black),
             ),
 
             const SizedBox(width: 20),
@@ -80,8 +75,8 @@ Widget customTypeContainer({
 
                     style: const TextStyle(
                       fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: primaryColor,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
                     ),
                   ),
 
@@ -94,9 +89,7 @@ Widget customTypeContainer({
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
 
-                      color: isSeleted
-                          ? primaryColor.withOpacity(0.75)
-                          : Colors.black54,
+                      color: Colors.black54,
                     ),
                   ),
                 ],

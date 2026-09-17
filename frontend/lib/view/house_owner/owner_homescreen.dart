@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/house_owner/owner_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -13,7 +14,18 @@ class OwnerHomeScreen extends StatefulWidget {
   final VoidCallback? onSeeAll;
   final VoidCallback? onPostProperty;
 
-  const OwnerHomeScreen({super.key, this.onSeeAll, this.onPostProperty});
+  // Optional callbacks used by the admin feedback notification screen.
+  // Keeping them optional means the existing parent screen will still work.
+  final void Function(Map<String, dynamic> property)? onViewProperty;
+  final void Function(Map<String, dynamic> property)? onEditAndResubmit;
+
+  const OwnerHomeScreen({
+    super.key,
+    this.onSeeAll,
+    this.onPostProperty,
+    this.onViewProperty,
+    this.onEditAndResubmit,
+  });
 
   @override
   State<OwnerHomeScreen> createState() => _OwnerHomeScreenState();
@@ -26,6 +38,12 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   Map<String, dynamic>? owner;
 
   List<Map<String, dynamic>> properties = [];
+
+  // Real admin feedback loaded from Laravel.
+  List<OwnerAdminFeedback> notifications = [];
+
+  // Number shown in the red badge on the bell.
+  int newFeedbackCount = 0;
 
   bool isLoading = true;
   String? errorMessage;
@@ -47,18 +65,19 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       final Map<String, dynamic> ownerData = await authService
           .getCurrentUserFromLaravel();
 
-      final response = await propertyService.getMyProperties();
+      // Load owner properties.
+      final propertyResponse = await propertyService.getMyProperties();
 
-      if (response.statusCode != 200) {
-        throw Exception("Failed to load properties: ${response.body}");
+      if (propertyResponse.statusCode != 200) {
+        throw Exception("Failed to load properties: ${propertyResponse.body}");
       }
 
-      final dynamic decoded = jsonDecode(response.body);
+      final dynamic propertyDecoded = jsonDecode(propertyResponse.body);
 
       List<dynamic> rawProperties = [];
 
-      if (decoded is Map<String, dynamic>) {
-        final dynamic propertyList = decoded["properties"];
+      if (propertyDecoded is Map<String, dynamic>) {
+        final dynamic propertyList = propertyDecoded["properties"];
 
         if (propertyList is List) {
           rawProperties = propertyList;
@@ -71,6 +90,82 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         return Map<String, dynamic>.from(property);
       }).toList();
 
+      // Load admin feedback notifications.
+      //
+      // A notification problem should not prevent the owner home screen
+      // from loading, so the notification request is handled separately.
+      List<OwnerAdminFeedback> notificationData = [];
+      int notificationCount = 0;
+
+      try {
+        final notificationResponse = await propertyService
+            .getOwnerNotifications();
+
+        if (notificationResponse.statusCode >= 200 &&
+            notificationResponse.statusCode < 300) {
+          final dynamic notificationDecoded = jsonDecode(
+            notificationResponse.body,
+          );
+
+          if (notificationDecoded is Map<String, dynamic>) {
+            notificationCount =
+                int.tryParse(
+                  notificationDecoded["new_count"]?.toString() ?? "0",
+                ) ??
+                0;
+
+            final dynamic rawNotifications =
+                notificationDecoded["notifications"];
+
+            if (rawNotifications is List) {
+              notificationData = rawNotifications.whereType<Map>().map((item) {
+                final Map<String, dynamic> data = Map<String, dynamic>.from(
+                  item,
+                );
+
+                final String rawImage =
+                    data["property_image"]?.toString() ?? "";
+
+                return OwnerAdminFeedback(
+                  id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+                  propertyId:
+                      int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+                  propertyName: data["property_name"]?.toString() ?? "Property",
+                  propertyImage: rawImage.isEmpty
+                      ? ""
+                      : buildStorageUrl(rawImage),
+                  location: data["location"]?.toString() ?? "-",
+                  type: data["type"]?.toString() ?? "",
+                  reason: data["reason"]?.toString(),
+                  note: data["note"]?.toString(),
+                  createdAt:
+                      DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                      DateTime.now(),
+                  isNew:
+                      data["is_new"] == true ||
+                      data["is_new"]?.toString() == "1",
+                );
+              }).toList();
+
+              notificationData.sort(
+                (a, b) => b.createdAt.compareTo(a.createdAt),
+              );
+            }
+          }
+        } else {
+          debugPrint(
+            "Failed to load owner notifications: "
+            "${notificationResponse.statusCode} "
+            "${notificationResponse.body}",
+          );
+        }
+      } catch (notificationError) {
+        debugPrint(
+          "OWNER NOTIFICATION ERROR: "
+          "$notificationError",
+        );
+      }
+
       if (!mounted) {
         return;
       }
@@ -78,6 +173,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       setState(() {
         owner = ownerData;
         properties = propertyData;
+        notifications = notificationData;
+        newFeedbackCount = notificationCount;
         isLoading = false;
       });
     } catch (e) {
@@ -95,6 +192,78 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         isLoading = false;
         errorMessage = message;
       });
+    }
+  }
+
+  Future<void> reloadNotifications() async {
+    try {
+      final response = await propertyService.getOwnerNotifications();
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        debugPrint(
+          "Failed to refresh notifications: "
+          "${response.statusCode} "
+          "${response.body}",
+        );
+        return;
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (decoded is! Map<String, dynamic>) {
+        return;
+      }
+
+      final int count =
+          int.tryParse(decoded["new_count"]?.toString() ?? "0") ?? 0;
+
+      final dynamic rawNotifications = decoded["notifications"];
+
+      final List<OwnerAdminFeedback> items = [];
+
+      if (rawNotifications is List) {
+        for (final dynamic item in rawNotifications) {
+          if (item is! Map) {
+            continue;
+          }
+
+          final Map<String, dynamic> data = Map<String, dynamic>.from(item);
+
+          final String rawImage = data["property_image"]?.toString() ?? "";
+
+          items.add(
+            OwnerAdminFeedback(
+              id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+              propertyId:
+                  int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+              propertyName: data["property_name"]?.toString() ?? "Property",
+              propertyImage: rawImage.isEmpty ? "" : buildStorageUrl(rawImage),
+              location: data["location"]?.toString() ?? "-",
+              type: data["type"]?.toString() ?? "",
+              reason: data["reason"]?.toString(),
+              note: data["note"]?.toString(),
+              createdAt:
+                  DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                  DateTime.now(),
+              isNew:
+                  data["is_new"] == true || data["is_new"]?.toString() == "1",
+            ),
+          );
+        }
+      }
+
+      items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        notifications = items;
+        newFeedbackCount = count;
+      });
+    } catch (e) {
+      debugPrint("REFRESH OWNER NOTIFICATION ERROR: $e");
     }
   }
 
@@ -398,6 +567,117 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return "\$${price.toStringAsFixed(2)} / month";
   }
 
+  Map<String, dynamic>? findPropertyById(int propertyId) {
+    for (final Map<String, dynamic> property in properties) {
+      if (property["id"]?.toString() == propertyId.toString()) {
+        return property;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> openNotifications() async {
+    // Keep the current list unchanged while the user is on the
+    // notification screen. This allows the "New" section and divider
+    // to remain visible during that visit.
+    final List<OwnerAdminFeedback> notificationsForScreen =
+        List<OwnerAdminFeedback>.from(notifications);
+
+    final bool hadNewNotifications = notificationsForScreen.any(
+      (item) => item.isNew,
+    );
+
+    await Get.to(
+      () => OwnerNotificationsScreen(
+        notifications: notificationsForScreen,
+
+        // We mark the notifications as seen only AFTER the owner
+        // leaves this screen. This callback can stay empty because
+        // OwnerNotificationsScreen currently calls it from dispose().
+        onNotificationsSeen: () {},
+
+        onViewProperty: (notification) {
+          final Map<String, dynamic>? property = findPropertyById(
+            notification.propertyId,
+          );
+
+          if (property == null) {
+            return;
+          }
+
+          Get.back();
+
+          if (widget.onViewProperty != null) {
+            widget.onViewProperty!(property);
+          } else {
+            widget.onSeeAll?.call();
+          }
+        },
+
+        onEditAndResubmit: (notification) {
+          final Map<String, dynamic>? property = findPropertyById(
+            notification.propertyId,
+          );
+
+          if (property == null) {
+            return;
+          }
+
+          if (widget.onEditAndResubmit != null) {
+            Get.back();
+
+            widget.onEditAndResubmit!(property);
+          } else {
+            Get.snackbar(
+              "Edit & Resubmit",
+              "The edit and resubmit flow will be connected next.",
+              snackPosition: SnackPosition.BOTTOM,
+              backgroundColor: Colors.white,
+              colorText: ownerPrimaryColor,
+              margin: const EdgeInsets.all(16),
+              borderRadius: 14,
+            );
+          }
+        },
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    // This exactly matches the desired behavior:
+    //
+    // 1. Bell has a red badge.
+    // 2. Owner opens Notifications and sees the "New" section.
+    // 3. Owner leaves Notifications.
+    // 4. We tell Laravel those notifications were seen.
+    // 5. The badge disappears.
+    // 6. Next time the screen opens, those items are under "Earlier".
+    if (hadNewNotifications) {
+      try {
+        final response = await propertyService.markOwnerNotificationsSeen();
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          await reloadNotifications();
+        } else {
+          debugPrint(
+            "MARK NOTIFICATIONS SEEN FAILED: "
+            "${response.statusCode} "
+            "${response.body}",
+          );
+        }
+      } catch (e) {
+        debugPrint("MARK NOTIFICATIONS SEEN ERROR: $e");
+      }
+    } else {
+      // Still refresh in case new feedback arrived while
+      // the owner was viewing the screen.
+      await reloadNotifications();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -583,21 +863,67 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           ),
         ),
 
-        Container(
-          width: 42,
-          height: 42,
+        InkWell(
+          onTap: openNotifications,
+          borderRadius: BorderRadius.circular(13),
 
-          decoration: BoxDecoration(
-            color: Colors.white,
+          child: Stack(
+            clipBehavior: Clip.none,
 
-            borderRadius: BorderRadius.circular(13),
+            children: [
+              Container(
+                width: 42,
+                height: 42,
 
-            border: Border.all(color: Colors.grey.withOpacity(0.25)),
-          ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
 
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: ownerPrimaryColor,
+                  borderRadius: BorderRadius.circular(13),
+
+                  border: Border.all(color: Colors.grey.withOpacity(0.25)),
+                ),
+
+                child: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: ownerPrimaryColor,
+                ),
+              ),
+
+              if (newFeedbackCount > 0)
+                Positioned(
+                  top: -5,
+                  right: -5,
+
+                  child: Container(
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 2,
+                    ),
+
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFDC2626),
+                      shape: BoxShape.circle,
+                    ),
+
+                    alignment: Alignment.center,
+
+                    child: Text(
+                      newFeedbackCount > 9 ? "9+" : newFeedbackCount.toString(),
+
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],

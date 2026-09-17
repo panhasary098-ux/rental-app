@@ -60,14 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
         [UserController::class, 'updateMe']
     );
 
-
     // AI Rental Assistant
-    Route::post(
-        '/ai/chat',
-        [AiChatController::class, 'chat']
-    );
-
-    // AI Chat
     Route::post(
         '/ai/chat',
         [AiChatController::class, 'chat']
@@ -107,6 +100,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get(
         '/owner/properties',
         [PropertyController::class, 'myProperties']
+    );
+
+    // Owner Notifications
+    Route::get(
+        '/owner/notifications',
+        [
+            PropertyController::class,
+            'ownerNotifications'
+        ]
+    );
+
+    // Mark Owner Notifications As Seen
+    Route::post(
+        '/owner/notifications/mark-seen',
+        [
+            PropertyController::class,
+            'markOwnerNotificationsSeen'
+        ]
     );
 
     // Renter Properties

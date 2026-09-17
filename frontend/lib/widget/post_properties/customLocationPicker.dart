@@ -52,20 +52,11 @@ class PropertyLocationPicker extends StatelessWidget {
             // ==================================================
             // LOCATION ICON
             // ==================================================
-            Container(
-              width: 42,
-              height: 42,
-
-              decoration: BoxDecoration(
-                color: lightSecondaryColor,
-                borderRadius: BorderRadius.circular(10),
-              ),
-
-              child: const Icon(
-                Icons.location_on_outlined,
-                color: primaryColor,
-                //color: Colors.red,
-              ),
+            Icon(
+              Icons.location_on_outlined,
+              color: primaryColor,
+              //color: Colors.red,
+              size: 25,
             ),
 
             const SizedBox(width: 12),

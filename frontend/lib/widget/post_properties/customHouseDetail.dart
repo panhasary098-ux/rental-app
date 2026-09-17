@@ -53,10 +53,10 @@ class HouseDetailsCard extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-            color: lightSecondaryColor,
+            //color: lightSecondaryColor,
             borderRadius: BorderRadius.circular(9),
           ),
-          child: Icon(icon, color: primaryColor, size: 22),
+          child: Icon(icon, color: primaryColor, size: 25),
         ),
 
         const SizedBox(width: 12),
@@ -66,7 +66,7 @@ class HouseDetailsCard extends StatelessWidget {
             title,
             style: const TextStyle(
               fontSize: 15,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
               color: primaryColor,
             ),
           ),
@@ -76,7 +76,7 @@ class HouseDetailsCard extends StatelessWidget {
         IconButton(
           onPressed: onDecrease,
           style: IconButton.styleFrom(
-            backgroundColor: lightSecondaryColor,
+            //backgroundColor: lightSecondaryColor,
             foregroundColor: primaryColor,
           ),
           icon: const Icon(Icons.remove, size: 18),
@@ -99,8 +99,8 @@ class HouseDetailsCard extends StatelessWidget {
         IconButton(
           onPressed: onIncrease,
           style: IconButton.styleFrom(
-            backgroundColor: primaryColor,
-            foregroundColor: Colors.white,
+            //backgroundColor: primaryColor,
+            foregroundColor: primaryColor,
           ),
           icon: const Icon(Icons.add, size: 18),
         ),

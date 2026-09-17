@@ -56,8 +56,8 @@ class PostStep1 extends StatelessWidget {
               "What type of property are you submitting?",
               style: TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: primaryColor,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
                 height: 1.3,
               ),
             ),

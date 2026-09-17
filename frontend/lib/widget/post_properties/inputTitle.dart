@@ -7,8 +7,8 @@ Widget customInputTitle({required String title}) {
     title,
     style: const TextStyle(
       fontSize: 15,
-      fontWeight: FontWeight.w700,
-      color: primaryColor,
+      fontWeight: FontWeight.w500,
+      color: Colors.black87,
     ),
   );
 }

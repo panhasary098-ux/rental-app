@@ -32,8 +32,7 @@ class CustomTextFormField extends StatelessWidget {
 
         borderRadius: BorderRadius.circular(12),
 
-        border: Border.all(color: secondaryColor.withOpacity(0.35)),
-
+        //border: Border.all(color: secondaryColor.withOpacity(0.35)),
         boxShadow: [
           BoxShadow(
             color: primaryColor.withOpacity(0.05),
