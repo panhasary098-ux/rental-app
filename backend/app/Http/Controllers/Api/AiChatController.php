@@ -72,7 +72,7 @@ Property search rules:
 5. If no matching JoulNow property is provided, clearly tell the user that no matching property was found.
 6. Do not claim that a property matches a requirement unless the provided property information supports it.
 7. Keep property recommendations concise and easy to read on a mobile screen.
-8. When recommending properties, include useful information such as property name, type, price, and address when available.
+8. When recommending properties, include useful information such as property name, type, price, address, furnished status, bedrooms, and bathrooms when available.
 
 General rules:
 1. Give clear and simple answers.
@@ -339,6 +339,12 @@ PROMPT;
             'room',
             'house',
             'apartment',
+            'bedroom',
+            'bedrooms',
+            'bathroom',
+            'bathrooms',
+            'furnished',
+            'unfurnished',
         ];
 
         $isPropertySearch = false;
@@ -377,49 +383,122 @@ PROMPT;
 
         // Property Type
         if (
-            str_contains(
-                $message,
-                'room'
-            )
-        ) {
-            $query->where(
-                'property_type',
-                'room'
-            );
-        } elseif (
-            str_contains(
-                $message,
-                'house'
-            )
-        ) {
-            $query->where(
-                'property_type',
-                'house'
-            );
-        } elseif (
-            str_contains(
-                $message,
-                'apartment'
+            preg_match(
+                '/\bapartments?\b/i',
+                $message
             )
         ) {
             $query->where(
                 'property_type',
                 'apartment'
+            );
+        } elseif (
+            preg_match(
+                '/\bhouses?\b/i',
+                $message
+            )
+        ) {
+            $query->where(
+                'property_type',
+                'house'
+            );
+        } elseif (
+            preg_match(
+                '/\brooms?\b/i',
+                $message
+            )
+        ) {
+            $query->where(
+                'property_type',
+                'room'
             );
         }
 
-        // Maximum Budget
-        $maxPrice =
-            $this->extractMaximumPrice(
+        // Furnished
+        if (
+            preg_match(
+                '/\bunfurnished\b/i',
+                $message
+            ) ||
+            preg_match(
+                '/\bnot\s+furnished\b/i',
+                $message
+            )
+        ) {
+            $query->where(
+                'furnished',
+                false
+            );
+        } elseif (
+            preg_match(
+                '/\bfurnished\b/i',
+                $message
+            )
+        ) {
+            $query->where(
+                'furnished',
+                true
+            );
+        }
+
+        // Bedrooms
+        $bedrooms =
+            $this->extractBedrooms(
                 $message
             );
 
-        if ($maxPrice != null) {
+        if ($bedrooms != null) {
+            $query->where(
+                'bedrooms',
+                $bedrooms
+            );
+        }
+
+        // Bathrooms
+        $bathrooms =
+            $this->extractBathrooms(
+                $message
+            );
+
+        if ($bathrooms != null) {
+            $query->where(
+                'bathrooms',
+                $bathrooms
+            );
+        }
+
+        // Price Range
+        $priceRange =
+            $this->extractPriceRange(
+                $message
+            );
+
+        if ($priceRange != null) {
+            $query->where(
+                'price',
+                '>=',
+                $priceRange['min']
+            );
+
             $query->where(
                 'price',
                 '<=',
-                $maxPrice
+                $priceRange['max']
             );
+        } else {
+            // Maximum Budget
+            $maxPrice =
+                $this->extractMaximumPrice(
+                    $message
+                );
+
+            if ($maxPrice != null) {
+                $query->where(
+                    'price',
+                    '<=',
+                    $maxPrice
+                );
+            }
         }
 
         // Get Matching Properties
@@ -493,6 +572,46 @@ PROMPT;
             );
     }
 
+    // Extract Price Range
+    private function extractPriceRange(
+        string $message
+    ): ?array {
+        $patterns = [
+            '/between\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:and|-)\s*\$?\s*(\d+(?:\.\d+)?)/i',
+            '/from\s*\$?\s*(\d+(?:\.\d+)?)\s*(?:to|-)\s*\$?\s*(\d+(?:\.\d+)?)/i',
+            '/\$?\s*(\d+(?:\.\d+)?)\s*(?:-|to)\s*\$?\s*(\d+(?:\.\d+)?)/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $message,
+                    $matches
+                )
+            ) {
+                $firstPrice =
+                    (float) $matches[1];
+
+                $secondPrice =
+                    (float) $matches[2];
+
+                return [
+                    'min' => min(
+                        $firstPrice,
+                        $secondPrice
+                    ),
+                    'max' => max(
+                        $firstPrice,
+                        $secondPrice
+                    ),
+                ];
+            }
+        }
+
+        return null;
+    }
+
     // Extract Maximum Price
     private function extractMaximumPrice(
         string $message
@@ -517,6 +636,56 @@ PROMPT;
         return null;
     }
 
+    // Extract Bedrooms
+    private function extractBedrooms(
+        string $message
+    ): ?int {
+        $patterns = [
+            '/(\d+)\s*bedrooms?/i',
+            '/(\d+)\s*bedroom/i',
+            '/(\d+)\s*bed\b/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $message,
+                    $matches
+                )
+            ) {
+                return (int) $matches[1];
+            }
+        }
+
+        return null;
+    }
+
+    // Extract Bathrooms
+    private function extractBathrooms(
+        string $message
+    ): ?int {
+        $patterns = [
+            '/(\d+)\s*bathrooms?/i',
+            '/(\d+)\s*bathroom/i',
+            '/(\d+)\s*bath\b/i',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $message,
+                    $matches
+                )
+            ) {
+                return (int) $matches[1];
+            }
+        }
+
+        return null;
+    }
+
     // Get History
     public function history(Request $request)
     {
@@ -524,7 +693,10 @@ PROMPT;
             'user_id',
             $request->user()->id
         )
-            ->orderBy('created_at', 'asc')
+            ->orderBy(
+                'created_at',
+                'asc'
+            )
             ->get();
 
         return response()->json([

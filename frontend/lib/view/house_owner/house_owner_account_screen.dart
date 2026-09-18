@@ -301,7 +301,7 @@ class OwnerAccountScreen extends StatelessWidget {
                       buildMenuItem(
                         icon: Icons.person_outline_rounded,
                         iconColor: blueAccent,
-                        iconBackground: blueSoft,
+                        // iconBackground: blueSoft,
                         title: "Personal Information",
                         subtitle:
                             "View and edit your account details",
@@ -313,7 +313,7 @@ class OwnerAccountScreen extends StatelessWidget {
                       buildMenuItem(
                         icon: Icons.notifications_none_rounded,
                         iconColor: orangeAccent,
-                        iconBackground: orangeSoft,
+                        // iconBackground: orangeSoft,
                         title: "Notifications",
                         subtitle:
                             "Property and account updates",
@@ -340,7 +340,7 @@ class OwnerAccountScreen extends StatelessWidget {
                       buildMenuItem(
                         icon: Icons.help_outline_rounded,
                         iconColor: greenAccent,
-                        iconBackground: greenSoft,
+                        // iconBackground: greenSoft,
                         title: "Help Center",
                         subtitle:
                             "Answers and owner guidance",
@@ -352,7 +352,7 @@ class OwnerAccountScreen extends StatelessWidget {
                       buildMenuItem(
                         icon: Icons.info_outline_rounded,
                         iconColor: purpleAccent,
-                        iconBackground: purpleSoft,
+                        // iconBackground: purpleSoft,
                         title: "About Rental App",
                         subtitle:
                             "Information about the platform",
@@ -843,7 +843,7 @@ class OwnerAccountScreen extends StatelessWidget {
   Widget buildMenuItem({
     required IconData icon,
     required Color iconColor,
-    required Color iconBackground,
+    // required Color iconBackground,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
@@ -864,7 +864,7 @@ class OwnerAccountScreen extends StatelessWidget {
               height: 42,
 
               decoration: BoxDecoration(
-                color: iconBackground,
+                // color: iconBackground,
 
                 borderRadius: BorderRadius.circular(
                   12,

@@ -602,7 +602,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: secondaryColor.withOpacity(0.6),
+                      color: Colors.black12
                     ),
 
                     Padding(
@@ -639,7 +639,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: secondaryColor.withOpacity(0.6),
+                      color: Colors.black12
                     ),
 
                     const SizedBox(height: 10),
@@ -856,7 +856,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
                 borderRadius: BorderRadius.circular(12),
 
-                border: Border.all(color: secondaryColor.withOpacity(0.5)),
+                //border: Border.all(color: secondaryColor.withOpacity(0.5)),
               ),
 
               child: ListView.separated(
@@ -870,7 +870,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   return Container(
                     height: 1,
 
-                    color: secondaryColor.withOpacity(0.4),
+                    color: Colors.black12
                   );
                 },
 
@@ -1001,11 +1001,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 13),
 
             decoration: BoxDecoration(
-              color: lightSecondaryColor,
+              color: Colors.white,
 
               borderRadius: BorderRadius.circular(13),
 
-              border: Border.all(color: secondaryColor),
+              //border: Border.all(color: secondaryColor),
             ),
 
             child: Column(

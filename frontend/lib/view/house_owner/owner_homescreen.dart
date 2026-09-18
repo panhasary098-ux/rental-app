@@ -1077,7 +1077,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           icon: Icons.home_rounded,
           number: totalProperties.toString(),
           title: "Total",
-          iconBackground: const Color(0xFFE6F0FF),
+          // iconBackground: const Color(0xFFE6F0FF),
           iconColor: const Color(0xFF2563EB),
         ),
 
@@ -1085,7 +1085,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           icon: Icons.schedule_rounded,
           number: pendingProperties.toString(),
           title: "Pending",
-          iconBackground: const Color(0xFFFFF1D6),
+          // iconBackground: const Color(0xFFFFF1D6),
           iconColor: const Color(0xFFF59E0B),
         ),
 
@@ -1093,7 +1093,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           icon: Icons.check_circle_rounded,
           number: availableProperties.toString(),
           title: "Available",
-          iconBackground: const Color(0xFFE6F7EE),
+          // iconBackground: const Color(0xFFE6F7EE),
           iconColor: const Color(0xFF16A34A),
         ),
 
@@ -1101,7 +1101,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           icon: Icons.key_rounded,
           number: rentedProperties.toString(),
           title: "Rented",
-          iconBackground: const Color(0xFFFFE8E8),
+          // iconBackground: const Color(0xFFFFE8E8),
           iconColor: const Color(0xFFDC2626),
         ),
       ],
@@ -1112,7 +1112,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     required IconData icon,
     required String number,
     required String title,
-    required Color iconBackground,
+    // required Color iconBackground,
     required Color iconColor,
   }) {
     return Container(
@@ -1143,12 +1143,12 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
             height: 48,
 
             decoration: BoxDecoration(
-              color: iconBackground,
+              // color: iconBackground,
 
               borderRadius: BorderRadius.circular(14),
             ),
 
-            child: Icon(icon, size: 24, color: iconColor),
+            child: Icon(icon, size: 30, color: iconColor),
           ),
 
           const SizedBox(width: 13),

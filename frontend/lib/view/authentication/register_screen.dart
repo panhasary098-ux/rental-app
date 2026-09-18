@@ -5,470 +5,857 @@ import 'package:get/get.dart';
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
 
-  RegisterController controller = Get.put(RegisterController());
+  final RegisterController controller =
+      Get.put(RegisterController());
+
+  static const Color primaryColor =
+      Color.fromARGB(255, 7, 8, 77);
+
+  static const Color fieldColor =
+      Color(0xFFF7F8FC);
+
+  static const Color borderColor =
+      Color(0xFFE5E7EB);
+
+  static const Color textColor =
+      Color(0xFF111827);
+
+  static const Color secondaryTextColor =
+      Color(0xFF6B7280);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8FAF9),
+      backgroundColor: Color(0xFFF8F9FC),
 
-      appBar: AppBar(
-        backgroundColor: Color(0xFFF8FAF9),
-        elevation: 0,
-        toolbarHeight: 45,
+      // Keep page fixed when keyboard opens
+      resizeToAvoidBottomInset: false,
 
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
+      body: LayoutBuilder(
+        builder: (
+          context,
+          constraints,
+        ) {
+          double screenHeight =
+              constraints.maxHeight;
 
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF111827),
-          ),
-        ),
-      ),
-
-      body: SafeArea(
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-
-          padding: EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 4,
-          ),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
+          return Column(
             children: [
-              // LOGO
-              Center(
-                child: Container(
-                  width: 56,
-                  height: 56,
+              // Header
+              Container(
+                width: double.infinity,
 
-                  decoration: BoxDecoration(
-                    color: Color(0xFF03045E),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                height:
+                    screenHeight * 0.24,
 
-                  child: Icon(
-                    Icons.home_rounded,
-                    color: Colors.white,
-                    size: 30,
+                padding: EdgeInsets.only(
+                  top:
+                      MediaQuery.of(context)
+                              .padding
+                              .top +
+                          10,
+                  left: 22,
+                  right: 22,
+                ),
+
+                decoration: BoxDecoration(
+                  color: primaryColor,
+
+                  borderRadius:
+                      BorderRadius.only(
+                    bottomLeft:
+                        Radius.circular(
+                      35,
+                    ),
+
+                    bottomRight:
+                        Radius.circular(
+                      35,
+                    ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: 12),
-
-              // TITLE
-              Center(
-                child: Text(
-                  "Create Account",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 4),
-
-              Center(
-                child: Text(
-                  "Join our trusted rental community.",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 18),
-
-              // ROLE
-              buildLabel("Register as"),
-
-              SizedBox(height: 7),
-
-              Obx(
-                () => Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: GestureDetector(
+                    // Back
+                    Align(
+                      alignment:
+                          Alignment.centerLeft,
+
+                      child: InkWell(
                         onTap: () {
-                          controller.selectRole("Renter");
+                          Get.back();
                         },
 
+                        borderRadius:
+                            BorderRadius.circular(
+                          12,
+                        ),
+
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
+                          width: 38,
+                          height: 38,
 
-                          decoration: BoxDecoration(
-                            color: controller.selectedRole.value == "Renter"
-                                ? Color(0xFF03045E)
-                                : Colors.white,
-
-                            borderRadius: BorderRadius.circular(12),
-
-                            border: Border.all(
-                              color: controller.selectedRole.value == "Renter"
-                                  ? Color(0xFF03045E)
-                                  : Color(0xFFE5E7EB),
-
-                              width: 1.5,
+                          decoration:
+                              BoxDecoration(
+                            color: Colors.white
+                                .withValues(
+                              alpha: 0.12,
                             ),
 
-                            boxShadow:
-                                controller.selectedRole.value == "Renter"
-                                    ? [
-                                        BoxShadow(
-                                          color: Color(0xFF03045E)
-                                              .withOpacity(0.12),
-                                          blurRadius: 8,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ]
-                                    : [],
+                            borderRadius:
+                                BorderRadius
+                                    .circular(
+                              12,
+                            ),
                           ),
 
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.search_rounded,
-                                size: 23,
+                          child: Icon(
+                            Icons
+                                .arrow_back_ios_new_rounded,
 
-                                color: controller.selectedRole.value == "Renter"
-                                    ? Colors.white
-                                    : Color(0xFF6B7280),
-                              ),
+                            color:
+                                Colors.white,
 
-                              SizedBox(height: 3),
-
-                              Text(
-                                "Renter",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-
-                                  color:
-                                      controller.selectedRole.value == "Renter"
-                                          ? Colors.white
-                                          : Color(0xFF374151),
-                                ),
-                              ),
-                            ],
+                            size: 17,
                           ),
                         ),
                       ),
                     ),
 
-                    SizedBox(width: 10),
+                    SizedBox(height: 3),
 
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          controller.selectRole("House Owner");
-                        },
+                    // Logo
+                    Container(
+                      width: 52,
+                      height: 52,
 
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10,
-                          ),
-
-                          decoration: BoxDecoration(
-                            color:
-                                controller.selectedRole.value == "House Owner"
-                                    ? Color(0xFF03045E)
-                                    : Colors.white,
-
-                            borderRadius: BorderRadius.circular(12),
-
-                            border: Border.all(
-                              color:
-                                  controller.selectedRole.value == "House Owner"
-                                      ? Color(0xFF03045E)
-                                      : Color(0xFFE5E7EB),
-
-                              width: 1.5,
-                            ),
-
-                            boxShadow:
-                                controller.selectedRole.value == "House Owner"
-                                    ? [
-                                        BoxShadow(
-                                          color: Color(0xFF03045E)
-                                              .withOpacity(0.12),
-                                          blurRadius: 8,
-                                          offset: Offset(0, 3),
-                                        ),
-                                      ]
-                                    : [],
-                          ),
-
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.home_work_outlined,
-                                size: 23,
-
-                                color:
-                                    controller.selectedRole.value ==
-                                            "House Owner"
-                                        ? Colors.white
-                                        : Color(0xFF6B7280),
-                              ),
-
-                              SizedBox(height: 3),
-
-                              Text(
-                                "House Owner",
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-
-                                  color:
-                                      controller.selectedRole.value ==
-                                              "House Owner"
-                                          ? Colors.white
-                                          : Color(0xFF374151),
-                                ),
-                              ),
-                            ],
-                          ),
+                      decoration:
+                          BoxDecoration(
+                        color: Colors.white
+                            .withValues(
+                          alpha: 0.15,
                         ),
+
+                        borderRadius:
+                            BorderRadius.circular(
+                          17,
+                        ),
+                      ),
+
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(
+                          17,
+                        ),
+
+                        child: Image.asset(
+                          "assets/logo.png",
+
+                          fit:
+                              BoxFit.contain,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 7),
+
+                    Text(
+                      "JoulNow",
+
+                      style: TextStyle(
+                        fontSize: 21,
+
+                        fontWeight:
+                            FontWeight.bold,
+
+                        color:
+                            Colors.white,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              SizedBox(height: 14),
+              // Form
+              Expanded(
+                child:
+                    Transform.translate(
+                  offset:
+                      Offset(0, -24),
 
-              // Name
-              buildLabel("Full Name"),
-
-              SizedBox(height: 5),
-
-              buildField(
-                controller: controller.nameController,
-                hint: "Enter your full name",
-                icon: Icons.person_outline,
-              ),
-
-              SizedBox(height: 10),
-
-              // Email
-              buildLabel("Email"),
-
-              SizedBox(height: 5),
-
-              buildField(
-                controller: controller.emailController,
-                hint: "Enter your email",
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
-
-              SizedBox(height: 10),
-
-              // Phone
-              buildLabel("Phone Number"),
-
-              SizedBox(height: 5),
-
-              buildField(
-                controller: controller.phoneController,
-                hint: "Enter your phone number",
-                icon: Icons.phone_outlined,
-                keyboardType: TextInputType.phone,
-              ),
-
-              SizedBox(height: 10),
-
-              // Password
-              buildLabel("Password"),
-
-              SizedBox(height: 5),
-
-              Obx(
-                () => TextField(
-                  controller: controller.passwordController,
-                  obscureText: controller.hidePassword.value,
-
-                  decoration: inputDecoration(
-                    hint: "Create your password",
-                    icon: Icons.lock_outline,
-
-                    suffix: IconButton(
-                      onPressed: () {
-                        controller.togglePassword();
-                      },
-
-                      icon: Icon(
-                        controller.hidePassword.value
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-
-                        size: 21,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 10),
-
-              // Confirm pass
-              buildLabel("Confirm Password"),
-
-              SizedBox(height: 5),
-
-              Obx(
-                () => TextField(
-                  controller: controller.confirmPasswordController,
-                  obscureText: controller.hideConfirmPassword.value,
-
-                  decoration: inputDecoration(
-                    hint: "Confirm your password",
-                    icon: Icons.lock_outline,
-
-                    suffix: IconButton(
-                      onPressed: () {
-                        controller.toggleConfirmPassword();
-                      },
-
-                      icon: Icon(
-                        controller.hideConfirmPassword.value
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-
-                        size: 21,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 16),
-
-              // Register button
-              Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  height: 52,
-
-                  child: ElevatedButton(
-                    onPressed: controller.isLoading.value
-                        ? null
-                        : () {
-                            controller.register();
-                          },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF03045E),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
-                      ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(
+                      horizontal: 20,
                     ),
 
-                    child: controller.isLoading.value
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
+                    child: Container(
+                      width:
+                          double.infinity,
 
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                      padding:
+                          EdgeInsets.fromLTRB(
+                        20,
+                        16,
+                        20,
+                        10,
+                      ),
+
+                      decoration:
+                          BoxDecoration(
+                        color:
+                            Colors.white,
+
+                        borderRadius:
+                            BorderRadius.circular(
+                          24,
+                        ),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black
+                                .withValues(
+                              alpha: 0.06,
                             ),
-                          )
-                        : Text(
-                            "Create Account",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+
+                            blurRadius: 24,
+
+                            offset:
+                                Offset(
+                              0,
+                              8,
                             ),
                           ),
-                  ),
-                ),
-              ),
+                        ],
+                      ),
 
-              SizedBox(height: 4),
+                      child: Column(
+                        crossAxisAlignment:
+                            CrossAxisAlignment
+                                .start,
 
-              // Login
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Title
+                          Text(
+                            "Create Account",
 
-                children: [
-                  Text(
-                    "Already have an account?",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF6B7280),
-                    ),
-                  ),
+                            style:
+                                TextStyle(
+                              fontSize: 22,
 
-                  TextButton(
-                    onPressed: () {
-                      Get.back();
-                    },
+                              fontWeight:
+                                  FontWeight
+                                      .bold,
 
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF03045E),
-                        fontWeight: FontWeight.bold,
+                              color:
+                                  textColor,
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 2,
+                          ),
+
+                          Text(
+                            "Join JoulNow and find your next place.",
+
+                            style:
+                                TextStyle(
+                              fontSize: 11.5,
+
+                              color:
+                                  secondaryTextColor,
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 10,
+                          ),
+
+                          // Role
+                          buildLabel(
+                            "Register as",
+                          ),
+
+                          SizedBox(
+                            height: 5,
+                          ),
+
+                          Obx(
+                            () => Row(
+                              children: [
+                                Expanded(
+                                  child:
+                                      buildRoleCard(
+                                    title:
+                                        "Renter",
+
+                                    icon: Icons
+                                        .person_outline_rounded,
+
+                                    selected: controller
+                                            .selectedRole
+                                            .value ==
+                                        "Renter",
+
+                                    onTap:
+                                        () {
+                                      controller
+                                          .selectRole(
+                                        "Renter",
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  width: 8,
+                                ),
+
+                                Expanded(
+                                  child:
+                                      buildRoleCard(
+                                    title:
+                                        "House Owner",
+
+                                    icon: Icons
+                                        .home_work_outlined,
+
+                                    selected: controller
+                                            .selectedRole
+                                            .value ==
+                                        "House Owner",
+
+                                    onTap:
+                                        () {
+                                      controller
+                                          .selectRole(
+                                        "House Owner",
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 9,
+                          ),
+
+                          // Name
+                          buildLabel(
+                            "Full Name",
+                          ),
+
+                          SizedBox(
+                            height: 4,
+                          ),
+
+                          buildField(
+                            controller:
+                                controller
+                                    .nameController,
+
+                            hint:
+                                "Enter your full name",
+
+                            icon: Icons
+                                .person_outline_rounded,
+                          ),
+
+                          SizedBox(
+                            height: 7,
+                          ),
+
+                          // Email
+                          buildLabel(
+                            "Email",
+                          ),
+
+                          SizedBox(
+                            height: 4,
+                          ),
+
+                          buildField(
+                            controller:
+                                controller
+                                    .emailController,
+
+                            hint:
+                                "Enter your email",
+
+                            icon: Icons
+                                .email_outlined,
+
+                            keyboardType:
+                                TextInputType
+                                    .emailAddress,
+                          ),
+
+                          SizedBox(
+                            height: 7,
+                          ),
+
+                          // Phone
+                          buildLabel(
+                            "Phone Number",
+                          ),
+
+                          SizedBox(
+                            height: 4,
+                          ),
+
+                          buildField(
+                            controller:
+                                controller
+                                    .phoneController,
+
+                            hint:
+                                "Enter your phone number",
+
+                            icon: Icons
+                                .phone_outlined,
+
+                            keyboardType:
+                                TextInputType
+                                    .phone,
+                          ),
+
+                          SizedBox(
+                            height: 7,
+                          ),
+
+                          // Password
+                          buildLabel(
+                            "Password",
+                          ),
+
+                          SizedBox(
+                            height: 4,
+                          ),
+
+                          Obx(
+                            () => SizedBox(
+                              height: 43,
+
+                              child:
+                                  TextField(
+                                controller:
+                                    controller
+                                        .passwordController,
+
+                                obscureText:
+                                    controller
+                                        .hidePassword
+                                        .value,
+
+                                decoration:
+                                    inputDecoration(
+                                  hint:
+                                      "Create your password",
+
+                                  icon: Icons
+                                      .lock_outline_rounded,
+
+                                  suffix:
+                                      IconButton(
+                                    onPressed:
+                                        () {
+                                      controller
+                                          .togglePassword();
+                                    },
+
+                                    icon:
+                                        Icon(
+                                      controller
+                                              .hidePassword
+                                              .value
+                                          ? Icons
+                                              .visibility_off_outlined
+                                          : Icons
+                                              .visibility_outlined,
+
+                                      size:
+                                          19,
+
+                                      color:
+                                          secondaryTextColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 7,
+                          ),
+
+                          // Confirm Password
+                          buildLabel(
+                            "Confirm Password",
+                          ),
+
+                          SizedBox(
+                            height: 4,
+                          ),
+
+                          Obx(
+                            () => SizedBox(
+                              height: 43,
+
+                              child:
+                                  TextField(
+                                controller:
+                                    controller
+                                        .confirmPasswordController,
+
+                                obscureText:
+                                    controller
+                                        .hideConfirmPassword
+                                        .value,
+
+                                decoration:
+                                    inputDecoration(
+                                  hint:
+                                      "Confirm your password",
+
+                                  icon: Icons
+                                      .lock_outline_rounded,
+
+                                  suffix:
+                                      IconButton(
+                                    onPressed:
+                                        () {
+                                      controller
+                                          .toggleConfirmPassword();
+                                    },
+
+                                    icon:
+                                        Icon(
+                                      controller
+                                              .hideConfirmPassword
+                                              .value
+                                          ? Icons
+                                              .visibility_off_outlined
+                                          : Icons
+                                              .visibility_outlined,
+
+                                      size:
+                                          19,
+
+                                      color:
+                                          secondaryTextColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          Spacer(),
+
+                          // Register Button
+                          Obx(
+                            () => SizedBox(
+                              width:
+                                  double.infinity,
+
+                              height: 46,
+
+                              child:
+                                  ElevatedButton(
+                                onPressed: controller
+                                        .isLoading
+                                        .value
+                                    ? null
+                                    : () {
+                                        controller
+                                            .register();
+                                      },
+
+                                style:
+                                    ElevatedButton
+                                        .styleFrom(
+                                  backgroundColor:
+                                      Color(
+                                    0xFF03045E,
+                                  ),
+
+                                  foregroundColor:
+                                      Colors
+                                          .white,
+
+                                  disabledBackgroundColor:
+                                      Color(
+                                    0xFF03045E,
+                                  ).withValues(
+                                    alpha:
+                                        0.55,
+                                  ),
+
+                                  elevation:
+                                      0,
+
+                                  shape:
+                                      RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius
+                                            .circular(
+                                      13,
+                                    ),
+                                  ),
+                                ),
+
+                                child: controller
+                                        .isLoading
+                                        .value
+                                    ? SizedBox(
+                                        width:
+                                            19,
+                                        height:
+                                            19,
+
+                                        child:
+                                            CircularProgressIndicator(
+                                          strokeWidth:
+                                              2,
+
+                                          color:
+                                              Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        "Create Account",
+
+                                        style:
+                                            TextStyle(
+                                          fontSize:
+                                              14,
+
+                                          fontWeight:
+                                              FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: 1,
+                          ),
+
+                          // Login
+                          Row(
+                            mainAxisAlignment:
+                                MainAxisAlignment
+                                    .center,
+
+                            children: [
+                              Text(
+                                "Already have an account?",
+
+                                style:
+                                    TextStyle(
+                                  fontSize:
+                                      11.5,
+
+                                  color:
+                                      secondaryTextColor,
+                                ),
+                              ),
+
+                              TextButton(
+                                onPressed:
+                                    () {
+                                  Get.back();
+                                },
+
+                                style:
+                                    TextButton
+                                        .styleFrom(
+                                  padding:
+                                      EdgeInsets
+                                          .symmetric(
+                                    horizontal:
+                                        5,
+                                  ),
+                                ),
+
+                                child:
+                                    Text(
+                                  "Sign in",
+
+                                  style:
+                                      TextStyle(
+                                    fontSize:
+                                        11.5,
+
+                                    color:
+                                        Color(
+                                      0xFF03045E,
+                                    ),
+
+                                    fontWeight:
+                                        FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
-
-              SizedBox(height: 8),
             ],
+          );
+        },
+      ),
+    );
+  }
+
+  // Role
+  Widget buildRoleCard({
+    required String title,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+
+      child: AnimatedContainer(
+        duration:
+            Duration(
+          milliseconds: 180,
+        ),
+
+        height: 48,
+
+        decoration:
+            BoxDecoration(
+          color: selected
+              ? Color(
+                  0xFF03045E,
+                )
+              : fieldColor,
+
+          borderRadius:
+              BorderRadius.circular(
+            12,
           ),
+
+          border: Border.all(
+            color: selected
+                ? Color(
+                    0xFF03045E,
+                  )
+                : borderColor,
+
+            width: 1.2,
+          ),
+        ),
+
+        child: Row(
+          mainAxisAlignment:
+              MainAxisAlignment.center,
+
+          children: [
+            Icon(
+              icon,
+
+              size: 18,
+
+              color: selected
+                  ? Colors.white
+                  : secondaryTextColor,
+            ),
+
+            SizedBox(width: 6),
+
+            Flexible(
+              child: Text(
+                title,
+
+                maxLines: 1,
+
+                overflow:
+                    TextOverflow.ellipsis,
+
+                style: TextStyle(
+                  fontSize: 11.5,
+
+                  fontWeight:
+                      FontWeight.w700,
+
+                  color: selected
+                      ? Colors.white
+                      : Color(
+                          0xFF374151,
+                        ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget buildLabel(String text) {
+  // Label
+  Widget buildLabel(
+    String text,
+  ) {
     return Text(
       text,
 
       style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: Color(0xFF374151),
+        fontSize: 11.5,
+
+        fontWeight:
+            FontWeight.w600,
+
+        color:
+            Color(0xFF374151),
       ),
     );
   }
 
+  // Field
   Widget buildField({
-    required TextEditingController controller,
+    required TextEditingController
+        controller,
+
     required String hint,
+
     required IconData icon,
+
     TextInputType? keyboardType,
   }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
+    return SizedBox(
+      height: 43,
 
-      decoration: inputDecoration(
-        hint: hint,
-        icon: icon,
+      child: TextField(
+        controller:
+            controller,
+
+        keyboardType:
+            keyboardType,
+
+        decoration:
+            inputDecoration(
+          hint: hint,
+          icon: icon,
+        ),
       ),
     );
   }
 
+  // Decoration
   InputDecoration inputDecoration({
     required String hint,
     required IconData icon,
@@ -477,51 +864,77 @@ class RegisterScreen extends StatelessWidget {
     return InputDecoration(
       hintText: hint,
 
-      hintStyle: TextStyle(
-        fontSize: 14,
-        color: Color(0xFF9CA3AF),
+      hintStyle:
+          TextStyle(
+        color:
+            Color(0xFF9CA3AF),
+
+        fontSize: 12,
       ),
 
-      prefixIcon: Icon(
+      prefixIcon:
+          Icon(
         icon,
-        color: Color(0xFF6B7280),
-        size: 21,
+
+        color:
+            secondaryTextColor,
+
+        size: 18,
       ),
 
-      suffixIcon: suffix,
+      suffixIcon:
+          suffix,
 
       filled: true,
-      fillColor: Colors.white,
+
+      fillColor:
+          fieldColor,
 
       isDense: true,
 
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 14,
+      contentPadding:
+          EdgeInsets.symmetric(
+        vertical: 11,
       ),
 
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+      border:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          12,
+        ),
 
-        borderSide: BorderSide(
-          color: Color(0xFFE5E7EB),
+        borderSide:
+            BorderSide.none,
+      ),
+
+      enabledBorder:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          12,
+        ),
+
+        borderSide:
+            BorderSide(
+          color:
+              borderColor,
         ),
       ),
 
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-
-        borderSide: BorderSide(
-          color: Color(0xFFE5E7EB),
+      focusedBorder:
+          OutlineInputBorder(
+        borderRadius:
+            BorderRadius.circular(
+          12,
         ),
-      ),
 
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderSide:
+            BorderSide(
+          color:
+              Color(0xFF03045E),
 
-        borderSide: BorderSide(
-          color: Color(0xFF03045E),
-          width: 1.5,
+          width: 1.4,
         ),
       ),
     );
