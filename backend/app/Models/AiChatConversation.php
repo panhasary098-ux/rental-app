@@ -4,13 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AiChatMessage extends Model
+class AiChatConversation extends Model
 {
     protected $fillable = [
         'user_id',
-        'conversation_id',
-        'role',
-        'message',
+        'title',
     ];
 
     // User
@@ -21,11 +19,11 @@ class AiChatMessage extends Model
         );
     }
 
-    // Conversation
-    public function conversation()
+    // Messages
+    public function messages()
     {
-        return $this->belongsTo(
-            AiChatConversation::class,
+        return $this->hasMany(
+            AiChatMessage::class,
             'conversation_id'
         );
     }

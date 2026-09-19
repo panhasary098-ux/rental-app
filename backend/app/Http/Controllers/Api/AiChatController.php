@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AiChatConversation;
 use App\Models\AiChatMessage;
 use App\Models\Property;
 use Illuminate\Http\Client\ConnectionException;
@@ -15,14 +16,54 @@ class AiChatController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
-            'message' => 'required|string|max:1000',
-            'history' => 'nullable|array',
-            'history.*.role' => 'required|string|in:user,model',
-            'history.*.text' => 'required|string|max:2000',
+            'conversation_id' =>
+                'required|integer',
+
+            'message' =>
+                'required|string|max:1000',
+
+            'history' =>
+                'nullable|array',
+
+            'history.*.role' =>
+                'required|string|in:user,model',
+
+            'history.*.text' =>
+                'required|string|max:2000',
         ]);
 
-        $userMessage = trim($request->message);
-        $history = $request->history ?? [];
+        $conversation =
+            AiChatConversation::find(
+                $request->conversation_id
+            );
+
+        if (!$conversation) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Conversation not found.',
+            ], 404);
+        }
+
+        // Owner Check
+        if (
+            $conversation->user_id
+            !== $request->user()->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Unauthorized conversation.',
+            ], 403);
+        }
+
+        $userMessage =
+            trim(
+                $request->message
+            );
+
+        $history =
+            $request->history ?? [];
 
         // Search Real Properties
         $propertyContext =
@@ -100,20 +141,29 @@ $propertyContext
 PROMPT;
 
         try {
-            $apiKey = config('services.gemini.key');
+            $apiKey =
+                config(
+                    'services.gemini.key'
+                );
 
-            $primaryModel = config(
-                'services.gemini.model'
-            );
+            $primaryModel =
+                config(
+                    'services.gemini.model'
+                );
 
-            $fallbackModel = config(
-                'services.gemini.fallback_model'
-            );
+            $fallbackModel =
+                config(
+                    'services.gemini.fallback_model'
+                );
 
-            if ($apiKey == null || $apiKey == '') {
+            if (
+                $apiKey == null ||
+                $apiKey == ''
+            ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gemini API key is missing.',
+                    'message' =>
+                        'Gemini API key is missing.',
                 ], 500);
             }
 
@@ -123,25 +173,35 @@ PROMPT;
             ) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Primary Gemini model is missing.',
+                    'message' =>
+                        'Primary Gemini model is missing.',
                 ], 500);
             }
 
             // Build Conversation
             $contents = [];
 
-            foreach ($history as $historyMessage) {
+            foreach (
+                $history
+                as $historyMessage
+            ) {
                 $role =
-                    $historyMessage['role'] ?? null;
+                    $historyMessage['role']
+                    ?? null;
 
-                $text = trim(
-                    $historyMessage['text'] ?? ''
-                );
+                $text =
+                    trim(
+                        $historyMessage['text']
+                        ?? ''
+                    );
 
                 if (
                     !in_array(
                         $role,
-                        ['user', 'model']
+                        [
+                            'user',
+                            'model',
+                        ]
                     ) ||
                     $text == ''
                 ) {
@@ -150,9 +210,11 @@ PROMPT;
 
                 $contents[] = [
                     'role' => $role,
+
                     'parts' => [
                         [
-                            'text' => $text,
+                            'text' =>
+                                $text,
                         ],
                     ],
                 ];
@@ -161,23 +223,53 @@ PROMPT;
             // Current Message
             $contents[] = [
                 'role' => 'user',
+
                 'parts' => [
                     [
-                        'text' => $userMessage,
+                        'text' =>
+                            $userMessage,
                     ],
                 ],
             ];
 
             // Save User Message
             AiChatMessage::create([
-                'user_id' => $request->user()->id,
-                'role' => 'user',
-                'message' => $userMessage,
+                'user_id' =>
+                    $request->user()->id,
+
+                'conversation_id' =>
+                    $conversation->id,
+
+                'role' =>
+                    'user',
+
+                'message' =>
+                    $userMessage,
             ]);
+
+            // Update Conversation Title
+            if (
+                $conversation->title == null ||
+                trim(
+                    $conversation->title
+                ) == ''
+            ) {
+                $title =
+                    $this->createConversationTitle(
+                        $userMessage
+                    );
+
+                $conversation->update([
+                    'title' =>
+                        $title,
+                ]);
+            }
 
             // Primary Model
             $response = null;
-            $usedModel = $primaryModel;
+
+            $usedModel =
+                $primaryModel;
 
             try {
                 $response =
@@ -187,7 +279,9 @@ PROMPT;
                         $systemPrompt,
                         $contents
                     );
-            } catch (ConnectionException $e) {
+            } catch (
+                ConnectionException $e
+            ) {
                 $response = null;
             }
 
@@ -202,7 +296,8 @@ PROMPT;
                 $useFallback &&
                 $fallbackModel != null &&
                 $fallbackModel != '' &&
-                $fallbackModel != $primaryModel
+                $fallbackModel !=
+                    $primaryModel
             ) {
                 try {
                     $response =
@@ -215,7 +310,9 @@ PROMPT;
 
                     $usedModel =
                         $fallbackModel;
-                } catch (ConnectionException $e) {
+                } catch (
+                    ConnectionException $e
+                ) {
                     $response = null;
                 }
             }
@@ -231,9 +328,11 @@ PROMPT;
 
             // Request Failed
             if ($response->failed()) {
-                $error = $response->json();
+                $error =
+                    $response->json();
 
-                $status = $response->status();
+                $status =
+                    $response->status();
 
                 $errorStatus =
                     $error['error']['status']
@@ -241,7 +340,8 @@ PROMPT;
 
                 if (
                     $status == 503 ||
-                    $errorStatus == 'UNAVAILABLE'
+                    $errorStatus ==
+                        'UNAVAILABLE'
                 ) {
                     return response()->json([
                         'success' => false,
@@ -266,11 +366,13 @@ PROMPT;
                     'success' => false,
                     'message' =>
                         'AI service request failed.',
-                    'error' => $error,
+                    'error' =>
+                        $error,
                 ], 500);
             }
 
-            $data = $response->json();
+            $data =
+                $response->json();
 
             $reply =
                 $data['candidates'][0]
@@ -290,41 +392,220 @@ PROMPT;
                 ], 500);
             }
 
-            $reply = trim($reply);
+            $reply =
+                trim(
+                    $reply
+                );
 
             // Save AI Message
             AiChatMessage::create([
-                'user_id' => $request->user()->id,
-                'role' => 'assistant',
-                'message' => $reply,
+                'user_id' =>
+                    $request->user()->id,
+
+                'conversation_id' =>
+                    $conversation->id,
+
+                'role' =>
+                    'assistant',
+
+                'message' =>
+                    $reply,
             ]);
+
+            $conversation->touch();
 
             return response()->json([
                 'success' => true,
-                'reply' => $reply,
+
+                'reply' =>
+                    $reply,
+
+                'conversation_id' =>
+                    $conversation->id,
+
+                'conversation_title' =>
+                    $conversation->title,
 
                 // Temporary For Testing
-                'model' => $usedModel,
+                'model' =>
+                    $usedModel,
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
+
                 'message' =>
                     'Unable to contact AI service.',
+
                 'error' =>
                     $e->getMessage(),
             ], 500);
         }
     }
 
+    // Create Conversation
+    public function createConversation(
+        Request $request
+    ) {
+        $conversation =
+            AiChatConversation::create([
+                'user_id' =>
+                    $request->user()->id,
+
+                'title' =>
+                    null,
+            ]);
+
+        return response()->json([
+            'success' => true,
+
+            'message' =>
+                'New conversation created successfully.',
+
+            'conversation' =>
+                $conversation,
+        ], 201);
+    }
+
+    // Get Conversations
+    public function conversations(
+        Request $request
+    ) {
+        $conversations =
+            AiChatConversation::where(
+                'user_id',
+                $request->user()->id
+            )
+                ->withCount(
+                    'messages'
+                )
+                ->orderBy(
+                    'updated_at',
+                    'desc'
+                )
+                ->get();
+
+        return response()->json([
+            'success' => true,
+
+            'conversations' =>
+                $conversations,
+        ]);
+    }
+
+    // Get Conversation
+    public function conversation(
+        Request $request,
+        AiChatConversation $conversation
+    ) {
+        // Owner Check
+        if (
+            $conversation->user_id
+            !== $request->user()->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Unauthorized conversation.',
+            ], 403);
+        }
+
+        $messages =
+            $conversation
+                ->messages()
+                ->orderBy(
+                    'created_at',
+                    'asc'
+                )
+                ->get();
+
+        return response()->json([
+            'success' => true,
+
+            'conversation' => [
+                'id' =>
+                    $conversation->id,
+
+                'title' =>
+                    $conversation->title,
+
+                'created_at' =>
+                    $conversation->created_at,
+
+                'updated_at' =>
+                    $conversation->updated_at,
+            ],
+
+            'messages' =>
+                $messages,
+        ]);
+    }
+
+    // Clear Conversation
+    public function clearConversation(
+        Request $request,
+        AiChatConversation $conversation
+    ) {
+        // Owner Check
+        if (
+            $conversation->user_id
+            !== $request->user()->id
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Unauthorized conversation.',
+            ], 403);
+        }
+
+        $conversation->delete();
+
+        return response()->json([
+            'success' => true,
+
+            'message' =>
+                'Conversation deleted successfully.',
+        ]);
+    }
+
+    // Create Conversation Title
+    private function createConversationTitle(
+        string $message
+    ): string {
+        $message =
+            trim(
+                preg_replace(
+                    '/\s+/',
+                    ' ',
+                    $message
+                )
+            );
+
+        if (
+            mb_strlen(
+                $message
+            ) <= 45
+        ) {
+            return $message;
+        }
+
+        return
+            mb_substr(
+                $message,
+                0,
+                42
+            )
+            . '...';
+    }
+
     // Get Property Context
     private function getPropertyContext(
         string $userMessage
     ): string {
-        $message = strtolower(
-            $userMessage
-        );
+        $message =
+            strtolower(
+                $userMessage
+            );
 
         // Detect Property Search
         $searchWords = [
@@ -349,7 +630,10 @@ PROMPT;
 
         $isPropertySearch = false;
 
-        foreach ($searchWords as $word) {
+        foreach (
+            $searchWords
+            as $word
+        ) {
             if (
                 str_contains(
                     $message,
@@ -367,19 +651,20 @@ PROMPT;
         }
 
         // Public Properties
-        $query = Property::query()
-            ->where(
-                'rental_status',
-                'available'
-            )
-            ->where(
-                'verification_status',
-                'approved'
-            )
-            ->where(
-                'post_status',
-                'active'
-            );
+        $query =
+            Property::query()
+                ->where(
+                    'rental_status',
+                    'available'
+                )
+                ->where(
+                    'verification_status',
+                    'approved'
+                )
+                ->where(
+                    'post_status',
+                    'active'
+                );
 
         // Property Type
         if (
@@ -502,13 +787,14 @@ PROMPT;
         }
 
         // Get Matching Properties
-        $properties = $query
-            ->orderBy(
-                'price',
-                'asc'
-            )
-            ->limit(5)
-            ->get();
+        $properties =
+            $query
+                ->orderBy(
+                    'price',
+                    'asc'
+                )
+                ->limit(5)
+                ->get();
 
         if ($properties->isEmpty()) {
             return
@@ -517,7 +803,10 @@ PROMPT;
 
         $propertyLines = [];
 
-        foreach ($properties as $property) {
+        foreach (
+            $properties
+            as $property
+        ) {
             $propertyLines[] =
                 'Property ID: '
                 . $property->id
@@ -582,7 +871,10 @@ PROMPT;
             '/\$?\s*(\d+(?:\.\d+)?)\s*(?:-|to)\s*\$?\s*(\d+(?:\.\d+)?)/i',
         ];
 
-        foreach ($patterns as $pattern) {
+        foreach (
+            $patterns
+            as $pattern
+        ) {
             if (
                 preg_match(
                     $pattern,
@@ -597,14 +889,17 @@ PROMPT;
                     (float) $matches[2];
 
                 return [
-                    'min' => min(
-                        $firstPrice,
-                        $secondPrice
-                    ),
-                    'max' => max(
-                        $firstPrice,
-                        $secondPrice
-                    ),
+                    'min' =>
+                        min(
+                            $firstPrice,
+                            $secondPrice
+                        ),
+
+                    'max' =>
+                        max(
+                            $firstPrice,
+                            $secondPrice
+                        ),
                 ];
             }
         }
@@ -621,7 +916,10 @@ PROMPT;
             '/\$\s*(\d+(?:\.\d+)?)\s*(?:or less|maximum|max)/i',
         ];
 
-        foreach ($patterns as $pattern) {
+        foreach (
+            $patterns
+            as $pattern
+        ) {
             if (
                 preg_match(
                     $pattern,
@@ -629,7 +927,8 @@ PROMPT;
                     $matches
                 )
             ) {
-                return (float) $matches[1];
+                return
+                    (float) $matches[1];
             }
         }
 
@@ -646,7 +945,10 @@ PROMPT;
             '/(\d+)\s*bed\b/i',
         ];
 
-        foreach ($patterns as $pattern) {
+        foreach (
+            $patterns
+            as $pattern
+        ) {
             if (
                 preg_match(
                     $pattern,
@@ -654,7 +956,8 @@ PROMPT;
                     $matches
                 )
             ) {
-                return (int) $matches[1];
+                return
+                    (int) $matches[1];
             }
         }
 
@@ -671,7 +974,10 @@ PROMPT;
             '/(\d+)\s*bath\b/i',
         ];
 
-        foreach ($patterns as $pattern) {
+        foreach (
+            $patterns
+            as $pattern
+        ) {
             if (
                 preg_match(
                     $pattern,
@@ -679,45 +985,12 @@ PROMPT;
                     $matches
                 )
             ) {
-                return (int) $matches[1];
+                return
+                    (int) $matches[1];
             }
         }
 
         return null;
-    }
-
-    // Get History
-    public function history(Request $request)
-    {
-        $messages = AiChatMessage::where(
-            'user_id',
-            $request->user()->id
-        )
-            ->orderBy(
-                'created_at',
-                'asc'
-            )
-            ->get();
-
-        return response()->json([
-            'success' => true,
-            'messages' => $messages,
-        ]);
-    }
-
-    // Clear History
-    public function clearHistory(Request $request)
-    {
-        AiChatMessage::where(
-            'user_id',
-            $request->user()->id
-        )->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' =>
-                'Chat history cleared successfully.',
-        ]);
     }
 
     // Gemini Request
@@ -733,45 +1006,53 @@ PROMPT;
             . ":generateContent?key="
             . $apiKey;
 
-        return Http::acceptJson()
-            ->connectTimeout(5)
-            ->timeout(10)
-            ->post(
-                $url,
-                [
-                    'systemInstruction' => [
-                        'parts' => [
-                            [
-                                'text' =>
-                                    $systemPrompt,
+        return
+            Http::acceptJson()
+                ->connectTimeout(5)
+                ->timeout(10)
+                ->post(
+                    $url,
+                    [
+                        'systemInstruction' => [
+                            'parts' => [
+                                [
+                                    'text' =>
+                                        $systemPrompt,
+                                ],
                             ],
                         ],
-                    ],
 
-                    'contents' =>
-                        $contents,
+                        'contents' =>
+                            $contents,
 
-                    'generationConfig' => [
-                        'maxOutputTokens' =>
-                            1200,
-                    ],
-                ]
-            );
+                        'generationConfig' => [
+                            'maxOutputTokens' =>
+                                1200,
+                        ],
+                    ]
+                );
     }
 
     // Fallback Check
     private function shouldUseFallback(
         $response
     ): bool {
-        if ($response->status() == 503) {
+        if (
+            $response->status()
+            == 503
+        ) {
             return true;
         }
 
-        if ($response->status() == 429) {
+        if (
+            $response->status()
+            == 429
+        ) {
             return true;
         }
 
-        $error = $response->json();
+        $error =
+            $response->json();
 
         $errorStatus =
             $error['error']['status']

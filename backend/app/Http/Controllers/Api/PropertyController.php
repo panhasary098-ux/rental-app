@@ -120,12 +120,6 @@ class PropertyController extends Controller
 
             'ownership_document' =>
                 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
-
-            'transaction_reference' =>
-                'nullable|string|max:255',
-
-            'payment_proof' =>
-                'required|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         // Validate available floors
@@ -165,9 +159,9 @@ class PropertyController extends Controller
         // Payment amount
         $paymentAmount =
             match ($validated['property_type']) {
-                'house' => 50.00,
-                'apartment' => 40.00,
-                'room' => 30.00,
+                'house' => 0.50,
+                'apartment' => 0.40,
+                'room' => 0.10,
             };
 
         // Create property and related data
@@ -316,24 +310,16 @@ class PropertyController extends Controller
                     $ownershipPath,
             ]);
 
-            // Payment proof
-            $paymentProofPath =
-                $request
-                    ->file('payment_proof')
-                    ->store(
-                        'payment_proofs'
-                    );
-
             // Payment
             $property->payment()->create([
                 'amount' =>
                     $paymentAmount,
 
                 'transaction_reference' =>
-                    $validated['transaction_reference'] ?? null,
+                    null,
 
                 'payment_proof_path' =>
-                    $paymentProofPath,
+                    null,
 
                 'payment_status' =>
                     'pending',
@@ -360,10 +346,21 @@ class PropertyController extends Controller
             'success' => true,
 
             'message' =>
-                'Property submitted successfully and is waiting for admin review',
+                'Property created successfully. Please complete the payment.',
 
             'property' =>
                 $property,
+
+            'payment' => [
+                'id' =>
+                    $property->payment->id,
+
+                'amount' =>
+                    $property->payment->amount,
+
+                'payment_status' =>
+                    $property->payment->payment_status,
+            ],
         ], 201);
     }
 
@@ -1163,156 +1160,22 @@ class PropertyController extends Controller
     }
 
     // Get admin feedback notifications for logged-in owner
-public function ownerNotifications(Request $request)
-{
-    $user = $request->user();
+    public function ownerNotifications(Request $request)
+    {
+        $user = $request->user();
 
-    if (
-        !$user ||
-        $user->role !== 'house_owner'
-    ) {
-        return response()->json([
-            'success' => false,
-            'message' =>
-                'Only house owners can view notifications',
-        ], 403);
-    }
-
-    $reviews = VerificationReview::whereHas(
-        'property',
-        function ($query) use ($user) {
-            $query->where(
-                'owner_id',
-                $user->id
-            );
+        if (
+            !$user ||
+            $user->role !== 'house_owner'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Only house owners can view notifications',
+            ], 403);
         }
-    )
-        ->with([
-            'property.images' => function ($query) {
-                $query->orderBy(
-                    'sort_order'
-                );
-            },
-        ])
-        ->latest()
-        ->get();
 
-    $notifications = $reviews->map(
-        function ($review) {
-            $property = $review->property;
-
-            if (!$property) {
-                return null;
-            }
-
-            $coverImage =
-                $property
-                    ->images
-                    ->firstWhere(
-                        'is_cover',
-                        true
-                    );
-
-            if (!$coverImage) {
-                $coverImage =
-                    $property
-                        ->images
-                        ->first();
-            }
-
-            $imageUrl = null;
-
-            if (
-                $coverImage &&
-                $coverImage->image_path
-            ) {
-                $imageUrl =
-                    asset(
-                        'storage/' .
-                        $coverImage->image_path
-                    );
-            }
-
-            return [
-                'id' =>
-                    $review->id,
-
-                'property_id' =>
-                    $property->id,
-
-                'property_name' =>
-                    $property->name,
-
-                'property_image' =>
-                    $imageUrl,
-
-                'location' =>
-                    $property->address,
-
-                'type' =>
-                    $review->action,
-
-                'reason' =>
-                    $review->reason,
-
-                'note' =>
-                    $review->note,
-
-                'is_new' =>
-                    $review->seen_at === null,
-
-                'seen_at' =>
-                    $review->seen_at,
-
-                'created_at' =>
-                    $review->created_at,
-            ];
-        }
-    )
-        ->filter()
-        ->values();
-
-    $newCount =
-        $notifications
-            ->where(
-                'is_new',
-                true
-            )
-            ->count();
-
-    return response()->json([
-        'success' => true,
-
-        'new_count' =>
-            $newCount,
-
-        'notifications' =>
-            $notifications,
-    ], 200);
-}
-
-
-// Mark owner's new admin feedback as seen
-public function markOwnerNotificationsSeen(
-    Request $request
-) {
-    $user = $request->user();
-
-    if (
-        !$user ||
-        $user->role !== 'house_owner'
-    ) {
-        return response()->json([
-            'success' => false,
-            'message' =>
-                'Only house owners can update notifications',
-        ], 403);
-    }
-
-    VerificationReview::whereNull(
-        'seen_at'
-    )
-        ->whereHas(
+        $reviews = VerificationReview::whereHas(
             'property',
             function ($query) use ($user) {
                 $query->where(
@@ -1321,16 +1184,150 @@ public function markOwnerNotificationsSeen(
                 );
             }
         )
-        ->update([
-            'seen_at' =>
-                now(),
-        ]);
+            ->with([
+                'property.images' => function ($query) {
+                    $query->orderBy(
+                        'sort_order'
+                    );
+                },
+            ])
+            ->latest()
+            ->get();
 
-    return response()->json([
-        'success' => true,
+        $notifications = $reviews->map(
+            function ($review) {
+                $property = $review->property;
 
-        'message' =>
-            'Notifications marked as seen',
-    ], 200);
-}
+                if (!$property) {
+                    return null;
+                }
+
+                $coverImage =
+                    $property
+                        ->images
+                        ->firstWhere(
+                            'is_cover',
+                            true
+                        );
+
+                if (!$coverImage) {
+                    $coverImage =
+                        $property
+                            ->images
+                            ->first();
+                }
+
+                $imageUrl = null;
+
+                if (
+                    $coverImage &&
+                    $coverImage->image_path
+                ) {
+                    $imageUrl =
+                        asset(
+                            'storage/' .
+                            $coverImage->image_path
+                        );
+                }
+
+                return [
+                    'id' =>
+                        $review->id,
+
+                    'property_id' =>
+                        $property->id,
+
+                    'property_name' =>
+                        $property->name,
+
+                    'property_image' =>
+                        $imageUrl,
+
+                    'location' =>
+                        $property->address,
+
+                    'type' =>
+                        $review->action,
+
+                    'reason' =>
+                        $review->reason,
+
+                    'note' =>
+                        $review->note,
+
+                    'is_new' =>
+                        $review->seen_at === null,
+
+                    'seen_at' =>
+                        $review->seen_at,
+
+                    'created_at' =>
+                        $review->created_at,
+                ];
+            }
+        )
+            ->filter()
+            ->values();
+
+        $newCount =
+            $notifications
+                ->where(
+                    'is_new',
+                    true
+                )
+                ->count();
+
+        return response()->json([
+            'success' => true,
+
+            'new_count' =>
+                $newCount,
+
+            'notifications' =>
+                $notifications,
+        ], 200);
+    }
+
+
+    // Mark owner's new admin feedback as seen
+    public function markOwnerNotificationsSeen(
+        Request $request
+    ) {
+        $user = $request->user();
+
+        if (
+            !$user ||
+            $user->role !== 'house_owner'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                    'Only house owners can update notifications',
+            ], 403);
+        }
+
+        VerificationReview::whereNull(
+            'seen_at'
+        )
+            ->whereHas(
+                'property',
+                function ($query) use ($user) {
+                    $query->where(
+                        'owner_id',
+                        $user->id
+                    );
+                }
+            )
+            ->update([
+                'seen_at' =>
+                    now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+
+            'message' =>
+                'Notifications marked as seen',
+        ], 200);
+    }
 }

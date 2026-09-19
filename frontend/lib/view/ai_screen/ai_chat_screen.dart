@@ -9,6 +9,9 @@ class AiChatScreen extends StatelessWidget {
     AiChatController(),
   );
 
+  final GlobalKey<ScaffoldState> scaffoldKey =
+      GlobalKey<ScaffoldState>();
+
   final Color primaryColor = Color(0xFF03045E);
   final Color backgroundColor = Color(0xFFF5F6F8);
   final Color borderColor = Color(0xFFE7E8EC);
@@ -17,7 +20,11 @@ class AiChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: backgroundColor,
+
+      // Chat History
+      endDrawer: buildChatHistoryDrawer(),
 
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -153,8 +160,49 @@ class AiChatScreen extends StatelessWidget {
           ],
         ),
 
-        // Clear Chat
+        // History And Clear
         actions: [
+          // History
+          Center(
+            child: GestureDetector(
+              onTap: () async {
+                await controller.loadConversations();
+
+                scaffoldKey.currentState
+                    ?.openEndDrawer();
+              },
+
+              child: Container(
+                width: 38,
+                height: 38,
+
+                decoration: BoxDecoration(
+                  color: Color(0xFFF5F6F8),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    12,
+                  ),
+
+                  border: Border.all(
+                    color: borderColor,
+                  ),
+                ),
+
+                child: Icon(
+                  Icons.history_rounded,
+                  color: primaryColor,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(
+            width: 8,
+          ),
+
+          // Clear Chat
           Padding(
             padding: EdgeInsets.only(
               right: 12,
@@ -215,6 +263,21 @@ class AiChatScreen extends StatelessWidget {
             Expanded(
               child: Obx(
                 () {
+                  if (controller.isLoadingHistory.value) {
+                    return Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+
+                        child:
+                            CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: primaryColor,
+                        ),
+                      ),
+                    );
+                  }
+
                   if (controller.messages.isEmpty &&
                       !controller.isLoading.value) {
                     return buildEmptyState();
@@ -482,6 +545,617 @@ class AiChatScreen extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Chat History Drawer
+  Widget buildChatHistoryDrawer() {
+    return Drawer(
+      width: Get.width * 0.86,
+      backgroundColor: Colors.white,
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(
+            24,
+          ),
+          bottomLeft: Radius.circular(
+            24,
+          ),
+        ),
+      ),
+
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                18,
+                16,
+                14,
+              ),
+
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+
+                      borderRadius:
+                          BorderRadius.circular(
+                        13,
+                      ),
+                    ),
+
+                    child: Icon(
+                      Icons
+                          .forum_outlined,
+                      color: Colors.white,
+                      size: 21,
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: 11,
+                  ),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment
+                              .start,
+
+                      children: [
+                        Text(
+                          "Chat History",
+
+                          style: TextStyle(
+                            color: Color(
+                              0xFF171823,
+                            ),
+                            fontSize: 18,
+                            fontWeight:
+                                FontWeight
+                                    .w800,
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: 2,
+                        ),
+
+                        Text(
+                          "Your JoulNow AI conversations",
+
+                          style: TextStyle(
+                            color:
+                                mutedTextColor,
+                            fontSize: 11.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  GestureDetector(
+                    onTap: () {
+                      Get.back();
+                    },
+
+                    child: Container(
+                      width: 36,
+                      height: 36,
+
+                      decoration:
+                          BoxDecoration(
+                        color: Color(
+                          0xFFF5F6F8,
+                        ),
+
+                        borderRadius:
+                            BorderRadius
+                                .circular(
+                          11,
+                        ),
+
+                        border:
+                            Border.all(
+                          color:
+                              borderColor,
+                        ),
+                      ),
+
+                      child: Icon(
+                        Icons.close_rounded,
+                        color: Color(
+                          0xFF666975,
+                        ),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            Divider(
+              height: 1,
+              color: Color(
+                0xFFEEEFF2,
+              ),
+            ),
+
+            // New Chat
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                16,
+                16,
+                12,
+              ),
+
+              child: GestureDetector(
+                onTap: () async {
+                  Get.back();
+
+                  await controller
+                      .createNewChat();
+                },
+
+                child: Container(
+                  width: double.infinity,
+
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+
+                    borderRadius:
+                        BorderRadius.circular(
+                      15,
+                    ),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor
+                            .withOpacity(
+                          0.14,
+                        ),
+                        blurRadius: 12,
+                        offset: Offset(
+                          0,
+                          4,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  child: Row(
+                    mainAxisAlignment:
+                        MainAxisAlignment
+                            .center,
+
+                    children: [
+                      Icon(
+                        Icons
+                            .add_comment_outlined,
+                        color: Colors.white,
+                        size: 19,
+                      ),
+
+                      SizedBox(
+                        width: 8,
+                      ),
+
+                      Text(
+                        "New Chat",
+
+                        style: TextStyle(
+                          color:
+                              Colors.white,
+                          fontSize: 13.5,
+                          fontWeight:
+                              FontWeight
+                                  .w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Conversations
+            Expanded(
+              child: Obx(
+                () {
+                  if (controller
+                      .isLoadingConversations
+                      .value) {
+                    return Center(
+                      child: SizedBox(
+                        width: 24,
+                        height: 24,
+
+                        child:
+                            CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color:
+                              primaryColor,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (controller
+                      .conversations
+                      .isEmpty) {
+                    return buildEmptyHistory();
+                  }
+
+                  return ListView.builder(
+                    padding: EdgeInsets.fromLTRB(
+                      12,
+                      2,
+                      12,
+                      20,
+                    ),
+
+                    itemCount:
+                        controller
+                            .conversations
+                            .length,
+
+                    itemBuilder: (
+                      context,
+                      index,
+                    ) {
+                      Map<String, dynamic>
+                          conversation =
+                          controller
+                              .conversations[
+                            index
+                          ];
+
+                      return buildConversationItem(
+                        conversation,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Conversation Item
+  Widget buildConversationItem(
+    Map<String, dynamic> conversation,
+  ) {
+    int? conversationId =
+        controller.parseConversationId(
+      conversation["id"],
+    );
+
+    String title =
+        conversation["title"]
+                ?.toString()
+                .trim() ??
+            "";
+
+    if (title.isEmpty) {
+      title = "New Chat";
+    }
+
+    int messageCount =
+        int.tryParse(
+          conversation["messages_count"]
+                  ?.toString() ??
+              "0",
+        ) ??
+        0;
+
+    return Obx(
+      () {
+        bool isSelected =
+            conversationId != null &&
+            controller
+                    .currentConversationId
+                    .value ==
+                conversationId;
+
+        return Container(
+          margin: EdgeInsets.only(
+            bottom: 7,
+          ),
+
+          decoration: BoxDecoration(
+            color: isSelected
+                ? Color(0xFFF2F3F8)
+                : Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(
+              14,
+            ),
+
+            border: Border.all(
+              color: isSelected
+                  ? primaryColor
+                      .withOpacity(
+                      0.15,
+                    )
+                  : Colors.transparent,
+            ),
+          ),
+
+          child: Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior:
+                      HitTestBehavior
+                          .opaque,
+
+                  onTap: () async {
+                    if (
+                        conversationId ==
+                        null
+                    ) {
+                      return;
+                    }
+
+                    Get.back();
+
+                    await controller
+                        .openConversation(
+                      conversationId,
+                    );
+                  },
+
+                  child: Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(
+                      13,
+                      12,
+                      8,
+                      12,
+                    ),
+
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+
+                          decoration:
+                              BoxDecoration(
+                            color: isSelected
+                                ? primaryColor
+                                : Color(
+                                    0xFFF5F6F8,
+                                  ),
+
+                            borderRadius:
+                                BorderRadius
+                                    .circular(
+                              12,
+                            ),
+                          ),
+
+                          child: Icon(
+                            Icons
+                                .chat_bubble_outline_rounded,
+                            color: isSelected
+                                ? Colors.white
+                                : primaryColor,
+                            size: 18,
+                          ),
+                        ),
+
+                        SizedBox(
+                          width: 11,
+                        ),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment
+                                    .start,
+
+                            children: [
+                              Text(
+                                title,
+
+                                maxLines: 1,
+
+                                overflow:
+                                    TextOverflow
+                                        .ellipsis,
+
+                                style:
+                                    TextStyle(
+                                  color: Color(
+                                    0xFF272833,
+                                  ),
+                                  fontSize:
+                                      13,
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight
+                                              .w700
+                                          : FontWeight
+                                              .w600,
+                                ),
+                              ),
+
+                              SizedBox(
+                                height: 4,
+                              ),
+
+                              Text(
+                                messageCount ==
+                                        1
+                                    ? "1 message"
+                                    : "$messageCount messages",
+
+                                style:
+                                    TextStyle(
+                                  color:
+                                      mutedTextColor,
+                                  fontSize:
+                                      10.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Delete Conversation
+              GestureDetector(
+                onTap: () {
+                  if (
+                      conversationId ==
+                      null
+                  ) {
+                    return;
+                  }
+
+                  showDeleteConversationDialog(
+                    conversationId,
+                    title,
+                  );
+                },
+
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(
+                    right: 12,
+                  ),
+
+                  child: Container(
+                    width: 34,
+                    height: 34,
+
+                    decoration:
+                        BoxDecoration(
+                      color: Color(
+                        0xFFF7F7F9,
+                      ),
+
+                      borderRadius:
+                          BorderRadius
+                              .circular(
+                        10,
+                      ),
+                    ),
+
+                    child: Icon(
+                      Icons
+                          .delete_outline_rounded,
+                      color: Color(
+                        0xFF8A8D98,
+                      ),
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Empty History
+  Widget buildEmptyHistory() {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 30,
+        ),
+
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min,
+
+          children: [
+            Container(
+              width: 58,
+              height: 58,
+
+              decoration: BoxDecoration(
+                color: Color(
+                  0xFFF3F4F7,
+                ),
+
+                borderRadius:
+                    BorderRadius.circular(
+                  18,
+                ),
+              ),
+
+              child: Icon(
+                Icons
+                    .chat_bubble_outline_rounded,
+                color: primaryColor,
+                size: 25,
+              ),
+            ),
+
+            SizedBox(
+              height: 15,
+            ),
+
+            Text(
+              "No conversations yet",
+
+              style: TextStyle(
+                color: Color(
+                  0xFF252631,
+                ),
+                fontSize: 15,
+                fontWeight:
+                    FontWeight.w700,
+              ),
+            ),
+
+            SizedBox(
+              height: 6,
+            ),
+
+            Text(
+              "Start a new chat with JoulNow AI.",
+
+              textAlign:
+                  TextAlign.center,
+
+              style: TextStyle(
+                color:
+                    mutedTextColor,
+                fontSize: 12,
               ),
             ),
           ],
@@ -986,7 +1660,7 @@ class AiChatScreen extends StatelessWidget {
               ),
 
               Text(
-                "This will remove your current chat history.",
+                "This will permanently delete your current conversation.",
 
                 textAlign:
                     TextAlign.center,
@@ -1053,10 +1727,10 @@ class AiChatScreen extends StatelessWidget {
                     child:
                         ElevatedButton(
                       onPressed: () {
+                        Get.back();
+
                         controller
                             .clearChat();
-
-                        Get.back();
                       },
 
                       style:
@@ -1088,6 +1762,207 @@ class AiChatScreen extends StatelessWidget {
 
                       child: Text(
                         "Clear",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Delete Conversation Dialog
+  void showDeleteConversationDialog(
+    int conversationId,
+    String title,
+  ) {
+    Get.dialog(
+      Dialog(
+        backgroundColor:
+            Colors.transparent,
+
+        insetPadding:
+            EdgeInsets.symmetric(
+          horizontal: 28,
+        ),
+
+        child: Container(
+          padding: EdgeInsets.all(
+            22,
+          ),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(
+              22,
+            ),
+          ),
+
+          child: Column(
+            mainAxisSize:
+                MainAxisSize.min,
+
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+
+                decoration:
+                    BoxDecoration(
+                  color: Color(
+                    0xFFF4F4F7,
+                  ),
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    16,
+                  ),
+                ),
+
+                child: Icon(
+                  Icons
+                      .delete_outline_rounded,
+                  color: primaryColor,
+                  size: 25,
+                ),
+              ),
+
+              SizedBox(
+                height: 17,
+              ),
+
+              Text(
+                "Delete conversation?",
+
+                style: TextStyle(
+                  color: Color(
+                    0xFF171823,
+                  ),
+                  fontSize: 18,
+                  fontWeight:
+                      FontWeight.w800,
+                ),
+              ),
+
+              SizedBox(
+                height: 8,
+              ),
+
+              Text(
+                "\"$title\" will be permanently deleted.",
+
+                textAlign:
+                    TextAlign.center,
+
+                maxLines: 2,
+
+                overflow:
+                    TextOverflow.ellipsis,
+
+                style: TextStyle(
+                  color:
+                      mutedTextColor,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+              ),
+
+              SizedBox(
+                height: 22,
+              ),
+
+              Row(
+                children: [
+                  Expanded(
+                    child:
+                        OutlinedButton(
+                      onPressed: () {
+                        Get.back();
+                      },
+
+                      style:
+                          OutlinedButton
+                              .styleFrom(
+                        foregroundColor:
+                            primaryColor,
+
+                        side: BorderSide(
+                          color:
+                              borderColor,
+                        ),
+
+                        padding:
+                            EdgeInsets
+                                .symmetric(
+                          vertical: 13,
+                        ),
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
+                        ),
+                      ),
+
+                      child: Text(
+                        "Cancel",
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    width: 10,
+                  ),
+
+                  Expanded(
+                    child:
+                        ElevatedButton(
+                      onPressed: () async {
+                        Get.back();
+
+                        await controller
+                            .deleteConversation(
+                          conversationId,
+                        );
+                      },
+
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            primaryColor,
+
+                        foregroundColor:
+                            Colors.white,
+
+                        elevation: 0,
+
+                        padding:
+                            EdgeInsets
+                                .symmetric(
+                          vertical: 13,
+                        ),
+
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            13,
+                          ),
+                        ),
+                      ),
+
+                      child: Text(
+                        "Delete",
                       ),
                     ),
                   ),

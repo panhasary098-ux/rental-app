@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\AdminPropertyController;
 use App\Http\Controllers\Api\AiChatController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\BakongPaymentController;
 use App\Http\Controllers\AuthController;
 
 // Register
@@ -60,23 +61,35 @@ Route::middleware('auth:sanctum')->group(function () {
         [UserController::class, 'updateMe']
     );
 
-    // AI Rental Assistant
-    Route::post(
-        '/ai/chat',
-        [AiChatController::class, 'chat']
-    );
+// AI Rental Assistant
+Route::post(
+    '/ai/chat',
+    [AiChatController::class, 'chat']
+);
 
-    // AI Chat History
-    Route::get(
-        '/ai/chat/history',
-        [AiChatController::class, 'history']
-    );
+// Create AI Conversation
+Route::post(
+    '/ai/conversations',
+    [AiChatController::class, 'createConversation']
+);
 
-    // Clear AI Chat
-    Route::delete(
-        '/ai/chat/history',
-        [AiChatController::class, 'clearHistory']
-    );
+// Get AI Conversations
+Route::get(
+    '/ai/conversations',
+    [AiChatController::class, 'conversations']
+);
+
+// Get AI Conversation
+Route::get(
+    '/ai/conversations/{conversation}',
+    [AiChatController::class, 'conversation']
+);
+
+// Clear AI Conversation
+Route::delete(
+    '/ai/conversations/{conversation}',
+    [AiChatController::class, 'clearConversation']
+);
 
     // Logout
     Route::post(
@@ -117,6 +130,24 @@ Route::middleware('auth:sanctum')->group(function () {
         [
             PropertyController::class,
             'markOwnerNotificationsSeen'
+        ]
+    );
+
+    // Generate Bakong QR
+    Route::post(
+        '/payments/{payment}/generate-qr',
+        [
+            BakongPaymentController::class,
+            'generateQr'
+        ]
+    );
+
+    // Check Bakong Payment
+    Route::post(
+        '/payments/{payment}/check',
+        [
+            BakongPaymentController::class,
+            'checkPayment'
         ]
     );
 

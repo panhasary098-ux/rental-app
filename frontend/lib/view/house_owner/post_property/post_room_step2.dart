@@ -224,11 +224,11 @@ class PostRoomStep2 extends StatelessWidget {
                   const SizedBox(height: 5),
 
                   CustomTextFormField(
-                    hintText: "Enter contact number",
+                    hintText: "Enter telegram username",
 
                     controller: controller.contactController,
 
-                    keyboardType: TextInputType.phone,
+                    keyboardType: TextInputType.text,
                     prefixIcon: Icons.send_rounded,
                   ),
 

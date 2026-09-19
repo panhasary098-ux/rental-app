@@ -13,6 +13,8 @@ class Payment extends Model
         'payment_proof_path',
         'payment_status',
         'paid_at',
+        'bakong_qr',
+        'bakong_md5',
     ];
 
     protected $casts = [
@@ -20,6 +22,7 @@ class Payment extends Model
         'paid_at' => 'datetime',
     ];
 
+    // Property
     public function property()
     {
         return $this->belongsTo(Property::class);

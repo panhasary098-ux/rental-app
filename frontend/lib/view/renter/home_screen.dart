@@ -14,7 +14,7 @@ import 'package:get/get.dart';
 // Colors
 const Color primaryColor = Color(0xFF080B78);
 const Color accentColor = Color(0xFF00B8F0);
-const Color backgroundColor = Color(0xFFF8F9FC);
+const Color backgroundColor = Color(0xFFF8FAFC);
 const Color cardColor = Colors.white;
 const Color borderColor = Color(0xFFF0F1F5);
 const Color mutedTextColor = Color(0xFF85899B);

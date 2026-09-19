@@ -4,23 +4,77 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AiChatController extends GetxController {
-  TextEditingController messageController =
-      TextEditingController();
+  TextEditingController messageController = TextEditingController();
 
-  AiChatService aiChatService =
-      AiChatService();
+  AiChatService aiChatService = AiChatService();
 
-  RxList<ChatMessage> messages =
-      <ChatMessage>[].obs;
+  RxList<ChatMessage> messages = <ChatMessage>[].obs;
+
+  RxList<Map<String, dynamic>> conversations =
+      <Map<String, dynamic>>[].obs;
 
   RxBool isLoading = false.obs;
   RxBool isLoadingHistory = false.obs;
+  RxBool isLoadingConversations = false.obs;
+
+  RxnInt currentConversationId = RxnInt();
+
+  RxString currentConversationTitle = "New Chat".obs;
 
   @override
   void onInit() {
     super.onInit();
+    initializeChat();
+  }
 
-    loadHistory();
+  // Initialize Chat
+  Future<void> initializeChat() async {
+    try {
+      isLoadingHistory.value = true;
+
+      List<Map<String, dynamic>> conversationList =
+          await aiChatService.getConversations();
+
+      conversations.assignAll(
+        conversationList,
+      );
+
+      if (conversationList.isEmpty) {
+        await createNewChat(
+          forceCreate: true,
+        );
+
+        return;
+      }
+
+      Map<String, dynamic> latestConversation =
+          conversationList.first;
+
+      int? conversationId = parseConversationId(
+        latestConversation["id"],
+      );
+
+      if (conversationId == null) {
+        await createNewChat(
+          forceCreate: true,
+        );
+
+        return;
+      }
+
+      await openConversation(
+        conversationId,
+      );
+    } catch (e) {
+      print(
+        "INITIALIZE CHAT ERROR: $e",
+      );
+
+      messages.clear();
+      addWelcomeMessage();
+    } finally {
+      isLoadingHistory.value = false;
+    }
   }
 
   // Welcome Message
@@ -36,13 +90,165 @@ class AiChatController extends GetxController {
     );
   }
 
-  // Load History
-  Future<void> loadHistory() async {
+  // Check Empty Chat
+  bool isCurrentChatEmpty() {
+    if (currentConversationId.value == null) {
+      return true;
+    }
+
+    if (messages.isEmpty) {
+      return true;
+    }
+
+    if (
+        messages.length == 1 &&
+        !messages.first.isUser &&
+        messages.first.message.contains(
+          "JoulNow Rental Assistant",
+        )
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Create New Chat
+  Future<void> createNewChat({
+    bool forceCreate = false,
+  }) async {
+    if (isLoading.value) {
+      return;
+    }
+
+    // Don't Create Duplicate Empty Chat
+    if (
+        !forceCreate &&
+        currentConversationId.value != null &&
+        isCurrentChatEmpty()
+    ) {
+      messageController.clear();
+
+      currentConversationTitle.value =
+          "New Chat";
+
+      return;
+    }
+
     try {
       isLoadingHistory.value = true;
 
+      Map<String, dynamic> conversation =
+          await aiChatService.createConversation();
+
+      int? conversationId = parseConversationId(
+        conversation["id"],
+      );
+
+      if (conversationId == null) {
+        throw Exception(
+          "Invalid conversation ID.",
+        );
+      }
+
+      currentConversationId.value =
+          conversationId;
+
+      currentConversationTitle.value =
+          conversation["title"]
+                      ?.toString()
+                      .trim()
+                      .isNotEmpty ==
+                  true
+              ? conversation["title"].toString()
+              : "New Chat";
+
+      messageController.clear();
+
+      messages.clear();
+
+      addWelcomeMessage();
+
+      await loadConversations();
+    } catch (e) {
+      print(
+        "CREATE NEW CHAT ERROR: $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        "Unable to create a new chat.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoadingHistory.value = false;
+    }
+  }
+
+  // Load Conversations
+  Future<void> loadConversations() async {
+    try {
+      isLoadingConversations.value = true;
+
+      List<Map<String, dynamic>> conversationList =
+          await aiChatService.getConversations();
+
+      conversations.assignAll(
+        conversationList,
+      );
+    } catch (e) {
+      print(
+        "LOAD CONVERSATIONS ERROR: $e",
+      );
+    } finally {
+      isLoadingConversations.value = false;
+    }
+  }
+
+  // Open Conversation
+  Future<void> openConversation(
+    int conversationId,
+  ) async {
+    if (isLoading.value) {
+      return;
+    }
+
+    try {
+      isLoadingHistory.value = true;
+
+      Map<String, dynamic> data =
+          await aiChatService.getConversation(
+        conversationId,
+      );
+
+      Map<String, dynamic> conversation =
+          Map<String, dynamic>.from(
+        data["conversation"] ?? {},
+      );
+
       List<Map<String, dynamic>> history =
-          await aiChatService.getHistory();
+          List<Map<String, dynamic>>.from(
+        data["messages"] ?? [],
+      );
+
+      currentConversationId.value =
+          conversationId;
+
+      String? title =
+          conversation["title"]?.toString();
+
+      if (
+          title == null ||
+          title.trim().isEmpty
+      ) {
+        currentConversationTitle.value =
+            "New Chat";
+      } else {
+        currentConversationTitle.value =
+            title;
+      }
+
+      messageController.clear();
 
       messages.clear();
 
@@ -51,7 +257,10 @@ class AiChatController extends GetxController {
         return;
       }
 
-      for (Map<String, dynamic> item in history) {
+      for (
+        Map<String, dynamic> item
+        in history
+      ) {
         String role =
             item["role"]?.toString() ?? "";
 
@@ -71,12 +280,14 @@ class AiChatController extends GetxController {
       }
     } catch (e) {
       print(
-        "LOAD CHAT HISTORY ERROR: $e",
+        "OPEN CONVERSATION ERROR: $e",
       );
 
-      messages.clear();
-
-      addWelcomeMessage();
+      Get.snackbar(
+        "Error",
+        "Unable to open this conversation.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoadingHistory.value = false;
     }
@@ -95,6 +306,28 @@ class AiChatController extends GetxController {
       return;
     }
 
+    int? conversationId =
+        currentConversationId.value;
+
+    if (conversationId == null) {
+      await createNewChat(
+        forceCreate: true,
+      );
+
+      conversationId =
+          currentConversationId.value;
+    }
+
+    if (conversationId == null) {
+      Get.snackbar(
+        "Error",
+        "Unable to start a conversation.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
     List<Map<String, dynamic>> history =
         buildHistory();
 
@@ -108,6 +341,7 @@ class AiChatController extends GetxController {
     messageController.clear();
 
     await getBotResponse(
+      conversationId,
       message,
       history,
     );
@@ -118,6 +352,28 @@ class AiChatController extends GetxController {
     String question,
   ) async {
     if (isLoading.value) {
+      return;
+    }
+
+    int? conversationId =
+        currentConversationId.value;
+
+    if (conversationId == null) {
+      await createNewChat(
+        forceCreate: true,
+      );
+
+      conversationId =
+          currentConversationId.value;
+    }
+
+    if (conversationId == null) {
+      Get.snackbar(
+        "Error",
+        "Unable to start a conversation.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
       return;
     }
 
@@ -132,6 +388,7 @@ class AiChatController extends GetxController {
     );
 
     await getBotResponse(
+      conversationId,
       question,
       history,
     );
@@ -142,19 +399,22 @@ class AiChatController extends GetxController {
     List<Map<String, dynamic>> history = [];
 
     List<ChatMessage> chatHistory =
-        List.from(messages);
+        List.from(
+      messages,
+    );
 
-    // Remove welcome message if present
+    // Remove Welcome Message
     if (
         chatHistory.isNotEmpty &&
         !chatHistory.first.isUser &&
         chatHistory.first.message.contains(
           "JoulNow Rental Assistant",
-        )) {
+        )
+    ) {
       chatHistory.removeAt(0);
     }
 
-    // Keep recent messages only
+    // Keep Recent Messages
     if (chatHistory.length > 10) {
       chatHistory =
           chatHistory.sublist(
@@ -162,11 +422,18 @@ class AiChatController extends GetxController {
       );
     }
 
-    for (ChatMessage chat in chatHistory) {
+    for (
+      ChatMessage chat
+      in chatHistory
+    ) {
       history.add({
         "role":
-            chat.isUser ? "user" : "model",
-        "text": chat.message,
+            chat.isUser
+                ? "user"
+                : "model",
+
+        "text":
+            chat.message,
       });
     }
 
@@ -175,6 +442,7 @@ class AiChatController extends GetxController {
 
   // Get Bot Response
   Future<void> getBotResponse(
+    int conversationId,
     String userMessage,
     List<Map<String, dynamic>> history,
   ) async {
@@ -183,6 +451,7 @@ class AiChatController extends GetxController {
 
       String reply =
           await aiChatService.sendMessage(
+        conversationId: conversationId,
         message: userMessage,
         history: history,
       );
@@ -193,14 +462,55 @@ class AiChatController extends GetxController {
           isUser: false,
         ),
       );
+
+      await loadConversations();
+
+      Map<String, dynamic>? currentConversation;
+
+      for (
+        Map<String, dynamic> conversation
+        in conversations
+      ) {
+        int? id =
+            parseConversationId(
+          conversation["id"],
+        );
+
+        if (
+            id ==
+            conversationId
+        ) {
+          currentConversation =
+              conversation;
+
+          break;
+        }
+      }
+
+      if (
+          currentConversation != null
+      ) {
+        String? title =
+            currentConversation["title"]
+                ?.toString();
+
+        if (
+            title != null &&
+            title.trim().isNotEmpty
+        ) {
+          currentConversationTitle.value =
+              title;
+        }
+      }
     } catch (e) {
       String errorMessage =
           e.toString();
 
       if (
           errorMessage.startsWith(
-        "Exception: ",
-      )) {
+            "Exception: ",
+          )
+      ) {
         errorMessage =
             errorMessage.replaceFirst(
           "Exception: ",
@@ -227,12 +537,45 @@ class AiChatController extends GetxController {
 
   // Clear Chat
   Future<void> clearChat() async {
-    try {
-      await aiChatService.clearHistory();
+    if (isLoading.value) {
+      return;
+    }
 
+    int? conversationId =
+        currentConversationId.value;
+
+    if (conversationId == null) {
       messages.clear();
 
       addWelcomeMessage();
+
+      await createNewChat(
+        forceCreate: true,
+      );
+
+      return;
+    }
+
+    try {
+      isLoadingHistory.value = true;
+
+      await aiChatService.deleteConversation(
+        conversationId,
+      );
+
+      currentConversationId.value =
+          null;
+
+      currentConversationTitle.value =
+          "New Chat";
+
+      messageController.clear();
+
+      messages.clear();
+
+      await createNewChat(
+        forceCreate: true,
+      );
     } catch (e) {
       print(
         "CLEAR CHAT ERROR: $e",
@@ -240,16 +583,100 @@ class AiChatController extends GetxController {
 
       Get.snackbar(
         "Error",
-        "Unable to clear chat history.",
+        "Unable to clear chat.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoadingHistory.value = false;
+    }
+  }
+
+  // Delete Conversation
+  Future<void> deleteConversation(
+    int conversationId,
+  ) async {
+    if (isLoading.value) {
+      return;
+    }
+
+    try {
+      await aiChatService.deleteConversation(
+        conversationId,
+      );
+
+      bool isCurrentConversation =
+          currentConversationId.value ==
+              conversationId;
+
+      await loadConversations();
+
+      if (!isCurrentConversation) {
+        return;
+      }
+
+      currentConversationId.value =
+          null;
+
+      currentConversationTitle.value =
+          "New Chat";
+
+      messageController.clear();
+
+      messages.clear();
+
+      if (conversations.isEmpty) {
+        await createNewChat(
+          forceCreate: true,
+        );
+
+        return;
+      }
+
+      int? nextConversationId =
+          parseConversationId(
+        conversations.first["id"],
+      );
+
+      if (nextConversationId == null) {
+        await createNewChat(
+          forceCreate: true,
+        );
+
+        return;
+      }
+
+      await openConversation(
+        nextConversationId,
+      );
+    } catch (e) {
+      print(
+        "DELETE CONVERSATION ERROR: $e",
+      );
+
+      Get.snackbar(
+        "Error",
+        "Unable to delete conversation.",
         snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
 
+  // Conversation ID
+  int? parseConversationId(
+    dynamic value,
+  ) {
+    if (value is int) {
+      return value;
+    }
+
+    return int.tryParse(
+      value?.toString() ?? "",
+    );
+  }
+
   @override
   void onClose() {
     messageController.dispose();
-
     super.onClose();
   }
 }

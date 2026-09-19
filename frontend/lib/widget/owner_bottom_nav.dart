@@ -65,33 +65,26 @@ class _OwnerBottomNavState
 
       // Verified Owner
       if (hasNationalId) {
-        final dynamic result =
-            await Get.to(
-          () =>
-              const Postpropertyscreen(),
-        );
-
-        if (!mounted) {
-          return;
-        }
-
-        // Property Submitted
-        if (result == true) {
-          setState(() {
-            selectedIndex = 1;
-
-            propertiesRefreshKey++;
-          });
-        }
+        await openPropertyForm();
 
         return;
       }
 
       // Verify Identity
-      await Get.to(
+      final dynamic verified =
+          await Get.to(
         () =>
-            const VerifyIdentityScreen(),
+            VerifyIdentityScreen(),
       );
+
+      if (!mounted) {
+        return;
+      }
+
+      // Open Post Property
+      if (verified == true) {
+        await openPropertyForm();
+      }
     } catch (e) {
       if (!mounted) {
         return;
@@ -125,13 +118,35 @@ class _OwnerBottomNavState
     }
   }
 
+  // Open Property Form
+  Future<void> openPropertyForm() async {
+    final dynamic result =
+        await Get.to(
+      () =>
+          Postpropertyscreen(),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    // Property Submitted
+    if (result == true) {
+      setState(() {
+        selectedIndex = 1;
+
+        propertiesRefreshKey++;
+      });
+    }
+  }
+
   @override
   Widget build(
     BuildContext context,
   ) {
     return Scaffold(
       backgroundColor:
-          const Color(
+          Color(
         0xFFF8FAFC,
       ),
 
@@ -158,11 +173,10 @@ class _OwnerBottomNavState
           ),
 
           // Post
-          const SizedBox(),
+          SizedBox(),
 
           // Account
           OwnerAccountScreen(),
-
         ],
       ),
 
@@ -171,7 +185,7 @@ class _OwnerBottomNavState
         data:
             NavigationBarThemeData(
           indicatorColor:
-              const Color(
+              Color(
             0xFF03045E,
           ),
 
@@ -183,7 +197,7 @@ class _OwnerBottomNavState
               if (states.contains(
                 WidgetState.selected,
               )) {
-                return const IconThemeData(
+                return IconThemeData(
                   color: Colors.white,
                   size: 25,
                 );
@@ -191,7 +205,7 @@ class _OwnerBottomNavState
 
               return IconThemeData(
                 color:
-                    const Color(
+                    Color(
                   0xFF03045E,
                 ).withOpacity(
                   0.45,
@@ -210,7 +224,7 @@ class _OwnerBottomNavState
               if (states.contains(
                 WidgetState.selected,
               )) {
-                return const TextStyle(
+                return TextStyle(
                   color:
                       Color(
                     0xFF03045E,
@@ -226,7 +240,7 @@ class _OwnerBottomNavState
 
               return TextStyle(
                 color:
-                    const Color(
+                    Color(
                   0xFF03045E,
                 ).withOpacity(
                   0.50,
@@ -256,7 +270,7 @@ class _OwnerBottomNavState
           onDestinationSelected:
               changePage,
 
-          destinations: const [
+          destinations: [
             // Home
             NavigationDestination(
               icon: Icon(

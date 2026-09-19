@@ -83,7 +83,7 @@ class _VerifyIdentityScreenState extends State<VerifyIdentityScreen> {
           message: "Your National ID was uploaded successfully.",
         );
 
-        Get.off(() => const Postpropertyscreen());
+        Get.off(() => Postpropertyscreen());
       }
     } catch (e) {
       if (!mounted) {

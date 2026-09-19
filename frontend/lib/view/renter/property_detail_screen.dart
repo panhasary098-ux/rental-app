@@ -14,7 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Color.fromARGB(255, 242, 242, 242);
+const Color backgroundColor = Color(0xFFF8FAFC);
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PropertyDetailScreen extends StatefulWidget {
