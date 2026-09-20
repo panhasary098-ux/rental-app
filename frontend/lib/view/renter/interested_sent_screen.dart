@@ -574,7 +574,7 @@ class _FavorithScreenState extends State<FavorithScreen> {
                       : const Icon(
                           Icons.favorite_rounded,
 
-                          color: primaryColor,
+                          color: Colors.red,
 
                           size: 19,
                         ),

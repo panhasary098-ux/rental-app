@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:final_project/model/apartmentFlat.dart';
 import 'package:final_project/model/house.dart';
@@ -9,6 +10,7 @@ import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
@@ -26,6 +28,11 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final PropertyService propertyService = PropertyService();
+  LatLng? selectedReferenceLocation;
+
+  String? selectedReferenceName;
+
+  bool isChoosingReferenceLocation = false;
 
   final TextEditingController searchController = TextEditingController();
 
@@ -44,6 +51,89 @@ class _MapScreenState extends State<MapScreen> {
   String selectedType = "All";
 
   int? selectedPropertyId;
+
+  final Geocoding geocoding = Geocoding();
+
+  double? getDistanceToProperty(Property property) {
+    if (selectedReferenceLocation == null) {
+      return null;
+    }
+
+    final double? propertyLat = property.location.latitude;
+
+    final double? propertyLng = property.location.longitude;
+
+    if (propertyLat == null || propertyLng == null) {
+      return null;
+    }
+
+    const double earthRadiusKm = 6371;
+
+    final double lat1 = selectedReferenceLocation!.latitude * math.pi / 180;
+
+    final double lon1 = selectedReferenceLocation!.longitude * math.pi / 180;
+
+    final double lat2 = propertyLat * math.pi / 180;
+
+    final double lon2 = propertyLng * math.pi / 180;
+
+    final double deltaLat = lat2 - lat1;
+    final double deltaLon = lon2 - lon1;
+
+    final double a =
+        math.sin(deltaLat / 2) * math.sin(deltaLat / 2) +
+        math.cos(lat1) *
+            math.cos(lat2) *
+            math.sin(deltaLon / 2) *
+            math.sin(deltaLon / 2);
+
+    final double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+    return earthRadiusKm * c;
+  }
+
+  Future<void> selectReferenceLocation(LatLng position) async {
+    setState(() {
+      selectedReferenceLocation = position;
+      selectedReferenceName = "Loading location...";
+      isChoosingReferenceLocation = false;
+    });
+
+    try {
+      final List<Placemark> placemarks = await geocoding
+          .placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty) {
+        final Placemark place = placemarks.first;
+
+        final List<String> parts =
+            [place.name, place.street, place.subLocality, place.locality]
+                .where((item) => item != null && item!.trim().isNotEmpty)
+                .map((item) => item!.trim())
+                .toList();
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          selectedReferenceName = parts.isNotEmpty
+              ? parts.join(", ")
+              : "Selected location";
+        });
+      }
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        selectedReferenceName = "Selected location";
+      });
+
+      print("REFERENCE LOCATION ERROR: $e");
+    }
+  }
 
   @override
   void initState() {
@@ -126,7 +216,7 @@ class _MapScreenState extends State<MapScreen> {
   List<Property> get displayedProperties {
     final String query = searchText.trim().toLowerCase();
 
-    return properties.where((property) {
+    final List<Property> result = properties.where((property) {
       final String name = property.name.toLowerCase();
 
       final String address = (property.location.address ?? "").toLowerCase();
@@ -140,6 +230,32 @@ class _MapScreenState extends State<MapScreen> {
 
       return matchesSearch && matchesType;
     }).toList();
+
+    // If renter selected a reference location,
+    // show nearest properties first.
+    if (selectedReferenceLocation != null) {
+      result.sort((a, b) {
+        final double? distanceA = getDistanceToProperty(a);
+
+        final double? distanceB = getDistanceToProperty(b);
+
+        if (distanceA == null && distanceB == null) {
+          return 0;
+        }
+
+        if (distanceA == null) {
+          return 1;
+        }
+
+        if (distanceB == null) {
+          return -1;
+        }
+
+        return distanceA.compareTo(distanceB);
+      });
+    }
+
+    return result;
   }
 
   // Map markers
@@ -178,6 +294,25 @@ class _MapScreenState extends State<MapScreen> {
               selectedPropertyId = property.id;
             });
           },
+        ),
+      );
+    }
+
+    if (selectedReferenceLocation != null) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId("reference_location"),
+
+          position: selectedReferenceLocation!,
+
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueGreen,
+          ),
+
+          infoWindow: InfoWindow(
+            title: selectedReferenceName ?? "Selected location",
+            snippet: "Reference location",
+          ),
         ),
       );
     }
@@ -286,10 +421,10 @@ class _MapScreenState extends State<MapScreen> {
     final List<Property> filteredProperties = displayedProperties;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
 
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: backgroundColor,
 
         elevation: 0,
 
@@ -317,6 +452,12 @@ class _MapScreenState extends State<MapScreen> {
           const SizedBox(height: 12),
 
           buildTypeFilters(),
+
+          const SizedBox(height: 8),
+
+          buildReferenceLocationButton(),
+
+          const SizedBox(height: 8),
 
           const SizedBox(height: 10),
 
@@ -455,6 +596,102 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  Widget buildReferenceLocationButton() {
+    final bool hasLocation = selectedReferenceLocation != null;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+
+        width: double.infinity,
+        height: 52,
+
+        decoration: BoxDecoration(
+          color: isChoosingReferenceLocation
+              ? lightSecondaryColor
+              : Colors.white,
+
+          borderRadius: BorderRadius.circular(14),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(
+                isChoosingReferenceLocation ? 0.12 : 0.07,
+              ),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+
+        child: TextButton(
+          onPressed: () {
+            setState(() {
+              isChoosingReferenceLocation = !isChoosingReferenceLocation;
+            });
+          },
+
+          style: TextButton.styleFrom(
+            foregroundColor: primaryColor,
+
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+
+          child: Row(
+            children: [
+              Icon(
+                isChoosingReferenceLocation
+                    ? Icons.touch_app_outlined
+                    : hasLocation
+                    ? Icons.edit_location_alt_outlined
+                    : Icons.add_location_alt_outlined,
+
+                color: primaryColor,
+                size: 22,
+              ),
+
+              const SizedBox(width: 12),
+
+              Expanded(
+                child: Text(
+                  isChoosingReferenceLocation
+                      ? "Tap on the map to choose location"
+                      : hasLocation
+                      ? selectedReferenceName ?? "Selected location"
+                      : "Choose reference location",
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: primaryColor,
+                  ),
+                ),
+              ),
+
+              if (isChoosingReferenceLocation)
+                const Icon(Icons.close_rounded, size: 20, color: primaryColor)
+              else
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 22,
+                  color: Colors.black38,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget typeChip(String text) {
     final bool isSelected = selectedType == text;
 
@@ -477,7 +714,7 @@ class _MapScreenState extends State<MapScreen> {
         selectedColor: primaryColor,
 
         backgroundColor: lightSecondaryColor,
-         checkmarkColor: Colors.white,
+        checkmarkColor: Colors.white,
 
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : primaryColor,
@@ -567,6 +804,14 @@ class _MapScreenState extends State<MapScreen> {
         zoomControlsEnabled: false,
 
         myLocationButtonEnabled: false,
+
+        onTap: (LatLng position) {
+          if (!isChoosingReferenceLocation) {
+            return;
+          }
+
+          selectReferenceLocation(position);
+        },
       ),
     );
   }
@@ -667,6 +912,7 @@ class _MapScreenState extends State<MapScreen> {
   // Property item
   Widget propertyItem(Property property) {
     final bool isSelected = selectedPropertyId == property.id;
+    final double? distance = getDistanceToProperty(property);
 
     return Material(
       color: Colors.transparent,
@@ -761,6 +1007,30 @@ class _MapScreenState extends State<MapScreen> {
                         color: primaryColor,
                       ),
                     ),
+                    if (distance != null) ...[
+                      const SizedBox(height: 4),
+
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.near_me_outlined,
+                            size: 13,
+                            color: Colors.black45,
+                          ),
+
+                          const SizedBox(width: 4),
+
+                          Text(
+                            "${distance.toStringAsFixed(1)} km away",
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.black54,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

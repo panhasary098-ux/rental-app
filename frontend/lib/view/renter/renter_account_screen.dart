@@ -5,60 +5,43 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RenterAccountScreen extends StatelessWidget {
-  RenterAccountScreen({
-    super.key,
-  });
+  final VoidCallback onSavedPropertiesTap;
 
-  final RenterAccountController controller =
-      Get.put(RenterAccountController());
+  RenterAccountScreen({super.key, required this.onSavedPropertiesTap});
+  final RenterAccountController controller = Get.put(RenterAccountController());
 
   final AuthService authService = AuthService();
 
   // Colors
-  static const Color primaryColor =
-      Color(0xFF03045E);
+  static const Color primaryColor = Color(0xFF03045E);
 
-  static const Color backgroundColor =
-      Color(0xFFF8FAFC);
+  static const Color backgroundColor = Color(0xFFF8FAFC);
 
-  static const Color textColor =
-      Color(0xFF111827);
+  static const Color textColor = Color(0xFF111827);
 
-  static const Color secondaryTextColor =
-      Color(0xFF6B7280);
+  static const Color secondaryTextColor = Color(0xFF6B7280);
 
-  static const Color borderColor =
-      Color(0xFFE5E7EB);
+  static const Color borderColor = Color(0xFFE5E7EB);
 
-  static const Color blueAccent =
-      Color(0xFF2563EB);
+  static const Color blueAccent = Color(0xFF2563EB);
 
-  static const Color blueSoft =
-      Color(0xFFEFF6FF);
+  static const Color blueSoft = Color(0xFFEFF6FF);
 
-  static const Color purpleAccent =
-      Color(0xFF7C3AED);
+  static const Color purpleAccent = Color(0xFF7C3AED);
 
-  static const Color purpleSoft =
-      Color(0xFFF3E8FF);
+  static const Color purpleSoft = Color(0xFFF3E8FF);
 
-  static const Color orangeAccent =
-      Color(0xFFD97706);
+  static const Color orangeAccent = Color(0xFFD97706);
 
-  static const Color orangeSoft =
-      Color(0xFFFFF7E6);
+  static const Color orangeSoft = Color(0xFFFFF7E6);
 
-  static const Color greenAccent =
-      Color(0xFF16A34A);
+  static const Color greenAccent = Color(0xFF16A34A);
 
-  static const Color greenSoft =
-      Color(0xFFECFDF3);
+  static const Color greenSoft = Color(0xFFECFDF3);
 
-  static const Color redAccent =
-      Color(0xFFDC2626);
+  static const Color redAccent = Color(0xFFDC2626);
 
-  static const Color redSoft =
-      Color(0xFFFEF2F2);
+  static const Color redSoft = Color(0xFFFEF2F2);
 
   // Success
   void showSuccessNotification({
@@ -71,10 +54,7 @@ class RenterAccountScreen extends StatelessWidget {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: EdgeInsets.all(16),
-      padding: EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: borderColor,
       borderWidth: 1,
@@ -89,15 +69,8 @@ class RenterAccountScreen extends StatelessWidget {
       icon: Container(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
-          color: greenSoft,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.check_rounded,
-          color: greenAccent,
-          size: 20,
-        ),
+        decoration: BoxDecoration(color: greenSoft, shape: BoxShape.circle),
+        child: Icon(Icons.check_rounded, color: greenAccent, size: 20),
       ),
       titleText: Text(
         title,
@@ -109,30 +82,20 @@ class RenterAccountScreen extends StatelessWidget {
       ),
       messageText: Text(
         message,
-        style: TextStyle(
-          color: secondaryTextColor,
-          fontSize: 13,
-          height: 1.35,
-        ),
+        style: TextStyle(color: secondaryTextColor, fontSize: 13, height: 1.35),
       ),
     );
   }
 
   // Error
-  void showErrorNotification({
-    required String title,
-    required String message,
-  }) {
+  void showErrorNotification({required String title, required String message}) {
     Get.snackbar(
       '',
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: EdgeInsets.all(16),
-      padding: EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: Color(0xFFFECACA),
       borderWidth: 1,
@@ -147,15 +110,8 @@ class RenterAccountScreen extends StatelessWidget {
       icon: Container(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
-          color: redSoft,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.priority_high_rounded,
-          color: redAccent,
-          size: 20,
-        ),
+        decoration: BoxDecoration(color: redSoft, shape: BoxShape.circle),
+        child: Icon(Icons.priority_high_rounded, color: redAccent, size: 20),
       ),
       titleText: Text(
         title,
@@ -167,11 +123,7 @@ class RenterAccountScreen extends StatelessWidget {
       ),
       messageText: Text(
         message,
-        style: TextStyle(
-          color: secondaryTextColor,
-          fontSize: 13,
-          height: 1.35,
-        ),
+        style: TextStyle(color: secondaryTextColor, fontSize: 13, height: 1.35),
       ),
     );
   }
@@ -200,9 +152,7 @@ class RenterAccountScreen extends StatelessWidget {
 
         actions: [
           Container(
-            margin: EdgeInsets.only(
-              right: 14,
-            ),
+            margin: EdgeInsets.only(right: 14),
             child: InkWell(
               onTap: showSettingsSheet,
               borderRadius: BorderRadius.circular(12),
@@ -212,9 +162,7 @@ class RenterAccountScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: borderColor,
-                  ),
+                  border: Border.all(color: borderColor),
                 ),
                 child: Icon(
                   Icons.settings_outlined,
@@ -227,153 +175,122 @@ class RenterAccountScreen extends StatelessWidget {
         ],
       ),
 
-      body: Obx(
-        () {
-          if (controller.isLoading.value) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: primaryColor,
-              ),
-            );
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return Center(child: CircularProgressIndicator(color: primaryColor));
+        }
 
-          return SafeArea(
-            top: false,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                18,
-                6,
-                18,
-                28,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile
-                  buildProfileCard(),
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(18, 6, 18, 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile
+                buildProfileCard(),
 
-                  SizedBox(height: 26),
+                SizedBox(height: 26),
 
-                  // Account
-                  buildSectionTitle(
-                    "Account",
-                  ),
+                // Account
+                buildSectionTitle("Account"),
 
-                  SizedBox(height: 10),
+                SizedBox(height: 10),
 
-                  buildMenuCard(
-                    children: [
-                      buildMenuItem(
-                        icon: Icons.person_outline_rounded,
-                        iconColor: blueAccent,
-                        // iconBackground: blueSoft,
-                        title: "Personal Information",
-                        subtitle:
-                            "View and edit your account details",
-                        onTap: showPersonalInformation,
-                      ),
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.person_outline_rounded,
+                      iconColor: blueAccent,
+                      // iconBackground: blueSoft,
+                      title: "Personal Information",
+                      subtitle: "View and edit your account details",
+                      onTap: showPersonalInformation,
+                    ),
 
-                      buildDivider(),
+                    buildDivider(),
 
-                      buildMenuItem(
-                        icon: Icons.favorite_border_rounded,
-                        iconColor: purpleAccent,
-                        // iconBackground: purpleSoft,
-                        title: "Saved Properties",
-                        subtitle:
-                            "View properties you saved",
-                        onTap: () {
-                          showNotReady(
-                            "Saved Properties",
-                          );
-                        },
-                      ),
+                    buildMenuItem(
+                      icon: Icons.favorite_border_rounded,
+                      iconColor: purpleAccent,
+                      // iconBackground: purpleSoft,
+                      title: "Saved Properties",
+                      subtitle: "View properties you saved",
+                      onTap: onSavedPropertiesTap,
+                    ),
 
-                      buildDivider(),
+                    buildDivider(),
 
-                      buildMenuItem(
-                        icon: Icons.notifications_none_rounded,
-                        iconColor: orangeAccent,
-                        // iconBackground: orangeSoft,
-                        title: "Notifications",
-                        subtitle:
-                            "Saved property and account updates",
-                        onTap: showNotificationsSheet,
-                      ),
-                    ],
-                  ),
+                    buildMenuItem(
+                      icon: Icons.notifications_none_rounded,
+                      iconColor: orangeAccent,
+                      // iconBackground: orangeSoft,
+                      title: "Notifications",
+                      subtitle: "Saved property and account updates",
+                      onTap: showNotificationsSheet,
+                    ),
+                  ],
+                ),
 
-                  SizedBox(height: 24),
+                SizedBox(height: 24),
 
-                  // Support
-                  buildSectionTitle(
-                    "Support",
-                  ),
+                // Support
+                buildSectionTitle("Support"),
 
-                  SizedBox(height: 10),
+                SizedBox(height: 10),
 
-                  buildMenuCard(
-                    children: [
-                      buildMenuItem(
-                        icon: Icons.help_outline_rounded,
-                        iconColor: greenAccent,
-                        // iconBackground: greenSoft,
-                        title: "Help Center",
-                        subtitle:
-                            "Answers and renter guidance",
-                        onTap: showHelpCenter,
-                      ),
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.help_outline_rounded,
+                      iconColor: greenAccent,
+                      // iconBackground: greenSoft,
+                      title: "Help Center",
+                      subtitle: "Answers and renter guidance",
+                      onTap: showHelpCenter,
+                    ),
 
-                      buildDivider(),
+                    buildDivider(),
 
-                      buildMenuItem(
-                        icon: Icons.info_outline_rounded,
-                        iconColor: purpleAccent,
-                        // iconBackground: purpleSoft,
-                        title: "About JoulNow",
-                        subtitle:
-                            "Information about the platform",
-                        onTap: showAboutSheet,
-                      ),
-                    ],
-                  ),
+                    buildMenuItem(
+                      icon: Icons.info_outline_rounded,
+                      iconColor: purpleAccent,
+                      // iconBackground: purpleSoft,
+                      title: "About JoulNow",
+                      subtitle: "Information about the platform",
+                      onTap: showAboutSheet,
+                    ),
+                  ],
+                ),
 
-                  SizedBox(height: 26),
+                SizedBox(height: 26),
 
-                  // Logout
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      onPressed: showLogoutDialog,
-                      icon: Icon(
-                        Icons.logout_rounded,
-                        size: 19,
-                      ),
-                      label: Text(
-                        "Log out",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: redAccent,
-                        backgroundColor: Colors.white,
-                        side: BorderSide(
-                          color: Color(0xFFFECACA),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                // Logout
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: showLogoutDialog,
+                    icon: Icon(Icons.logout_rounded, size: 19),
+                    label: Text(
+                      "Log out",
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: redAccent,
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: Color(0xFFFECACA)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 
@@ -386,14 +303,9 @@ class RenterAccountScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withValues(
-              alpha: 0.18,
-            ),
+            color: primaryColor.withValues(alpha: 0.18),
             blurRadius: 22,
-            offset: Offset(
-              0,
-              8,
-            ),
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -406,9 +318,7 @@ class RenterAccountScreen extends StatelessWidget {
               width: 150,
               height: 150,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(
-                  alpha: 0.06,
-                ),
+                color: Colors.white.withValues(alpha: 0.06),
                 shape: BoxShape.circle,
               ),
             ),
@@ -421,9 +331,7 @@ class RenterAccountScreen extends StatelessWidget {
               width: 130,
               height: 130,
               decoration: BoxDecoration(
-                color: purpleAccent.withValues(
-                  alpha: 0.14,
-                ),
+                color: purpleAccent.withValues(alpha: 0.14),
                 shape: BoxShape.circle,
               ),
             ),
@@ -445,28 +353,16 @@ class RenterAccountScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4,
-                              ),
+                              border: Border.all(color: Colors.white, width: 4),
                             ),
                             clipBehavior: Clip.antiAlias,
-                            child: controller
-                                    .profileImage
-                                    .value
-                                    .isNotEmpty
+                            child: controller.profileImage.value.isNotEmpty
                                 ? Image.network(
                                     getProfileImageUrl(
-                                      controller
-                                          .profileImage
-                                          .value,
+                                      controller.profileImage.value,
                                     ),
                                     fit: BoxFit.cover,
-                                    errorBuilder: (
-                                      context,
-                                      error,
-                                      stackTrace,
-                                    ) {
+                                    errorBuilder: (context, error, stackTrace) {
                                       return buildInitialsAvatar();
                                     },
                                   )
@@ -493,15 +389,10 @@ class RenterAccountScreen extends StatelessWidget {
                                 ),
                               ),
                               child: Obx(
-                                () => controller
-                                        .isUploadingImage
-                                        .value
+                                () => controller.isUploadingImage.value
                                     ? Padding(
-                                        padding: EdgeInsets.all(
-                                          7,
-                                        ),
-                                        child:
-                                            CircularProgressIndicator(
+                                        padding: EdgeInsets.all(7),
+                                        child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
                                         ),
@@ -523,8 +414,7 @@ class RenterAccountScreen extends StatelessWidget {
                     // Info
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Obx(
                             () => Text(
@@ -548,9 +438,7 @@ class RenterAccountScreen extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.white.withValues(
-                                  alpha: 0.72,
-                                ),
+                                color: Colors.white.withValues(alpha: 0.72),
                               ),
                             ),
                           ),
@@ -563,11 +451,8 @@ class RenterAccountScreen extends StatelessWidget {
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(
-                                alpha: 0.12,
-                              ),
-                              borderRadius:
-                                  BorderRadius.circular(20),
+                              color: Colors.white.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -601,9 +486,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                 Container(
                   height: 1,
-                  color: Colors.white.withValues(
-                    alpha: 0.12,
-                  ),
+                  color: Colors.white.withValues(alpha: 0.12),
                 ),
 
                 SizedBox(height: 14),
@@ -650,17 +533,11 @@ class RenterAccountScreen extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 7,
-        ),
+        padding: EdgeInsets.symmetric(vertical: 7),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: Colors.white,
-            ),
+            Icon(icon, size: 16, color: Colors.white),
 
             SizedBox(width: 6),
 
@@ -679,9 +556,7 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Section
-  Widget buildSectionTitle(
-    String title,
-  ) {
+  Widget buildSectionTitle(String title) {
     return Text(
       title,
       style: TextStyle(
@@ -693,33 +568,22 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Menu Card
-  Widget buildMenuCard({
-    required List<Widget> children,
-  }) {
+  Widget buildMenuCard({required List<Widget> children}) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: 0.025,
-            ),
+            color: Colors.black.withValues(alpha: 0.025),
             blurRadius: 12,
-            offset: Offset(
-              0,
-              4,
-            ),
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -735,10 +599,7 @@ class RenterAccountScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 13,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),
         child: Row(
           children: [
             Container(
@@ -748,11 +609,7 @@ class RenterAccountScreen extends StatelessWidget {
                 // color: iconBackground,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 21,
-                color: iconColor,
-              ),
+              child: Icon(icon, size: 21, color: iconColor),
             ),
 
             SizedBox(width: 13),
@@ -774,10 +631,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: secondaryTextColor,
-                    ),
+                    style: TextStyle(fontSize: 11, color: secondaryTextColor),
                   ),
                 ],
               ),
@@ -797,14 +651,8 @@ class RenterAccountScreen extends StatelessWidget {
   // Divider
   Widget buildDivider() {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 69,
-        right: 14,
-      ),
-      child: Divider(
-        height: 1,
-        color: borderColor,
-      ),
+      padding: EdgeInsets.only(left: 69, right: 14),
+      child: Divider(height: 1, color: borderColor),
     );
   }
 
@@ -818,15 +666,9 @@ class RenterAccountScreen extends StatelessWidget {
         iconBackground: blueSoft,
         child: Column(
           children: [
-            buildInfoRow(
-              "Full Name",
-              controller.name.value,
-            ),
+            buildInfoRow("Full Name", controller.name.value),
 
-            buildInfoRow(
-              "Email",
-              controller.email.value,
-            ),
+            buildInfoRow("Email", controller.email.value),
 
             buildInfoRow(
               "Phone",
@@ -835,10 +677,7 @@ class RenterAccountScreen extends StatelessWidget {
                   : controller.phone.value,
             ),
 
-            buildInfoRow(
-              "Account Type",
-              "Renter",
-            ),
+            buildInfoRow("Account Type", "Renter"),
 
             SizedBox(height: 10),
 
@@ -850,13 +689,8 @@ class RenterAccountScreen extends StatelessWidget {
                   Get.back();
                   showEditProfileSheet();
                 },
-                icon: Icon(
-                  Icons.edit_outlined,
-                  size: 18,
-                ),
-                label: Text(
-                  "Edit Information",
-                ),
+                icon: Icon(Icons.edit_outlined, size: 18),
+                label: Text("Edit Information"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
@@ -876,13 +710,11 @@ class RenterAccountScreen extends StatelessWidget {
 
   // Edit Profile
   void showEditProfileSheet() {
-    final TextEditingController nameController =
-        TextEditingController(
+    final TextEditingController nameController = TextEditingController(
       text: controller.name.value,
     );
 
-    final TextEditingController phoneController =
-        TextEditingController(
+    final TextEditingController phoneController = TextEditingController(
       text: controller.phone.value,
     );
 
@@ -890,10 +722,7 @@ class RenterAccountScreen extends StatelessWidget {
 
     Get.bottomSheet(
       StatefulBuilder(
-        builder: (
-          context,
-          setModalState,
-        ) {
+        builder: (context, setModalState) {
           return buildSheet(
             title: "Edit Profile",
             icon: Icons.edit_outlined,
@@ -902,9 +731,7 @@ class RenterAccountScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildFieldLabel(
-                  "Full Name",
-                ),
+                buildFieldLabel("Full Name"),
 
                 SizedBox(height: 7),
 
@@ -916,9 +743,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                 SizedBox(height: 15),
 
-                buildFieldLabel(
-                  "Phone Number",
-                ),
+                buildFieldLabel("Phone Number"),
 
                 SizedBox(height: 7),
 
@@ -926,8 +751,7 @@ class RenterAccountScreen extends StatelessWidget {
                   controller: phoneController,
                   hint: "Enter your phone number",
                   icon: Icons.phone_outlined,
-                  keyboardType:
-                      TextInputType.phone,
+                  keyboardType: TextInputType.phone,
                 ),
 
                 SizedBox(height: 20),
@@ -939,31 +763,25 @@ class RenterAccountScreen extends StatelessWidget {
                     onPressed: isSaving
                         ? null
                         : () async {
-                            final String name =
-                                nameController.text.trim();
+                            final String name = nameController.text.trim();
 
-                            final String phone =
-                                phoneController.text.trim();
+                            final String phone = phoneController.text.trim();
 
                             if (name.isEmpty) {
                               showErrorNotification(
                                 title: "Name Required",
-                                message:
-                                    "Please enter your name.",
+                                message: "Please enter your name.",
                               );
 
                               return;
                             }
 
                             try {
-                              setModalState(
-                                () {
-                                  isSaving = true;
-                                },
-                              );
+                              setModalState(() {
+                                isSaving = true;
+                              });
 
-                              await authService
-                                  .updateCurrentUser(
+                              await authService.updateCurrentUser(
                                 name: name,
                                 phone: phone,
                               );
@@ -973,27 +791,22 @@ class RenterAccountScreen extends StatelessWidget {
                               Get.back();
 
                               showSuccessNotification(
-                                title:
-                                    "Profile Updated",
+                                title: "Profile Updated",
                                 message:
                                     "Your profile information was updated successfully.",
                               );
                             } catch (e) {
                               showErrorNotification(
                                 title: "Update Failed",
-                                message: e
-                                    .toString()
-                                    .replaceFirst(
-                                      "Exception: ",
-                                      "",
-                                    ),
+                                message: e.toString().replaceFirst(
+                                  "Exception: ",
+                                  "",
+                                ),
                               );
                             } finally {
-                              setModalState(
-                                () {
-                                  isSaving = false;
-                                },
-                              );
+                              setModalState(() {
+                                isSaving = false;
+                              });
                             }
                           },
                     style: ElevatedButton.styleFrom(
@@ -1001,26 +814,21 @@ class RenterAccountScreen extends StatelessWidget {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(13),
+                        borderRadius: BorderRadius.circular(13),
                       ),
                     ),
                     child: isSaving
                         ? SizedBox(
                             width: 21,
                             height: 21,
-                            child:
-                                CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.white,
                             ),
                           )
                         : Text(
                             "Save Changes",
-                            style: TextStyle(
-                              fontWeight:
-                                  FontWeight.w700,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                   ),
                 ),
@@ -1046,8 +854,7 @@ class RenterAccountScreen extends StatelessWidget {
             buildSimpleAction(
               icon: Icons.edit_outlined,
               title: "Edit Profile",
-              subtitle:
-                  "Update your account information",
+              subtitle: "Update your account information",
               onTap: () {
                 Get.back();
                 showEditProfileSheet();
@@ -1059,8 +866,7 @@ class RenterAccountScreen extends StatelessWidget {
             buildSimpleAction(
               icon: Icons.image_outlined,
               title: "Profile Photo",
-              subtitle:
-                  "Change your profile picture",
+              subtitle: "Change your profile picture",
               onTap: () {
                 Get.back();
                 controller.pickProfileImage();
@@ -1072,8 +878,7 @@ class RenterAccountScreen extends StatelessWidget {
             buildSimpleAction(
               icon: Icons.refresh_rounded,
               title: "Refresh Account",
-              subtitle:
-                  "Reload your latest information",
+              subtitle: "Reload your latest information",
               onTap: () async {
                 Get.back();
 
@@ -1081,8 +886,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                 showSuccessNotification(
                   title: "Refreshed",
-                  message:
-                      "Your account information is up to date.",
+                  message: "Your account information is up to date.",
                 );
               },
             ),
@@ -1212,9 +1016,7 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Not Ready
-  void showNotReady(
-    String feature,
-  ) {
+  void showNotReady(String feature) {
     Get.snackbar(
       feature,
       "This feature will be available soon.",
@@ -1233,20 +1035,11 @@ class RenterAccountScreen extends StatelessWidget {
     required Widget child,
   }) {
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: Get.height * 0.85,
-      ),
-      padding: EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        28,
-      ),
+      constraints: BoxConstraints(maxHeight: Get.height * 0.85),
+      padding: EdgeInsets.fromLTRB(20, 14, 20, 28),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(26),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -1272,11 +1065,7 @@ class RenterAccountScreen extends StatelessWidget {
                     color: iconBackground,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 21,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 21),
                 ),
 
                 SizedBox(width: 12),
@@ -1294,10 +1083,7 @@ class RenterAccountScreen extends StatelessWidget {
 
                 IconButton(
                   onPressed: Get.back,
-                  icon: Icon(
-                    Icons.close_rounded,
-                    color: secondaryTextColor,
-                  ),
+                  icon: Icon(Icons.close_rounded, color: secondaryTextColor),
                 ),
               ],
             ),
@@ -1312,32 +1098,22 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Info Row
-  Widget buildInfoRow(
-    String title,
-    String value,
-  ) {
+  Widget buildInfoRow(String title, String value) {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(
-        bottom: 10,
-      ),
+      margin: EdgeInsets.only(bottom: 10),
       padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 10.5,
-              color: secondaryTextColor,
-            ),
+            style: TextStyle(fontSize: 10.5, color: secondaryTextColor),
           ),
 
           SizedBox(height: 4),
@@ -1356,9 +1132,7 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Label
-  Widget buildFieldLabel(
-    String text,
-  ) {
+  Widget buildFieldLabel(String text) {
     return Text(
       text,
       style: TextStyle(
@@ -1374,35 +1148,24 @@ class RenterAccountScreen extends StatelessWidget {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    TextInputType keyboardType =
-        TextInputType.text,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(
-          icon,
-          color: secondaryTextColor,
-        ),
+        prefixIcon: Icon(icon, color: secondaryTextColor),
         filled: true,
         fillColor: backgroundColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(13),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(
-            color: borderColor,
-          ),
+          borderSide: BorderSide(color: borderColor),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(13),
-          borderSide: BorderSide(
-            color: primaryColor,
-            width: 1.4,
-          ),
+          borderSide: BorderSide(color: primaryColor, width: 1.4),
         ),
       ),
     );
@@ -1423,16 +1186,11 @@ class RenterAccountScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: borderColor,
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: primaryColor,
-            ),
+            Icon(icon, color: primaryColor),
 
             SizedBox(width: 12),
 
@@ -1453,19 +1211,13 @@ class RenterAccountScreen extends StatelessWidget {
 
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: secondaryTextColor,
-                    ),
+                    style: TextStyle(fontSize: 11, color: secondaryTextColor),
                   ),
                 ],
               ),
             ),
 
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF9CA3AF),
-            ),
+            Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
           ],
         ),
       ),
@@ -1473,15 +1225,10 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Help Item
-  Widget buildHelpItem(
-    String question,
-    String answer,
-  ) {
+  Widget buildHelpItem(String question, String answer) {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
-      childrenPadding: EdgeInsets.only(
-        bottom: 12,
-      ),
+      childrenPadding: EdgeInsets.only(bottom: 12),
       title: Text(
         question,
         style: TextStyle(
@@ -1508,30 +1255,16 @@ class RenterAccountScreen extends StatelessWidget {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        contentPadding: EdgeInsets.fromLTRB(
-          24,
-          25,
-          24,
-          18,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: EdgeInsets.fromLTRB(24, 25, 24, 18),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 58,
               height: 58,
-              decoration: BoxDecoration(
-                color: redSoft,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.logout_rounded,
-                color: redAccent,
-                size: 27,
-              ),
+              decoration: BoxDecoration(color: redSoft, shape: BoxShape.circle),
+              child: Icon(Icons.logout_rounded, color: redAccent, size: 27),
             ),
 
             SizedBox(height: 16),
@@ -1558,12 +1291,7 @@ class RenterAccountScreen extends StatelessWidget {
             ),
           ],
         ),
-        actionsPadding: EdgeInsets.fromLTRB(
-          20,
-          0,
-          20,
-          20,
-        ),
+        actionsPadding: EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
           Row(
             children: [
@@ -1572,9 +1300,7 @@ class RenterAccountScreen extends StatelessWidget {
                   onPressed: () {
                     Get.back();
                   },
-                  child: Text(
-                    "Cancel",
-                  ),
+                  child: Text("Cancel"),
                 ),
               ),
 
@@ -1588,14 +1314,11 @@ class RenterAccountScreen extends StatelessWidget {
                     try {
                       await authService.logout();
 
-                      Get.offAll(
-                        () => LoginScreen(),
-                      );
+                      Get.offAll(() => LoginScreen());
                     } catch (e) {
                       showErrorNotification(
                         title: "Logout Failed",
-                        message:
-                            "Something went wrong. Please try again.",
+                        message: "Something went wrong. Please try again.",
                       );
                     }
                   },
@@ -1604,9 +1327,7 @@ class RenterAccountScreen extends StatelessWidget {
                     foregroundColor: Colors.white,
                     elevation: 0,
                   ),
-                  child: Text(
-                    "Log out",
-                  ),
+                  child: Text("Log out"),
                 ),
               ),
             ],
@@ -1618,29 +1339,17 @@ class RenterAccountScreen extends StatelessWidget {
 }
 
 // Profile Image URL
-String getProfileImageUrl(
-  String image,
-) {
+String getProfileImageUrl(String image) {
   if (image.isEmpty) {
     return "";
   }
 
-  if (image.startsWith(
-    "http://127.0.0.1:8000",
-  )) {
-    return image.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+  if (image.startsWith("http://127.0.0.1:8000")) {
+    return image.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
   }
 
-  if (image.startsWith(
-    "http://localhost:8000",
-  )) {
-    return image.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+  if (image.startsWith("http://localhost:8000")) {
+    return image.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
   }
 
   if (image.startsWith("http")) {
