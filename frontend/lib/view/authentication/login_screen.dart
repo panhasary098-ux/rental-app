@@ -1,6 +1,5 @@
 import 'package:final_project/controller/login_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'register_screen.dart';
 
@@ -13,7 +12,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final LoginController controller = Get.put(LoginController());
-
 
   @override
   Widget build(BuildContext context) {
@@ -428,7 +426,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: OutlinedButton(
                               onPressed:
                                   controller.loginWithGoogle,
-
                               style:
                                   OutlinedButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(255, 250, 248, 248),
@@ -436,23 +433,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 side: BorderSide(
                                   color: Color(0xFFE5E7EB),
                                 ),
-
                                 shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.circular(14),
                                 ),
                               ),
-
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.center,
-
                                 children: [
                                   Image.network(
                                     "https://developers.google.com/identity/images/g-logo.png",
                                     width: 22,
                                     height: 22,
-
                                     errorBuilder: (
                                       context,
                                       error,

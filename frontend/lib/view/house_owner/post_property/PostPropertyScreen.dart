@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 
 Color primaryColor = Color(0xFF03045E);
 Color secondaryColor = Color(0xFF90E0EF);
-Color backgroundColor = Color(0xFFF4FCFE);
+Color backgroundColor = Colors.white;
 Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class Postpropertyscreen extends StatefulWidget {

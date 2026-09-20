@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 const Color _primaryColor = Color(0xFF03045E);
 const Color _secondaryColor = Color(0xFF90E0EF);
-const Color _backgroundColor = Color.fromARGB(255, 242, 242, 242);
+const Color _backgroundColor =Colors.white;
 const Color _lightSecondaryColor = Color(0xFFE6F9FC);
 
 class OwnerPropertyDetailScreen extends StatefulWidget {

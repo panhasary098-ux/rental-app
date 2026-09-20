@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Color.fromARGB(255, 242, 242, 242);
+const Color backgroundColor = Colors.white;
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PostRoomStep2 extends StatelessWidget {
@@ -341,16 +341,19 @@ class PostRoomStep2 extends StatelessWidget {
                                             }
                                           },
 
-                                          selectedColor: secondaryColor,
+                                          selectedColor: Colors.white,
 
                                           backgroundColor: Colors.white,
 
                                           side: BorderSide(
                                             color: isSelected
                                                 ? primaryColor
-                                                : secondaryColor.withOpacity(
-                                                    0.7,
-                                                  ),
+                                                : const Color.fromARGB(
+                                                    255,
+                                                    224,
+                                                    224,
+                                                    224,
+                                                  ).withOpacity(0.7),
 
                                             width: isSelected ? 1.3 : 1,
                                           ),

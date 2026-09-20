@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 
 const Color _primaryColor = Color(0xFF03045E);
-const Color _secondaryColor = Color(0xFF90E0EF);
-const Color _backgroundColor = Color(0xFFF4FCFE);
-const Color _lightSecondaryColor = Color(0xFFE6F9FC);
+const Color _secondaryColor = Colors.black12;
+const Color _backgroundColor = Colors.white;
+const Color _lightSecondaryColor = Colors.white12;
 
 class AdminPropertyDetailScreen extends StatefulWidget {
   final Map<String, dynamic> property;

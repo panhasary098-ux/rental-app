@@ -1,18 +1,28 @@
 import 'package:final_project/service/admin_service.dart';
 import 'package:final_project/view/admin/admin_property_detail_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-const Color _primaryColor = Color(0xFF03045E);
-const Color _secondaryColor = Color(0xFF90E0EF);
-const Color _backgroundColor = Color(0xFFF4FCFE);
-const Color _lightSecondaryColor = Color(0xFFE6F9FC);
+Color _primaryColor = Color(0xFF03045E);
+Color _backgroundColor = Color(0xFFF5F6FA);
+Color _textColor = Color(0xFF111827);
+Color _secondaryTextColor = Color(0xFF6B7280);
+Color _borderColor = Color(0xFFE8EAF0);
+Color _softGrey = Color(0xFFF5F6F8);
+
+Color _greenColor = Color(0xFF15803D);
+Color _greenSoft = Color(0xFFF0FDF4);
+
+Color _redColor = Color(0xFFDC2626);
+Color _redSoft = Color(0xFFFEF2F2);
 
 class ManagePropertiesScreen extends StatefulWidget {
-  const ManagePropertiesScreen({super.key});
+  ManagePropertiesScreen({super.key});
 
   @override
-  State<ManagePropertiesScreen> createState() => _ManagePropertiesScreenState();
+  State<ManagePropertiesScreen> createState() =>
+      _ManagePropertiesScreenState();
 }
 
 class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
@@ -45,6 +55,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     super.dispose();
   }
 
+  // Load Properties
   Future<void> loadProperties() async {
     try {
       setState(() {
@@ -80,13 +91,16 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     }
   }
 
+  // Search
   List<Map<String, dynamic>> get filteredProperties {
     final String query = searchController.text.trim().toLowerCase();
 
     return properties.where((property) {
-      final String title = property["title"]?.toString().toLowerCase() ?? "";
+      final String title =
+          property["title"]?.toString().toLowerCase() ?? "";
 
-      final String owner = property["owner"]?.toString().toLowerCase() ?? "";
+      final String owner =
+          property["owner"]?.toString().toLowerCase() ?? "";
 
       final String location =
           property["location"]?.toString().toLowerCase() ?? "";
@@ -121,9 +135,15 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
 
     String url = value.toString();
 
-    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
+    url = url.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
 
-    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
+    url = url.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
 
     return url;
   }
@@ -172,198 +192,493 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     return "-";
   }
 
+  int getActiveCount() {
+    return properties.where((property) {
+      return formatPostStatus(property["post_status"]) == "Active";
+    }).length;
+  }
+
+  int getRemovedCount() {
+    return properties.where((property) {
+      return formatPostStatus(property["post_status"]) == "Removed";
+    }).length;
+  }
+
+  int getRentedCount() {
+    return properties.where((property) {
+      return formatRentalStatus(property["rental_status"]) == "Rented";
+    }).length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final displayedProperties = filteredProperties;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAF8),
-
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF7FAF8),
-
-        elevation: 0,
-
-        scrolledUnderElevation: 0,
-
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-
-            color: Color(0xFF1F2923),
-          ),
-        ),
-
-        title: const Text(
-          "Manage Properties",
-
-          style: TextStyle(
-            fontSize: 20,
-
-            fontWeight: FontWeight.bold,
-
-            color: Color(0xFF1F2923),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: _backgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 30,
+            ),
+            child: Column(
+              children: [
+                // Header
+                buildHeader(),
+            
+                Expanded(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 18),
+            
+                      // Search
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 18),
+                        child: buildSearchField(),
+                      ),
+            
+                      SizedBox(height: 13),
+            
+                      // Filters
+                      buildFilters(),
+            
+                      SizedBox(height: 8),
+            
+                      Expanded(
+                        child: buildContent(displayedProperties),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
 
-      body: SafeArea(
+  // Header
+  Widget buildHeader() {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(18, 18, 18, 22),
+        decoration: BoxDecoration(
+          color: _primaryColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _primaryColor.withValues(alpha: 0.18),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
-
-              child: TextField(
-                controller: searchController,
-
-                decoration: InputDecoration(
-                  hintText: "Search properties...",
-
-                  hintStyle: const TextStyle(
-                    color: Color(0xFF94A099),
-
-                    fontSize: 14,
-                  ),
-
-                  prefixIcon: const Icon(
-                    Icons.search_rounded,
-
-                    color: Color(0xFF68756D),
-                  ),
-
-                  suffixIcon: searchController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          onPressed: searchController.clear,
-
-                          icon: const Icon(
-                            Icons.close_rounded,
-
-                            color: _primaryColor,
-                          ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Manage Properties",
+                        style: TextStyle(
+                          fontSize: 23,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.4,
                         ),
-
-                  filled: true,
-
-                  fillColor: Colors.white,
-
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
-
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-
-                    borderSide: BorderSide(color: Colors.grey.withOpacity(0.4)),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        "Control your marketplace listings",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withValues(alpha: 0.68),
+                        ),
+                      ),
+                    ],
                   ),
-
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-
-                    borderSide: const BorderSide(
-                      color: _primaryColor,
-
-                      width: 1.5,
+                ),
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(13),
+                  ),
+                  child: IconButton(
+                    onPressed: loadProperties,
+                    icon: Icon(
+                      Icons.refresh_rounded,
+                      color: Colors.white,
+                      size: 20,
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
 
-            const SizedBox(height: 14),
+            SizedBox(height: 23),
 
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-
-              padding: const EdgeInsets.symmetric(horizontal: 18),
-
+            // Stats
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 15,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
               child: Row(
                 children: [
-                  buildFilterChip("All"),
-
-                  const SizedBox(width: 8),
-
-                  buildFilterChip("Active"),
-
-                  const SizedBox(width: 8),
-
-                  buildFilterChip("Removed"),
+                  Expanded(
+                    child: buildHeaderStat(
+                      properties.length.toString(),
+                      "Total",
+                      Icons.apartment_rounded,
+                    ),
+                  ),
+                  buildHeaderDivider(),
+                  Expanded(
+                    child: buildHeaderStat(
+                      getActiveCount().toString(),
+                      "Active",
+                      Icons.visibility_outlined,
+                    ),
+                  ),
+                  buildHeaderDivider(),
+                  Expanded(
+                    child: buildHeaderStat(
+                      getRentedCount().toString(),
+                      "Rented",
+                      Icons.key_outlined,
+                    ),
+                  ),
+                  buildHeaderDivider(),
+                  Expanded(
+                    child: buildHeaderStat(
+                      getRemovedCount().toString(),
+                      "Removed",
+                      Icons.visibility_off_outlined,
+                    ),
+                  ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            Expanded(child: buildContent(displayedProperties)),
           ],
         ),
       ),
     );
   }
 
-  Widget buildContent(List<Map<String, dynamic>> displayedProperties) {
+  Widget buildHeaderStat(
+    String value,
+    String title,
+    IconData icon,
+  ) {
+    return Column(
+      children: [
+        Icon(
+          icon,
+          color: _primaryColor,
+          size: 17,
+        ),
+        SizedBox(height: 7),
+        Text(
+          value,
+          style: TextStyle(
+            color: _textColor,
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        SizedBox(height: 2),
+        Text(
+          title,
+          style: TextStyle(
+            color: _secondaryTextColor,
+            fontSize: 9.5,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildHeaderDivider() {
+    return Container(
+      width: 1,
+      height: 47,
+      color: _borderColor,
+    );
+  }
+
+  // Search
+  Widget buildSearchField() {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: _borderColor,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.025),
+            blurRadius: 12,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: searchController,
+        style: TextStyle(
+          fontSize: 13,
+          color: _textColor,
+        ),
+        decoration: InputDecoration(
+          hintText: "Search property, owner, location...",
+          hintStyle: TextStyle(
+            color: Color(0xFF9CA3AF),
+            fontSize: 13,
+          ),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: _secondaryTextColor,
+            size: 21,
+          ),
+          suffixIcon: searchController.text.isEmpty
+              ? null
+              : IconButton(
+                  onPressed: searchController.clear,
+                  icon: Icon(
+                    Icons.close_rounded,
+                    color: _secondaryTextColor,
+                    size: 18,
+                  ),
+                ),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: _primaryColor,
+              width: 1.2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Filters
+  Widget buildFilters() {
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.symmetric(horizontal: 18),
+        children: [
+          buildFilterChip(
+            "All",
+            properties.length,
+          ),
+          SizedBox(width: 8),
+          buildFilterChip(
+            "Active",
+            getActiveCount(),
+          ),
+          SizedBox(width: 8),
+          buildFilterChip(
+            "Removed",
+            getRemovedCount(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildFilterChip(
+    String title,
+    int count,
+  ) {
+    final bool isSelected = selectedFilter == title;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedFilter = title;
+        });
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 180),
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? _primaryColor : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? _primaryColor : _borderColor,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: _primaryColor.withValues(alpha: 0.14),
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ]
+              : [],
+        ),
+        child: Row(
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? Colors.white
+                    : _secondaryTextColor,
+              ),
+            ),
+            SizedBox(width: 7),
+            Container(
+              width: 21,
+              height: 21,
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.white.withValues(alpha: 0.14)
+                    : _softGrey,
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: Text(
+                count.toString(),
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+                  color: isSelected
+                      ? Colors.white
+                      : _secondaryTextColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Content
+  Widget buildContent(
+    List<Map<String, dynamic>> displayedProperties,
+  ) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: _primaryColor),
+      return Center(
+        child: CircularProgressIndicator(
+          color: _primaryColor,
+        ),
       );
     }
 
     if (errorMessage != null) {
       return Center(
         child: Padding(
-          padding: const EdgeInsets.all(25),
-
+          padding: EdgeInsets.all(25),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             children: [
-              const Icon(
-                Icons.error_outline_rounded,
-
-                size: 48,
-
-                color: Color(0xFFDC2626),
-              ),
-
-              const SizedBox(height: 12),
-
-              const Text(
-                "Unable to load properties",
-
-                style: TextStyle(
-                  fontSize: 16,
-
-                  fontWeight: FontWeight.bold,
-
-                  color: Color(0xFF1F2923),
+              Container(
+                width: 68,
+                height: 68,
+                decoration: BoxDecoration(
+                  color: _redSoft,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  Icons.error_outline_rounded,
+                  size: 30,
+                  color: _redColor,
                 ),
               ),
-
-              const SizedBox(height: 7),
-
+              SizedBox(height: 14),
+              Text(
+                "Unable to load properties",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: _textColor,
+                ),
+              ),
+              SizedBox(height: 7),
               Text(
                 errorMessage!,
-
                 textAlign: TextAlign.center,
-
-                style: const TextStyle(fontSize: 13, color: Color(0xFF68756D)),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _secondaryTextColor,
+                ),
               ),
-
-              const SizedBox(height: 18),
-
+              SizedBox(height: 18),
               ElevatedButton.icon(
                 onPressed: loadProperties,
-
-                icon: const Icon(Icons.refresh_rounded),
-
-                label: const Text("Try Again"),
-
+                icon: Icon(
+                  Icons.refresh_rounded,
+                ),
+                label: Text(
+                  "Try Again",
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _primaryColor,
-
                   foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 13,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ],
@@ -375,48 +690,40 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     if (displayedProperties.isEmpty) {
       return Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 72,
               height: 72,
-
               decoration: BoxDecoration(
-                color: _secondaryColor.withOpacity(0.25),
-
-                shape: BoxShape.circle,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: _borderColor,
+                ),
               ),
-
-              child: const Icon(
+              child: Icon(
                 Icons.home_work_outlined,
-
                 color: _primaryColor,
-
-                size: 32,
+                size: 30,
               ),
             ),
-
-            const SizedBox(height: 14),
-
-            const Text(
+            SizedBox(height: 14),
+            Text(
               "No properties found",
-
               style: TextStyle(
                 fontSize: 16,
-
-                fontWeight: FontWeight.bold,
-
-                color: Color(0xFF1F2923),
+                fontWeight: FontWeight.w700,
+                color: _textColor,
               ),
             ),
-
-            const SizedBox(height: 5),
-
-            const Text(
-              "There are no properties in this category.",
-
-              style: TextStyle(fontSize: 12, color: Color(0xFF68756D)),
+            SizedBox(height: 5),
+            Text(
+              "Try changing your search or filter.",
+              style: TextStyle(
+                fontSize: 12,
+                color: _secondaryTextColor,
+              ),
             ),
           ],
         ),
@@ -425,266 +732,144 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
 
     return RefreshIndicator(
       color: _primaryColor,
-
       onRefresh: loadProperties,
-
       child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(18, 0, 18, 25),
-
+        padding: EdgeInsets.fromLTRB(
+          18,
+          12,
+          18,
+          28,
+        ),
         itemCount: displayedProperties.length,
-
         separatorBuilder: (context, index) {
-          return const SizedBox(height: 14);
+          return SizedBox(height: 18);
         },
-
         itemBuilder: (context, index) {
-          return buildPropertyCard(displayedProperties[index]);
+          return buildPropertyCard(
+            displayedProperties[index],
+          );
         },
       ),
     );
   }
 
-  Widget buildFilterChip(String title) {
-    final bool isSelected = selectedFilter == title;
-
-    return InkWell(
-      onTap: () {
-        setState(() {
-          selectedFilter = title;
-        });
-      },
-
-      borderRadius: BorderRadius.circular(20),
-
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-
-        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 9),
-
-        decoration: BoxDecoration(
-          color: isSelected ? _primaryColor : Colors.white,
-
-          borderRadius: BorderRadius.circular(20),
-
-          border: Border.all(
-            color: isSelected ? _primaryColor : Colors.grey.withOpacity(0.4),
-          ),
-        ),
-
-        child: Text(
-          title,
-
-          style: TextStyle(
-            fontSize: 12,
-
-            fontWeight: FontWeight.w600,
-
-            color: isSelected ? Colors.white : const Color(0xFF68756D),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildPropertyCard(Map<String, dynamic> property) {
+  // Property Card
+  Widget buildPropertyCard(
+    Map<String, dynamic> property,
+  ) {
     final String imageUrl = getImageUrl(property["image"]);
 
-    final String postStatus = formatPostStatus(property["post_status"]);
+    final String postStatus =
+        formatPostStatus(property["post_status"]);
 
-    final String rentalStatus = formatRentalStatus(property["rental_status"]);
+    final String rentalStatus =
+        formatRentalStatus(property["rental_status"]);
 
     return Container(
-      padding: const EdgeInsets.all(16),
-
       decoration: BoxDecoration(
         color: Colors.white,
-
-        borderRadius: BorderRadius.circular(18),
-
-        border: Border.all(color: Colors.grey.withOpacity(0.4)),
-
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: postStatus == "Removed"
+              ? Color(0xFFFEE2E2)
+              : _borderColor,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.12),
-
-            blurRadius: 12,
-
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.045),
+            blurRadius: 20,
+            offset: Offset(0, 7),
           ),
         ],
       ),
-
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
+          // Image
+          Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(13),
-
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(21),
+                  topRight: Radius.circular(21),
+                ),
                 child: imageUrl.isEmpty
-                    ? buildImagePlaceholder()
+                    ? buildLargeImagePlaceholder()
                     : Image.network(
                         imageUrl,
-
-                        width: 105,
-
-                        height: 105,
-
+                        width: double.infinity,
+                        height: 185,
                         fit: BoxFit.cover,
-
-                        errorBuilder: (context, error, stackTrace) {
-                          return buildImagePlaceholder();
+                        errorBuilder: (
+                          context,
+                          error,
+                          stackTrace,
+                        ) {
+                          return buildLargeImagePlaceholder();
                         },
                       ),
               ),
 
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        Expanded(
-                          child: Text(
-                            property["title"]?.toString() ?? "Property",
-
-                            maxLines: 2,
-
-                            overflow: TextOverflow.ellipsis,
-
-                            style: const TextStyle(
-                              fontSize: 16,
-
-                              height: 1.3,
-
-                              fontWeight: FontWeight.bold,
-
-                              color: Color(0xFF1F2923),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        buildPostStatusBadge(postStatus),
-                      ],
-                    ),
-
-                    const SizedBox(height: 9),
-
-                    Text(
-                      getPrice(property),
-
-                      style: const TextStyle(
-                        fontSize: 16,
-
-                        fontWeight: FontWeight.bold,
-
-                        color: _primaryColor,
+              // Image Shade
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(21),
+                        topRight: Radius.circular(21),
+                      ),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.04),
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.28),
+                        ],
                       ),
                     ),
+                  ),
+                ),
+              ),
 
-                    const SizedBox(height: 7),
+              // Post Status
+              Positioned(
+                top: 13,
+                left: 13,
+                child: buildPostStatusBadge(
+                  postStatus,
+                ),
+              ),
 
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.circle,
+              // Rental Status
+              Positioned(
+                top: 13,
+                right: 13,
+                child: buildRentalStatusBadge(
+                  rentalStatus,
+                ),
+              ),
 
-                          size: 9,
-
-                          color: rentalStatus == "Available"
-                              ? const Color(0xFF16A34A)
-                              : const Color(0xFFDC2626),
-                        ),
-
-                        const SizedBox(width: 6),
-
-                        Text(
-                          rentalStatus,
-
-                          style: TextStyle(
-                            fontSize: 12,
-
-                            fontWeight: FontWeight.w600,
-
-                            color: rentalStatus == "Available"
-                                ? const Color(0xFF16A34A)
-                                : const Color(0xFFDC2626),
-                          ),
-                        ),
-                      ],
+              // Image Label
+              Positioned(
+                left: 15,
+                bottom: 13,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.verified_rounded,
+                      color: Colors.white,
+                      size: 16,
                     ),
-
-                    const SizedBox(height: 7),
-
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.person_outline_rounded,
-
-                          size: 16,
-
-                          color: Color(0xFF68756D),
-                        ),
-
-                        const SizedBox(width: 5),
-
-                        Expanded(
-                          child: Text(
-                            property["owner"]?.toString() ?? "Unknown Owner",
-
-                            maxLines: 1,
-
-                            overflow: TextOverflow.ellipsis,
-
-                            style: const TextStyle(
-                              fontSize: 12,
-
-                              color: Color(0xFF68756D),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-
-                          size: 16,
-
-                          color: Color(0xFF68756D),
-                        ),
-
-                        const SizedBox(width: 5),
-
-                        Expanded(
-                          child: Text(
-                            property["location"]?.toString() ?? "-",
-
-                            maxLines: 1,
-
-                            overflow: TextOverflow.ellipsis,
-
-                            style: const TextStyle(
-                              fontSize: 12,
-
-                              color: Color(0xFF68756D),
-                            ),
-                          ),
-                        ),
-                      ],
+                    SizedBox(width: 5),
+                    Text(
+                      "JoulNow Property",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
@@ -692,90 +877,266 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          // Information
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              17,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  property["title"]?.toString() ?? "Property",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 17,
+                    height: 1.25,
+                    fontWeight: FontWeight.w800,
+                    color: _textColor,
+                    letterSpacing: -0.2,
+                  ),
+                ),
 
-          Divider(height: 1, color: Colors.grey.withOpacity(0.25)),
+                SizedBox(height: 9),
 
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 50,
-
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      showPropertyPost(property);
-                    },
-
-                    icon: const Icon(Icons.visibility_outlined, size: 20),
-
-                    label: const Text(
-                      "View Post",
-
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _primaryColor,
-
-                      foregroundColor: Colors.white,
-
-                      elevation: 0,
-
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        getPrice(property),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          color: _primaryColor,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              SizedBox(
-                width: 70,
-                height: 50,
-
-                child: OutlinedButton(
-                  onPressed: () {
-                    showManagePostSheet(property);
-                  },
-
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF68756D),
-
-                    side: BorderSide(color: Colors.grey.withOpacity(0.4)),
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(13),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _softGrey,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.admin_panel_settings_outlined,
+                            size: 13,
+                            color: _secondaryTextColor,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            "Admin",
+                            style: TextStyle(
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w600,
+                              color: _secondaryTextColor,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-
-                  child: const Icon(Icons.more_horiz_rounded, size: 24),
+                  ],
                 ),
-              ),
-            ],
+
+                SizedBox(height: 15),
+
+                Container(
+                  padding: EdgeInsets.all(13),
+                  decoration: BoxDecoration(
+                    color: _softGrey,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Column(
+                    children: [
+                      buildPropertyInfoRow(
+                        Icons.person_outline_rounded,
+                        "Owner",
+                        property["owner"]?.toString() ??
+                            "Unknown Owner",
+                      ),
+                      SizedBox(height: 11),
+                      buildPropertyInfoRow(
+                        Icons.location_on_outlined,
+                        "Location",
+                        property["location"]?.toString() ?? "-",
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                Container(
+                  height: 1,
+                  color: _borderColor,
+                ),
+
+                SizedBox(height: 16),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 49,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            showPropertyPost(property);
+                          },
+                          icon: Icon(
+                            Icons.visibility_outlined,
+                            size: 18,
+                          ),
+                          label: Text(
+                            "View Property",
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _primaryColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(13),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 54,
+                      height: 49,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          showManagePostSheet(property);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          foregroundColor: _primaryColor,
+                          side: BorderSide(
+                            color: _borderColor,
+                          ),
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(13),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.more_horiz_rounded,
+                          size: 23,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget buildImagePlaceholder() {
+  Widget buildPropertyInfoRow(
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    return Row(
+      children: [
+        Container(
+          width: 31,
+          height: 31,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(9),
+          ),
+          child: Icon(
+            icon,
+            color: _primaryColor,
+            size: 16,
+          ),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 9.5,
+                  color: _secondaryTextColor,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w600,
+                  color: _textColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildLargeImagePlaceholder() {
     return Container(
-      width: 105,
-      height: 105,
-
-      color: _secondaryColor.withOpacity(0.25),
-
-      child: const Icon(
-        Icons.home_work_outlined,
-
-        color: _primaryColor,
-
-        size: 32,
+      width: double.infinity,
+      height: 185,
+      decoration: BoxDecoration(
+        color: Color(0xFFEDEEF6),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(21),
+          topRight: Radius.circular(21),
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            right: -20,
+            bottom: -25,
+            child: Icon(
+              Icons.apartment_rounded,
+              size: 150,
+              color: _primaryColor.withValues(alpha: 0.04),
+            ),
+          ),
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(19),
+            ),
+            child: Icon(
+              Icons.home_work_outlined,
+              color: _primaryColor,
+              size: 27,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -784,35 +1145,97 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     final bool active = status == "Active";
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-
+      padding: EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
       decoration: BoxDecoration(
         color: active
-            ? _secondaryColor.withOpacity(0.25)
-            : const Color(0xFFFEF2F2),
-
-        borderRadius: BorderRadius.circular(20),
+            ? _primaryColor.withValues(alpha: 0.92)
+            : _redColor.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(9),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
-
-      child: Text(
-        status,
-
-        style: TextStyle(
-          fontSize: 10,
-
-          fontWeight: FontWeight.bold,
-
-          color: active ? _primaryColor : const Color(0xFFDC2626),
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            active
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            color: Colors.white,
+            size: 12,
+          ),
+          SizedBox(width: 5),
+          Text(
+            status.toUpperCase(),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              color: Colors.white,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }
 
+  Widget buildRentalStatusBadge(String status) {
+    final bool available = status == "Available";
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(9),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: available ? _greenColor : _redColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          SizedBox(width: 5),
+          Text(
+            status,
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: available ? _greenColor : _redColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Property Detail
   void showPropertyPost(Map<String, dynamic> property) {
     Get.to(
       () => AdminPropertyDetailScreen(
         property: property,
-
         onManagePost: () {
           showManagePostSheet(property);
         },
@@ -820,301 +1243,498 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     );
   }
 
+  // Manage Post
   void showManagePostSheet(Map<String, dynamic> property) {
-    final String postStatus = formatPostStatus(property["post_status"]);
+    final String postStatus =
+        formatPostStatus(property["post_status"]);
+
+    final String rentalStatus =
+        formatRentalStatus(property["rental_status"]);
+
+    final String imageUrl =
+        getImageUrl(property["image"]);
 
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 25),
-
-        decoration: const BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: _backgroundColor,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(28),
+          ),
         ),
-
         child: SafeArea(
           top: false,
-
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Center(
-                child: Container(
-                  width: 45,
-                  height: 4,
-
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD8E0DB),
-
-                    borderRadius: BorderRadius.circular(10),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Sheet Header
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    12,
+                    18,
+                    19,
                   ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Manage Post",
-
-                style: TextStyle(
-                  fontSize: 19,
-
-                  fontWeight: FontWeight.bold,
-
-                  color: Color(0xFF1F2923),
-                ),
-              ),
-
-              const SizedBox(height: 5),
-
-              Text(
-                property["title"]?.toString() ?? "Property",
-
-                style: const TextStyle(fontSize: 13, color: Color(0xFF68756D)),
-              ),
-
-              const SizedBox(height: 20),
-
-              InkWell(
-                onTap: () {
-                  Get.back();
-
-                  if (postStatus != "Active") {
-                    updatePostStatus(property: property, postStatus: "active");
-                  }
-                },
-
-                borderRadius: BorderRadius.circular(14),
-
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-
                   decoration: BoxDecoration(
-                    color: Colors.white,
-
-                    borderRadius: BorderRadius.circular(14),
-
-                    border: Border.all(color: _secondaryColor),
-                  ),
-
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-
-                        decoration: BoxDecoration(
-                          color: _lightSecondaryColor,
-
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-
-                        child: const Icon(
-                          Icons.check_circle_outline_rounded,
-
-                          color: _primaryColor,
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            Text(
-                              "Keep Post",
-
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-
-                                color: _primaryColor,
-                              ),
-                            ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "Keep this property visible to renters.",
-
-                              style: TextStyle(
-                                fontSize: 11,
-
-                                color: Color(0xFF68756D),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      if (postStatus == "Active")
-                        const Icon(
-                          Icons.check_circle_rounded,
-
-                          color: _primaryColor,
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              InkWell(
-                onTap: () {
-                  Get.back();
-
-                  if (postStatus != "Removed") {
-                    showRemoveConfirmation(property);
-                  }
-                },
-
-                borderRadius: BorderRadius.circular(14),
-
-                child: Container(
-                  padding: const EdgeInsets.all(14),
-
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFEF2F2),
-
-                    borderRadius: BorderRadius.circular(14),
-
-                    border: Border.all(
-                      color: const Color(0xFFDC2626).withOpacity(0.20),
+                    color: _primaryColor,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(28),
                     ),
                   ),
-
-                  child: Row(
+                  child: Column(
                     children: [
                       Container(
-                        width: 40,
-                        height: 40,
-
+                        width: 44,
+                        height: 5,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFDC2626).withOpacity(0.08),
-
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-
-                        child: const Icon(
-                          Icons.delete_outline_rounded,
-
-                          color: Color(0xFFDC2626),
+                          color: Colors.white.withValues(alpha: 0.30),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-
-                      const SizedBox(width: 12),
-
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            Text(
-                              "Remove Post",
-
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-
-                                color: Color(0xFFDC2626),
-                              ),
+                      SizedBox(height: 20),
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: imageUrl.isEmpty
+                                ? buildSheetImagePlaceholder()
+                                : Image.network(
+                                    imageUrl,
+                                    width: 67,
+                                    height: 67,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (
+                                      context,
+                                      error,
+                                      stackTrace,
+                                    ) {
+                                      return buildSheetImagePlaceholder();
+                                    },
+                                  ),
+                          ),
+                          SizedBox(width: 13),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Manage Property",
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(
+                                      alpha: 0.62,
+                                    ),
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  property["title"]?.toString() ??
+                                      "Property",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Text(
+                                      getPrice(property),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Container(
+                                      width: 4,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.45,
+                                        ),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      rentalStatus,
+                                      style: TextStyle(
+                                        color: rentalStatus == "Available"
+                                            ? Color(0xFF86EFAC)
+                                            : Color(0xFFFCA5A5),
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "Remove this property from public listings.",
-
-                              style: TextStyle(
-                                fontSize: 11,
-
-                                color: Color(0xFF68756D),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-
-                      if (postStatus == "Removed")
-                        const Icon(
-                          Icons.check_circle_rounded,
-
-                          color: Color(0xFFDC2626),
-                        ),
                     ],
                   ),
                 ),
-              ),
-            ],
+
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    18,
+                    18,
+                    18,
+                    25,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "VISIBILITY CONTROL",
+                        style: TextStyle(
+                          color: _secondaryTextColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.7,
+                        ),
+                      ),
+
+                      SizedBox(height: 11),
+
+                      // Keep Post
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            Get.back();
+
+                            if (postStatus != "Active") {
+                              updatePostStatus(
+                                property: property,
+                                postStatus: "active",
+                              );
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(17),
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(17),
+                              border: Border.all(
+                                color: postStatus == "Active"
+                                    ? _primaryColor.withValues(alpha: 0.25)
+                                    : _borderColor,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(
+                                    alpha: 0.025,
+                                  ),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 43,
+                                  height: 43,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFF0F1FA),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.visibility_outlined,
+                                    color: _primaryColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Keep Property",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: _textColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3),
+                                      Text(
+                                        "Visible to JoulNow renters",
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          color: _secondaryTextColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (postStatus == "Active")
+                                  Container(
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: _greenSoft,
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Icon(
+                                      Icons.check_rounded,
+                                      color: _greenColor,
+                                      size: 17,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Color(0xFFB4B8C2),
+                                    size: 14,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 11),
+
+                      // Remove Post
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            Get.back();
+
+                            if (postStatus != "Removed") {
+                              showRemoveConfirmation(property);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(17),
+                          child: Container(
+                            padding: EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(17),
+                              border: Border.all(
+                                color: postStatus == "Removed"
+                                    ? _redColor.withValues(alpha: 0.25)
+                                    : _borderColor,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(
+                                    alpha: 0.025,
+                                  ),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 43,
+                                  height: 43,
+                                  decoration: BoxDecoration(
+                                    color: _redSoft,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.visibility_off_outlined,
+                                    color: _redColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Remove Property",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: _redColor,
+                                        ),
+                                      ),
+                                      SizedBox(height: 3),
+                                      Text(
+                                        "Hide from public listings",
+                                        style: TextStyle(
+                                          fontSize: 10.5,
+                                          color: _secondaryTextColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                if (postStatus == "Removed")
+                                  Container(
+                                    width: 28,
+                                    height: 28,
+                                    decoration: BoxDecoration(
+                                      color: _redSoft,
+                                      borderRadius: BorderRadius.circular(9),
+                                    ),
+                                    child: Icon(
+                                      Icons.check_rounded,
+                                      color: _redColor,
+                                      size: 17,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    color: Color(0xFFB4B8C2),
+                                    size: 14,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-
       isScrollControlled: true,
     );
   }
 
-  void showRemoveConfirmation(Map<String, dynamic> property) {
+  Widget buildSheetImagePlaceholder() {
+    return Container(
+      width: 67,
+      height: 67,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        Icons.home_work_outlined,
+        color: Colors.white,
+        size: 25,
+      ),
+    );
+  }
+
+  // Remove Confirmation
+  void showRemoveConfirmation(
+    Map<String, dynamic> property,
+  ) {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-
-        title: const Text(
-          "Remove Post",
-
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        title: Row(
+          children: [
+            Container(
+              width: 43,
+              height: 43,
+              decoration: BoxDecoration(
+                color: _redSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                Icons.visibility_off_outlined,
+                color: _redColor,
+                size: 20,
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                "Remove Property?",
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: _textColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          "This property will be hidden from public listings. You can activate it again later.",
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-
-            color: Color(0xFFDC2626),
+            fontSize: 13,
+            height: 1.45,
+            color: _secondaryTextColor,
           ),
         ),
-
-        content: const Text(
-          "Are you sure you want to remove this property from public listings?",
-        ),
-
         actions: [
-          TextButton(onPressed: Get.back, child: const Text("Cancel")),
-
+          TextButton(
+            onPressed: Get.back,
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: _secondaryTextColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
           ElevatedButton(
             onPressed: () {
               Get.back();
 
-              updatePostStatus(property: property, postStatus: "removed");
+              updatePostStatus(
+                property: property,
+                postStatus: "removed",
+              );
             },
-
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-
+              backgroundColor: _redColor,
               foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-
-            child: const Text("Remove"),
+            child: Text(
+              "Remove",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // Update Status
   Future<void> updatePostStatus({
     required Map<String, dynamic> property,
-
     required String postStatus,
   }) async {
-    final int? propertyId = int.tryParse(property["id"].toString());
+    final int? propertyId = int.tryParse(
+      property["id"].toString(),
+    );
 
     if (propertyId == null) {
       Get.snackbar(
         "Error",
         "Property ID is missing.",
-
         snackPosition: SnackPosition.TOP,
       );
 
@@ -1123,14 +1743,17 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
 
     try {
       Get.dialog(
-        const Center(child: CircularProgressIndicator(color: _primaryColor)),
-
+        Center(
+          child: CircularProgressIndicator(
+            color: _primaryColor,
+          ),
+        ),
         barrierDismissible: false,
       );
 
-      final bool success = await adminService.updatePropertyPostStatus(
+      final bool success =
+          await adminService.updatePropertyPostStatus(
         propertyId: propertyId,
-
         postStatus: postStatus,
       );
 
@@ -1148,18 +1771,16 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
         });
 
         Get.snackbar(
-          postStatus == "active" ? "Post Activated" : "Post Removed",
-
+          postStatus == "active"
+              ? "Post Activated"
+              : "Post Removed",
           postStatus == "active"
               ? "The property is visible to renters again."
               : "The property has been removed from public listings.",
-
           snackPosition: SnackPosition.TOP,
-
           backgroundColor: postStatus == "active"
               ? _primaryColor
-              : const Color(0xFFDC2626),
-
+              : _redColor,
           colorText: Colors.white,
         );
       }
@@ -1171,17 +1792,17 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst("Exception: ", "");
+        message = message.replaceFirst(
+          "Exception: ",
+          "",
+        );
       }
 
       Get.snackbar(
         "Update Failed",
         message,
-
         snackPosition: SnackPosition.TOP,
-
-        backgroundColor: const Color(0xFFDC2626),
-
+        backgroundColor: _redColor,
         colorText: Colors.white,
       );
     }

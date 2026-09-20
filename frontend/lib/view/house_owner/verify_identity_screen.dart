@@ -8,7 +8,7 @@ import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Color(0xFFF4FCFE);
+const Color backgroundColor = Colors.white;
 
 class VerifyIdentityScreen extends StatefulWidget {
   const VerifyIdentityScreen({super.key});

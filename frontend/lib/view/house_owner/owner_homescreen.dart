@@ -1144,7 +1144,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
 
             decoration: BoxDecoration(
               // color: iconBackground,
-
               borderRadius: BorderRadius.circular(14),
             ),
 
@@ -1458,13 +1457,17 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
   }
 
   Widget buildBadge(String text, Color color) {
+    bool isAvailable = text == "Available";
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: isAvailable ? Colors.white : color.withOpacity(0.10),
 
         borderRadius: BorderRadius.circular(20),
+
+        border: isAvailable ? Border.all(color: Colors.white) : null,
       ),
 
       child: Text(

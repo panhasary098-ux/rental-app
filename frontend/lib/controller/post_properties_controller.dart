@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -80,6 +81,16 @@ class PostPropertyController extends GetxController {
 
   final RxBool isCheckingPayment = false.obs;
 
+  final RxBool isAutoCheckingPayment = false.obs;
+
+  final RxBool isQrExpired = false.obs;
+
+  final RxInt qrRemainingSeconds = 0.obs;
+
+  Timer? paymentCheckTimer;
+
+  Timer? qrCountdownTimer;
+
   final RxBool isSubmitting = false.obs;
 
   final PropertyService propertyService = PropertyService();
@@ -89,8 +100,8 @@ class PostPropertyController extends GetxController {
 
     editingPropertyId.value = _toInt(property["id"]);
 
-    originalVerificationStatus.value = property["verification_status"]
-        ?.toString();
+    originalVerificationStatus.value =
+        property["verification_status"]?.toString();
 
     final String propertyType = (property["property_type"] ?? "")
         .toString()
@@ -115,31 +126,44 @@ class PostPropertyController extends GetxController {
 
     currentStep.value = 2;
 
-    nameController.text = property["name"]?.toString() ?? "";
+    nameController.text =
+        property["name"]?.toString() ?? "";
 
-    sizeController.text = _numberToText(property["size"]);
+    sizeController.text =
+        _numberToText(property["size"]);
 
-    priceController.text = _numberToText(property["price"]);
+    priceController.text =
+        _numberToText(property["price"]);
 
-    descriptionController.text = property["description"]?.toString() ?? "";
+    descriptionController.text =
+        property["description"]?.toString() ?? "";
 
-    contactController.text = property["contact"]?.toString() ?? "";
+    contactController.text =
+        property["contact"]?.toString() ?? "";
 
-    status.value = property["rental_status"]?.toString();
+    status.value =
+        property["rental_status"]?.toString();
 
-    furnished.value = _toBool(property["furnished"]);
+    furnished.value =
+        _toBool(property["furnished"]);
 
-    address.value = property["address"]?.toString();
+    address.value =
+        property["address"]?.toString();
 
-    latitude.value = _toDouble(property["latitude"]);
+    latitude.value =
+        _toDouble(property["latitude"]);
 
-    longitude.value = _toDouble(property["longitude"]);
+    longitude.value =
+        _toDouble(property["longitude"]);
 
-    final int bedrooms = _toInt(property["bedrooms"]) ?? 0;
+    final int bedrooms =
+        _toInt(property["bedrooms"]) ?? 0;
 
-    final int bathrooms = _toInt(property["bathrooms"]) ?? 1;
+    final int bathrooms =
+        _toInt(property["bathrooms"]) ?? 1;
 
-    final int totalFloor = _toInt(property["total_floor"]) ?? 1;
+    final int totalFloor =
+        _toInt(property["total_floor"]) ?? 1;
 
     if (propertyType == "house") {
       houseBedrooms.value = bedrooms;
@@ -161,9 +185,11 @@ class PostPropertyController extends GetxController {
     roomAvailableFloors.clear();
 
     final dynamic rawFloors =
-        property["available_floors"] ?? property["availableFloors"];
+        property["available_floors"] ??
+            property["availableFloors"];
 
-    final List<int> floors = _extractAvailableFloors(rawFloors);
+    final List<int> floors =
+        _extractAvailableFloors(rawFloors);
 
     if (propertyType == "apartment") {
       apartmentAvailableFloors.assignAll(floors);
@@ -173,38 +199,56 @@ class PostPropertyController extends GetxController {
       roomAvailableFloors.assignAll(floors);
     }
 
-    final dynamic rawFacilities = property["facilities"];
+    final dynamic rawFacilities =
+        property["facilities"];
 
     if (rawFacilities is Map) {
-      wifi.value = _toBool(rawFacilities["wifi"]);
+      wifi.value =
+          _toBool(rawFacilities["wifi"]);
 
-      parking.value = _toBool(rawFacilities["parking"]);
+      parking.value =
+          _toBool(rawFacilities["parking"]);
 
-      airConditioning.value = _toBool(rawFacilities["air_conditioning"]);
+      airConditioning.value =
+          _toBool(
+            rawFacilities["air_conditioning"],
+          );
 
-      petAllowed.value = _toBool(rawFacilities["pet_allowed"]);
+      petAllowed.value =
+          _toBool(rawFacilities["pet_allowed"]);
 
-      balcony.value = _toBool(rawFacilities["balcony"]);
+      balcony.value =
+          _toBool(rawFacilities["balcony"]);
 
-      kitchen.value = _toBool(rawFacilities["kitchen"]);
+      kitchen.value =
+          _toBool(rawFacilities["kitchen"]);
 
-      swimmingPool.value = _toBool(rawFacilities["swimming_pool"]);
+      swimmingPool.value =
+          _toBool(
+            rawFacilities["swimming_pool"],
+          );
 
-      elevator.value = _toBool(rawFacilities["elevator"]);
+      elevator.value =
+          _toBool(rawFacilities["elevator"]);
     }
 
     selectedImages.clear();
     existingImagePaths.clear();
 
-    final dynamic rawImages = property["images"];
+    final dynamic rawImages =
+        property["images"];
 
     if (rawImages is List) {
       for (final image in rawImages) {
         if (image is Map) {
-          final dynamic path = image["image_path"];
+          final dynamic path =
+              image["image_path"];
 
-          if (path != null && path.toString().isNotEmpty) {
-            existingImagePaths.add(path.toString());
+          if (path != null &&
+              path.toString().isNotEmpty) {
+            existingImagePaths.add(
+              path.toString(),
+            );
           }
         }
       }
@@ -270,18 +314,34 @@ class PostPropertyController extends GetxController {
 
   // Reset Payment
   void resetPaymentData() {
+    stopAutomaticPaymentCheck();
+
     paymentId.value = null;
+
     paymentAmount.value = 0.0;
+
     paymentStatus.value = 'pending';
+
     bakongQr.value = '';
+
     bakongMd5.value = '';
+
     bakongExpiresAt.value = null;
+
     isGeneratingQr.value = false;
+
     isCheckingPayment.value = false;
+
+    isAutoCheckingPayment.value = false;
+
+    isQrExpired.value = false;
+
+    qrRemainingSeconds.value = 0;
   }
 
   Future<void> pickImages() async {
-    final List<XFile> images = await picker.pickMultiImage();
+    final List<XFile> images =
+        await picker.pickMultiImage();
 
     if (images.isNotEmpty) {
       selectedImages.addAll(images);
@@ -289,13 +349,17 @@ class PostPropertyController extends GetxController {
   }
 
   void removeImage(int index) {
-    if (index >= 0 && index < selectedImages.length) {
+    if (index >= 0 &&
+        index < selectedImages.length) {
       selectedImages.removeAt(index);
     }
   }
 
   Future<void> pickOwnershipDocumentImage() async {
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image =
+        await picker.pickImage(
+      source: ImageSource.gallery,
+    );
 
     if (image != null) {
       ownershipDocumentImage.value = image;
@@ -318,7 +382,9 @@ class PostPropertyController extends GetxController {
         return 'room';
 
       default:
-        throw Exception('Property type is not selected');
+        throw Exception(
+          'Property type is not selected',
+        );
     }
   }
 
@@ -342,12 +408,18 @@ class PostPropertyController extends GetxController {
     return {
       'wifi': wifi.value,
       'parking': parking.value,
-      'air_conditioning': airConditioning.value,
-      'pet_allowed': petAllowed.value,
-      'balcony': balcony.value,
-      'kitchen': kitchen.value,
-      'swimming_pool': swimmingPool.value,
-      'elevator': elevator.value,
+      'air_conditioning':
+          airConditioning.value,
+      'pet_allowed':
+          petAllowed.value,
+      'balcony':
+          balcony.value,
+      'kitchen':
+          kitchen.value,
+      'swimming_pool':
+          swimmingPool.value,
+      'elevator':
+          elevator.value,
     };
   }
 
@@ -379,7 +451,8 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    final double? size = double.tryParse(
+    final double? size =
+        double.tryParse(
       sizeController.text.trim(),
     );
 
@@ -413,7 +486,8 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    final double? price = double.tryParse(
+    final double? price =
+        double.tryParse(
       priceController.text.trim(),
     );
 
@@ -426,7 +500,10 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    if (descriptionController.text.trim().isEmpty) {
+    if (descriptionController
+        .text
+        .trim()
+        .isEmpty) {
       showValidationMessage(
         'Missing Description',
         'Please enter a property description.',
@@ -435,7 +512,8 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    if (status.value == null || status.value!.isEmpty) {
+    if (status.value == null ||
+        status.value!.isEmpty) {
       showValidationMessage(
         'Missing Status',
         'Please select the rental status.',
@@ -444,7 +522,8 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    if (status.value != 'available' && status.value != 'rented') {
+    if (status.value != 'available' &&
+        status.value != 'rented') {
       showValidationMessage(
         'Invalid Status',
         'Please select a valid rental status.',
@@ -453,7 +532,10 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    if (contactController.text.trim().isEmpty) {
+    if (contactController
+        .text
+        .trim()
+        .isEmpty) {
       showValidationMessage(
         'Missing Contact',
         'Please enter a contact number.',
@@ -462,7 +544,8 @@ class PostPropertyController extends GetxController {
       return false;
     }
 
-    final String propertyType = getPropertyType();
+    final String propertyType =
+        getPropertyType();
 
     if (propertyType == 'house') {
       if (houseBathrooms.value < 1) {
@@ -512,10 +595,12 @@ class PostPropertyController extends GetxController {
         return false;
       }
 
-      final bool hasInvalidFloor = apartmentAvailableFloors.any(
+      final bool hasInvalidFloor =
+          apartmentAvailableFloors.any(
         (floor) =>
             floor < 1 ||
-            floor > apartmentTotalFloor.value,
+            floor >
+                apartmentTotalFloor.value,
       );
 
       if (hasInvalidFloor) {
@@ -547,10 +632,12 @@ class PostPropertyController extends GetxController {
         return false;
       }
 
-      final bool hasInvalidFloor = roomAvailableFloors.any(
+      final bool hasInvalidFloor =
+          roomAvailableFloors.any(
         (floor) =>
             floor < 1 ||
-            floor > roomTotalFloor.value,
+            floor >
+                roomTotalFloor.value,
       );
 
       if (hasInvalidFloor) {
@@ -564,7 +651,8 @@ class PostPropertyController extends GetxController {
     }
 
     if (isEditMode.value) {
-      if (selectedImages.isEmpty && existingImagePaths.isEmpty) {
+      if (selectedImages.isEmpty &&
+          existingImagePaths.isEmpty) {
         showValidationMessage(
           'Missing Images',
           'Please select at least one property image.',
@@ -584,8 +672,10 @@ class PostPropertyController extends GetxController {
     }
 
     if (isEditMode.value) {
-      if (ownershipDocumentImage.value == null &&
-          !hasExistingOwnershipDocument.value) {
+      if (ownershipDocumentImage.value ==
+              null &&
+          !hasExistingOwnershipDocument
+              .value) {
         showValidationMessage(
           'Missing Document',
           'Please upload the ownership document.',
@@ -594,7 +684,8 @@ class PostPropertyController extends GetxController {
         return false;
       }
     } else {
-      if (ownershipDocumentImage.value == null) {
+      if (ownershipDocumentImage.value ==
+          null) {
         showValidationMessage(
           'Missing Document',
           'Please upload the ownership document.',
@@ -614,17 +705,23 @@ class PostPropertyController extends GetxController {
     Get.snackbar(
       title,
       message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
-      colorText: Color(0xFF111827),
-      margin: EdgeInsets.all(15),
+      snackPosition:
+          SnackPosition.BOTTOM,
+      backgroundColor:
+          Colors.white,
+      colorText:
+          Color(0xFF111827),
+      margin:
+          EdgeInsets.all(15),
       borderRadius: 12,
-      duration: Duration(seconds: 2),
+      duration:
+          Duration(seconds: 2),
     );
   }
 
   Map<String, dynamic> getTypeSpecificData() {
-    final String propertyType = getPropertyType();
+    final String propertyType =
+        getPropertyType();
 
     int? bedrooms;
     int? bathrooms;
@@ -633,29 +730,39 @@ class PostPropertyController extends GetxController {
     List<int> availableFloors = [];
 
     if (propertyType == 'house') {
-      bedrooms = houseBedrooms.value;
+      bedrooms =
+          houseBedrooms.value;
 
-      bathrooms = houseBathrooms.value;
+      bathrooms =
+          houseBathrooms.value;
 
-      totalFloor = houseTotalFloor.value;
-    } else if (propertyType == 'apartment') {
-      bedrooms = apartmentBedrooms.value;
+      totalFloor =
+          houseTotalFloor.value;
+    } else if (
+        propertyType == 'apartment') {
+      bedrooms =
+          apartmentBedrooms.value;
 
-      bathrooms = apartmentBathrooms.value;
+      bathrooms =
+          apartmentBathrooms.value;
 
-      totalFloor = apartmentTotalFloor.value;
+      totalFloor =
+          apartmentTotalFloor.value;
 
       availableFloors =
-          apartmentAvailableFloors.toList()
+          apartmentAvailableFloors
+              .toList()
             ..sort();
     } else {
       bedrooms = null;
       bathrooms = null;
 
-      totalFloor = roomTotalFloor.value;
+      totalFloor =
+          roomTotalFloor.value;
 
       availableFloors =
-          roomAvailableFloors.toList()
+          roomAvailableFloors
+              .toList()
             ..sort();
     }
 
@@ -663,7 +770,8 @@ class PostPropertyController extends GetxController {
       "bedrooms": bedrooms,
       "bathrooms": bathrooms,
       "totalFloor": totalFloor,
-      "availableFloors": availableFloors,
+      "availableFloors":
+          availableFloors,
     };
   }
 
@@ -687,72 +795,98 @@ class PostPropertyController extends GetxController {
         return false;
       }
 
-      final String propertyType = getPropertyType();
+      final String propertyType =
+          getPropertyType();
 
-      final double size = double.parse(
+      final double size =
+          double.parse(
         sizeController.text.trim(),
       );
 
-      final double price = double.parse(
+      final double price =
+          double.parse(
         priceController.text.trim(),
       );
 
-      final typeData = getTypeSpecificData();
+      final typeData =
+          getTypeSpecificData();
 
       final List<File> propertyImages =
           selectedImages
               .map(
-                (image) => File(image.path),
+                (image) =>
+                    File(image.path),
               )
               .toList();
 
       final File ownershipDocument =
           File(
-            ownershipDocumentImage.value!.path,
-          );
+        ownershipDocumentImage
+            .value!
+            .path,
+      );
 
       isSubmitting.value = true;
 
       final response =
-          await propertyService.submitProperty(
-        name: nameController.text.trim(),
+          await propertyService
+              .submitProperty(
+        name:
+            nameController.text.trim(),
 
-        propertyType: propertyType,
+        propertyType:
+            propertyType,
 
-        size: size,
+        size:
+            size,
 
-        price: price,
+        price:
+            price,
 
         description:
-            descriptionController.text.trim(),
+            descriptionController
+                .text
+                .trim(),
 
         contact:
-            contactController.text.trim(),
+            contactController
+                .text
+                .trim(),
 
-        furnished: furnished.value,
+        furnished:
+            furnished.value,
 
-        address: address.value!,
+        address:
+            address.value!,
 
-        latitude: latitude.value!,
+        latitude:
+            latitude.value!,
 
-        longitude: longitude.value!,
+        longitude:
+            longitude.value!,
 
-        bedrooms: typeData["bedrooms"],
+        bedrooms:
+            typeData["bedrooms"],
 
-        bathrooms: typeData["bathrooms"],
+        bathrooms:
+            typeData["bathrooms"],
 
-        totalFloor: typeData["totalFloor"],
+        totalFloor:
+            typeData["totalFloor"],
 
-        rentalStatus: status.value!,
+        rentalStatus:
+            status.value!,
 
-        facilities: getFacilities(),
+        facilities:
+            getFacilities(),
 
         availableFloors:
             List<int>.from(
           typeData["availableFloors"],
         ),
 
-        propertyImages: propertyImages,
+        propertyImages:
+            propertyImages,
 
         ownershipDocument:
             ownershipDocument,
@@ -859,11 +993,15 @@ class PostPropertyController extends GetxController {
         return false;
       }
 
+      stopAutomaticPaymentCheck();
+
       isGeneratingQr.value = true;
 
       final response =
-          await propertyService.generateBakongQr(
-        paymentId: paymentId.value!,
+          await propertyService
+              .generateBakongQr(
+        paymentId:
+            paymentId.value!,
       );
 
       dynamic data;
@@ -918,12 +1056,16 @@ class PostPropertyController extends GetxController {
         paymentStatus.value =
             payment?["payment_status"]
                     ?.toString() ??
-                paymentStatus.value;
+                'pending';
 
         bakongExpiresAt.value =
             _toInt(
           payment?["expires_at"],
         );
+
+        isQrExpired.value = false;
+
+        startAutomaticPaymentCheck();
 
         return true;
       }
@@ -947,23 +1089,162 @@ class PostPropertyController extends GetxController {
     }
   }
 
+  // Automatic Payment Check
+  void startAutomaticPaymentCheck() {
+    stopAutomaticPaymentCheck();
+
+    if (paymentStatus.value == 'paid') {
+      return;
+    }
+
+    if (paymentId.value == null ||
+        bakongMd5.value.isEmpty) {
+      return;
+    }
+
+    startQrCountdown();
+
+    if (isQrExpired.value) {
+      return;
+    }
+
+    isAutoCheckingPayment.value = true;
+
+    paymentCheckTimer =
+        Timer.periodic(
+      Duration(seconds: 5),
+      (timer) async {
+        if (paymentStatus.value ==
+            'paid') {
+          stopAutomaticPaymentCheck();
+
+          return;
+        }
+
+        if (isQrExpired.value) {
+          stopAutomaticPaymentCheck();
+
+          return;
+        }
+
+        if (isCheckingPayment.value) {
+          return;
+        }
+
+        await checkBakongPayment(
+          silent: true,
+        );
+      },
+    );
+  }
+
+  // QR Countdown
+  void startQrCountdown() {
+    qrCountdownTimer?.cancel();
+
+    updateQrRemainingTime();
+
+    if (isQrExpired.value) {
+      return;
+    }
+
+    qrCountdownTimer =
+        Timer.periodic(
+      Duration(seconds: 1),
+      (timer) {
+        updateQrRemainingTime();
+
+        if (isQrExpired.value) {
+          timer.cancel();
+
+          paymentCheckTimer?.cancel();
+
+          paymentCheckTimer = null;
+
+          isAutoCheckingPayment.value =
+              false;
+        }
+      },
+    );
+  }
+
+  void updateQrRemainingTime() {
+    if (bakongExpiresAt.value == null) {
+      qrRemainingSeconds.value = 0;
+
+      return;
+    }
+
+    final int now =
+        DateTime.now()
+            .millisecondsSinceEpoch;
+
+    final int difference =
+        bakongExpiresAt.value! - now;
+
+    if (difference <= 0) {
+      qrRemainingSeconds.value = 0;
+
+      isQrExpired.value = true;
+
+      return;
+    }
+
+    qrRemainingSeconds.value =
+        (difference / 1000).ceil();
+
+    isQrExpired.value = false;
+  }
+
+  String getQrRemainingTimeText() {
+    final int totalSeconds =
+        qrRemainingSeconds.value;
+
+    final int minutes =
+        totalSeconds ~/ 60;
+
+    final int seconds =
+        totalSeconds % 60;
+
+    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  }
+
+  void stopAutomaticPaymentCheck() {
+    paymentCheckTimer?.cancel();
+
+    paymentCheckTimer = null;
+
+    qrCountdownTimer?.cancel();
+
+    qrCountdownTimer = null;
+
+    isAutoCheckingPayment.value =
+        false;
+  }
+
   // Check Bakong Payment
-  Future<bool> checkBakongPayment() async {
+  Future<bool> checkBakongPayment({
+    bool silent = false,
+  }) async {
     try {
       if (paymentId.value == null) {
-        showValidationMessage(
-          'Missing Payment',
-          'Payment information is not available.',
-        );
+        if (!silent) {
+          showValidationMessage(
+            'Missing Payment',
+            'Payment information is not available.',
+          );
+        }
 
         return false;
       }
 
       if (bakongMd5.value.isEmpty) {
-        showValidationMessage(
-          'Missing QR',
-          'Please generate the payment QR first.',
-        );
+        if (!silent) {
+          showValidationMessage(
+            'Missing QR',
+            'Please generate the payment QR first.',
+          );
+        }
 
         return false;
       }
@@ -975,9 +1256,12 @@ class PostPropertyController extends GetxController {
       isCheckingPayment.value = true;
 
       final response =
-          await propertyService.checkBakongPayment(
-        paymentId: paymentId.value!,
-        md5: bakongMd5.value,
+          await propertyService
+              .checkBakongPayment(
+        paymentId:
+            paymentId.value!,
+        md5:
+            bakongMd5.value,
       );
 
       dynamic data;
@@ -990,66 +1274,100 @@ class PostPropertyController extends GetxController {
         data = null;
       }
 
-      if (
-          response.statusCode == 200 &&
-          data?["success"] == true
-      ) {
+      // Only backend paid == true can confirm payment
+      if (response.statusCode == 200) {
+        final bool isPaid =
+            data?["paid"] == true;
+
+        if (!isPaid) {
+          paymentStatus.value =
+              'pending';
+
+          if (!silent) {
+            showValidationMessage(
+              'Payment Pending',
+              data?['message'] ??
+                  'Your payment has not been confirmed yet.',
+            );
+          }
+
+          return false;
+        }
+
         final dynamic payment =
             data?["payment"];
 
-        final String newStatus =
+        final String backendStatus =
             payment?["payment_status"]
-                    ?.toString() ??
-                data?["payment_status"]
-                    ?.toString() ??
-                'paid';
+                    ?.toString()
+                    .toLowerCase() ??
+                '';
 
-        paymentStatus.value =
-            newStatus;
+        // Extra protection
+        if (backendStatus != 'paid') {
+          paymentStatus.value =
+              'pending';
 
-        if (
-            paymentStatus.value ==
-            'paid'
-        ) {
-          Get.snackbar(
-            'Payment Successful',
-            'Your payment has been confirmed successfully.',
-            snackPosition:
-                SnackPosition.BOTTOM,
-            backgroundColor:
-                Colors.white,
-            colorText:
-                Color(0xFF111827),
-            margin:
-                EdgeInsets.all(15),
-            borderRadius: 12,
-            duration:
-                Duration(seconds: 3),
-          );
+          if (!silent) {
+            showValidationMessage(
+              'Payment Pending',
+              'Payment has not been confirmed yet.',
+            );
+          }
 
-          return true;
+          return false;
         }
 
-        showValidationMessage(
-          'Payment Pending',
-          'Your payment has not been confirmed yet.',
+        // Payment confirmed
+        paymentStatus.value = 'paid';
+
+        stopAutomaticPaymentCheck();
+
+        Get.snackbar(
+          'Payment Successful',
+          'Your payment has been verified successfully.',
+          snackPosition:
+              SnackPosition.BOTTOM,
+          backgroundColor:
+              Colors.white,
+          colorText:
+              Color(0xFF111827),
+          margin:
+              EdgeInsets.all(15),
+          borderRadius: 12,
+          duration:
+              Duration(seconds: 3),
+          icon:
+              Icon(
+            Icons.check_circle_rounded,
+            color:
+                Color(0xFF16A34A),
+          ),
         );
 
-        return false;
+        return true;
       }
 
-      showValidationMessage(
-        'Payment Pending',
-        data?['message'] ??
-            'Payment has not been confirmed yet.',
-      );
+      paymentStatus.value = 'pending';
+
+      if (!silent) {
+        showValidationMessage(
+          'Payment Pending',
+          data?['message'] ??
+              'Payment has not been confirmed yet.',
+        );
+      }
 
       return false;
     } catch (e) {
-      showValidationMessage(
-        'Payment Error',
-        e.toString(),
-      );
+      paymentStatus.value = 'pending';
+
+      if (!silent) {
+        showValidationMessage(
+          'Payment Error',
+          e.toString(),
+        );
+      }
 
       return false;
     } finally {
@@ -1085,11 +1403,13 @@ class PostPropertyController extends GetxController {
         return false;
       }
 
-      final double size = double.parse(
+      final double size =
+          double.parse(
         sizeController.text.trim(),
       );
 
-      final double price = double.parse(
+      final double price =
+          double.parse(
         priceController.text.trim(),
       );
 
@@ -1110,10 +1430,8 @@ class PostPropertyController extends GetxController {
 
       File? newOwnershipDocument;
 
-      if (
-          ownershipDocumentImage.value !=
-          null
-      ) {
+      if (ownershipDocumentImage.value !=
+          null) {
         newOwnershipDocument =
             File(
           ownershipDocumentImage
@@ -1125,22 +1443,29 @@ class PostPropertyController extends GetxController {
       isSubmitting.value = true;
 
       final response =
-          await propertyService.updateProperty(
+          await propertyService
+              .updateProperty(
         propertyId:
             editingPropertyId.value!,
 
         name:
             nameController.text.trim(),
 
-        size: size,
+        size:
+            size,
 
-        price: price,
+        price:
+            price,
 
         description:
-            descriptionController.text.trim(),
+            descriptionController
+                .text
+                .trim(),
 
         contact:
-            contactController.text.trim(),
+            contactController
+                .text
+                .trim(),
 
         furnished:
             furnished.value,
@@ -1333,6 +1658,8 @@ class PostPropertyController extends GetxController {
 
   @override
   void onClose() {
+    stopAutomaticPaymentCheck();
+
     nameController.dispose();
     sizeController.dispose();
     priceController.dispose();

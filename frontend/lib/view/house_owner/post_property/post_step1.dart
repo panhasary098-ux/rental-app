@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Color(0xFFF4FCFE);
+const Color backgroundColor = Colors.white;
 const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PostStep1 extends StatelessWidget {

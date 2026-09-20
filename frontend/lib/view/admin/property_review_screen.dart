@@ -6,9 +6,9 @@ import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
 import 'package:get/get.dart';
 
 const Color primaryColor = Color(0xFF03045E);
-const Color secondaryColor = Color(0xFF90E0EF);
-const Color backgroundColor = Colors.white;
-const Color lightSecondaryColor = Color(0xFFE6F9FC);
+const Color secondaryColor = Colors.grey;
+const Color backgroundColor = Color.fromARGB(255, 240, 240, 240);
+const Color lightSecondaryColor = Colors.white;
 
 class PropertyReviewScreen extends StatefulWidget {
   final Map<String, dynamic> property;
@@ -48,7 +48,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     for (final dynamic item in value) {
       if (item is Map) {
-        final int? floor = int.tryParse(item["floor_number"]?.toString() ?? "");
+        final int? floor = int.tryParse(
+          item["floor_number"]?.toString() ?? "",
+        );
 
         if (floor != null) {
           floors.add(floor);
@@ -115,35 +117,59 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     final List<Map<String, dynamic>> result = [];
 
     if (getBool(facilities["wifi"])) {
-      result.add({"icon": Icons.wifi, "text": "WiFi"});
+      result.add({
+        "icon": Icons.wifi,
+        "text": "WiFi",
+      });
     }
 
     if (getBool(facilities["parking"])) {
-      result.add({"icon": Icons.local_parking_outlined, "text": "Parking"});
+      result.add({
+        "icon": Icons.local_parking_outlined,
+        "text": "Parking",
+      });
     }
 
     if (getBool(facilities["air_conditioning"])) {
-      result.add({"icon": Icons.ac_unit, "text": "Air Con"});
+      result.add({
+        "icon": Icons.ac_unit,
+        "text": "Air Con",
+      });
     }
 
     if (getBool(facilities["pet_allowed"])) {
-      result.add({"icon": Icons.pets_outlined, "text": "Pet Allowed"});
+      result.add({
+        "icon": Icons.pets_outlined,
+        "text": "Pet Allowed",
+      });
     }
 
     if (getBool(facilities["balcony"])) {
-      result.add({"icon": Icons.balcony_outlined, "text": "Balcony"});
+      result.add({
+        "icon": Icons.balcony_outlined,
+        "text": "Balcony",
+      });
     }
 
     if (getBool(facilities["swimming_pool"])) {
-      result.add({"icon": Icons.pool_outlined, "text": "Swimming Pool"});
+      result.add({
+        "icon": Icons.pool_outlined,
+        "text": "Swimming Pool",
+      });
     }
 
     if (getBool(facilities["kitchen"])) {
-      result.add({"icon": Icons.kitchen_outlined, "text": "Kitchen"});
+      result.add({
+        "icon": Icons.kitchen_outlined,
+        "text": "Kitchen",
+      });
     }
 
     if (getBool(facilities["elevator"])) {
-      result.add({"icon": Icons.elevator_outlined, "text": "Elevator"});
+      result.add({
+        "icon": Icons.elevator_outlined,
+        "text": "Elevator",
+      });
     }
 
     return result;
@@ -160,7 +186,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }
 
   String formatSize(dynamic value) {
-    final double? size = double.tryParse(value?.toString() ?? "");
+    final double? size = double.tryParse(
+      value?.toString() ?? "",
+    );
 
     if (size == null) {
       return "-";
@@ -212,7 +240,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     final dynamic rawPrice = property["raw_price"];
 
     if (rawPrice != null) {
-      final double? value = double.tryParse(rawPrice.toString());
+      final double? value = double.tryParse(
+        rawPrice.toString(),
+      );
 
       if (value != null) {
         if (value == value.roundToDouble()) {
@@ -225,10 +255,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     final String formatted = property["price"]?.toString() ?? "";
 
-    final RegExpMatch? match = RegExp(r'[\d,.]+').firstMatch(formatted);
+    final RegExpMatch? match = RegExp(
+      r'[\d,.]+',
+    ).firstMatch(formatted);
 
     if (match != null) {
-      final String number = match.group(0)?.replaceAll(",", "") ?? "";
+      final String number =
+          match.group(0)?.replaceAll(",", "") ?? "";
 
       final double? value = double.tryParse(number);
 
@@ -253,13 +286,20 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       for (final dynamic item in rawImages) {
         if (item is Map) {
           final dynamic rawUrl =
-              item["image_url"] ?? item["image"] ?? item["url"];
+              item["image_url"] ??
+              item["image"] ??
+              item["url"];
 
-          if (rawUrl != null && rawUrl.toString().isNotEmpty) {
-            images.add(getImageUrl(rawUrl));
+          if (rawUrl != null &&
+              rawUrl.toString().isNotEmpty) {
+            images.add(
+              getImageUrl(rawUrl),
+            );
           }
         } else if (item != null) {
-          images.add(getImageUrl(item));
+          images.add(
+            getImageUrl(item),
+          );
         }
       }
     }
@@ -267,7 +307,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     if (images.isEmpty &&
         property["image"] != null &&
         property["image"].toString().isNotEmpty) {
-      images.add(getImageUrl(property["image"]));
+      images.add(
+        getImageUrl(property["image"]),
+      );
     }
 
     return images;
@@ -280,9 +322,15 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
     String url = value.toString();
 
-    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
+    url = url.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
 
-    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
+    url = url.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
 
     return url;
   }
@@ -307,7 +355,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
         scrolledUnderElevation: 0,
 
-        iconTheme: const IconThemeData(color: primaryColor),
+        iconTheme: const IconThemeData(
+          color: primaryColor,
+        ),
 
         title: const Text(
           "Review Submission",
@@ -330,7 +380,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 30),
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                20,
+                16,
+                30,
+              ),
 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,7 +415,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                       const SizedBox(width: 10),
 
-                      buildStatusBadge(formatRentalStatus()),
+                      buildStatusBadge(
+                        formatRentalStatus(),
+                      ),
                     ],
                   ),
 
@@ -449,7 +506,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   ),
 
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 13,
+                    ),
 
                     child: Wrap(
                       spacing: 18,
@@ -460,7 +519,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                           mainAxisSize: MainAxisSize.min,
 
                           children: [
-                            Icon(item["icon"], size: 17, color: primaryColor),
+                            Icon(
+                              item["icon"],
+                              size: 17,
+                              color: primaryColor,
+                            ),
 
                             const SizedBox(width: 5),
 
@@ -574,7 +637,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         ),
 
                         child: const Text(
-                          "3 documents",
+                          "2 documents",
 
                           style: TextStyle(
                             fontSize: 11,
@@ -602,15 +665,6 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     subtitle: "Ownership / rental authorization evidence",
                     icon: Icons.description_outlined,
                     onTap: showOwnershipDocumentPreview,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  buildDocumentCard(
-                    title: "Payment Proof",
-                    subtitle: "Property posting fee payment evidence",
-                    icon: Icons.receipt_long_outlined,
-                    onTap: showPaymentProofPreview,
                   ),
 
                   const SizedBox(height: 28),
@@ -651,10 +705,6 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                   const SizedBox(height: 10),
 
-                  buildChecklistItem("Payment proof appears valid"),
-
-                  const SizedBox(height: 10),
-
                   buildChecklistItem(
                     "Property details appear valid and complete",
                   ),
@@ -675,6 +725,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Image Slideshow
   Widget buildImageSlideshow() {
     final List<String> images = getPropertyImages();
 
@@ -683,7 +734,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
         color: lightSecondaryColor,
 
         child: const Center(
-          child: Icon(Icons.home_work_outlined, size: 60, color: primaryColor),
+          child: Icon(
+            Icons.home_work_outlined,
+            size: 60,
+            color: primaryColor,
+          ),
         ),
       );
     }
@@ -708,7 +763,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           fit: BoxFit.cover,
 
-          errorBuilder: (context, error, stackTrace) {
+          errorBuilder: (
+            context,
+            error,
+            stackTrace,
+          ) {
             return Container(
               color: lightSecondaryColor,
 
@@ -726,16 +785,14 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  // ==========================================
-  // UPDATED RENTAL STATUS DESIGN
-  // ==========================================
-
+  // Rental Status
   Widget buildStatusBadge(String status) {
     Color statusColor;
 
     final String value = status.toLowerCase();
 
-    if (value == "available" || value == "available now") {
+    if (value == "available" ||
+        value == "available now") {
       statusColor = const Color(0xFF16A34A);
     } else if (value == "rented") {
       statusColor = const Color(0xFFDC2626);
@@ -744,7 +801,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -795,6 +855,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Floor
   Widget buildFloorSection() {
     if (totalFloor <= 0) {
       return const SizedBox.shrink();
@@ -822,7 +883,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Text(
                 "$totalFloor Floors",
 
-                style: const TextStyle(color: Colors.black54, fontSize: 12),
+                style: const TextStyle(
+                  color: Colors.black54,
+                  fontSize: 12,
+                ),
               ),
 
               IconButton(
@@ -846,7 +910,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
             child: hasFloorAvailabilityData
                 ? Container(
-                    constraints: const BoxConstraints(maxHeight: 220),
+                    constraints: const BoxConstraints(
+                      maxHeight: 220,
+                    ),
 
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -865,7 +931,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                       itemCount: totalFloor,
 
-                      separatorBuilder: (context, index) {
+                      separatorBuilder: (
+                        context,
+                        index,
+                      ) {
                         return Container(
                           height: 1,
 
@@ -873,10 +942,14 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         );
                       },
 
-                      itemBuilder: (context, index) {
+                      itemBuilder: (
+                        context,
+                        index,
+                      ) {
                         final int floor = index + 1;
 
-                        final bool available = availableFloors.contains(floor);
+                        final bool available =
+                            availableFloors.contains(floor);
 
                         return Padding(
                           padding: const EdgeInsets.all(10),
@@ -904,7 +977,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                               const Spacer(),
 
                               Text(
-                                available ? "Available" : "Not available",
+                                available
+                                    ? "Available"
+                                    : "Not available",
 
                                 style: TextStyle(
                                   fontSize: 13,
@@ -942,7 +1017,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                     child: const Text(
                       "Floor availability information is not available.",
 
-                      style: TextStyle(color: Colors.black54, fontSize: 13),
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
           ),
@@ -964,7 +1042,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
         const Spacer(),
 
-        const Icon(Icons.layers_outlined, color: primaryColor, size: 19),
+        const Icon(
+          Icons.layers_outlined,
+          color: primaryColor,
+          size: 19,
+        ),
 
         const SizedBox(width: 5),
 
@@ -983,8 +1065,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Facilities
   Widget buildFacilities() {
-    final List<Map<String, dynamic>> facilities = availableFacilities;
+    final List<Map<String, dynamic>> facilities =
+        availableFacilities;
 
     if (facilities.isEmpty) {
       return Container(
@@ -997,13 +1081,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           borderRadius: BorderRadius.circular(12),
 
-          border: Border.all(color: secondaryColor.withOpacity(0.4)),
+          border: Border.all(
+            color: secondaryColor.withOpacity(0.4),
+          ),
         ),
 
         child: const Text(
           "No facilities listed",
 
-          style: TextStyle(color: Colors.black54, fontSize: 13),
+          style: TextStyle(
+            color: Colors.black54,
+            fontSize: 13,
+          ),
         ),
       );
     }
@@ -1016,25 +1105,37 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
         itemCount: facilities.length,
 
-        itemBuilder: (context, index) {
-          final Map<String, dynamic> item = facilities[index];
+        itemBuilder: (
+          context,
+          index,
+        ) {
+          final Map<String, dynamic> item =
+              facilities[index];
 
           return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 13),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 13,
+            ),
 
             decoration: BoxDecoration(
               color: lightSecondaryColor,
 
               borderRadius: BorderRadius.circular(13),
 
-              border: Border.all(color: secondaryColor),
+              border: Border.all(
+                color: secondaryColor,
+              ),
             ),
 
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
 
               children: [
-                Icon(item["icon"], size: 20, color: primaryColor),
+                Icon(
+                  item["icon"],
+                  size: 20,
+                  color: primaryColor,
+                ),
 
                 const SizedBox(height: 4),
 
@@ -1054,13 +1155,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           );
         },
 
-        separatorBuilder: (context, index) {
+        separatorBuilder: (
+          context,
+          index,
+        ) {
           return const SizedBox(width: 12);
         },
       ),
     );
   }
 
+  // Owner Information
   Widget buildOwnerInfoCard() {
     return Container(
       width: double.infinity,
@@ -1072,7 +1177,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: secondaryColor.withOpacity(0.4)),
+        border: Border.all(
+          color: secondaryColor.withOpacity(0.4),
+        ),
       ),
 
       child: Column(
@@ -1119,7 +1226,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  Widget buildOwnerRow(IconData icon, String title, String value) {
+  Widget buildOwnerRow(
+    IconData icon,
+    String title,
+    String value,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -1134,7 +1245,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
 
-          child: Icon(icon, size: 20, color: primaryColor),
+          child: Icon(
+            icon,
+            size: 20,
+            color: primaryColor,
+          ),
         ),
 
         const SizedBox(width: 12),
@@ -1147,7 +1262,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Text(
                 title,
 
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.black45,
+                ),
               ),
 
               const SizedBox(height: 3),
@@ -1172,12 +1290,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
   Widget buildOwnerDivider() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 13),
+      padding: const EdgeInsets.symmetric(
+        vertical: 13,
+      ),
 
-      child: Divider(height: 1, color: secondaryColor.withOpacity(0.35)),
+      child: Divider(
+        height: 1,
+        color: secondaryColor.withOpacity(0.35),
+      ),
     );
   }
 
+  // Document
   Widget buildDocumentCard({
     required String title,
     required String subtitle,
@@ -1197,7 +1321,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           borderRadius: BorderRadius.circular(14),
 
-          border: Border.all(color: secondaryColor.withOpacity(0.5)),
+          border: Border.all(
+            color: secondaryColor.withOpacity(0.5),
+          ),
         ),
 
         child: Row(
@@ -1212,7 +1338,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(icon, color: primaryColor),
+              child: Icon(
+                icon,
+                color: primaryColor,
+              ),
             ),
 
             const SizedBox(width: 12),
@@ -1275,6 +1404,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Checklist
   Widget buildChecklistItem(String text) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1284,7 +1414,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
         borderRadius: BorderRadius.circular(14),
 
-        border: Border.all(color: secondaryColor.withOpacity(0.4)),
+        border: Border.all(
+          color: secondaryColor.withOpacity(0.4),
+        ),
       ),
 
       child: Row(
@@ -1328,6 +1460,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Bottom Buttons
   Widget buildBottomButtons() {
     return Container(
       height: 90,
@@ -1349,7 +1482,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       ),
 
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+        padding: const EdgeInsets.fromLTRB(
+          16,
+          20,
+          16,
+          20,
+        ),
 
         child: Row(
           children: [
@@ -1371,14 +1509,19 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(Icons.close_rounded, size: 23),
+                    Icon(
+                      Icons.close_rounded,
+                      size: 23,
+                    ),
 
                     SizedBox(width: 5),
 
                     Text(
                       "Reject",
 
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
@@ -1405,14 +1548,19 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(Icons.check_rounded, size: 23),
+                    Icon(
+                      Icons.check_rounded,
+                      size: 23,
+                    ),
 
                     SizedBox(width: 5),
 
                     Text(
                       "Approve",
 
-                      style: TextStyle(fontWeight: FontWeight.w800),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
@@ -1429,9 +1577,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return null;
     }
 
-    return int.tryParse(property["id"].toString());
+    return int.tryParse(
+      property["id"].toString(),
+    );
   }
 
+  // National ID
   void showNationalIdPreview() {
     final dynamic rawOwnerId = property["owner_id"];
 
@@ -1445,7 +1596,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       return;
     }
 
-    final int? ownerId = int.tryParse(rawOwnerId.toString());
+    final int? ownerId = int.tryParse(
+      rawOwnerId.toString(),
+    );
 
     if (ownerId == null) {
       Get.snackbar(
@@ -1464,6 +1617,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Ownership Document
   void showOwnershipDocumentPreview() {
     final int? propertyId = getPropertyId();
 
@@ -1477,24 +1631,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       icon: Icons.description_outlined,
 
-      future: adminService.getOwnershipDocument(propertyId),
-    );
-  }
-
-  void showPaymentProofPreview() {
-    final int? propertyId = getPropertyId();
-
-    if (propertyId == null) {
-      showMissingPropertyId();
-      return;
-    }
-
-    showPrivateDocumentPreview(
-      title: "Payment Proof",
-
-      icon: Icons.receipt_long_outlined,
-
-      future: adminService.getPaymentProof(propertyId),
+      future: adminService.getOwnershipDocument(
+        propertyId,
+      ),
     );
   }
 
@@ -1507,6 +1646,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Document Preview
   void showPrivateDocumentPreview({
     required String title,
     required IconData icon,
@@ -1514,14 +1654,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
   }) {
     Get.bottomSheet(
       Container(
-        constraints: BoxConstraints(maxHeight: Get.height * 0.85),
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.85,
+        ),
 
         padding: const EdgeInsets.all(20),
 
         decoration: const BoxDecoration(
           color: Colors.white,
 
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(24),
+          ),
         ),
 
         child: SafeArea(
@@ -1556,7 +1700,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(icon, color: primaryColor),
+                    child: Icon(
+                      icon,
+                      color: primaryColor,
+                    ),
                   ),
 
                   const SizedBox(width: 12),
@@ -1583,8 +1730,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 child: FutureBuilder<Uint8List>(
                   future: future,
 
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                  builder: (
+                    context,
+                    snapshot,
+                  ) {
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return Container(
                         width: double.infinity,
 
@@ -1593,21 +1744,31 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                         color: backgroundColor,
 
                         child: const Center(
-                          child: CircularProgressIndicator(color: primaryColor),
+                          child: CircularProgressIndicator(
+                            color: primaryColor,
+                          ),
                         ),
                       );
                     }
 
-                    if (snapshot.hasError || snapshot.data == null) {
+                    if (snapshot.hasError ||
+                        snapshot.data == null) {
                       String message =
                           snapshot.error?.toString() ??
                           "Document could not be loaded.";
 
-                      if (message.startsWith("Exception: ")) {
-                        message = message.replaceFirst("Exception: ", "");
+                      if (message.startsWith(
+                        "Exception: ",
+                      )) {
+                        message = message.replaceFirst(
+                          "Exception: ",
+                          "",
+                        );
                       }
 
-                      return buildDocumentError(message);
+                      return buildDocumentError(
+                        message,
+                      );
                     }
 
                     return Container(
@@ -1623,7 +1784,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                         borderRadius: BorderRadius.circular(16),
 
-                        border: Border.all(color: secondaryColor),
+                        border: Border.all(
+                          color: secondaryColor,
+                        ),
                       ),
 
                       child: ClipRRect(
@@ -1673,7 +1836,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   child: const Text(
                     "Close",
 
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -1691,14 +1856,18 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
       width: double.infinity,
       height: 230,
 
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+      ),
 
       decoration: BoxDecoration(
         color: backgroundColor,
 
         borderRadius: BorderRadius.circular(16),
 
-        border: Border.all(color: secondaryColor.withOpacity(0.5)),
+        border: Border.all(
+          color: secondaryColor.withOpacity(0.5),
+        ),
       ),
 
       child: Column(
@@ -1720,13 +1889,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
             textAlign: TextAlign.center,
 
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.black54,
+            ),
           ),
         ],
       ),
     );
   }
 
+  // Success Notification
   void showSuccessNotification({
     required String title,
     required String message,
@@ -1741,7 +1914,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       margin: const EdgeInsets.all(16),
 
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
 
       borderRadius: 18,
 
@@ -1820,6 +1996,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Warning Notification
   void showWarningNotification({
     required String title,
     required String message,
@@ -1834,7 +2011,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       margin: const EdgeInsets.all(16),
 
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
 
       borderRadius: 18,
 
@@ -1913,7 +2093,11 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
-  void showErrorNotification({required String title, required String message}) {
+  // Error Notification
+  void showErrorNotification({
+    required String title,
+    required String message,
+  }) {
     Get.snackbar(
       '',
       '',
@@ -1924,7 +2108,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       margin: const EdgeInsets.all(16),
 
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
 
       borderRadius: 18,
 
@@ -2003,6 +2190,7 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Rejected Notification
   void showRejectedNotification({
     required String title,
     required String message,
@@ -2017,7 +2205,10 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
       margin: const EdgeInsets.all(16),
 
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
 
       borderRadius: 18,
 
@@ -2096,17 +2287,23 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
     );
   }
 
+  // Approve
   void showApproveDialog() {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
 
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
 
         title: const Text(
           "Approve Property",
 
-          style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: primaryColor,
+          ),
         ),
 
         content: const Text(
@@ -2119,7 +2316,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               Get.back();
             },
 
-            child: const Text("Cancel"),
+            child: const Text(
+              "Cancel",
+            ),
           ),
 
           ElevatedButton(
@@ -2140,13 +2339,16 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               try {
                 Get.dialog(
                   const Center(
-                    child: CircularProgressIndicator(color: primaryColor),
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
                   ),
 
                   barrierDismissible: false,
                 );
 
-                final bool success = await adminService.approveProperty(
+                final bool success =
+                    await adminService.approveProperty(
                   propertyId,
                 );
 
@@ -2155,14 +2357,23 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 }
 
                 if (success) {
-                  Get.back(result: {"success": true, "action": "approved"});
+                  Get.back(
+                    result: {
+                      "success": true,
+                      "action": "approved",
+                    },
+                  );
 
-                  Future.delayed(const Duration(milliseconds: 250), () {
-                    showSuccessNotification(
-                      title: "Property Approved",
-                      message: "The property has been approved successfully.",
-                    );
-                  });
+                  Future.delayed(
+                    const Duration(milliseconds: 250),
+                    () {
+                      showSuccessNotification(
+                        title: "Property Approved",
+                        message:
+                            "The property has been approved successfully.",
+                      );
+                    },
+                  );
                 }
               } catch (e) {
                 if (Get.isDialogOpen == true) {
@@ -2171,8 +2382,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                 String message = e.toString();
 
-                if (message.startsWith("Exception: ")) {
-                  message = message.replaceFirst("Exception: ", "");
+                if (message.startsWith(
+                  "Exception: ",
+                )) {
+                  message = message.replaceFirst(
+                    "Exception: ",
+                    "",
+                  );
                 }
 
                 showErrorNotification(
@@ -2188,25 +2404,34 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               foregroundColor: Colors.white,
             ),
 
-            child: const Text("Approve"),
+            child: const Text(
+              "Approve",
+            ),
           ),
         ],
       ),
     );
   }
 
+  // Reject
   void showRejectDialog() {
-    final TextEditingController reasonController = TextEditingController();
+    final TextEditingController reasonController =
+        TextEditingController();
 
-    final TextEditingController noteController = TextEditingController();
+    final TextEditingController noteController =
+        TextEditingController();
 
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
 
-        insetPadding: const EdgeInsets.symmetric(horizontal: 22),
+        insetPadding: const EdgeInsets.symmetric(
+          horizontal: 22,
+        ),
 
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
 
         title: const Text(
           "Reject Property",
@@ -2259,7 +2484,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 textCapitalization: TextCapitalization.sentences,
 
                 decoration: InputDecoration(
-                  hintText: "Why is this property being rejected?",
+                  hintText:
+                      "Why is this property being rejected?",
 
                   hintStyle: const TextStyle(
                     fontSize: 12.5,
@@ -2275,13 +2501,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
 
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
 
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   focusedBorder: OutlineInputBorder(
@@ -2334,7 +2564,8 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 textCapitalization: TextCapitalization.sentences,
 
                 decoration: InputDecoration(
-                  hintText: "Add instructions or suggestions for the owner",
+                  hintText:
+                      "Add instructions or suggestions for the owner",
 
                   hintStyle: const TextStyle(
                     fontSize: 12.5,
@@ -2350,13 +2581,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
 
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
 
-                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
                   ),
 
                   focusedBorder: OutlineInputBorder(
@@ -2373,7 +2608,12 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
           ),
         ),
 
-        actionsPadding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+        actionsPadding: const EdgeInsets.fromLTRB(
+          16,
+          4,
+          16,
+          16,
+        ),
 
         actions: [
           TextButton(
@@ -2393,25 +2633,30 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
           ElevatedButton(
             onPressed: () async {
-              final String reason = reasonController.text.trim();
+              final String reason =
+                  reasonController.text.trim();
 
-              final String note = noteController.text.trim();
+              final String note =
+                  noteController.text.trim();
 
               if (reason.isEmpty) {
                 showWarningNotification(
                   title: "Reason Required",
-                  message: "Please enter a rejection reason.",
+                  message:
+                      "Please enter a rejection reason.",
                 );
 
                 return;
               }
 
-              final int? propertyId = getPropertyId();
+              final int? propertyId =
+                  getPropertyId();
 
               if (propertyId == null) {
                 showErrorNotification(
                   title: "Error",
-                  message: "Property ID is missing.",
+                  message:
+                      "Property ID is missing.",
                 );
 
                 return;
@@ -2422,18 +2667,23 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
               try {
                 Get.dialog(
                   const Center(
-                    child: CircularProgressIndicator(color: primaryColor),
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
                   ),
 
                   barrierDismissible: false,
                 );
 
-                final bool success = await adminService.rejectProperty(
+                final bool success =
+                    await adminService.rejectProperty(
                   propertyId: propertyId,
 
                   reason: reason,
 
-                  note: note.isEmpty ? null : note,
+                  note: note.isEmpty
+                      ? null
+                      : note,
                 );
 
                 if (Get.isDialogOpen == true) {
@@ -2441,15 +2691,24 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
                 }
 
                 if (success) {
-                  Get.back(result: {"success": true, "action": "rejected"});
+                  Get.back(
+                    result: {
+                      "success": true,
+                      "action": "rejected",
+                    },
+                  );
 
-                  Future.delayed(const Duration(milliseconds: 250), () {
-                    showRejectedNotification(
-                      title: "Property Rejected",
+                  Future.delayed(
+                    const Duration(milliseconds: 250),
+                    () {
+                      showRejectedNotification(
+                        title: "Property Rejected",
 
-                      message: "The property submission has been rejected.",
-                    );
-                  });
+                        message:
+                            "The property submission has been rejected.",
+                      );
+                    },
+                  );
                 }
               } catch (e) {
                 if (Get.isDialogOpen == true) {
@@ -2458,8 +2717,13 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
 
                 String message = e.toString();
 
-                if (message.startsWith("Exception: ")) {
-                  message = message.replaceFirst("Exception: ", "");
+                if (message.startsWith(
+                  "Exception: ",
+                )) {
+                  message = message.replaceFirst(
+                    "Exception: ",
+                    "",
+                  );
                 }
 
                 showErrorNotification(
@@ -2471,13 +2735,17 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             },
 
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor:
+                  const Color(0xFFDC2626),
 
               foregroundColor: Colors.white,
 
               elevation: 0,
 
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 11,
+              ),
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(11),
@@ -2487,7 +2755,9 @@ class _PropertyReviewScreenState extends State<PropertyReviewScreen> {
             child: const Text(
               "Reject Property",
 
-              style: TextStyle(fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
