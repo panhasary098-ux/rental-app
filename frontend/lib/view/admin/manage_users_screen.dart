@@ -24,9 +24,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   bool isLoading = true;
   String? errorMessage;
 
-  // Controls whether the User Overview details are visible.
-  bool isOverviewExpanded = false;
-
   Color primaryColor = Color(0xFF03045E);
   Color backgroundColor = Color(0xFFF5F6FA);
   Color textColor = Color(0xFF111827);
@@ -202,47 +199,65 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness: Brightness.light,
       ),
-
       child: Scaffold(
         backgroundColor: backgroundColor,
-
         body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              buildHeader(),
+          child: RefreshIndicator(
+            color: primaryColor,
+            onRefresh: loadUsers,
+            child: CustomScrollView(
+              physics: AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // Header scrolls away.
+                SliverToBoxAdapter(child: buildHeader()),
 
-              Expanded(
-                child: Column(
-                  children: [
-                    SizedBox(height: 18),
+                SliverToBoxAdapter(child: SizedBox(height: 18)),
 
-                    // Overview
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18),
-                      child: buildOverviewCard(),
-                    ),
-
-                    SizedBox(height: 18),
-
-                    // Search
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18),
-                      child: buildSearchField(),
-                    ),
-
-                    SizedBox(height: 14),
-
-                    // Filter
-                    buildFilters(),
-
-                    SizedBox(height: 8),
-
-                    Expanded(child: buildContent(displayedUsers)),
-                  ],
+                // User overview scrolls away.
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 18),
+                    child: buildOverviewCard(),
+                  ),
                 ),
-              ),
-            ],
+
+                SliverToBoxAdapter(child: SizedBox(height: 11)),
+
+                // Search stays pinned at the top while the list scrolls.
+                SliverAppBar(
+                  pinned: true,
+                  floating: false,
+                  primary: false,
+                  automaticallyImplyLeading: false,
+                  backgroundColor: backgroundColor,
+                  surfaceTintColor: backgroundColor,
+                  elevation: 0,
+                  scrolledUnderElevation: 2,
+                  toolbarHeight: 68,
+                  titleSpacing: 0,
+                  title: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 7),
+                    child: buildSearchField(),
+                  ),
+                ),
+
+                // Filters scroll normally.
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      SizedBox(height: 7),
+                      buildFilters(),
+                      SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+
+                // Existing loading/error/empty/user-list UI.
+                SliverToBoxAdapter(child: buildContent(displayedUsers)),
+
+                SliverToBoxAdapter(child: SizedBox(height: 28)),
+              ],
+            ),
           ),
         ),
       ),
@@ -259,12 +274,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         decoration: BoxDecoration(
           color: primaryColor,
 
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(28),
-            topRight: Radius.circular(28),
-            bottomLeft: Radius.circular(28),
-            bottomRight: Radius.circular(28),
-          ),
+          borderRadius: BorderRadius.circular(12),
 
           boxShadow: [
             BoxShadow(
@@ -337,206 +347,131 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
   // Overview
   Widget buildOverviewCard() {
-    return AnimatedSize(
-      duration: Duration(milliseconds: 250),
-      curve: Curves.easeInOut,
-      alignment: Alignment.topCenter,
-
-      child: Container(
-        width: double.infinity,
-
-        padding: EdgeInsets.fromLTRB(18, 17, 18, 18),
-
-        decoration: BoxDecoration(
-          color: Colors.white,
-
-          borderRadius: BorderRadius.circular(20),
-
-          border: Border.all(color: borderColor),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.035),
-              blurRadius: 18,
-              offset: Offset(0, 6),
-            ),
-          ],
-        ),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF0F1FA),
-
-                    borderRadius: BorderRadius.circular(11),
-                  ),
-
-                  child: Icon(
-                    Icons.groups_2_outlined,
-                    color: primaryColor,
-                    size: 19,
-                  ),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(18, 17, 18, 18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 18,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Color(0xFFF0F1FA),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-
-                SizedBox(width: 10),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
-                    children: [
-                      Text(
-                        "User Overview",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: textColor,
-                        ),
-                      ),
-
-                      SizedBox(height: 2),
-
-                      Text(
-                        "${users.length} registered accounts",
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: secondaryTextColor,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: Icon(
+                  Icons.groups_2_outlined,
+                  color: primaryColor,
+                  size: 19,
                 ),
-
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-
-                  decoration: BoxDecoration(
-                    color: Color(0xFFF0FDF4),
-
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-
-                        decoration: BoxDecoration(
-                          color: greenColor,
-                          shape: BoxShape.circle,
-                        ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "User Overview",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
                       ),
-
-                      SizedBox(width: 5),
-
-                      Text(
-                        "Live",
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: greenColor,
-                        ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      "${users.length} registered accounts",
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: secondaryTextColor,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-
-                SizedBox(width: 8),
-
-                Material(
-                  color: Colors.transparent,
-
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        isOverviewExpanded = !isOverviewExpanded;
-                      });
-                    },
-
-                    borderRadius: BorderRadius.circular(11),
-
-                    child: AnimatedContainer(
-                      duration: Duration(milliseconds: 200),
-                      width: 36,
-                      height: 36,
-
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
                       decoration: BoxDecoration(
-                        color: Color(0xFFF0F1FA),
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-
-                      child: AnimatedRotation(
-                        duration: Duration(milliseconds: 250),
-                        turns: isOverviewExpanded ? 0.5 : 0,
-
-                        child: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: primaryColor,
-                          size: 22,
-                        ),
+                        color: greenColor,
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  ),
+                    SizedBox(width: 5),
+                    Text(
+                      "Live",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: greenColor,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-
-            if (isOverviewExpanded) ...[
-              SizedBox(height: 18),
-
-              Container(height: 1, color: borderColor),
-
-              SizedBox(height: 17),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: buildOverviewItem(
-                      value: getRoleCount("Renter").toString(),
-                      label: "Renters",
-                      icon: Icons.person_outline_rounded,
-                      iconBackground: Color(0xFFF0F1FA),
-                      iconColor: primaryColor,
-                    ),
-                  ),
-
-                  buildVerticalDivider(),
-
-                  Expanded(
-                    child: buildOverviewItem(
-                      value: getRoleCount("House Owner").toString(),
-                      label: "Owners",
-                      icon: Icons.home_work_outlined,
-                      iconBackground: Color(0xFFF5F3FF),
-                      iconColor: Color(0xFF5B21B6),
-                    ),
-                  ),
-
-                  buildVerticalDivider(),
-
-                  Expanded(
-                    child: buildOverviewItem(
-                      value: getSuspendedCount().toString(),
-                      label: "Suspended",
-                      icon: Icons.block_rounded,
-                      iconBackground: redSoft,
-                      iconColor: redColor,
-                    ),
-                  ),
-                ],
               ),
             ],
-          ],
-        ),
+          ),
+          SizedBox(height: 18),
+          Container(height: 1, color: borderColor),
+          SizedBox(height: 17),
+          Row(
+            children: [
+              Expanded(
+                child: buildOverviewItem(
+                  value: getRoleCount("Renter").toString(),
+                  label: "Renters",
+                  icon: Icons.person_outline_rounded,
+                  iconBackground: Color(0xFFF0F1FA),
+                  iconColor: primaryColor,
+                ),
+              ),
+              buildVerticalDivider(),
+              Expanded(
+                child: buildOverviewItem(
+                  value: getRoleCount("House Owner").toString(),
+                  label: "Owners",
+                  icon: Icons.home_work_outlined,
+                  iconBackground: Color(0xFFF5F3FF),
+                  iconColor: Color(0xFF5B21B6),
+                ),
+              ),
+              buildVerticalDivider(),
+              Expanded(
+                child: buildOverviewItem(
+                  value: getSuspendedCount().toString(),
+                  label: "Suspended",
+                  icon: Icons.block_rounded,
+                  iconBackground: redSoft,
+                  iconColor: redColor,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -743,37 +678,33 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   // Content
   Widget buildContent(List<Map<String, dynamic>> displayedUsers) {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator(color: primaryColor));
+      return SizedBox(
+        height: 300,
+        child: Center(child: CircularProgressIndicator(color: primaryColor)),
+      );
     }
 
     if (errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: EdgeInsets.all(25),
-
+      return Padding(
+        padding: EdgeInsets.all(25),
+        child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               Container(
                 width: 68,
                 height: 68,
-
                 decoration: BoxDecoration(
                   color: redSoft,
-
                   borderRadius: BorderRadius.circular(20),
                 ),
-
                 child: Icon(
                   Icons.error_outline_rounded,
                   size: 30,
                   color: redColor,
                 ),
               ),
-
               SizedBox(height: 14),
-
               Text(
                 "Unable to load users",
                 style: TextStyle(
@@ -782,24 +713,17 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   color: textColor,
                 ),
               ),
-
               SizedBox(height: 7),
-
               Text(
                 errorMessage!,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 13, color: secondaryTextColor),
               ),
-
               SizedBox(height: 18),
-
               ElevatedButton.icon(
                 onPressed: loadUsers,
-
                 icon: Icon(Icons.refresh_rounded),
-
                 label: Text("Try Again"),
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   foregroundColor: Colors.white,
@@ -817,65 +741,53 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
 
     if (displayedUsers.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-
-              decoration: BoxDecoration(
-                color: Colors.white,
-
-                borderRadius: BorderRadius.circular(22),
-
-                border: Border.all(color: borderColor),
+      return SizedBox(
+        height: 300,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Icon(
+                  Icons.person_search_outlined,
+                  color: primaryColor,
+                  size: 30,
+                ),
               ),
-
-              child: Icon(
-                Icons.person_search_outlined,
-                color: primaryColor,
-                size: 30,
+              SizedBox(height: 14),
+              Text(
+                "No users found",
+                style: TextStyle(color: textColor, fontWeight: FontWeight.w700),
               ),
-            ),
-
-            SizedBox(height: 14),
-
-            Text(
-              "No users found",
-              style: TextStyle(color: textColor, fontWeight: FontWeight.w700),
-            ),
-
-            SizedBox(height: 5),
-
-            Text(
-              "Try changing your search or filter.",
-              style: TextStyle(fontSize: 12, color: secondaryTextColor),
-            ),
-          ],
+              SizedBox(height: 5),
+              Text(
+                "Try changing your search or filter.",
+                style: TextStyle(fontSize: 12, color: secondaryTextColor),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    return RefreshIndicator(
-      color: primaryColor,
-
-      onRefresh: loadUsers,
-
-      child: ListView.separated(
-        padding: EdgeInsets.fromLTRB(18, 10, 18, 25),
-
-        itemCount: displayedUsers.length,
-
-        separatorBuilder: (context, index) {
-          return SizedBox(height: 10);
-        },
-
-        itemBuilder: (context, index) {
-          return buildUserCard(displayedUsers[index]);
-        },
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
+      child: Column(
+        children: List.generate(displayedUsers.length, (index) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index == displayedUsers.length - 1 ? 0 : 10,
+            ),
+            child: buildUserCard(displayedUsers[index]),
+          );
+        }),
       ),
     );
   }
