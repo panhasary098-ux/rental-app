@@ -25,6 +25,15 @@ class Property {
   // Owner phone number returned from users.phone
   String ownerPhone;
 
+  // Public owner information returned by Laravel
+  int? ownerId;
+
+  String ownerName;
+
+  String ownerProfileImage;
+
+  String ownerMemberSince;
+
   List<String> images;
 
   // These fields existed in the old model.
@@ -47,6 +56,10 @@ class Property {
     required this.status,
     required this.contact,
     this.ownerPhone = "",
+    this.ownerId,
+    this.ownerName = "",
+    this.ownerProfileImage = "",
+    this.ownerMemberSince = "",
     required this.images,
     this.nationalIDImage = "",
     this.ownerShipImage = "",
@@ -92,6 +105,40 @@ class Property {
 
     // users.phone returned by Laravel as owner_phone
     final String ownerPhone = json["owner_phone"]?.toString() ?? "";
+
+    // Public owner information
+    final dynamic ownerData = json["owner"];
+
+    int? ownerId;
+
+    String ownerName = "";
+
+    String ownerProfileImage = "";
+
+    String ownerMemberSince = "";
+
+    if (ownerData is Map) {
+      final int parsedOwnerId =
+          _toInt(ownerData["id"]);
+
+      if (parsedOwnerId > 0) {
+        ownerId = parsedOwnerId;
+      }
+
+      ownerName =
+          ownerData["name"]?.toString() ?? "";
+
+      final String profileImage =
+          ownerData["profile_image"]?.toString() ?? "";
+
+      if (profileImage.isNotEmpty) {
+        ownerProfileImage =
+            _fixLaravelUrl(profileImage);
+      }
+
+      ownerMemberSince =
+          ownerData["member_since"]?.toString() ?? "";
+    }
 
     final bool furnished = _toBool(json["furnished"]);
 
@@ -139,6 +186,10 @@ class Property {
       );
 
       property.ownerPhone = ownerPhone;
+      property.ownerId = ownerId;
+      property.ownerName = ownerName;
+      property.ownerProfileImage = ownerProfileImage;
+      property.ownerMemberSince = ownerMemberSince;
 
       return property;
     }
@@ -183,6 +234,10 @@ class Property {
       );
 
       property.ownerPhone = ownerPhone;
+      property.ownerId = ownerId;
+      property.ownerName = ownerName;
+      property.ownerProfileImage = ownerProfileImage;
+      property.ownerMemberSince = ownerMemberSince;
 
       return property;
     }
@@ -223,6 +278,10 @@ class Property {
       );
 
       property.ownerPhone = ownerPhone;
+      property.ownerId = ownerId;
+      property.ownerName = ownerName;
+      property.ownerProfileImage = ownerProfileImage;
+      property.ownerMemberSince = ownerMemberSince;
 
       return property;
     }
@@ -246,6 +305,14 @@ class Property {
       contact: contact,
 
       ownerPhone: ownerPhone,
+
+      ownerId: ownerId,
+
+      ownerName: ownerName,
+
+      ownerProfileImage: ownerProfileImage,
+
+      ownerMemberSince: ownerMemberSince,
 
       images: images,
 

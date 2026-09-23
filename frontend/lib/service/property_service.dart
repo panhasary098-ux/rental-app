@@ -502,4 +502,41 @@ class PropertyService {
 
     return response;
   }
+
+  // Get Public Owner Profile
+  Future<http.Response> getOwnerProfile({
+    required int ownerId,
+  }) async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/owners/$ownerId"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("OWNER PROFILE STATUS: ${response.statusCode}");
+
+    print("OWNER PROFILE RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Get Public Owner Properties
+  Future<http.Response> getOwnerProperties({
+    required int ownerId,
+  }) async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/owners/$ownerId/properties"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("OWNER PROPERTIES STATUS: ${response.statusCode}");
+
+    print("OWNER PROPERTIES RESPONSE: ${response.body}");
+
+    return response;
+  }
+
 }

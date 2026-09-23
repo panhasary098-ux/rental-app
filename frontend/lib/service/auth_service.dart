@@ -49,7 +49,9 @@ class AuthService {
     String? token = await getToken();
 
     if (token == null || token.isEmpty) {
-      throw Exception("User is not logged in");
+      throw Exception(
+        "User is not logged in",
+      );
     }
 
     return {
@@ -78,12 +80,14 @@ class AuthService {
         "email": email,
         "phone": phone,
         "password": password,
-        "password_confirmation": passwordConfirmation,
+        "password_confirmation":
+            passwordConfirmation,
         "role": role,
       }),
     );
 
-    Map<String, dynamic> data = jsonDecode(response.body);
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
 
     if (response.statusCode == 200 ||
         response.statusCode == 201) {
@@ -98,7 +102,8 @@ class AuthService {
     }
 
     throw Exception(
-      data["message"] ?? "Registration failed",
+      data["message"] ??
+          "Registration failed",
     );
   }
 
@@ -135,13 +140,15 @@ class AuthService {
 
     if (response.statusCode == 401) {
       throw Exception(
-        data["message"] ?? "Invalid email or password",
+        data["message"] ??
+            "Invalid email or password",
       );
     }
 
     if (response.statusCode == 403) {
       throw Exception(
-        data["message"] ?? "Account suspended",
+        data["message"] ??
+            "Account suspended",
       );
     }
 
@@ -151,27 +158,136 @@ class AuthService {
   }
 
   // Google Login
-  Future<UserCredential> loginWithGoogle() async {
+  Future<Map<String, dynamic>>
+      loginWithGoogle() async {
     await googleSignIn.initialize();
 
     GoogleSignInAccount googleUser =
         await googleSignIn.authenticate();
 
-    GoogleSignInAuthentication googleAuth =
-        googleUser.authentication;
+    List<String> scopes = [
+      "email",
+      "profile",
+    ];
 
-    OAuthCredential credential =
-        GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
+    GoogleSignInClientAuthorization?
+        authorization =
+        await googleUser
+            .authorizationClient
+            .authorizationForScopes(
+      scopes,
     );
 
-    return await auth.signInWithCredential(
-      credential,
+    authorization ??=
+        await googleUser
+            .authorizationClient
+            .authorizeScopes(
+      scopes,
+    );
+
+    String accessToken =
+        authorization.accessToken;
+
+    final response = await http.post(
+      Uri.parse(
+        "$baseUrl/auth/google",
+      ),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type":
+            "application/json",
+      },
+      body: jsonEncode({
+        "access_token": accessToken,
+      }),
+    );
+
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      // Existing User
+      if (data["needs_registration"] ==
+          false) {
+        if (data["token"] != null) {
+          await saveToken(
+            data["token"],
+          );
+        }
+
+        return data;
+      }
+
+      // New Google User
+      if (data["needs_registration"] ==
+          true) {
+        return {
+          ...data,
+          "google_access_token":
+              accessToken,
+        };
+      }
+    }
+
+    if (response.statusCode == 403) {
+      throw Exception(
+        data["message"] ??
+            "Account suspended",
+      );
+    }
+
+    throw Exception(
+      data["message"] ??
+          "Google login failed",
+    );
+  }
+
+  // Google Register
+  Future<Map<String, dynamic>>
+      registerWithGoogle({
+    required String accessToken,
+    required String role,
+  }) async {
+    final response = await http.post(
+      Uri.parse(
+        "$baseUrl/auth/google/register",
+      ),
+      headers: {
+        "Accept": "application/json",
+        "Content-Type":
+            "application/json",
+      },
+      body: jsonEncode({
+        "access_token": accessToken,
+        "role": role,
+      }),
+    );
+
+    Map<String, dynamic> data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200 ||
+        response.statusCode == 201) {
+      if (data["token"] != null) {
+        await saveToken(
+          data["token"],
+        );
+      }
+
+      return Map<String, dynamic>.from(
+        data["user"],
+      );
+    }
+
+    throw Exception(
+      data["message"] ??
+          "Google registration failed",
     );
   }
 
   // Facebook Login
-  Future<UserCredential> loginWithFacebook() async {
+  Future<UserCredential>
+      loginWithFacebook() async {
     LoginResult loginResult =
         await FacebookAuth.instance.login(
       permissions: [
@@ -222,12 +338,15 @@ class AuthService {
         await user.getIdToken();
 
     final response = await http.post(
-      Uri.parse("$baseUrl/auth/social-sync"),
+      Uri.parse(
+        "$baseUrl/auth/social-sync",
+      ),
       headers: {
         "Authorization":
             "Bearer $firebaseToken",
         "Accept": "application/json",
-        "Content-Type": "application/json",
+        "Content-Type":
+            "application/json",
       },
     );
 
@@ -237,7 +356,9 @@ class AuthService {
     if (response.statusCode == 200) {
       // Laravel Token
       if (data["token"] != null) {
-        await saveToken(data["token"]);
+        await saveToken(
+          data["token"],
+        );
       }
 
       return data;
@@ -271,7 +392,8 @@ class AuthService {
         "Authorization":
             "Bearer $firebaseToken",
         "Accept": "application/json",
-        "Content-Type": "application/json",
+        "Content-Type":
+            "application/json",
       },
       body: jsonEncode({
         "role": role,
@@ -285,7 +407,9 @@ class AuthService {
         response.statusCode == 201) {
       // Laravel Token
       if (data["token"] != null) {
-        await saveToken(data["token"]);
+        await saveToken(
+          data["token"],
+        );
       }
 
       return Map<String, dynamic>.from(
@@ -324,13 +448,15 @@ class AuthService {
       await deleteToken();
 
       throw Exception(
-        data["message"] ?? "Unauthorized",
+        data["message"] ??
+            "Unauthorized",
       );
     }
 
     if (response.statusCode == 403) {
       throw Exception(
-        data["message"] ?? "Access forbidden",
+        data["message"] ??
+            "Access forbidden",
       );
     }
 
@@ -341,7 +467,8 @@ class AuthService {
   }
 
   // Get Me
-  Future<Map<String, dynamic>> getMe() async {
+  Future<Map<String, dynamic>>
+      getMe() async {
     return await getCurrentUserFromLaravel();
   }
 
@@ -363,8 +490,10 @@ class AuthService {
       Uri.parse("$baseUrl/me"),
       headers: {
         "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token",
+        "Content-Type":
+            "application/json",
+        "Authorization":
+            "Bearer $token",
       },
       body: jsonEncode({
         "name": name,
@@ -401,7 +530,9 @@ class AuthService {
 
     var request = http.MultipartRequest(
       "POST",
-      Uri.parse("$baseUrl/profile-image"),
+      Uri.parse(
+        "$baseUrl/profile-image",
+      ),
     );
 
     request.headers.addAll({
@@ -438,7 +569,8 @@ class AuthService {
   }
 
   // Check National ID
-  Future<bool> checkNationalIdStatus() async {
+  Future<bool>
+      checkNationalIdStatus() async {
     String? token = await getToken();
 
     if (token == null || token.isEmpty) {
@@ -462,7 +594,8 @@ class AuthService {
 
     if (response.statusCode == 200 &&
         data["success"] == true) {
-      return data["has_national_id"] == true;
+      return data["has_national_id"] ==
+          true;
     }
 
     throw Exception(
@@ -534,7 +667,8 @@ class AuthService {
           Uri.parse("$baseUrl/logout"),
           headers: {
             "Accept": "application/json",
-            "Authorization": "Bearer $token",
+            "Authorization":
+                "Bearer $token",
           },
         );
       } catch (e) {
@@ -544,6 +678,13 @@ class AuthService {
 
     // Delete Laravel Token
     await deleteToken();
+
+    // Google Logout
+    try {
+      await googleSignIn.signOut();
+    } catch (e) {
+      // Continue Logout
+    }
 
     // Firebase Social Logout
     await auth.signOut();

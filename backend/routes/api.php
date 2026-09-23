@@ -23,6 +23,18 @@ Route::post(
     [AuthController::class, 'login']
 );
 
+// Google Login
+Route::post(
+    '/auth/google',
+    [AuthController::class, 'googleLogin']
+);
+
+// Google Registration
+Route::post(
+    '/auth/google/register',
+    [AuthController::class, 'googleRegister']
+);
+
 // Social Login Sync
 Route::middleware('firebase.auth')->post(
     '/auth/social-sync',
@@ -62,35 +74,47 @@ Route::middleware('auth:sanctum')->group(function () {
         [UserController::class, 'updateMe']
     );
 
-// AI Rental Assistant
-Route::post(
-    '/ai/chat',
-    [AiChatController::class, 'chat']
-);
+    // Public Owner Profile
+    Route::get(
+        '/owners/{owner}',
+        [UserController::class, 'publicOwnerProfile']
+    );
 
-// Create AI Conversation
-Route::post(
-    '/ai/conversations',
-    [AiChatController::class, 'createConversation']
-);
+    // Public Owner Properties
+    Route::get(
+        '/owners/{owner}/properties',
+        [UserController::class, 'publicOwnerProperties']
+    );
 
-// Get AI Conversations
-Route::get(
-    '/ai/conversations',
-    [AiChatController::class, 'conversations']
-);
+    // AI Rental Assistant
+    Route::post(
+        '/ai/chat',
+        [AiChatController::class, 'chat']
+    );
 
-// Get AI Conversation
-Route::get(
-    '/ai/conversations/{conversation}',
-    [AiChatController::class, 'conversation']
-);
+    // Create AI Conversation
+    Route::post(
+        '/ai/conversations',
+        [AiChatController::class, 'createConversation']
+    );
 
-// Clear AI Conversation
-Route::delete(
-    '/ai/conversations/{conversation}',
-    [AiChatController::class, 'clearConversation']
-);
+    // Get AI Conversations
+    Route::get(
+        '/ai/conversations',
+        [AiChatController::class, 'conversations']
+    );
+
+    // Get AI Conversation
+    Route::get(
+        '/ai/conversations/{conversation}',
+        [AiChatController::class, 'conversation']
+    );
+
+    // Clear AI Conversation
+    Route::delete(
+        '/ai/conversations/{conversation}',
+        [AiChatController::class, 'clearConversation']
+    );
 
     // Logout
     Route::post(
@@ -286,11 +310,28 @@ Route::delete(
         [OwnerRequestController::class, 'reply']
     );
 
-    
-    Route::post('/owner/requests', [OwnerRequestController::class, 'store']);
-    Route::get('/owner/requests', [OwnerRequestController::class, 'index']);
-    Route::post('/owner/requests/mark-seen', [OwnerRequestController::class, 'markSeen']);
+    Route::post(
+        '/owner/requests',
+        [OwnerRequestController::class, 'store']
+    );
 
-    Route::get('/admin/owner-requests', [OwnerRequestController::class, 'adminIndex']);
-    Route::post('/admin/owner-requests/{id}/reply', [OwnerRequestController::class, 'reply']);
+    Route::get(
+        '/owner/requests',
+        [OwnerRequestController::class, 'index']
+    );
+
+    Route::post(
+        '/owner/requests/mark-seen',
+        [OwnerRequestController::class, 'markSeen']
+    );
+
+    Route::get(
+        '/admin/owner-requests',
+        [OwnerRequestController::class, 'adminIndex']
+    );
+
+    Route::post(
+        '/admin/owner-requests/{id}/reply',
+        [OwnerRequestController::class, 'reply']
+    );
 });

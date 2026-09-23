@@ -18,6 +18,9 @@ class LoginController extends GetxController {
 
   final AuthService authService = AuthService();
 
+  String? googleAccessToken;
+  String socialProvider = "";
+
   // Password
   void togglePassword() {
     hidePassword.value =
@@ -34,21 +37,21 @@ class LoginController extends GetxController {
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
       borderRadius: 18,
-      borderColor: const Color(0xFFE5E7EB),
+      borderColor: Color(0xFFE5E7EB),
       borderWidth: 1,
-      duration: const Duration(seconds: 3),
+      duration: Duration(seconds: 3),
 
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
           blurRadius: 18,
-          offset: const Offset(0, 6),
+          offset: Offset(0, 6),
         ),
       ],
 
@@ -56,12 +59,12 @@ class LoginController extends GetxController {
         width: 36,
         height: 36,
 
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Color(0xFFEAF7EE),
           shape: BoxShape.circle,
         ),
 
-        child: const Icon(
+        child: Icon(
           Icons.check_rounded,
           color: Color(0xFF15803D),
           size: 20,
@@ -71,7 +74,7 @@ class LoginController extends GetxController {
       titleText: Text(
         title,
 
-        style: const TextStyle(
+        style: TextStyle(
           color: Color(0xFF15803D),
           fontSize: 16,
           fontWeight: FontWeight.w700,
@@ -81,7 +84,7 @@ class LoginController extends GetxController {
       messageText: Text(
         message,
 
-        style: const TextStyle(
+        style: TextStyle(
           color: Color(0xFF6B7280),
           fontSize: 13,
           height: 1.35,
@@ -93,7 +96,7 @@ class LoginController extends GetxController {
           Get.closeCurrentSnackbar();
         },
 
-        child: const Icon(
+        child: Icon(
           Icons.close_rounded,
           color: Color(0xFF9CA3AF),
           size: 21,
@@ -112,21 +115,21 @@ class LoginController extends GetxController {
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
+      margin: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
       borderRadius: 18,
-      borderColor: const Color(0xFFF3D2D2),
+      borderColor: Color(0xFFF3D2D2),
       borderWidth: 1,
-      duration: const Duration(seconds: 3),
+      duration: Duration(seconds: 3),
 
       boxShadows: [
         BoxShadow(
           color: Colors.black.withOpacity(0.10),
           blurRadius: 18,
-          offset: const Offset(0, 6),
+          offset: Offset(0, 6),
         ),
       ],
 
@@ -134,12 +137,12 @@ class LoginController extends GetxController {
         width: 36,
         height: 36,
 
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Color(0xFFFDECEC),
           shape: BoxShape.circle,
         ),
 
-        child: const Icon(
+        child: Icon(
           Icons.priority_high_rounded,
           color: Color(0xFFDC2626),
           size: 20,
@@ -149,7 +152,7 @@ class LoginController extends GetxController {
       titleText: Text(
         title,
 
-        style: const TextStyle(
+        style: TextStyle(
           color: Color(0xFFDC2626),
           fontSize: 16,
           fontWeight: FontWeight.w700,
@@ -159,7 +162,7 @@ class LoginController extends GetxController {
       messageText: Text(
         message,
 
-        style: const TextStyle(
+        style: TextStyle(
           color: Color(0xFF6B7280),
           fontSize: 13,
           height: 1.35,
@@ -171,7 +174,7 @@ class LoginController extends GetxController {
           Get.closeCurrentSnackbar();
         },
 
-        child: const Icon(
+        child: Icon(
           Icons.close_rounded,
           color: Color(0xFF9CA3AF),
           size: 21,
@@ -320,77 +323,79 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      final UserCredential userCredential =
+      final Map<String, dynamic> result =
           await authService.loginWithGoogle();
 
-      final User? firebaseUser =
-          userCredential.user;
+      final bool needsRegistration =
+          result["needs_registration"] == true;
 
-      if (firebaseUser == null) {
-        throw Exception(
-          "Firebase user not found",
-        );
-      }
+      // New Google User
+      if (needsRegistration) {
+        googleAccessToken =
+            result["google_access_token"]
+                ?.toString();
 
-      final Map<String, dynamic> result =
-          await authService.checkSocialUser();
-
-      final bool exists =
-          result["exists"] == true;
-
-      if (exists) {
-        final Map<String, dynamic> userData =
-            Map<String, dynamic>.from(
-          result["user"],
-        );
-
-        final String role =
-            userData["role"]?.toString() ??
-                "";
-
-        final String status =
-            userData["status"]?.toString() ??
-                "";
-
-        print(
-          "Firebase UID: ${firebaseUser.uid}",
-        );
-
-        print("Role: $role");
-        print("Status: $status");
-
-        if (status == "suspended") {
-          await authService.logout();
-
-          showErrorNotification(
-            title: "Account Suspended",
-            message:
-                "Your account has been suspended.",
+        if (googleAccessToken == null ||
+            googleAccessToken!.isEmpty) {
+          throw Exception(
+            "Google access token not found",
           );
-
-          return;
         }
 
-        showSuccessNotification(
-          title: "Welcome Back!",
-          message:
-              "You have successfully logged in.",
-        );
+        socialProvider = "google";
 
-        routeUser(role);
+        isLoading.value = false;
+
+        showSocialRoleDialog();
 
         return;
       }
 
-      // New Social User
-      showSocialRoleDialog();
-    } on FirebaseAuthException catch (e) {
-      showErrorNotification(
-        title: "Google Login Failed",
-        message:
-            e.message ??
-                "Unable to login with Google.",
+      // Existing Google User
+      if (result["user"] == null) {
+        throw Exception(
+          "Google user data not found",
+        );
+      }
+
+      final Map<String, dynamic> userData =
+          Map<String, dynamic>.from(
+        result["user"],
       );
+
+      final String role =
+          userData["role"]?.toString() ?? "";
+
+      final String status =
+          userData["status"]?.toString() ?? "";
+
+      print(
+        "Laravel user ID: ${userData["id"]}",
+      );
+
+      print("Google Login");
+      print("Role: $role");
+      print("Status: $status");
+
+      if (status == "suspended") {
+        await authService.logout();
+
+        showErrorNotification(
+          title: "Account Suspended",
+          message:
+              "Your account has been suspended.",
+        );
+
+        return;
+      }
+
+      showSuccessNotification(
+        title: "Welcome Back!",
+        message:
+            "You have successfully logged in.",
+      );
+
+      routeUser(role);
     } catch (e) {
       String message = e.toString();
 
@@ -486,6 +491,8 @@ class LoginController extends GetxController {
       }
 
       // New Social User
+      socialProvider = "facebook";
+
       showSocialRoleDialog();
     } on FirebaseAuthException catch (e) {
       showErrorNotification(
@@ -521,7 +528,7 @@ class LoginController extends GetxController {
       AlertDialog(
         backgroundColor: Colors.white,
 
-        title: const Text(
+        title: Text(
           "Choose Account Type",
           textAlign: TextAlign.center,
         ),
@@ -530,12 +537,12 @@ class LoginController extends GetxController {
           mainAxisSize: MainAxisSize.min,
 
           children: [
-            const Text(
+            Text(
               "How would you like to use Rental App?",
               textAlign: TextAlign.center,
             ),
 
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
 
             // Renter
             InkWell(
@@ -556,7 +563,7 @@ class LoginController extends GetxController {
                 width: double.infinity,
 
                 padding:
-                    const EdgeInsets.all(
+                    EdgeInsets.all(
                   16,
                 ),
 
@@ -573,7 +580,7 @@ class LoginController extends GetxController {
                   ),
                 ),
 
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons.search,
@@ -617,7 +624,7 @@ class LoginController extends GetxController {
               ),
             ),
 
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
 
             // House Owner
             InkWell(
@@ -638,7 +645,7 @@ class LoginController extends GetxController {
                 width: double.infinity,
 
                 padding:
-                    const EdgeInsets.all(
+                    EdgeInsets.all(
                   16,
                 ),
 
@@ -655,7 +662,7 @@ class LoginController extends GetxController {
                   ),
                 ),
 
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons
@@ -708,10 +715,13 @@ class LoginController extends GetxController {
             onPressed: () async {
               Get.back();
 
+              googleAccessToken = null;
+              socialProvider = "";
+
               await authService.logout();
             },
 
-            child: const Text(
+            child: Text(
               "Cancel",
 
               style: TextStyle(
@@ -733,11 +743,34 @@ class LoginController extends GetxController {
     try {
       isLoading.value = true;
 
-      final Map<String, dynamic> userData =
-          await authService
-              .createSocialUser(
-        role,
-      );
+      Map<String, dynamic> userData;
+
+      // Google Registration
+      if (socialProvider == "google") {
+        if (googleAccessToken == null ||
+            googleAccessToken!.isEmpty) {
+          throw Exception(
+            "Google access token not found",
+          );
+        }
+
+        userData =
+            await authService
+                .registerWithGoogle(
+          accessToken:
+              googleAccessToken!,
+          role: role,
+        );
+      }
+
+      // Facebook Registration
+      else {
+        userData =
+            await authService
+                .createSocialUser(
+          role,
+        );
+      }
 
       final String userRole =
           userData["role"]?.toString() ??
@@ -751,6 +784,9 @@ class LoginController extends GetxController {
         "Role: $userRole",
       );
 
+      googleAccessToken = null;
+      socialProvider = "";
+
       showSuccessNotification(
         title: "Account Created",
         message:
@@ -759,6 +795,9 @@ class LoginController extends GetxController {
 
       routeUser(userRole);
     } catch (e) {
+      googleAccessToken = null;
+      socialProvider = "";
+
       await authService.logout();
 
       String message = e.toString();

@@ -475,7 +475,7 @@ class PropertyController extends Controller
             ->latest()
             ->get();
 
-        // Get phone numbers of all property owners
+        // Get property owners
         $ownerIds =
             $properties
                 ->pluck('owner_id')
@@ -483,14 +483,39 @@ class PropertyController extends Controller
                 ->unique()
                 ->values();
 
-        $ownerPhones = DB::table('users')
+        $owners = DB::table('users')
             ->whereIn('id', $ownerIds)
-            ->pluck('phone', 'id');
+            ->select(
+                'id',
+                'name',
+                'phone',
+                'profile_image',
+                'created_at'
+            )
+            ->get()
+            ->keyBy('id');
 
         // Format properties for renter Flutter app
         $formattedProperties =
             $properties->map(
-                function ($property) use ($ownerPhones) {
+                function ($property) use ($owners) {
+                    $owner =
+                        $owners->get(
+                            $property->owner_id
+                        );
+
+                    $ownerProfileImage = null;
+
+                    if (
+                        $owner &&
+                        !empty($owner->profile_image)
+                    ) {
+                        $ownerProfileImage =
+                            asset(
+                                'storage/' .
+                                $owner->profile_image
+                            );
+                    }
                     // Images
                     $images =
                         $property->images
@@ -614,11 +639,24 @@ class PropertyController extends Controller
                         'contact' =>
                             $property->contact,
 
+                        // Owner
+                        'owner' => [
+                            'id' =>
+                                $owner?->id,
+
+                            'name' =>
+                                $owner?->name,
+
+                            'profile_image' =>
+                                $ownerProfileImage,
+
+                            'member_since' =>
+                                $owner?->created_at,
+                        ],
+
                         // Phone from users table
                         'owner_phone' =>
-                            $ownerPhones[
-                                $property->owner_id
-                            ] ?? null,
+                            $owner?->phone,
 
                         'furnished' =>
                             (bool) $property->furnished,

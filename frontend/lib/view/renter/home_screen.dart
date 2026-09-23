@@ -7,6 +7,7 @@ import 'package:final_project/view/renter/all_properties_screen.dart';
 import 'package:final_project/view/renter/filter_screen.dart';
 import 'package:final_project/view/renter/propertiesFound_screen.dart';
 import 'package:final_project/view/renter/property_detail_screen.dart';
+import 'package:final_project/view/renter/owner_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -438,6 +439,498 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
+  // Open Owner Summary
+  Future<void> openOwnerSummary(
+    Property property,
+  ) async {
+    final int? ownerId =
+        property.ownerId;
+
+    if (ownerId == null ||
+        ownerId <= 0) {
+      Get.snackbar(
+        "Owner unavailable",
+        "Owner information is not available for this property.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          28,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(
+              28,
+            ),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: FutureBuilder(
+            future: propertyService.getOwnerProfile(
+              ownerId: ownerId,
+            ),
+            builder: (
+              context,
+              snapshot,
+            ) {
+              if (snapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return SizedBox(
+                  height: 230,
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
+                  ),
+                );
+              }
+
+              String ownerName =
+                  property.ownerName;
+
+              String profileImage =
+                  property.ownerProfileImage;
+
+              String memberSince =
+                  property.ownerMemberSince;
+
+              int totalProperties = 0;
+
+              int availableProperties = 0;
+
+              if (snapshot.hasData) {
+                try {
+                  final dynamic decoded =
+                      jsonDecode(
+                    snapshot.data!.body,
+                  );
+
+                  if (snapshot.data!.statusCode ==
+                          200 &&
+                      decoded["success"] ==
+                          true) {
+                    final dynamic owner =
+                        decoded["owner"];
+
+                    if (owner is Map) {
+                      ownerName =
+                          owner["name"]
+                                  ?.toString() ??
+                              ownerName;
+
+                      profileImage =
+                          fixOwnerImageUrl(
+                        owner["profile_image"]
+                                ?.toString() ??
+                            profileImage,
+                      );
+
+                      memberSince =
+                          owner["member_since"]
+                                  ?.toString() ??
+                              memberSince;
+
+                      totalProperties =
+                          int.tryParse(
+                                owner["total_properties"]
+                                        ?.toString() ??
+                                    "0",
+                              ) ??
+                              0;
+
+                      availableProperties =
+                          int.tryParse(
+                                owner["available_properties"]
+                                        ?.toString() ??
+                                    "0",
+                              ) ??
+                              0;
+                    }
+                  }
+                } catch (e) {
+                  print(
+                    "OWNER PROFILE PARSE ERROR: $e",
+                  );
+                }
+              }
+
+              if (ownerName.trim().isEmpty) {
+                ownerName =
+                    "House Owner";
+              }
+
+              return Column(
+                mainAxisSize:
+                    MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color:
+                          Color(0xFFE2E4EA),
+                      borderRadius:
+                          BorderRadius.circular(
+                        10,
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 22,
+                  ),
+
+                  buildOwnerAvatar(
+                    ownerName: ownerName,
+                    profileImage:
+                        profileImage,
+                    size: 76,
+                    fontSize: 28,
+                  ),
+
+                  SizedBox(
+                    height: 12,
+                  ),
+
+                  Text(
+                    ownerName,
+                    textAlign:
+                        TextAlign.center,
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontSize: 20,
+                      fontWeight:
+                          FontWeight.w800,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 4,
+                  ),
+
+                  Text(
+                    "House Owner",
+                    style: TextStyle(
+                      color:
+                          mutedTextColor,
+                      fontSize: 12,
+                      fontWeight:
+                          FontWeight.w600,
+                    ),
+                  ),
+
+                  if (memberSince
+                      .isNotEmpty) ...[
+                    SizedBox(
+                      height: 5,
+                    ),
+
+                    Text(
+                      "Member since ${formatMemberSince(memberSince)}",
+                      style: TextStyle(
+                        color:
+                            mutedTextColor,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+
+                  SizedBox(
+                    height: 20,
+                  ),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child:
+                            buildOwnerStat(
+                          value:
+                              totalProperties
+                                  .toString(),
+                          label:
+                              "Listings",
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 12,
+                      ),
+
+                      Expanded(
+                        child:
+                            buildOwnerStat(
+                          value:
+                              availableProperties
+                                  .toString(),
+                          label:
+                              "Available",
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(
+                    height: 18,
+                  ),
+
+                  SizedBox(
+                    width:
+                        double.infinity,
+                    height: 52,
+                    child:
+                        ElevatedButton(
+                      onPressed: () {
+                        final List<Property>
+                            ownerProperties =
+                            widget.properties
+                                .where(
+                          (item) =>
+                              item.ownerId ==
+                              ownerId,
+                        )
+                                .toList();
+
+                        Get.back();
+
+                        Get.to(
+                          () =>
+                              OwnerProfileScreen(
+                            ownerId:
+                                ownerId,
+                            ownerName:
+                                ownerName,
+                            ownerProfileImage:
+                                profileImage,
+                            ownerProperties:
+                                ownerProperties,
+                          ),
+                        );
+                      },
+                      style:
+                          ElevatedButton
+                              .styleFrom(
+                        backgroundColor:
+                            primaryColor,
+                        foregroundColor:
+                            Colors.white,
+                        elevation: 0,
+                        shape:
+                            RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius
+                                  .circular(
+                            16,
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        "View Owner Profile",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight:
+                              FontWeight
+                                  .w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor:
+          Colors.transparent,
+    );
+  }
+
+  // Owner Avatar
+  Widget buildOwnerAvatar({
+    required String ownerName,
+    required String profileImage,
+    double size = 42,
+    double fontSize = 16,
+  }) {
+    final String cleanName =
+        ownerName.trim();
+
+    final String initial =
+        cleanName.isNotEmpty
+            ? cleanName[0]
+                .toUpperCase()
+            : "O";
+
+    final String cleanImage =
+        fixOwnerImageUrl(
+      profileImage,
+    );
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Color(0xFFF0F1F8),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: Color(0xFFE7E8F0),
+        ),
+      ),
+      child: ClipOval(
+        child: cleanImage.isNotEmpty
+            ? Image.network(
+                cleanImage,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (
+                  context,
+                  error,
+                  stackTrace,
+                ) {
+                  return Center(
+                    child: Text(
+                      initial,
+                      style: TextStyle(
+                        color:
+                            primaryColor,
+                        fontSize:
+                            fontSize,
+                        fontWeight:
+                            FontWeight
+                                .w800,
+                      ),
+                    ),
+                  );
+                },
+              )
+            : Center(
+                child: Text(
+                  initial,
+                  style: TextStyle(
+                    color:
+                        primaryColor,
+                    fontSize:
+                        fontSize,
+                    fontWeight:
+                        FontWeight.w800,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  // Owner Stat
+  Widget buildOwnerStat({
+    required String value,
+    required String label,
+  }) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        vertical: 14,
+      ),
+      decoration: BoxDecoration(
+        color: Color(0xFFF7F8FB),
+        borderRadius:
+            BorderRadius.circular(
+          16,
+        ),
+        border: Border.all(
+          color: borderColor,
+        ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              color: primaryColor,
+              fontSize: 18,
+              fontWeight:
+                  FontWeight.w800,
+            ),
+          ),
+
+          SizedBox(
+            height: 3,
+          ),
+
+          Text(
+            label,
+            style: TextStyle(
+              color: mutedTextColor,
+              fontSize: 11,
+              fontWeight:
+                  FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Owner Image URL
+  String fixOwnerImageUrl(
+    String url,
+  ) {
+    if (url.isEmpty) {
+      return "";
+    }
+
+    return url
+        .replaceFirst(
+          "http://localhost:8000",
+          "http://10.0.2.2:8000",
+        )
+        .replaceFirst(
+          "http://127.0.0.1:8000",
+          "http://10.0.2.2:8000",
+        );
+  }
+
+  // Member Since
+  String formatMemberSince(
+    String value,
+  ) {
+    final DateTime? date =
+        DateTime.tryParse(value);
+
+    if (date == null) {
+      return value;
+    }
+
+    const List<String> months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    return "${months[date.month - 1]} ${date.year}";
+  }
+
   // Property Card
   Widget buildPropertyCard(
     Property property,
@@ -616,6 +1109,102 @@ class _HomeScreenState extends State<HomeScreen> {
                     CrossAxisAlignment.start,
 
                 children: [
+                  // Owner
+                  InkWell(
+                    onTap: () {
+                      openOwnerSummary(
+                        property,
+                      );
+                    },
+                    borderRadius:
+                        BorderRadius.circular(
+                      14,
+                    ),
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(
+                        vertical: 2,
+                      ),
+                      child: Row(
+                        children: [
+                          buildOwnerAvatar(
+                            ownerName:
+                                property.ownerName,
+                            profileImage:
+                                property.ownerProfileImage,
+                          ),
+
+                          SizedBox(
+                            width: 10,
+                          ),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  property.ownerName
+                                          .trim()
+                                          .isNotEmpty
+                                      ? property.ownerName
+                                      : "House Owner",
+                                  maxLines: 1,
+                                  overflow:
+                                      TextOverflow.ellipsis,
+                                  style:
+                                      TextStyle(
+                                    color:
+                                        primaryColor,
+                                    fontSize: 12,
+                                    fontWeight:
+                                        FontWeight.w700,
+                                  ),
+                                ),
+
+                                SizedBox(
+                                  height: 2,
+                                ),
+
+                                Text(
+                                  "House Owner",
+                                  style:
+                                      TextStyle(
+                                    color:
+                                        mutedTextColor,
+                                    fontSize: 10,
+                                    fontWeight:
+                                        FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color:
+                                Color(0xFFB3B6C2),
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 11,
+                  ),
+
+                  Divider(
+                    height: 1,
+                    color: borderColor,
+                  ),
+
+                  SizedBox(
+                    height: 11,
+                  ),
+
                   Text(
                     property.name,
 

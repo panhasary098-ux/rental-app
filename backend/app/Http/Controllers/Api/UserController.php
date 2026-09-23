@@ -713,6 +713,212 @@ class UserController extends Controller
         ], 200);
     }
 
+
+    // Public owner profile
+    public function publicOwnerProfile(
+        Request $request,
+        User $owner
+    ) {
+        $user = $request->user();
+
+        if (
+            !$user ||
+            $user->role !== 'renter'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                'Only renters can view owner profiles',
+            ], 403);
+        }
+
+        if (
+            $owner->role !== 'house_owner' ||
+            $owner->status !== 'active'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                'House owner not found',
+            ], 404);
+        }
+
+        $publicProperties =
+            $owner->properties()
+                ->where(
+                    'verification_status',
+                    'approved'
+                )
+                ->where(
+                    'post_status',
+                    'active'
+                );
+
+        $totalProperties =
+            (clone $publicProperties)
+                ->count();
+
+        $availableProperties =
+            (clone $publicProperties)
+                ->where(
+                    'rental_status',
+                    'available'
+                )
+                ->count();
+
+        $profileImageUrl = null;
+
+        if (!empty($owner->profile_image)) {
+            $profileImageUrl =
+                asset(
+                    'storage/' .
+                    $owner->profile_image
+                );
+        }
+
+        return response()->json([
+            'success' => true,
+
+            'owner' => [
+                'id' =>
+                    $owner->id,
+
+                'name' =>
+                    $owner->name,
+
+                'profile_image' =>
+                    $profileImageUrl,
+
+                'member_since' =>
+                    $owner->created_at,
+
+                'total_properties' =>
+                    $totalProperties,
+
+                'available_properties' =>
+                    $availableProperties,
+            ],
+        ], 200);
+    }
+
+    // Public owner properties
+    public function publicOwnerProperties(
+        Request $request,
+        User $owner
+    ) {
+        $user = $request->user();
+
+        if (
+            !$user ||
+            $user->role !== 'renter'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                'Only renters can view owner properties',
+            ], 403);
+        }
+
+        if (
+            $owner->role !== 'house_owner' ||
+            $owner->status !== 'active'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' =>
+                'House owner not found',
+            ], 404);
+        }
+
+        $properties =
+            $owner->properties()
+                ->where(
+                    'verification_status',
+                    'approved'
+                )
+                ->where(
+                    'post_status',
+                    'active'
+                )
+                ->with([
+                    'images' => function ($query) {
+                        $query->orderBy(
+                            'sort_order'
+                        );
+                    },
+                ])
+                ->latest()
+                ->get();
+
+        $formattedProperties =
+            $properties->map(
+                function ($property) {
+                    $coverImage =
+                        $property->images
+                            ->firstWhere(
+                                'is_cover',
+                                true
+                            );
+
+                    if (!$coverImage) {
+                        $coverImage =
+                            $property->images
+                                ->first();
+                    }
+
+                    $coverImageUrl = null;
+
+                    if (
+                        $coverImage &&
+                        $coverImage->image_path
+                    ) {
+                        $coverImageUrl =
+                            asset(
+                                'storage/' .
+                                $coverImage->image_path
+                            );
+                    }
+
+                    return [
+                        'id' =>
+                            $property->id,
+
+                        'name' =>
+                            $property->name,
+
+                        'property_type' =>
+                            $property->property_type,
+
+                        'price' =>
+                            (float) $property->price,
+
+                        'address' =>
+                            $property->address,
+
+                        'rental_status' =>
+                            $property->rental_status,
+
+                        'cover_image' =>
+                            $coverImageUrl,
+
+                        'created_at' =>
+                            $property->created_at,
+                    ];
+                }
+            )
+                ->values();
+
+        return response()->json([
+            'success' => true,
+
+            'count' =>
+                $formattedProperties->count(),
+
+            'properties' =>
+                $formattedProperties,
+        ], 200);
+    }
+
     // Update User
     public function updateMe(Request $request)
     {
