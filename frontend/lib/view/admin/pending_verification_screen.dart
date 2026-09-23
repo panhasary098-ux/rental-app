@@ -16,7 +16,10 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
   final TextEditingController searchController = TextEditingController();
 
-  // Colors
+  // =========================================================
+  // COLORS
+  // =========================================================
+
   static const Color primaryColor = Color(0xFF03045E);
 
   static const Color backgroundColor = Color(0xFFF8FAFC);
@@ -49,11 +52,21 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
   static const Color redSoft = Color(0xFFFEF2F2);
 
+  // =========================================================
+  // DATA
+  // =========================================================
+
   List<Map<String, dynamic>> pendingProperties = [];
+
   List<Map<String, dynamic>> filteredProperties = [];
 
   bool isLoading = true;
+
   String? errorMessage;
+
+  // =========================================================
+  // INIT
+  // =========================================================
 
   @override
   void initState() {
@@ -64,14 +77,23 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     searchController.addListener(filterProperties);
   }
 
+  // =========================================================
+  // DISPOSE
+  // =========================================================
+
   @override
   void dispose() {
+    searchController.removeListener(filterProperties);
+
     searchController.dispose();
 
     super.dispose();
   }
 
-  // Load Pending
+  // =========================================================
+  // LOAD PENDING PROPERTIES
+  // =========================================================
+
   Future<void> loadPendingProperties() async {
     try {
       if (mounted) {
@@ -110,18 +132,22 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
       setState(() {
         isLoading = false;
+
         errorMessage = message;
       });
     }
   }
 
-  // Search
-  void filterProperties() {
-    final String query = searchController.text.trim().toLowerCase();
+  // =========================================================
+  // SEARCH
+  // =========================================================
 
+  void filterProperties() {
     if (!mounted) {
       return;
     }
+
+    final String query = searchController.text.trim().toLowerCase();
 
     if (query.isEmpty) {
       setState(() {
@@ -152,7 +178,10 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     });
   }
 
-  // Image URL
+  // =========================================================
+  // IMAGE URL
+  // =========================================================
+
   String getImageUrl(dynamic value) {
     if (value == null) {
       return "";
@@ -167,7 +196,10 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     return url;
   }
 
-  // Open Review
+  // =========================================================
+  // OPEN REVIEW
+  // =========================================================
+
   Future<void> openReview(Map<String, dynamic> property) async {
     final dynamic result = await Get.to(
       () => PropertyReviewScreen(property: property),
@@ -178,77 +210,183 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     }
   }
 
+  // =========================================================
+  // BUILD
+  // =========================================================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
 
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-
-        elevation: 0,
-
-        scrolledUnderElevation: 0,
-
-        leading: IconButton(
-          onPressed: () {
-            Get.back();
-          },
-
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-
-            color: textColor,
-
-            size: 20,
-          ),
-        ),
-
-        title: const Text(
-          "Pending Verification",
-
-          style: TextStyle(
-            color: textColor,
-
-            fontWeight: FontWeight.w800,
-
-            fontSize: 20,
-
-            letterSpacing: -0.2,
-          ),
-        ),
-
-        centerTitle: false,
-      ),
-
       body: SafeArea(
-        child: Column(
-          children: [
-            // Summary
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
+        child: RefreshIndicator(
+          color: primaryColor,
 
-              child: buildSummaryCard(),
-            ),
+          onRefresh: loadPendingProperties,
 
-            // Search
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 6, 18, 8),
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
 
-              child: buildSearchField(),
-            ),
+            slivers: [
+              // =================================================
+              // HEADER
+              // Scrolls normally
+              // =================================================
+              SliverToBoxAdapter(child: buildHeader()),
 
-            const SizedBox(height: 4),
+              const SliverToBoxAdapter(child: SizedBox(height: 18)),
 
-            // Content
-            Expanded(child: buildContent()),
-          ],
+              // =================================================
+              // SUMMARY
+              // Scrolls normally
+              // =================================================
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+                  child: buildSummaryCard(),
+                ),
+              ),
+
+              // =================================================
+              // STICKY SEARCH
+              // This stays at the top when scrolling
+              // =================================================
+              SliverAppBar(
+                pinned: true,
+
+                floating: false,
+
+                automaticallyImplyLeading: false,
+
+                backgroundColor: backgroundColor,
+
+                surfaceTintColor: backgroundColor,
+
+                elevation: 0,
+
+                scrolledUnderElevation: 2,
+
+                toolbarHeight: 70,
+
+                titleSpacing: 0,
+
+                title: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 7,
+                  ),
+                  child: buildSearchField(),
+                ),
+              ),
+
+              // =================================================
+              // CONTENT
+              // =================================================
+              buildContentSliver(),
+
+              const SliverToBoxAdapter(child: SizedBox(height: 25)),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Summary
+  // =========================================================
+  // HEADER
+  // =========================================================
+
+  Widget buildHeader() {
+    return Container(
+      width: double.infinity,
+
+      margin: const EdgeInsets.fromLTRB(18, 30, 18, 0),
+
+      padding: const EdgeInsets.fromLTRB(18, 18, 14, 18),
+
+      decoration: BoxDecoration(
+        color: primaryColor,
+
+        borderRadius: BorderRadius.circular(12),
+
+        boxShadow: [
+          BoxShadow(
+            color: primaryColor.withOpacity(0.15),
+
+            blurRadius: 18,
+
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  "Property Verification",
+
+                  style: TextStyle(
+                    fontSize: 23,
+
+                    fontWeight: FontWeight.w800,
+
+                    color: Colors.white,
+
+                    letterSpacing: -0.4,
+                  ),
+                ),
+
+                SizedBox(height: 4),
+
+                Text(
+                  "Review and verify submitted properties",
+
+                  style: TextStyle(fontSize: 12, color: Color(0xFFB8B9DD)),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          Container(
+            width: 42,
+
+            height: 42,
+
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.10),
+
+              borderRadius: BorderRadius.circular(11),
+            ),
+
+            child: IconButton(
+              onPressed: loadPendingProperties,
+
+              icon: const Icon(
+                Icons.refresh_rounded,
+
+                color: Colors.white,
+
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================
+  // SUMMARY
+  // =========================================================
+
   Widget buildSummaryCard() {
     return Container(
       width: double.infinity,
@@ -277,6 +415,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
         children: [
           Container(
             width: 50,
+
             height: 50,
 
             decoration: BoxDecoration(
@@ -334,121 +473,158 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     );
   }
 
-  // Search
+  // =========================================================
+  // SEARCH FIELD
+  // =========================================================
+
   Widget buildSearchField() {
-    return TextField(
-      controller: searchController,
+    return SizedBox(
+      height: 54,
 
-      decoration: InputDecoration(
-        hintText: "Search property, owner or location",
+      child: TextField(
+        controller: searchController,
 
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+        textAlignVertical: TextAlignVertical.center,
 
-        prefixIcon: const Icon(
-          Icons.search_rounded,
+        decoration: InputDecoration(
+          hintText: "Search property, owner or location",
 
-          color: secondaryTextColor,
+          hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
 
-          size: 21,
-        ),
+          prefixIcon: const Icon(
+            Icons.search_rounded,
 
-        suffixIcon: searchController.text.isNotEmpty
-            ? IconButton(
-                onPressed: () {
-                  searchController.clear();
-                },
+            color: secondaryTextColor,
 
-                icon: const Icon(
-                  Icons.close_rounded,
+            size: 21,
+          ),
 
-                  color: secondaryTextColor,
+          suffixIcon: searchController.text.isNotEmpty
+              ? IconButton(
+                  onPressed: () {
+                    searchController.clear();
+                  },
 
-                  size: 20,
+                  icon: const Icon(
+                    Icons.close_rounded,
+
+                    color: secondaryTextColor,
+
+                    size: 20,
+                  ),
+                )
+              : Container(
+                  width: 38,
+
+                  margin: const EdgeInsets.all(8),
+
+                  decoration: BoxDecoration(
+                    color: blueSoft,
+
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+
+                  child: const Icon(
+                    Icons.tune_rounded,
+
+                    color: blueAccent,
+
+                    size: 19,
+                  ),
                 ),
-              )
-            : Container(
-                margin: const EdgeInsets.all(8),
 
-                decoration: BoxDecoration(
-                  color: blueSoft,
+          filled: true,
 
-                  borderRadius: BorderRadius.circular(9),
-                ),
+          fillColor: cardColor,
 
-                child: const Icon(
-                  Icons.tune_rounded,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
 
-                  color: blueAccent,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
 
-                  size: 19,
-                ),
-              ),
+            borderSide: const BorderSide(color: borderColor),
+          ),
 
-        filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
 
-        fillColor: cardColor,
+            borderSide: const BorderSide(color: borderColor),
+          ),
 
-        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-
-          borderSide: const BorderSide(color: borderColor),
-        ),
-
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-
-          borderSide: const BorderSide(color: borderColor),
-        ),
-
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-
-          borderSide: const BorderSide(color: primaryColor, width: 1.4),
+            borderSide: const BorderSide(color: primaryColor, width: 1.4),
+          ),
         ),
       ),
     );
   }
 
-  // Content
-  Widget buildContent() {
+  // =========================================================
+  // CONTENT
+  // =========================================================
+
+  Widget buildContentSliver() {
+    // -------------------------
+    // Loading
+    // -------------------------
+
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: primaryColor),
+      return const SliverToBoxAdapter(
+        child: SizedBox(
+          height: 300,
+
+          child: Center(child: CircularProgressIndicator(color: primaryColor)),
+        ),
       );
     }
 
+    // -------------------------
+    // Error
+    // -------------------------
+
     if (errorMessage != null) {
-      return buildErrorState();
+      return SliverToBoxAdapter(
+        child: SizedBox(height: 320, child: buildErrorState()),
+      );
     }
+
+    // -------------------------
+    // Empty
+    // -------------------------
 
     if (filteredProperties.isEmpty) {
-      return buildEmptyState();
+      return SliverToBoxAdapter(
+        child: SizedBox(height: 300, child: buildEmptyState()),
+      );
     }
 
-    return RefreshIndicator(
-      color: primaryColor,
+    // -------------------------
+    // Property List
+    // -------------------------
 
-      onRefresh: loadPendingProperties,
+    return SliverPadding(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
 
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 25),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: index == filteredProperties.length - 1 ? 0 : 14,
+            ),
 
-        itemCount: filteredProperties.length,
-
-        separatorBuilder: (context, index) {
-          return const SizedBox(height: 14);
-        },
-
-        itemBuilder: (context, index) {
-          return buildPropertyCard(filteredProperties[index]);
-        },
+            child: buildPropertyCard(filteredProperties[index]),
+          );
+        }, childCount: filteredProperties.length),
       ),
     );
   }
 
-  // Error
+  // =========================================================
+  // ERROR STATE
+  // =========================================================
+
   Widget buildErrorState() {
     return Center(
       child: Padding(
@@ -460,6 +636,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
           children: [
             Container(
               width: 70,
+
               height: 70,
 
               decoration: const BoxDecoration(
@@ -530,9 +707,12 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     );
   }
 
-  // Empty
+  // =========================================================
+  // EMPTY STATE
+  // =========================================================
+
   Widget buildEmptyState() {
-    final bool searching = searchController.text.isNotEmpty;
+    final bool searching = searchController.text.trim().isNotEmpty;
 
     return Center(
       child: Padding(
@@ -544,6 +724,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
           children: [
             Container(
               width: 72,
+
               height: 72,
 
               decoration: BoxDecoration(
@@ -594,7 +775,10 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     );
   }
 
-  // Property Card
+  // =========================================================
+  // PROPERTY CARD
+  // =========================================================
+
   Widget buildPropertyCard(Map<String, dynamic> property) {
     final String imageUrl = getImageUrl(property["image"]);
 
@@ -628,11 +812,16 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
         child: Column(
           children: [
+            // =================================================
+            // PROPERTY INFO
+            // =================================================
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                // Image
+                // -------------------------
+                // IMAGE
+                // -------------------------
                 ClipRRect(
                   borderRadius: BorderRadius.circular(13),
 
@@ -642,6 +831,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
                           imageUrl,
 
                           width: 105,
+
                           height: 105,
 
                           fit: BoxFit.cover,
@@ -654,12 +844,17 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
                 const SizedBox(width: 13),
 
+                // -------------------------
+                // DETAILS
+                // -------------------------
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
-                      // Pending
+                      // -----------------------
+                      // STATUS
+                      // -----------------------
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 9,
@@ -703,6 +898,9 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
                       const SizedBox(height: 8),
 
+                      // -----------------------
+                      // TITLE
+                      // -----------------------
                       Text(
                         property["title"]?.toString() ??
                             property["name"]?.toString() ??
@@ -723,6 +921,9 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
                       const SizedBox(height: 7),
 
+                      // -----------------------
+                      // PRICE
+                      // -----------------------
                       Text(
                         property["price"]?.toString() ?? "-",
 
@@ -737,6 +938,9 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
                       const SizedBox(height: 7),
 
+                      // -----------------------
+                      // LOCATION
+                      // -----------------------
                       Row(
                         children: [
                           const Icon(
@@ -780,11 +984,14 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
             const SizedBox(height: 13),
 
-            // Owner
+            // =================================================
+            // OWNER
+            // =================================================
             Row(
               children: [
                 Container(
                   width: 40,
+
                   height: 40,
 
                   decoration: const BoxDecoration(
@@ -824,6 +1031,10 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
                       Text(
                         property["owner"]?.toString() ?? "Unknown Owner",
 
+                        maxLines: 1,
+
+                        overflow: TextOverflow.ellipsis,
+
                         style: const TextStyle(
                           color: textColor,
 
@@ -835,6 +1046,8 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
                     ],
                   ),
                 ),
+
+                const SizedBox(width: 10),
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
@@ -870,9 +1083,12 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
             const SizedBox(height: 14),
 
-            // Review
+            // =================================================
+            // REVIEW BUTTON
+            // =================================================
             SizedBox(
               width: double.infinity,
+
               height: 46,
 
               child: ElevatedButton(
@@ -915,10 +1131,14 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     );
   }
 
-  // Image Placeholder
+  // =========================================================
+  // IMAGE PLACEHOLDER
+  // =========================================================
+
   Widget buildImagePlaceholder() {
     return Container(
       width: 105,
+
       height: 105,
 
       decoration: BoxDecoration(

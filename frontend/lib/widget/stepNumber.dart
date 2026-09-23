@@ -5,16 +5,13 @@ import 'package:flutter/material.dart';
 // ======================================================
 
 const Color primaryColor = Color(0xFF03045E);
-const Color secondaryColor = Color(0xFF90E0EF);
-const Color lightSecondaryColor = Color(0xFFE6F9FC);
+const Color secondaryColor = Color(0xFF7D8990);
+const Color lightSecondaryColor = Colors.white;
 
 class StepNumber extends StatefulWidget {
   final int currentStep;
 
-  const StepNumber({
-    super.key,
-    required this.currentStep,
-  });
+  const StepNumber({super.key, required this.currentStep});
 
   @override
   State<StepNumber> createState() => _StepNumberState();
@@ -72,8 +69,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 1 → STEP 2
     // ==================================================
 
-    if (oldWidget.currentStep == 1 &&
-        widget.currentStep == 2) {
+    if (oldWidget.currentStep == 1 && widget.currentStep == 2) {
       animateToStep2();
     }
 
@@ -81,8 +77,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 2 → STEP 1
     // ==================================================
 
-    if (oldWidget.currentStep == 2 &&
-        widget.currentStep == 1) {
+    if (oldWidget.currentStep == 2 && widget.currentStep == 1) {
       animateBackToStep1();
     }
 
@@ -90,8 +85,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 2 → STEP 3
     // ==================================================
 
-    if (oldWidget.currentStep == 2 &&
-        widget.currentStep == 3) {
+    if (oldWidget.currentStep == 2 && widget.currentStep == 3) {
       animateToStep3();
     }
 
@@ -99,8 +93,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 3 → STEP 2
     // ==================================================
 
-    if (oldWidget.currentStep == 3 &&
-        widget.currentStep == 2) {
+    if (oldWidget.currentStep == 3 && widget.currentStep == 2) {
       animateBackToStep2();
     }
 
@@ -108,8 +101,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 3 → STEP 4
     // ==================================================
 
-    if (oldWidget.currentStep == 3 &&
-        widget.currentStep == 4) {
+    if (oldWidget.currentStep == 3 && widget.currentStep == 4) {
       animateToStep4();
     }
 
@@ -117,8 +109,7 @@ class _StepNumberState extends State<StepNumber> {
     // STEP 4 → STEP 3
     // ==================================================
 
-    if (oldWidget.currentStep == 4 &&
-        widget.currentStep == 3) {
+    if (oldWidget.currentStep == 4 && widget.currentStep == 3) {
       animateBackToStep3();
     }
   }
@@ -133,9 +124,7 @@ class _StepNumberState extends State<StepNumber> {
       line1Progress = 1;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-    );
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
 
@@ -151,9 +140,7 @@ class _StepNumberState extends State<StepNumber> {
       line2Progress = 1;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-    );
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
 
@@ -169,9 +156,7 @@ class _StepNumberState extends State<StepNumber> {
       line3Progress = 1;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 500),
-    );
+    await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
 
@@ -191,9 +176,7 @@ class _StepNumberState extends State<StepNumber> {
       step2Active = false;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 180),
-    );
+    await Future.delayed(const Duration(milliseconds: 180));
 
     if (!mounted) return;
 
@@ -209,9 +192,7 @@ class _StepNumberState extends State<StepNumber> {
       step3Active = false;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 180),
-    );
+    await Future.delayed(const Duration(milliseconds: 180));
 
     if (!mounted) return;
 
@@ -227,9 +208,7 @@ class _StepNumberState extends State<StepNumber> {
       step4Active = false;
     });
 
-    await Future.delayed(
-      const Duration(milliseconds: 180),
-    );
+    await Future.delayed(const Duration(milliseconds: 180));
 
     if (!mounted) return;
 
@@ -250,59 +229,31 @@ class _StepNumberState extends State<StepNumber> {
         // ==================================================
         // STEP 1
         // ==================================================
-
-        _circle(
-          number: "1",
-          active: true,
-        ),
+        _circle(number: "1", active: true),
 
         // Line 1 → 2
-        Expanded(
-          child: _animatedLine(
-            progress: line1Progress,
-          ),
-        ),
+        Expanded(child: _animatedLine(progress: line1Progress)),
 
         // ==================================================
         // STEP 2
         // ==================================================
-
-        _circle(
-          number: "2",
-          active: step2Active,
-        ),
+        _circle(number: "2", active: step2Active),
 
         // Line 2 → 3
-        Expanded(
-          child: _animatedLine(
-            progress: line2Progress,
-          ),
-        ),
+        Expanded(child: _animatedLine(progress: line2Progress)),
 
         // ==================================================
         // STEP 3
         // ==================================================
-
-        _circle(
-          number: "3",
-          active: step3Active,
-        ),
+        _circle(number: "3", active: step3Active),
 
         // Line 3 → 4
-        Expanded(
-          child: _animatedLine(
-            progress: line3Progress,
-          ),
-        ),
+        Expanded(child: _animatedLine(progress: line3Progress)),
 
         // ==================================================
         // STEP 4
         // ==================================================
-
-        _circle(
-          number: "4",
-          active: step4Active,
-        ),
+        _circle(number: "4", active: step4Active),
       ],
     );
   }
@@ -311,14 +262,9 @@ class _StepNumberState extends State<StepNumber> {
   // STEP CIRCLE
   // ======================================================
 
-  Widget _circle({
-    required String number,
-    required bool active,
-  }) {
+  Widget _circle({required String number, required bool active}) {
     return AnimatedContainer(
-      duration: const Duration(
-        milliseconds: 200,
-      ),
+      duration: const Duration(milliseconds: 200),
 
       width: 28,
       height: 28,
@@ -326,14 +272,10 @@ class _StepNumberState extends State<StepNumber> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
 
-        color: active
-            ? primaryColor
-            : lightSecondaryColor,
+        color: active ? primaryColor : lightSecondaryColor,
 
         border: Border.all(
-          color: active
-              ? primaryColor
-              : secondaryColor,
+          color: active ? primaryColor : secondaryColor,
           width: 1.3,
         ),
 
@@ -354,9 +296,7 @@ class _StepNumberState extends State<StepNumber> {
         number,
 
         style: TextStyle(
-          color: active
-              ? Colors.white
-              : primaryColor.withOpacity(0.55),
+          color: active ? Colors.white : primaryColor.withOpacity(0.55),
 
           fontSize: 12,
 
@@ -370,24 +310,17 @@ class _StepNumberState extends State<StepNumber> {
   // ANIMATED LINE
   // ======================================================
 
-  Widget _animatedLine({
-    required double progress,
-  }) {
+  Widget _animatedLine({required double progress}) {
     return Stack(
       alignment: Alignment.centerLeft,
 
       children: [
         // Inactive line
-        Container(
-          height: 3,
-          color: secondaryColor.withOpacity(0.45),
-        ),
+        Container(height: 3, color: secondaryColor.withOpacity(0.45)),
 
         // Active line
         AnimatedFractionallySizedBox(
-          duration: const Duration(
-            milliseconds: 500,
-          ),
+          duration: const Duration(milliseconds: 500),
 
           curve: Curves.easeInOut,
 
@@ -395,10 +328,7 @@ class _StepNumberState extends State<StepNumber> {
 
           widthFactor: progress,
 
-          child: Container(
-            height: 3,
-            color: primaryColor,
-          ),
+          child: Container(height: 3, color: primaryColor),
         ),
       ],
     );

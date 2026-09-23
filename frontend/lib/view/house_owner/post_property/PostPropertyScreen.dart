@@ -11,24 +11,17 @@ import 'package:get/get.dart';
 
 Color primaryColor = Color(0xFF03045E);
 Color secondaryColor = Color(0xFF90E0EF);
-Color backgroundColor = Colors.white;
+Color backgroundColor = Color(0xFFF8FAFC);
 Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class Postpropertyscreen extends StatefulWidget {
   final Map<String, dynamic>? propertyToEdit;
-
-  Postpropertyscreen({
-    super.key,
-    this.propertyToEdit,
-  });
-
+  Postpropertyscreen({super.key, this.propertyToEdit});
   @override
-  State<Postpropertyscreen> createState() =>
-      _PostpropertyscreenState();
+  State<Postpropertyscreen> createState() => _PostpropertyscreenState();
 }
 
-class _PostpropertyscreenState
-    extends State<Postpropertyscreen> {
+class _PostpropertyscreenState extends State<Postpropertyscreen> {
   late final PostPropertyController controller;
 
   @override
@@ -36,45 +29,35 @@ class _PostpropertyscreenState
     super.initState();
 
     if (Get.isRegistered<PostPropertyController>()) {
-      controller =
-          Get.find<PostPropertyController>();
+      controller = Get.find<PostPropertyController>();
     } else {
-      controller =
-          Get.put(PostPropertyController());
+      controller = Get.put(PostPropertyController());
     }
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) {
-        if (!mounted) {
-          return;
-        }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
 
-        if (widget.propertyToEdit != null) {
-          controller.loadPropertyForEdit(
-            widget.propertyToEdit!,
-          );
-        } else {
-          controller.resetForCreateMode();
-        }
-      },
-    );
+      if (widget.propertyToEdit != null) {
+        controller.loadPropertyForEdit(widget.propertyToEdit!);
+      } else {
+        controller.resetForCreateMode();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final bool isEditMode =
-          controller.isEditMode.value;
+      final bool isEditMode = controller.isEditMode.value;
 
       return Scaffold(
-        backgroundColor:
-            Color.fromARGB(255, 242, 242, 242),
+        backgroundColor: backgroundColor,
 
         appBar: AppBar(
           title: Text(
-            isEditMode
-                ? "Edit Property"
-                : "Submit Your Property",
+            isEditMode ? "Edit Property" : "Submit Your Property",
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w900,
@@ -83,46 +66,26 @@ class _PostpropertyscreenState
           ),
 
           centerTitle: true,
-
-          backgroundColor:
-              Color.fromARGB(255, 242, 242, 242),
-
+          backgroundColor: backgroundColor,
           elevation: 0,
 
-          iconTheme:
-              IconThemeData(
-            color: primaryColor,
-          ),
+          iconTheme: IconThemeData(color: primaryColor),
         ),
 
         body: Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: 16,
-          ),
+          padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
 
           child: Column(
             children: [
               Padding(
-                padding:
-                    EdgeInsets.symmetric(
-                  horizontal: 35,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 35),
 
-                child: StepNumber(
-                  currentStep:
-                      controller.currentStep.value,
-                ),
+                child: StepNumber(currentStep: controller.currentStep.value),
               ),
 
               SizedBox(height: 10),
 
-              Expanded(
-                child: changeSteps(
-                  controller.currentStep.value,
-                ),
-              ),
+              Expanded(child: changeSteps(controller.currentStep.value)),
 
               SizedBox(height: 10),
 
@@ -135,14 +98,11 @@ class _PostpropertyscreenState
   }
 
   Widget buildBottomButtons() {
-    final int step =
-        controller.currentStep.value;
+    final int step = controller.currentStep.value;
 
-    final bool isEditMode =
-        controller.isEditMode.value;
+    final bool isEditMode = controller.isEditMode.value;
 
-    final bool hasSelectedType =
-        controller.selectIndex.value != null;
+    final bool hasSelectedType = controller.selectIndex.value != null;
 
     // Edit mode - Step 3
     if (isEditMode && step == 3) {
@@ -153,41 +113,25 @@ class _PostpropertyscreenState
               height: 50,
 
               child: OutlinedButton(
-                onPressed:
-                    controller.isSubmitting.value
-                        ? null
-                        : () {
-                            controller
-                                .currentStep
-                                .value = 2;
-                          },
+                onPressed: controller.isSubmitting.value
+                    ? null
+                    : () {
+                        controller.currentStep.value = 2;
+                      },
 
-                style:
-                    OutlinedButton.styleFrom(
-                  foregroundColor:
-                      primaryColor,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: primaryColor,
 
-                  side: BorderSide(
-                    color: primaryColor,
-                    width: 1.5,
-                  ),
+                  side: BorderSide(color: primaryColor, width: 1.5),
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
                 child: Text(
                   "Back",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight:
-                        FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -202,110 +146,73 @@ class _PostpropertyscreenState
               height: 50,
 
               child: ElevatedButton(
-                onPressed:
-                    controller.isSubmitting.value
-                        ? null
-                        : () async {
-                            final bool success =
-                                await controller
-                                    .updateProperty();
+                onPressed: controller.isSubmitting.value
+                    ? null
+                    : () async {
+                        final bool success = await controller.updateProperty();
 
-                            if (!mounted) {
-                              return;
-                            }
+                        if (!mounted) {
+                          return;
+                        }
 
-                            if (success) {
-                              // Return to My Properties
-                              Navigator.of(context)
-                                  .pop(true);
+                        if (success) {
+                          // Return to My Properties
+                          Navigator.of(context).pop(true);
 
-                              // Show Success
-                              Future.delayed(
-                                Duration(
-                                  milliseconds: 200,
-                                ),
-                                () {
-                                  Get.snackbar(
-                                    "Property Updated",
-                                    "Your property changes were saved successfully.",
-                                    snackPosition:
-                                        SnackPosition
-                                            .BOTTOM,
-                                    backgroundColor:
-                                        primaryColor,
-                                    colorText:
-                                        Colors.white,
-                                    margin:
-                                        EdgeInsets.all(
-                                      16,
-                                    ),
-                                    borderRadius: 12,
-                                    duration:
-                                        Duration(
-                                      seconds: 3,
-                                    ),
-                                    icon: Icon(
-                                      Icons
-                                          .check_circle_rounded,
-                                      color:
-                                          Colors.white,
-                                      size: 26,
-                                    ),
-                                  );
-                                },
-                              );
-                            }
-                          },
+                          // Show Success
+                          Future.delayed(Duration(milliseconds: 200), () {
+                            Get.snackbar(
+                              "Property Updated",
+                              "Your property changes were saved successfully.",
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: primaryColor,
+                              colorText: Colors.white,
+                              margin: EdgeInsets.all(16),
+                              borderRadius: 12,
+                              duration: Duration(seconds: 3),
+                              icon: Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            );
+                          });
+                        }
+                      },
 
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      primaryColor,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
 
-                  foregroundColor:
-                      Colors.white,
+                  foregroundColor: Colors.white,
 
-                  disabledBackgroundColor:
-                      secondaryColor
-                          .withOpacity(
-                    0.55,
-                  ),
+                  disabledBackgroundColor: secondaryColor.withOpacity(0.55),
 
                   elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
-                child:
-                    controller.isSubmitting.value
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
+                child: controller.isSubmitting.value
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
 
-                            child:
-                                CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color:
-                                  Colors.white,
-                            ),
-                          )
-                        : Text(
-                            getEditSubmitText(),
-                            textAlign:
-                                TextAlign.center,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        getEditSubmitText(),
+                        textAlign: TextAlign.center,
 
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight:
-                                  FontWeight.w700,
-                            ),
-                          ),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -320,110 +227,81 @@ class _PostpropertyscreenState
         height: 50,
 
         child: ElevatedButton(
-          onPressed:
-              controller.isCheckingPayment.value
-                  ? null
-                  : controller.paymentStatus.value ==
-                          'paid'
-                      ? () {
-                          // Return to My Properties
-                          Navigator.of(context)
-                              .pop(true);
+          onPressed: controller.isCheckingPayment.value
+              ? null
+              : controller.paymentStatus.value == 'paid'
+              ? () {
+                  // Return to My Properties
+                  Navigator.of(context).pop(true);
 
-                          // Clear posting data
-                          Future.microtask(() {
-                            controller
-                                .resetForCreateMode();
-                          });
-                        }
-                      : () async {
-                          final bool success =
-                              await controller
-                                  .checkBakongPayment();
+                  // Clear posting data
+                  Future.microtask(() {
+                    controller.resetForCreateMode();
+                  });
+                }
+              : () async {
+                  final bool success = await controller.checkBakongPayment();
 
-                          if (!mounted) {
-                            return;
-                          }
+                  if (!mounted) {
+                    return;
+                  }
 
-                          if (success &&
-                              controller
-                                      .paymentStatus
-                                      .value ==
-                                  'paid') {
-                            // Keep the user on the
-                            // payment screen first.
-                            // Button becomes Finish.
-                          }
-                        },
+                  if (success && controller.paymentStatus.value == 'paid') {
+                    // Keep the user on the
+                    // payment screen first.
+                    // Button becomes Finish.
+                  }
+                },
 
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                controller.paymentStatus.value ==
-                        'paid'
-                    ? Color(0xFF15803D)
-                    : primaryColor,
+            backgroundColor: controller.paymentStatus.value == 'paid'
+                ? Color(0xFF15803D)
+                : primaryColor,
 
-            foregroundColor:
-                Colors.white,
+            foregroundColor: Colors.white,
 
-            disabledBackgroundColor:
-                secondaryColor.withOpacity(
-              0.55,
-            ),
+            disabledBackgroundColor: secondaryColor.withOpacity(0.55),
 
             elevation: 0,
 
             shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
 
-          child:
-              controller.isCheckingPayment.value
-                  ? SizedBox(
-                      width: 22,
-                      height: 22,
+          child: controller.isCheckingPayment.value
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
 
-                      child:
-                          CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          controller
-                                      .paymentStatus
-                                      .value ==
-                                  'paid'
-                              ? Icons
-                                  .check_circle_rounded
-                              : Icons
-                                  .verified_outlined,
-                          size: 20,
-                        ),
-
-                        SizedBox(width: 8),
-
-                        Text(
-                          controller
-                                      .paymentStatus
-                                      .value ==
-                                  'paid'
-                              ? "Finish"
-                              : "Check Payment",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight:
-                                FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      controller.paymentStatus.value == 'paid'
+                          ? Icons.check_circle_rounded
+                          : Icons.verified_outlined,
+                      size: 20,
                     ),
+
+                    SizedBox(width: 8),
+
+                    Text(
+                      controller.paymentStatus.value == 'paid'
+                          ? "Finish"
+                          : "Check Payment",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       );
     }
@@ -437,44 +315,27 @@ class _PostpropertyscreenState
               height: 50,
 
               child: OutlinedButton(
-                onPressed:
-                    controller.isSubmitting.value
-                        ? null
-                        : () {
-                            controller
-                                .currentStep
-                                .value = 2;
-                          },
+                onPressed: controller.isSubmitting.value
+                    ? null
+                    : () {
+                        controller.currentStep.value = 2;
+                      },
 
-                style:
-                    OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: primaryColor,
-                    width: 1.5,
-                  ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: primaryColor, width: 1.5),
 
-                  foregroundColor:
-                      primaryColor,
+                  foregroundColor: primaryColor,
 
-                  backgroundColor:
-                      Colors.white,
+                  backgroundColor: Colors.white,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
                 child: Text(
                   "Edit",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight:
-                        FontWeight.w700,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
             ),
@@ -487,74 +348,53 @@ class _PostpropertyscreenState
               height: 50,
 
               child: ElevatedButton(
-                onPressed:
-                    controller.isSubmitting.value
-                        ? null
-                        : () async {
-                            final bool success =
-                                await controller
-                                    .submitProperty();
+                onPressed: controller.isSubmitting.value
+                    ? null
+                    : () async {
+                        final bool success = await controller.submitProperty();
 
-                            if (!mounted) {
-                              return;
-                            }
+                        if (!mounted) {
+                          return;
+                        }
 
-                            if (success) {
-                              controller
-                                  .currentStep
-                                  .value = 4;
-                            }
-                          },
+                        if (success) {
+                          controller.currentStep.value = 4;
+                        }
+                      },
 
-                style:
-                    ElevatedButton.styleFrom(
-                  backgroundColor:
-                      primaryColor,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
 
-                  foregroundColor:
-                      Colors.white,
+                  foregroundColor: Colors.white,
 
-                  disabledBackgroundColor:
-                      secondaryColor
-                          .withOpacity(
-                    0.55,
-                  ),
+                  disabledBackgroundColor: secondaryColor.withOpacity(0.55),
 
                   elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
 
-                child:
-                    controller.isSubmitting.value
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
+                child: controller.isSubmitting.value
+                    ? SizedBox(
+                        width: 22,
+                        height: 22,
 
-                            child:
-                                CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color:
-                                  Colors.white,
-                            ),
-                          )
-                        : Text(
-                            "Continue to Payment",
-                            textAlign:
-                                TextAlign.center,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(
+                        "Continue to Payment",
+                        textAlign: TextAlign.center,
 
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight:
-                                  FontWeight.w700,
-                            ),
-                          ),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ),
@@ -565,70 +405,46 @@ class _PostpropertyscreenState
     // Step 1 / Step 2
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 52,
 
       child: ElevatedButton(
-        onPressed:
-            step == 1 && !hasSelectedType
-                ? null
-                : () {
-                    // Step 1 -> Step 2
-                    if (step == 1) {
-                      controller
-                          .currentStep
-                          .value = 2;
+        onPressed: step == 1 && !hasSelectedType
+            ? null
+            : () {
+                // Step 1 -> Step 2
+                if (step == 1) {
+                  controller.currentStep.value = 2;
 
-                      return;
-                    }
+                  return;
+                }
 
-                    // Step 2 -> Step 3
-                    if (step == 2) {
-                      final bool isValid =
-                          controller
-                              .validateStep2();
+                // Step 2 -> Step 3
+                if (step == 2) {
+                  final bool isValid = controller.validateStep2();
 
-                      if (isValid) {
-                        controller
-                            .currentStep
-                            .value = 3;
-                      }
+                  if (isValid) {
+                    controller.currentStep.value = 3;
+                  }
 
-                      return;
-                    }
-                  },
+                  return;
+                }
+              },
 
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
-
-          disabledBackgroundColor:
-              secondaryColor.withOpacity(
-            0.55,
-          ),
-
+          disabledBackgroundColor: const Color.fromARGB(255, 215, 216, 216),
           foregroundColor: Colors.white,
-
-          disabledForegroundColor:
-              primaryColor.withOpacity(
-            0.45,
-          ),
-
+          disabledForegroundColor: primaryColor.withOpacity(0.45),
           elevation: 0,
-
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
 
         child: Text(
-          isEditMode && step == 2
-              ? "Continue to Review"
-              : "Continue",
+          isEditMode && step == 2 ? "Continue to Review" : "Continue",
 
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
     );
@@ -636,11 +452,7 @@ class _PostpropertyscreenState
 
   String getEditSubmitText() {
     final String verificationStatus =
-        controller
-                .originalVerificationStatus
-                .value
-                ?.toLowerCase() ??
-            "";
+        controller.originalVerificationStatus.value?.toLowerCase() ?? "";
 
     if (verificationStatus == "rejected") {
       return "Resubmit for Review";
@@ -653,37 +465,23 @@ class _PostpropertyscreenState
     switch (step) {
       case 1:
         if (controller.isEditMode.value) {
-          return changeType(
-            controller.selectIndex.value,
-          );
+          return changeType(controller.selectIndex.value);
         }
 
-        return PostStep1(
-          key: ValueKey(1),
-        );
+        return PostStep1(key: ValueKey(1));
 
       case 2:
-        return changeType(
-          controller.selectIndex.value,
-        );
+        return changeType(controller.selectIndex.value);
 
       case 3:
-        return PostReviewStep3(
-          key: ValueKey(3),
-        );
+        return PostReviewStep3(key: ValueKey(3));
 
       case 4:
         if (controller.isEditMode.value) {
-          return PostReviewStep3(
-            key: ValueKey(
-              "edit_review",
-            ),
-          );
+          return PostReviewStep3(key: ValueKey("edit_review"));
         }
 
-        return PostPaymentStep4(
-          key: ValueKey(4),
-        );
+        return PostPaymentStep4(key: ValueKey(4));
 
       default:
         return SizedBox();
@@ -693,19 +491,13 @@ class _PostpropertyscreenState
   Widget changeType(int? typeIndex) {
     switch (typeIndex) {
       case 0:
-        return PostHouseStep2(
-          key: ValueKey("house"),
-        );
+        return PostHouseStep2(key: ValueKey("house"));
 
       case 1:
-        return PostApartStep2(
-          key: ValueKey("apartment"),
-        );
+        return PostApartStep2(key: ValueKey("apartment"));
 
       case 2:
-        return PostRoomStep2(
-          key: ValueKey("room"),
-        );
+        return PostRoomStep2(key: ValueKey("room"));
 
       default:
         return SizedBox();

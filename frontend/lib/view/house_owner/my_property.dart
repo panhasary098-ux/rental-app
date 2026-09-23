@@ -501,7 +501,7 @@ class _OwnerPropertiesScreenState extends State<OwnerPropertiesScreen> {
               Expanded(child: buildErrorState())
             else ...[
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
 
                 child: Row(
                   children: [

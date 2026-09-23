@@ -450,7 +450,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: EdgeInsets.fromLTRB(18, 16, 16, 17),
       decoration: BoxDecoration(
         color: primaryColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
             color: primaryColor.withValues(alpha: 0.15),
@@ -551,7 +551,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "Good morning, ",
+                  text: "Welcome back, ",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
@@ -559,7 +559,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ),
                 TextSpan(
-                  text: "Admin",
+                  text: "JoulNow Team",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -576,76 +576,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // Stats
   Widget buildStats() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: buildStatCard(
-                title: "Users",
-                value: totalUsers.toString(),
-                icon: Icons.people_alt_rounded,
-                iconColor: blueAccent,
-                iconBackground: blueSoft,
-              ),
-            ),
-
-            SizedBox(width: 12),
-
-            Expanded(
-              child: buildStatCard(
-                title: "Properties",
-                value: totalProperties.toString(),
-                icon: Icons.home_rounded,
-                iconColor: purpleAccent,
-                iconBackground: purpleSoft,
-              ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 12),
-
-        Row(
-          children: [
-            Expanded(
-              child: buildStatCard(
-                title: "Pending",
-                value: pendingProperties.toString(),
-                icon: Icons.pending_actions_rounded,
-                iconColor: orangeAccent,
-                iconBackground: orangeSoft,
-              ),
-            ),
-
-            SizedBox(width: 12),
-
-            Expanded(
-              child: buildStatCard(
-                title: "Suspended",
-                value: suspendedUsers.toString(),
-                icon: Icons.person_off_outlined,
-                iconColor: redAccent,
-                iconBackground: redSoft,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Stat Card
-  Widget buildStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color iconColor,
-    required Color iconBackground,
-  }) {
     return Container(
-      height: 125,
-      padding: EdgeInsets.all(16),
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -653,50 +586,169 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 14,
-            offset: Offset(0, 5),
+            blurRadius: 18,
+            offset: Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: iconBackground,
-              borderRadius: BorderRadius.circular(11),
-            ),
-            child: Icon(icon, color: iconColor, size: 20),
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Color(0xFFF0F1FA),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(
+                  Icons.dashboard_outlined,
+                  color: primaryColor,
+                  size: 19,
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Platform Overview",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      "Current platform activity",
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: secondaryTextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: greenSoft,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: greenAccent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      "Live",
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: greenAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          Spacer(),
-
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 25,
-              height: 1,
-              fontWeight: FontWeight.w800,
-              color: textColor,
-              letterSpacing: -0.5,
-            ),
-          ),
-
-          SizedBox(height: 6),
-
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: secondaryTextColor,
-            ),
+          SizedBox(height: 18),
+          Container(height: 1, color: borderColor),
+          SizedBox(height: 17),
+          Row(
+            children: [
+              Expanded(
+                child: buildDashboardStatItem(
+                  value: totalUsers.toString(),
+                  label: "Users",
+                  icon: Icons.people_alt_outlined,
+                ),
+              ),
+              buildDashboardDivider(),
+              Expanded(
+                child: buildDashboardStatItem(
+                  value: totalProperties.toString(),
+                  label: "Properties",
+                  icon: Icons.home_work_outlined,
+                ),
+              ),
+              buildDashboardDivider(),
+              Expanded(
+                child: buildDashboardStatItem(
+                  value: pendingProperties.toString(),
+                  label: "Pending",
+                  icon: Icons.schedule_rounded,
+                ),
+              ),
+              buildDashboardDivider(),
+              Expanded(
+                child: buildDashboardStatItem(
+                  value: suspendedUsers.toString(),
+                  label: "Suspended",
+                  icon: Icons.person_off_outlined,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Widget buildDashboardStatItem({
+    required String value,
+    required String label,
+    required IconData icon,
+  }) {
+    return Column(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: Color(0xFFF5F6F8),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 17, color: primaryColor),
+        ),
+        SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+            color: textColor,
+          ),
+        ),
+        SizedBox(height: 1),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 9.5,
+            fontWeight: FontWeight.w500,
+            color: secondaryTextColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildDashboardDivider() {
+    return Container(width: 1, height: 58, color: borderColor);
   }
 
   // Owner Requests
