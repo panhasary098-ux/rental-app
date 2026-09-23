@@ -1,24 +1,26 @@
+import 'dart:convert';
+
 import 'package:final_project/controller/admin_nav_controller.dart';
 import 'package:final_project/service/admin_service.dart';
 import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/service/property_service.dart';
+import 'package:final_project/view/admin/admin_owner_requests_screen.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
-  AdminDashboardScreen({
-    super.key,
-  });
+  AdminDashboardScreen({super.key});
 
   @override
-  State<AdminDashboardScreen> createState() =>
-      _AdminDashboardScreenState();
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final AdminService adminService = AdminService();
   final AuthService authService = AuthService();
+  final PropertyService propertyService = PropertyService();
 
   // Colors
   static Color primaryColor = Color(0xFF03045E);
@@ -52,6 +54,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int totalProperties = 0;
   int pendingProperties = 0;
   int suspendedUsers = 0;
+  int pendingOwnerRequests = 0;
 
   List<Map<String, dynamic>> recentPending = [];
 
@@ -72,8 +75,41 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         });
       }
 
-      final Map<String, dynamic> data =
-          await adminService.getDashboardSummary();
+      final Map<String, dynamic> data = await adminService
+          .getDashboardSummary();
+
+      // Load pending owner request count separately.
+      // If this request fails, the rest of the dashboard can still load.
+      int ownerRequestCount = 0;
+
+      try {
+        final response = await propertyService.getAdminOwnerRequests();
+
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          final dynamic decoded = jsonDecode(response.body);
+
+          if (decoded is Map<String, dynamic>) {
+            final dynamic rawRequests = decoded["requests"];
+
+            if (rawRequests is List) {
+              ownerRequestCount = rawRequests.where((request) {
+                if (request is! Map) {
+                  return false;
+                }
+
+                return request["status"]?.toString().toLowerCase() == "pending";
+              }).length;
+            }
+          }
+        } else {
+          debugPrint(
+            "FAILED TO LOAD OWNER REQUEST COUNT: "
+            "${response.statusCode} ${response.body}",
+          );
+        }
+      } catch (e) {
+        debugPrint("OWNER REQUEST COUNT ERROR: $e");
+      }
 
       final Map<String, dynamic> stats = Map<String, dynamic>.from(
         data["stats"] ?? {},
@@ -86,34 +122,21 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       }
 
       setState(() {
-        totalUsers =
-            int.tryParse(
-              stats["total_users"]?.toString() ?? "0",
-            ) ??
-            0;
+        totalUsers = int.tryParse(stats["total_users"]?.toString() ?? "0") ?? 0;
 
         totalProperties =
-            int.tryParse(
-              stats["total_properties"]?.toString() ?? "0",
-            ) ??
-            0;
+            int.tryParse(stats["total_properties"]?.toString() ?? "0") ?? 0;
 
         pendingProperties =
-            int.tryParse(
-              stats["pending_properties"]?.toString() ?? "0",
-            ) ??
-            0;
+            int.tryParse(stats["pending_properties"]?.toString() ?? "0") ?? 0;
 
         suspendedUsers =
-            int.tryParse(
-              stats["suspended_users"]?.toString() ?? "0",
-            ) ??
-            0;
+            int.tryParse(stats["suspended_users"]?.toString() ?? "0") ?? 0;
+
+        pendingOwnerRequests = ownerRequestCount;
 
         recentPending = pending
-            .map(
-              (item) => Map<String, dynamic>.from(item),
-            )
+            .map((item) => Map<String, dynamic>.from(item))
             .toList();
 
         isLoading = false;
@@ -126,10 +149,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
       setState(() {
@@ -140,50 +160,50 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   // Image URL
-  String getImageUrl(
-    dynamic value,
-  ) {
+  String getImageUrl(dynamic value) {
     if (value == null) {
       return "";
     }
 
     String url = value.toString();
 
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
 
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
 
     return url;
   }
 
   // Pending
   void goToPendingVerification() {
-    final AdminNavController controller =
-        Get.find<AdminNavController>();
+    final AdminNavController controller = Get.find<AdminNavController>();
 
     controller.changePage(1);
   }
 
   // Properties
   void goToManageProperties() {
-    final AdminNavController controller =
-        Get.find<AdminNavController>();
+    final AdminNavController controller = Get.find<AdminNavController>();
 
     controller.changePage(2);
   }
 
   // Users
   void goToManageUsers() {
-    final AdminNavController controller =
-        Get.find<AdminNavController>();
+    final AdminNavController controller = Get.find<AdminNavController>();
 
     controller.changePage(3);
+  }
+
+  // Owner Requests
+  Future<void> goToOwnerRequests() async {
+    await Get.to(() => const AdminOwnerRequestsScreen());
+
+    if (!mounted) {
+      return;
+    }
+
+    await loadDashboard();
   }
 
   // Logout
@@ -191,30 +211,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
-        ),
-        contentPadding: EdgeInsets.fromLTRB(
-          24,
-          26,
-          24,
-          18,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        contentPadding: EdgeInsets.fromLTRB(24, 26, 24, 18),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               width: 58,
               height: 58,
-              decoration: BoxDecoration(
-                color: redSoft,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.logout_rounded,
-                color: redAccent,
-                size: 27,
-              ),
+              decoration: BoxDecoration(color: redSoft, shape: BoxShape.circle),
+              child: Icon(Icons.logout_rounded, color: redAccent, size: 27),
             ),
             SizedBox(height: 16),
             Text(
@@ -237,12 +243,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ),
           ],
         ),
-        actionsPadding: EdgeInsets.fromLTRB(
-          20,
-          0,
-          20,
-          20,
-        ),
+        actionsPadding: EdgeInsets.fromLTRB(20, 0, 20, 20),
         actions: [
           Row(
             children: [
@@ -255,18 +256,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Color(0xFF374151),
-                      side: BorderSide(
-                        color: borderColor,
-                      ),
+                      side: BorderSide(color: borderColor),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: Text(
                       "Cancel",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -282,9 +279,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       try {
                         await authService.logout();
 
-                        Get.offAll(
-                          () => LoginScreen(),
-                        );
+                        Get.offAll(() => LoginScreen());
                       } catch (e) {
                         Get.snackbar(
                           "Logout Failed",
@@ -305,9 +300,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     child: Text(
                       "Log out",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -320,9 +313,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.white,
@@ -335,59 +326,56 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           child: isLoading
               ? buildLoadingState()
               : errorMessage != null
-                  ? buildErrorState()
-                  : RefreshIndicator(
-                      color: primaryColor,
-                      onRefresh: loadDashboard,
-                      child: SingleChildScrollView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        padding: EdgeInsets.only(
-                          bottom: 28,
+              ? buildErrorState()
+              : RefreshIndicator(
+                  color: primaryColor,
+                  onRefresh: loadDashboard,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.only(bottom: 28),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildHeader(),
+
+                        SizedBox(height: 16),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: buildStats(),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildHeader(),
 
-                            SizedBox(height: 16),
+                        SizedBox(height: 12),
 
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: buildStats(),
-                            ),
-
-                            SizedBox(height: 20),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: buildPendingHeader(),
-                            ),
-
-                            SizedBox(height: 8),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: buildRecentPending(),
-                            ),
-
-                            SizedBox(height: 18),
-
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: buildCommunityBanner(),
-                            ),
-                          ],
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: buildOwnerRequestsCard(),
                         ),
-                      ),
+
+                        SizedBox(height: 20),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: buildPendingHeader(),
+                        ),
+
+                        SizedBox(height: 8),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: buildRecentPending(),
+                        ),
+
+                        SizedBox(height: 18),
+
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: buildCommunityBanner(),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
         ),
       ),
     );
@@ -395,11 +383,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // Loading
   Widget buildLoadingState() {
-    return Center(
-      child: CircularProgressIndicator(
-        color: primaryColor,
-      ),
-    );
+    return Center(child: CircularProgressIndicator(color: primaryColor));
   }
 
   // Error
@@ -436,20 +420,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Text(
               errorMessage ?? "",
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: secondaryTextColor,
-              ),
+              style: TextStyle(fontSize: 13, color: secondaryTextColor),
             ),
             SizedBox(height: 18),
             ElevatedButton.icon(
               onPressed: loadDashboard,
-              icon: Icon(
-                Icons.refresh_rounded,
-              ),
-              label: Text(
-                "Try Again",
-              ),
+              icon: Icon(Icons.refresh_rounded),
+              label: Text("Try Again"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
@@ -469,18 +446,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget buildHeader() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.fromLTRB(
-        16,
-        30,
-        16,
-        0,
-      ),
-      padding: EdgeInsets.fromLTRB(
-        18,
-        16,
-        16,
-        17,
-      ),
+      margin: EdgeInsets.fromLTRB(16, 30, 16, 0),
+      padding: EdgeInsets.fromLTRB(18, 16, 16, 17),
       decoration: BoxDecoration(
         color: primaryColor,
         borderRadius: BorderRadius.circular(24),
@@ -608,135 +575,224 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   // Stats
-Widget buildStats() {
-  return Column(
-    children: [
-      Row(
-        children: [
-          Expanded(
-            child: buildStatCard(
-              title: "Users",
-              value: totalUsers.toString(),
-              icon: Icons.people_alt_rounded,
-              iconColor: blueAccent,
-              iconBackground: blueSoft,
-            ),
-          ),
-
-          SizedBox(width: 12),
-
-          Expanded(
-            child: buildStatCard(
-              title: "Properties",
-              value: totalProperties.toString(),
-              icon: Icons.home_rounded,
-              iconColor: purpleAccent,
-              iconBackground: purpleSoft,
-            ),
-          ),
-        ],
-      ),
-
-      SizedBox(height: 12),
-
-      Row(
-        children: [
-          Expanded(
-            child: buildStatCard(
-              title: "Pending",
-              value: pendingProperties.toString(),
-              icon: Icons.pending_actions_rounded,
-              iconColor: orangeAccent,
-              iconBackground: orangeSoft,
-            ),
-          ),
-
-          SizedBox(width: 12),
-
-          Expanded(
-            child: buildStatCard(
-              title: "Suspended",
-              value: suspendedUsers.toString(),
-              icon: Icons.person_off_outlined,
-              iconColor: redAccent,
-              iconBackground: redSoft,
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-// Stat Card
-Widget buildStatCard({
-  required String title,
-  required String value,
-  required IconData icon,
-  required Color iconColor,
-  required Color iconBackground,
-}) {
-  return Container(
-    height: 125,
-    padding: EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(
-        color: borderColor,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.035),
-          blurRadius: 14,
-          offset: Offset(0, 5),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget buildStats() {
+    return Column(
       children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: iconBackground,
-            borderRadius: BorderRadius.circular(11),
-          ),
-          child: Icon(
-            icon,
-            color: iconColor,
-            size: 20,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: buildStatCard(
+                title: "Users",
+                value: totalUsers.toString(),
+                icon: Icons.people_alt_rounded,
+                iconColor: blueAccent,
+                iconBackground: blueSoft,
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            Expanded(
+              child: buildStatCard(
+                title: "Properties",
+                value: totalProperties.toString(),
+                icon: Icons.home_rounded,
+                iconColor: purpleAccent,
+                iconBackground: purpleSoft,
+              ),
+            ),
+          ],
         ),
 
-        Spacer(),
+        SizedBox(height: 12),
 
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 25,
-            height: 1,
-            fontWeight: FontWeight.w800,
-            color: textColor,
-            letterSpacing: -0.5,
-          ),
-        ),
+        Row(
+          children: [
+            Expanded(
+              child: buildStatCard(
+                title: "Pending",
+                value: pendingProperties.toString(),
+                icon: Icons.pending_actions_rounded,
+                iconColor: orangeAccent,
+                iconBackground: orangeSoft,
+              ),
+            ),
 
-        SizedBox(height: 6),
+            SizedBox(width: 12),
 
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 11.5,
-            fontWeight: FontWeight.w600,
-            color: secondaryTextColor,
-          ),
+            Expanded(
+              child: buildStatCard(
+                title: "Suspended",
+                value: suspendedUsers.toString(),
+                icon: Icons.person_off_outlined,
+                iconColor: redAccent,
+                iconBackground: redSoft,
+              ),
+            ),
+          ],
         ),
       ],
-    ),
-  );
-}
+    );
+  }
+
+  // Stat Card
+  Widget buildStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
+  }) {
+    return Container(
+      height: 125,
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.035),
+            blurRadius: 14,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: iconBackground,
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+
+          Spacer(),
+
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 25,
+              height: 1,
+              fontWeight: FontWeight.w800,
+              color: textColor,
+              letterSpacing: -0.5,
+            ),
+          ),
+
+          SizedBox(height: 6),
+
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: secondaryTextColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Owner Requests
+  Widget buildOwnerRequestsCard() {
+    final bool hasRequests = pendingOwnerRequests > 0;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: goToOwnerRequests,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.025),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Color(0xFFF1F3F8),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  color: primaryColor,
+                  size: 22,
+                ),
+              ),
+
+              SizedBox(width: 14),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Owner Requests",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+
+                    SizedBox(height: 4),
+
+                    Text(
+                      hasRequests
+                          ? "$pendingOwnerRequests pending ${pendingOwnerRequests == 1 ? "request" : "requests"}"
+                          : "No pending requests",
+                      style: TextStyle(fontSize: 11, color: secondaryTextColor),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (hasRequests) ...[
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF1F3F8),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "New",
+                    style: TextStyle(
+                      fontSize: 9.5,
+                      fontWeight: FontWeight.w700,
+                      color: primaryColor,
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 10),
+              ],
+
+              Icon(Icons.chevron_right_rounded, color: primaryColor, size: 21),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   // Pending Header
   Widget buildPendingHeader() {
@@ -757,9 +813,7 @@ Widget buildStatCard({
           onPressed: goToPendingVerification,
           style: TextButton.styleFrom(
             foregroundColor: primaryColor,
-            padding: EdgeInsets.symmetric(
-              horizontal: 5,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -790,16 +844,11 @@ Widget buildStatCard({
     if (recentPending.isEmpty) {
       return Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(
-          vertical: 25,
-          horizontal: 20,
-        ),
+        padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: borderColor,
-          ),
+          border: Border.all(color: borderColor),
         ),
         child: Column(
           children: [
@@ -810,11 +859,7 @@ Widget buildStatCard({
                 color: greenSoft,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Icon(
-                Icons.verified_rounded,
-                color: greenAccent,
-                size: 24,
-              ),
+              child: Icon(Icons.verified_rounded, color: greenAccent, size: 24),
             ),
             SizedBox(height: 11),
             Text(
@@ -841,16 +886,11 @@ Widget buildStatCard({
     }
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 5,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.025),
@@ -860,43 +900,30 @@ Widget buildStatCard({
         ],
       ),
       child: Column(
-        children: List.generate(
-          recentPending.length,
-          (index) {
-            final Map<String, dynamic> property =
-                recentPending[index];
+        children: List.generate(recentPending.length, (index) {
+          final Map<String, dynamic> property = recentPending[index];
 
-            return Column(
-              children: [
-                buildPendingPropertyCard(
-                  title:
-                      property["title"]?.toString() ??
-                      property["name"]?.toString() ??
-                      "Property",
-                  owner:
-                      property["owner"]?.toString() ??
-                      "Unknown Owner",
-                  location:
-                      property["location"]?.toString() ??
-                      property["address"]?.toString() ??
-                      "-",
-                  date:
-                      property["submitted"]?.toString() ??
-                      "-",
-                  image: getImageUrl(
-                    property["image"],
-                  ),
-                  onTap: goToPendingVerification,
-                ),
-                if (index != recentPending.length - 1)
-                  Divider(
-                    height: 1,
-                    color: borderColor,
-                  ),
-              ],
-            );
-          },
-        ),
+          return Column(
+            children: [
+              buildPendingPropertyCard(
+                title:
+                    property["title"]?.toString() ??
+                    property["name"]?.toString() ??
+                    "Property",
+                owner: property["owner"]?.toString() ?? "Unknown Owner",
+                location:
+                    property["location"]?.toString() ??
+                    property["address"]?.toString() ??
+                    "-",
+                date: property["submitted"]?.toString() ?? "-",
+                image: getImageUrl(property["image"]),
+                onTap: goToPendingVerification,
+              ),
+              if (index != recentPending.length - 1)
+                Divider(height: 1, color: borderColor),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -914,9 +941,7 @@ Widget buildStatCard({
       onTap: onTap,
       borderRadius: BorderRadius.circular(15),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 10,
-        ),
+        padding: EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
             ClipRRect(
@@ -928,11 +953,7 @@ Widget buildStatCard({
                       width: 82,
                       height: 82,
                       fit: BoxFit.cover,
-                      errorBuilder: (
-                        context,
-                        error,
-                        stackTrace,
-                      ) {
+                      errorBuilder: (context, error, stackTrace) {
                         return buildImagePlaceholder();
                       },
                     ),
@@ -982,17 +1003,11 @@ Widget buildStatCard({
 
                   SizedBox(height: 6),
 
-                  buildSmallInfo(
-                    Icons.person_outline_rounded,
-                    owner,
-                  ),
+                  buildSmallInfo(Icons.person_outline_rounded, owner),
 
                   SizedBox(height: 4),
 
-                  buildSmallInfo(
-                    Icons.location_on_outlined,
-                    location,
-                  ),
+                  buildSmallInfo(Icons.location_on_outlined, location),
 
                   SizedBox(height: 4),
 
@@ -1023,19 +1038,19 @@ Widget buildStatCard({
 
             SizedBox(width: 4),
 
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: Color(0xFFF7F7FA),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.chevron_right_rounded,
-                color: primaryColor,
-                size: 19,
-              ),
-            ),
+            // Container(
+            //   width: 30,
+            //   height: 30,
+            //   decoration: BoxDecoration(
+            //     color: Color(0xFFF7F7FA),
+            //     shape: BoxShape.circle,
+            //   ),
+            //   child: Icon(
+            //     Icons.chevron_right_rounded,
+            //     color: primaryColor,
+            //     size: 19,
+            //   ),
+            //),
           ],
         ),
       ),
@@ -1043,27 +1058,17 @@ Widget buildStatCard({
   }
 
   // Small Info
-  Widget buildSmallInfo(
-    IconData icon,
-    String text,
-  ) {
+  Widget buildSmallInfo(IconData icon, String text) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 12,
-          color: secondaryTextColor,
-        ),
+        Icon(icon, size: 12, color: secondaryTextColor),
         SizedBox(width: 5),
         Expanded(
           child: Text(
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 10,
-              color: secondaryTextColor,
-            ),
+            style: TextStyle(fontSize: 10, color: secondaryTextColor),
           ),
         ),
       ],
@@ -1076,11 +1081,7 @@ Widget buildStatCard({
       width: 82,
       height: 82,
       color: purpleSoft,
-      child: Icon(
-        Icons.home_work_outlined,
-        color: purpleAccent,
-        size: 25,
-      ),
+      child: Icon(Icons.home_work_outlined, color: purpleAccent, size: 25),
     );
   }
 
@@ -1089,18 +1090,11 @@ Widget buildStatCard({
     return Container(
       width: double.infinity,
       height: 120,
-      padding: EdgeInsets.fromLTRB(
-        17,
-        16,
-        15,
-        14,
-      ),
+      padding: EdgeInsets.fromLTRB(17, 16, 15, 14),
       decoration: BoxDecoration(
         color: Color(0xFFEAF3FF),
         borderRadius: BorderRadius.circular(19),
-        border: Border.all(
-          color: Color(0xFFDCEAFF),
-        ),
+        border: Border.all(color: Color(0xFFDCEAFF)),
       ),
       child: Stack(
         children: [

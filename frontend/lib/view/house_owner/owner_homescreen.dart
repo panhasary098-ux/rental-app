@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:final_project/service/auth_service.dart';
 import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/house_owner/owner_notifications_screen.dart';
+import 'package:final_project/view/house_owner/owner_property_detail_screen.dart';
+import 'package:final_project/view/house_owner/owner_request_detail_screen.dart';
 import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,6 +58,154 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     loadHomeData();
   }
 
+  Future<Map<String, dynamic>> loadCombinedNotifications() async {
+    final List<OwnerAdminFeedback> items = [];
+    int newCount = 0;
+
+    // 1. Property submission feedback.
+    try {
+      final response = await propertyService.getOwnerNotifications();
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final dynamic decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          final dynamic rawNotifications = decoded["notifications"];
+
+          if (rawNotifications is List) {
+            for (final dynamic rawItem in rawNotifications) {
+              if (rawItem is! Map) {
+                continue;
+              }
+
+              final Map<String, dynamic> data = Map<String, dynamic>.from(
+                rawItem,
+              );
+
+              final String rawImage = data["property_image"]?.toString() ?? "";
+
+              final bool isNew =
+                  data["is_new"] == true || data["is_new"]?.toString() == "1";
+
+              if (isNew) {
+                newCount++;
+              }
+
+              items.add(
+                OwnerAdminFeedback(
+                  id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+                  propertyId:
+                      int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+                  propertyName: data["property_name"]?.toString() ?? "Property",
+                  propertyImage: rawImage.isEmpty
+                      ? ""
+                      : buildStorageUrl(rawImage),
+                  location: data["location"]?.toString() ?? "-",
+                  type: data["type"]?.toString() ?? "",
+                  notificationKind: "property",
+                  reason: data["reason"]?.toString(),
+                  note: data["note"]?.toString(),
+                  createdAt:
+                      DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                      DateTime.now(),
+                  isNew: isNew,
+                ),
+              );
+            }
+          }
+        }
+      } else {
+        debugPrint(
+          "Failed to load property notifications: "
+          "${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      debugPrint("PROPERTY NOTIFICATION ERROR: $e");
+    }
+
+    // 2. Replies to Owner Requests.
+    try {
+      final response = await propertyService.getOwnerRequests();
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final dynamic decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          final dynamic rawRequests = decoded["requests"];
+
+          if (rawRequests is List) {
+            for (final dynamic rawItem in rawRequests) {
+              if (rawItem is! Map) {
+                continue;
+              }
+
+              final Map<String, dynamic> data = Map<String, dynamic>.from(
+                rawItem,
+              );
+
+              final String adminReply =
+                  data["admin_reply"]?.toString().trim() ?? "";
+
+              final String repliedAtText =
+                  data["replied_at"]?.toString().trim() ?? "";
+
+              // Pending requests do not create a notification.
+              // Only an actual admin reply is shown in the bell.
+              if (adminReply.isEmpty || repliedAtText.isEmpty) {
+                continue;
+              }
+
+              final String ownerSeenAt =
+                  data["owner_seen_at"]?.toString().trim() ?? "";
+
+              final bool isNew = ownerSeenAt.isEmpty;
+
+              if (isNew) {
+                newCount++;
+              }
+
+              final int requestId =
+                  int.tryParse(data["id"]?.toString() ?? "") ?? 0;
+
+              items.add(
+                OwnerAdminFeedback(
+                  id: requestId,
+                  propertyId: 0,
+                  propertyName: "",
+                  propertyImage: "",
+                  location: "",
+                  type: "request_reply",
+                  notificationKind: "request",
+                  requestId: requestId,
+                  requestSubject:
+                      data["subject"]?.toString() ?? "Owner Request",
+                  requestMessage: data["message"]?.toString() ?? "",
+                  adminReply: adminReply,
+                  createdAt: DateTime.tryParse(repliedAtText) ?? DateTime.now(),
+                  isNew: isNew,
+                ),
+              );
+            }
+          }
+        }
+      } else {
+        debugPrint(
+          "Failed to load owner request replies: "
+          "${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      // A request-notification problem should never stop Home from loading.
+      debugPrint("OWNER REQUEST NOTIFICATION ERROR: $e");
+    }
+
+    // Property feedback and request replies share the same timeline.
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return {"items": items, "new_count": newCount};
+  }
+
   Future<void> loadHomeData() async {
     try {
       setState(() {
@@ -66,7 +216,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       final Map<String, dynamic> ownerData = await authService
           .getCurrentUserFromLaravel();
 
-      // Load owner properties.
       final propertyResponse = await propertyService.getMyProperties();
 
       if (propertyResponse.statusCode != 200) {
@@ -74,7 +223,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       }
 
       final dynamic propertyDecoded = jsonDecode(propertyResponse.body);
-
       List<dynamic> rawProperties = [];
 
       if (propertyDecoded is Map<String, dynamic>) {
@@ -85,87 +233,18 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         }
       }
 
-      final List<Map<String, dynamic>> propertyData = rawProperties.map((
-        property,
-      ) {
-        return Map<String, dynamic>.from(property);
+      final List<Map<String, dynamic>> propertyData = rawProperties.map((item) {
+        return Map<String, dynamic>.from(item);
       }).toList();
 
-      // Load admin feedback notifications.
-      //
-      // A notification problem should not prevent the owner home screen
-      // from loading, so the notification request is handled separately.
-      List<OwnerAdminFeedback> notificationData = [];
-      int notificationCount = 0;
+      final Map<String, dynamic> notificationBundle =
+          await loadCombinedNotifications();
 
-      try {
-        final notificationResponse = await propertyService
-            .getOwnerNotifications();
+      final List<OwnerAdminFeedback> notificationData =
+          List<OwnerAdminFeedback>.from(notificationBundle["items"] as List);
 
-        if (notificationResponse.statusCode >= 200 &&
-            notificationResponse.statusCode < 300) {
-          final dynamic notificationDecoded = jsonDecode(
-            notificationResponse.body,
-          );
-
-          if (notificationDecoded is Map<String, dynamic>) {
-            notificationCount =
-                int.tryParse(
-                  notificationDecoded["new_count"]?.toString() ?? "0",
-                ) ??
-                0;
-
-            final dynamic rawNotifications =
-                notificationDecoded["notifications"];
-
-            if (rawNotifications is List) {
-              notificationData = rawNotifications.whereType<Map>().map((item) {
-                final Map<String, dynamic> data = Map<String, dynamic>.from(
-                  item,
-                );
-
-                final String rawImage =
-                    data["property_image"]?.toString() ?? "";
-
-                return OwnerAdminFeedback(
-                  id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
-                  propertyId:
-                      int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
-                  propertyName: data["property_name"]?.toString() ?? "Property",
-                  propertyImage: rawImage.isEmpty
-                      ? ""
-                      : buildStorageUrl(rawImage),
-                  location: data["location"]?.toString() ?? "-",
-                  type: data["type"]?.toString() ?? "",
-                  reason: data["reason"]?.toString(),
-                  note: data["note"]?.toString(),
-                  createdAt:
-                      DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
-                      DateTime.now(),
-                  isNew:
-                      data["is_new"] == true ||
-                      data["is_new"]?.toString() == "1",
-                );
-              }).toList();
-
-              notificationData.sort(
-                (a, b) => b.createdAt.compareTo(a.createdAt),
-              );
-            }
-          }
-        } else {
-          debugPrint(
-            "Failed to load owner notifications: "
-            "${notificationResponse.statusCode} "
-            "${notificationResponse.body}",
-          );
-        }
-      } catch (notificationError) {
-        debugPrint(
-          "OWNER NOTIFICATION ERROR: "
-          "$notificationError",
-        );
-      }
+      final int notificationCount =
+          int.tryParse(notificationBundle["new_count"]?.toString() ?? "0") ?? 0;
 
       if (!mounted) {
         return;
@@ -198,62 +277,15 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
 
   Future<void> reloadNotifications() async {
     try {
-      final response = await propertyService.getOwnerNotifications();
+      final Map<String, dynamic> notificationBundle =
+          await loadCombinedNotifications();
 
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        debugPrint(
-          "Failed to refresh notifications: "
-          "${response.statusCode} "
-          "${response.body}",
-        );
-        return;
-      }
-
-      final dynamic decoded = jsonDecode(response.body);
-
-      if (decoded is! Map<String, dynamic>) {
-        return;
-      }
+      final List<OwnerAdminFeedback> items = List<OwnerAdminFeedback>.from(
+        notificationBundle["items"] as List,
+      );
 
       final int count =
-          int.tryParse(decoded["new_count"]?.toString() ?? "0") ?? 0;
-
-      final dynamic rawNotifications = decoded["notifications"];
-
-      final List<OwnerAdminFeedback> items = [];
-
-      if (rawNotifications is List) {
-        for (final dynamic item in rawNotifications) {
-          if (item is! Map) {
-            continue;
-          }
-
-          final Map<String, dynamic> data = Map<String, dynamic>.from(item);
-
-          final String rawImage = data["property_image"]?.toString() ?? "";
-
-          items.add(
-            OwnerAdminFeedback(
-              id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
-              propertyId:
-                  int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
-              propertyName: data["property_name"]?.toString() ?? "Property",
-              propertyImage: rawImage.isEmpty ? "" : buildStorageUrl(rawImage),
-              location: data["location"]?.toString() ?? "-",
-              type: data["type"]?.toString() ?? "",
-              reason: data["reason"]?.toString(),
-              note: data["note"]?.toString(),
-              createdAt:
-                  DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
-                  DateTime.now(),
-              isNew:
-                  data["is_new"] == true || data["is_new"]?.toString() == "1",
-            ),
-          );
-        }
-      }
-
-      items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          int.tryParse(notificationBundle["new_count"]?.toString() ?? "0") ?? 0;
 
       if (!mounted) {
         return;
@@ -578,26 +610,71 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
     return null;
   }
 
+  void handleViewDetails(Map<String, dynamic> property) {
+    Get.to(() => OwnerPropertyDetailScreen(property: property));
+  }
+
+  Future<void> openPropertySubmissionNotifications(
+    Map<String, dynamic> property,
+  ) async {
+    final int? propertyId = int.tryParse(property["id"]?.toString() ?? "");
+
+    if (propertyId == null) {
+      Get.snackbar(
+        "Unable to Open Notifications",
+        "Property ID is missing.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    final List<OwnerAdminFeedback> propertyNotifications =
+        notifications
+            .where(
+              (notification) =>
+                  notification.isPropertyFeedback &&
+                  notification.propertyId == propertyId,
+            )
+            .toList()
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    await Get.to(
+      () => OwnerNotificationsScreen(
+        notifications: propertyNotifications,
+        onNotificationsSeen: () {},
+        onViewProperty: (_) {
+          handleViewDetails(property);
+        },
+        onEditAndResubmit: (_) async {
+          final dynamic result = await Get.to(
+            () => Postpropertyscreen(propertyToEdit: property),
+          );
+
+          if (result == true) {
+            await loadHomeData();
+          }
+        },
+      ),
+    );
+  }
+
   Future<void> openNotifications() async {
-    // Keep the current list unchanged while the user is on the
-    // notification screen. This allows the "New" section and divider
-    // to remain visible during that visit.
     final List<OwnerAdminFeedback> notificationsForScreen =
         List<OwnerAdminFeedback>.from(notifications);
 
-    final bool hadNewNotifications = notificationsForScreen.any(
-      (item) => item.isNew,
+    final bool hadNewPropertyNotifications = notificationsForScreen.any(
+      (item) => item.isPropertyFeedback && item.isNew,
+    );
+
+    final bool hadNewRequestNotifications = notificationsForScreen.any(
+      (item) => item.isRequestReply && item.isNew,
     );
 
     await Get.to(
       () => OwnerNotificationsScreen(
         notifications: notificationsForScreen,
-
-        // We mark the notifications as seen only AFTER the owner
-        // leaves this screen. This callback can stay empty because
-        // OwnerNotificationsScreen currently calls it from dispose().
         onNotificationsSeen: () {},
-
         onViewProperty: (notification) {
           final Map<String, dynamic>? property = findPropertyById(
             notification.propertyId,
@@ -612,10 +689,9 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
           if (widget.onViewProperty != null) {
             widget.onViewProperty!(property);
           } else {
-            widget.onSeeAll?.call();
+            handleViewDetails(property);
           }
         },
-
         onEditAndResubmit: (notification) async {
           final Map<String, dynamic>? property = findPropertyById(
             notification.propertyId,
@@ -639,6 +715,17 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
             await loadHomeData();
           }
         },
+        onViewRequest: (notification) {
+          Get.to(
+            () => OwnerRequestDetailScreen(
+              requestId: notification.requestId ?? notification.id,
+              subject: notification.requestSubject ?? "Owner Request",
+              message: notification.requestMessage ?? "",
+              adminReply: notification.adminReply ?? "",
+              repliedAt: notification.createdAt,
+            ),
+          );
+        },
       ),
     );
 
@@ -646,35 +733,42 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       return;
     }
 
-    // This exactly matches the desired behavior:
-    //
-    // 1. Bell has a red badge.
-    // 2. Owner opens Notifications and sees the "New" section.
-    // 3. Owner leaves Notifications.
-    // 4. We tell Laravel those notifications were seen.
-    // 5. The badge disappears.
-    // 6. Next time the screen opens, those items are under "Earlier".
-    if (hadNewNotifications) {
+    // Only the MAIN bell screen marks notifications as seen.
+    // Property-specific submission notification screens do not do this.
+    if (hadNewPropertyNotifications) {
       try {
         final response = await propertyService.markOwnerNotificationsSeen();
 
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          await reloadNotifications();
-        } else {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
           debugPrint(
-            "MARK NOTIFICATIONS SEEN FAILED: "
-            "${response.statusCode} "
-            "${response.body}",
+            "MARK PROPERTY NOTIFICATIONS SEEN FAILED: "
+            "${response.statusCode} ${response.body}",
           );
         }
       } catch (e) {
-        debugPrint("MARK NOTIFICATIONS SEEN ERROR: $e");
+        debugPrint("MARK PROPERTY NOTIFICATIONS SEEN ERROR: $e");
       }
-    } else {
-      // Still refresh in case new feedback arrived while
-      // the owner was viewing the screen.
-      await reloadNotifications();
     }
+
+    if (hadNewRequestNotifications) {
+      try {
+        final response = await propertyService
+            .markOwnerRequestNotificationsSeen();
+
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          debugPrint(
+            "MARK REQUEST NOTIFICATIONS SEEN FAILED: "
+            "${response.statusCode} ${response.body}",
+          );
+        }
+      } catch (e) {
+        debugPrint("MARK REQUEST NOTIFICATIONS SEEN ERROR: $e");
+      }
+    }
+
+    // Refresh both types together so the badge immediately reflects
+    // the combined unseen count.
+    await reloadNotifications();
   }
 
   @override
@@ -1301,12 +1395,49 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                       ),
                     ),
 
-                    const Icon(
-                      Icons.more_vert_rounded,
+                    PopupMenuButton<String>(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(
+                        Icons.more_vert_rounded,
+                        size: 20,
+                        color: Color(0xFF667085),
+                      ),
+                      itemBuilder: (context) {
+                        return const [
+                          PopupMenuItem(
+                            value: "view",
+                            child: Row(
+                              children: [
+                                Icon(Icons.visibility_outlined, size: 19),
+                                SizedBox(width: 10),
+                                Text("View Details"),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: "notifications",
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.notifications_none_rounded,
+                                  size: 19,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Submission Notifications"),
+                              ],
+                            ),
+                          ),
+                        ];
+                      },
+                      onSelected: (value) {
+                        if (value == "view") {
+                          handleViewDetails(property);
+                        }
 
-                      size: 20,
-
-                      color: Color(0xFF667085),
+                        if (value == "notifications") {
+                          openPropertySubmissionNotifications(property);
+                        }
+                      },
                     ),
                   ],
                 ),

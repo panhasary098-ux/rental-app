@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AiChatController;
 use App\Http\Controllers\Api\FavoriteController;
 use App\Http\Controllers\Api\BakongPaymentController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\OwnerRequestController;
 
 // Register
 Route::post(
@@ -264,4 +265,32 @@ Route::delete(
         '/admin/properties/{property}/payment-proof',
         [AdminPropertyController::class, 'viewPaymentProof']
     );
+
+    Route::post(
+        '/owner/requests',
+        [OwnerRequestController::class, 'store']
+    );
+
+    Route::get(
+        '/owner/requests',
+        [OwnerRequestController::class, 'index']
+    );
+
+    Route::get(
+        '/admin/owner-requests',
+        [OwnerRequestController::class, 'adminIndex']
+    );
+
+    Route::post(
+        '/admin/owner-requests/{id}/reply',
+        [OwnerRequestController::class, 'reply']
+    );
+
+    
+    Route::post('/owner/requests', [OwnerRequestController::class, 'store']);
+    Route::get('/owner/requests', [OwnerRequestController::class, 'index']);
+    Route::post('/owner/requests/mark-seen', [OwnerRequestController::class, 'markSeen']);
+
+    Route::get('/admin/owner-requests', [OwnerRequestController::class, 'adminIndex']);
+    Route::post('/admin/owner-requests/{id}/reply', [OwnerRequestController::class, 'reply']);
 });
