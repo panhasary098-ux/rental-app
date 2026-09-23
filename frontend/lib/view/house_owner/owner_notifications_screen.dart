@@ -18,13 +18,22 @@ class OwnerAdminFeedback {
   final String propertyImage;
   final String location;
 
+  // Property notifications use approved/rejected.
+  // Request notifications use request_reply.
   final String type;
+
+  // "property" or "request".
+  final String notificationKind;
 
   final String? reason;
   final String? note;
 
-  final DateTime createdAt;
+  final int? requestId;
+  final String? requestSubject;
+  final String? requestMessage;
+  final String? adminReply;
 
+  final DateTime createdAt;
   final bool isNew;
 
   const OwnerAdminFeedback({
@@ -36,45 +45,55 @@ class OwnerAdminFeedback {
     required this.type,
     required this.createdAt,
     required this.isNew,
+    this.notificationKind = "property",
     this.reason,
     this.note,
+    this.requestId,
+    this.requestSubject,
+    this.requestMessage,
+    this.adminReply,
   });
 
+  bool get isPropertyFeedback {
+    return notificationKind.toLowerCase() == "property";
+  }
+
+  bool get isRequestReply {
+    return notificationKind.toLowerCase() == "request" ||
+        type.toLowerCase() == "request_reply";
+  }
+
   bool get isApproved {
-    return type.toLowerCase() == "approved";
+    return isPropertyFeedback && type.toLowerCase() == "approved";
   }
 
   bool get isRejected {
-    return type.toLowerCase() == "rejected";
+    return isPropertyFeedback && type.toLowerCase() == "rejected";
   }
 
   factory OwnerAdminFeedback.fromJson(Map<String, dynamic> json) {
     return OwnerAdminFeedback(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,
-
       propertyId: int.tryParse(json["property_id"]?.toString() ?? "") ?? 0,
-
       propertyName:
           json["property_name"]?.toString() ??
           json["name"]?.toString() ??
           "Property",
-
       propertyImage:
           json["property_image"]?.toString() ?? json["image"]?.toString() ?? "",
-
       location:
           json["location"]?.toString() ?? json["address"]?.toString() ?? "-",
-
       type: json["type"]?.toString() ?? "",
-
+      notificationKind: json["notification_kind"]?.toString() ?? "property",
       reason: json["reason"]?.toString(),
-
       note: json["note"]?.toString(),
-
+      requestId: int.tryParse(json["request_id"]?.toString() ?? ""),
+      requestSubject: json["request_subject"]?.toString(),
+      requestMessage: json["request_message"]?.toString(),
+      adminReply: json["admin_reply"]?.toString(),
       createdAt:
           DateTime.tryParse(json["created_at"]?.toString() ?? "") ??
           DateTime.now(),
-
       isNew: json["is_new"] == true || json["is_new"]?.toString() == "1",
     );
   }
@@ -89,12 +108,15 @@ class OwnerNotificationsScreen extends StatefulWidget {
 
   final void Function(OwnerAdminFeedback notification)? onEditAndResubmit;
 
+  final void Function(OwnerAdminFeedback notification)? onViewRequest;
+
   const OwnerNotificationsScreen({
     super.key,
     required this.notifications,
     this.onNotificationsSeen,
     this.onViewProperty,
     this.onEditAndResubmit,
+    this.onViewRequest,
   });
 
   @override
@@ -176,7 +198,7 @@ class _OwnerNotificationsScreenState extends State<OwnerNotificationsScreen> {
 
                   children: [
                     const Text(
-                      "Updates from the admin about your property submissions.",
+                      "Updates from the admin about your property submissions and support requests.",
 
                       style: TextStyle(
                         fontSize: 13,
@@ -253,6 +275,10 @@ class _OwnerNotificationsScreenState extends State<OwnerNotificationsScreen> {
   }
 
   Widget buildNotificationCard(OwnerAdminFeedback notification) {
+    if (notification.isRequestReply) {
+      return buildRequestReplyCard(notification);
+    }
+
     final bool approved = notification.isApproved;
 
     final Color statusColor = approved ? _approvedColor : _rejectedColor;
@@ -393,6 +419,145 @@ class _OwnerNotificationsScreenState extends State<OwnerNotificationsScreen> {
                 else
                   buildApprovedContent(notification),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildRequestReplyCard(OwnerAdminFeedback notification) {
+    final String subject =
+        notification.requestSubject?.trim().isNotEmpty == true
+        ? notification.requestSubject!.trim()
+        : "Owner Request";
+
+    final String reply = notification.adminReply?.trim().isNotEmpty == true
+        ? notification.adminReply!.trim()
+        : "The admin has replied to your request.";
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F3F8),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: const Icon(
+                  Icons.support_agent_rounded,
+                  color: _primaryColor,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            "Request Replied",
+                            style: TextStyle(
+                              color: _primaryColor,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          formatDate(notification.createdAt),
+                          style: const TextStyle(
+                            color: _secondaryTextColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      subject,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: _textColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 13),
+          const Divider(height: 1, color: _borderColor),
+          const SizedBox(height: 12),
+          const Text(
+            "Admin Reply",
+            style: TextStyle(
+              color: _textColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            reply,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: _secondaryTextColor,
+              fontSize: 13,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                widget.onViewRequest?.call(notification);
+              },
+              icon: const Icon(Icons.open_in_new_rounded, size: 16),
+              label: const Text(
+                "View Request",
+                style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _primaryColor,
+                side: const BorderSide(color: _primaryColor),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                ),
+              ),
             ),
           ),
         ],
@@ -665,7 +830,7 @@ class _OwnerNotificationsScreenState extends State<OwnerNotificationsScreen> {
             const SizedBox(height: 7),
 
             const Text(
-              "Admin feedback about your property submissions will appear here.",
+              "Property feedback and replies to your support requests will appear here.",
 
               textAlign: TextAlign.center,
 

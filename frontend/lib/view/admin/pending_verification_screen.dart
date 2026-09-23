@@ -4,70 +4,50 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class PendingVerificationScreen extends StatefulWidget {
-  const PendingVerificationScreen({
-    super.key,
-  });
+  const PendingVerificationScreen({super.key});
 
   @override
   State<PendingVerificationScreen> createState() =>
       _PendingVerificationScreenState();
 }
 
-class _PendingVerificationScreenState
-    extends State<PendingVerificationScreen> {
+class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
   final AdminService adminService = AdminService();
 
-  final TextEditingController searchController =
-      TextEditingController();
+  final TextEditingController searchController = TextEditingController();
 
   // Colors
-  static const Color primaryColor =
-      Color(0xFF03045E);
+  static const Color primaryColor = Color(0xFF03045E);
 
-  static const Color backgroundColor =
-      Color(0xFFF8FAFC);
+  static const Color backgroundColor = Color(0xFFF8FAFC);
 
-  static const Color cardColor =
-      Colors.white;
+  static const Color cardColor = Colors.white;
 
-  static const Color textColor =
-      Color(0xFF111827);
+  static const Color textColor = Color(0xFF111827);
 
-  static const Color secondaryTextColor =
-      Color(0xFF6B7280);
+  static const Color secondaryTextColor = Color(0xFF6B7280);
 
-  static const Color borderColor =
-      Color(0xFFE5E7EB);
+  static const Color borderColor = Color(0xFFE5E7EB);
 
-  static const Color orangeAccent =
-      Color(0xFFD97706);
+  static const Color orangeAccent = Color(0xFFD97706);
 
-  static const Color orangeSoft =
-      Color(0xFFFFF7E6);
+  static const Color orangeSoft = Color(0xFFFFF7E6);
 
-  static const Color blueAccent =
-      Color(0xFF2563EB);
+  static const Color blueAccent = Color(0xFF2563EB);
 
-  static const Color blueSoft =
-      Color(0xFFEFF6FF);
+  static const Color blueSoft = Color(0xFFEFF6FF);
 
-  static const Color purpleAccent =
-      Color(0xFF7C3AED);
+  static const Color purpleAccent = Color(0xFF7C3AED);
 
-  static const Color purpleSoft =
-      Color(0xFFF3E8FF);
+  static const Color purpleSoft = Color(0xFFF3E8FF);
 
-  static const Color greenAccent =
-      Color(0xFF16A34A);
+  static const Color greenAccent = Color(0xFF16A34A);
 
-  static const Color greenSoft =
-      Color(0xFFECFDF3);
+  static const Color greenSoft = Color(0xFFECFDF3);
 
-  static const Color redAccent =
-      Color(0xFFDC2626);
+  static const Color redAccent = Color(0xFFDC2626);
 
-  static const Color redSoft =
-      Color(0xFFFEF2F2);
+  static const Color redSoft = Color(0xFFFEF2F2);
 
   List<Map<String, dynamic>> pendingProperties = [];
   List<Map<String, dynamic>> filteredProperties = [];
@@ -81,9 +61,7 @@ class _PendingVerificationScreenState
 
     loadPendingProperties();
 
-    searchController.addListener(
-      filterProperties,
-    );
+    searchController.addListener(filterProperties);
   }
 
   @override
@@ -103,8 +81,8 @@ class _PendingVerificationScreenState
         });
       }
 
-      final List<Map<String, dynamic>> properties =
-          await adminService.getPendingProperties();
+      final List<Map<String, dynamic>> properties = await adminService
+          .getPendingProperties();
 
       if (!mounted) {
         return;
@@ -113,10 +91,7 @@ class _PendingVerificationScreenState
       setState(() {
         pendingProperties = properties;
 
-        filteredProperties =
-            List<Map<String, dynamic>>.from(
-          properties,
-        );
+        filteredProperties = List<Map<String, dynamic>>.from(properties);
 
         isLoading = false;
       });
@@ -127,17 +102,10 @@ class _PendingVerificationScreenState
         return;
       }
 
-      String message =
-          e.toString();
+      String message = e.toString();
 
-      if (message.startsWith(
-        "Exception: ",
-      )) {
-        message =
-            message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+      if (message.startsWith("Exception: ")) {
+        message = message.replaceFirst("Exception: ", "");
       }
 
       setState(() {
@@ -149,10 +117,7 @@ class _PendingVerificationScreenState
 
   // Search
   void filterProperties() {
-    final String query =
-        searchController.text
-            .trim()
-            .toLowerCase();
+    final String query = searchController.text.trim().toLowerCase();
 
     if (!mounted) {
       return;
@@ -160,103 +125,66 @@ class _PendingVerificationScreenState
 
     if (query.isEmpty) {
       setState(() {
-        filteredProperties =
-            List<Map<String, dynamic>>.from(
-          pendingProperties,
-        );
+        filteredProperties = List<Map<String, dynamic>>.from(pendingProperties);
       });
 
       return;
     }
 
     setState(() {
-      filteredProperties =
-          pendingProperties.where(
-        (property) {
-          final String title =
-              property["title"]
-                      ?.toString()
-                      .toLowerCase() ??
-                  property["name"]
-                      ?.toString()
-                      .toLowerCase() ??
-                  "";
+      filteredProperties = pendingProperties.where((property) {
+        final String title =
+            property["title"]?.toString().toLowerCase() ??
+            property["name"]?.toString().toLowerCase() ??
+            "";
 
-          final String owner =
-              property["owner"]
-                      ?.toString()
-                      .toLowerCase() ??
-                  "";
+        final String owner = property["owner"]?.toString().toLowerCase() ?? "";
 
-          final String location =
-              property["location"]
-                      ?.toString()
-                      .toLowerCase() ??
-                  property["address"]
-                      ?.toString()
-                      .toLowerCase() ??
-                  "";
+        final String location =
+            property["location"]?.toString().toLowerCase() ??
+            property["address"]?.toString().toLowerCase() ??
+            "";
 
-          return title.contains(query) ||
-              owner.contains(query) ||
-              location.contains(query);
-        },
-      ).toList();
+        return title.contains(query) ||
+            owner.contains(query) ||
+            location.contains(query);
+      }).toList();
     });
   }
 
   // Image URL
-  String getImageUrl(
-    dynamic value,
-  ) {
+  String getImageUrl(dynamic value) {
     if (value == null) {
       return "";
     }
 
-    String url =
-        value.toString();
+    String url = value.toString();
 
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
 
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
 
     return url;
   }
 
   // Open Review
-  Future<void> openReview(
-    Map<String, dynamic> property,
-  ) async {
-    final dynamic result =
-        await Get.to(
-      () => PropertyReviewScreen(
-        property: property,
-      ),
+  Future<void> openReview(Map<String, dynamic> property) async {
+    final dynamic result = await Get.to(
+      () => PropertyReviewScreen(property: property),
     );
 
-    if (result is Map &&
-        result["success"] == true) {
+    if (result is Map && result["success"] == true) {
       await loadPendingProperties();
     }
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          backgroundColor,
+      backgroundColor: backgroundColor,
 
       appBar: AppBar(
-        backgroundColor:
-            backgroundColor,
+        backgroundColor: backgroundColor,
 
         elevation: 0,
 
@@ -268,8 +196,7 @@ class _PendingVerificationScreenState
           },
 
           icon: const Icon(
-            Icons
-                .arrow_back_ios_new_rounded,
+            Icons.arrow_back_ios_new_rounded,
 
             color: textColor,
 
@@ -283,8 +210,7 @@ class _PendingVerificationScreenState
           style: TextStyle(
             color: textColor,
 
-            fontWeight:
-                FontWeight.w800,
+            fontWeight: FontWeight.w800,
 
             fontSize: 20,
 
@@ -300,38 +226,22 @@ class _PendingVerificationScreenState
           children: [
             // Summary
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                18,
-                8,
-                18,
-                8,
-              ),
+              padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
 
               child: buildSummaryCard(),
             ),
 
             // Search
             Padding(
-              padding:
-                  const EdgeInsets.fromLTRB(
-                18,
-                6,
-                18,
-                8,
-              ),
+              padding: const EdgeInsets.fromLTRB(18, 6, 18, 8),
 
               child: buildSearchField(),
             ),
 
-            const SizedBox(
-              height: 4,
-            ),
+            const SizedBox(height: 4),
 
             // Content
-            Expanded(
-              child: buildContent(),
-            ),
+            Expanded(child: buildContent()),
           ],
         ),
       ),
@@ -343,40 +253,22 @@ class _PendingVerificationScreenState
     return Container(
       width: double.infinity,
 
-      padding:
-          const EdgeInsets.all(
-        16,
-      ),
+      padding: const EdgeInsets.all(16),
 
-      decoration:
-          BoxDecoration(
+      decoration: BoxDecoration(
         color: cardColor,
 
-        borderRadius:
-            BorderRadius.circular(
-          18,
-        ),
+        borderRadius: BorderRadius.circular(18),
 
-        border:
-            Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black
-                    .withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
             blurRadius: 12,
 
-            offset:
-                const Offset(
-              0,
-              4,
-            ),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -387,131 +279,54 @@ class _PendingVerificationScreenState
             width: 50,
             height: 50,
 
-            decoration:
-                BoxDecoration(
-              color:
-                  orangeSoft,
+            decoration: BoxDecoration(
+              color: orangeSoft,
 
-              borderRadius:
-                  BorderRadius
-                      .circular(
-                14,
-              ),
+              borderRadius: BorderRadius.circular(14),
             ),
 
-            child:
-                const Icon(
-              Icons
-                  .pending_actions_rounded,
+            child: const Icon(
+              Icons.pending_actions_rounded,
 
-              color:
-                  orangeAccent,
+              color: orangeAccent,
 
               size: 25,
             ),
           ),
 
-          const SizedBox(
-            width: 14,
-          ),
+          const SizedBox(width: 14),
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Text(
                   "${pendingProperties.length} submissions waiting",
 
-                  style:
-                      const TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
 
-                    fontWeight:
-                        FontWeight
-                            .w800,
+                    fontWeight: FontWeight.w800,
 
-                    color:
-                        textColor,
+                    color: textColor,
                   ),
                 ),
 
-                const SizedBox(
-                  height: 4,
-                ),
+                const SizedBox(height: 4),
 
                 const Text(
                   "Review property details and verification documents.",
 
-                  style:
-                      TextStyle(
-                    fontSize:
-                        11.5,
+                  style: TextStyle(
+                    fontSize: 11.5,
 
                     height: 1.35,
 
-                    color:
-                        secondaryTextColor,
+                    color: secondaryTextColor,
                   ),
                 ),
               ],
-            ),
-          ),
-
-          const SizedBox(
-            width: 10,
-          ),
-
-          Container(
-            width: 36,
-
-            padding:
-                const EdgeInsets
-                    .symmetric(
-              horizontal: 10,
-              vertical: 7,
-            ),
-
-            decoration:
-                BoxDecoration(
-              color:
-                  orangeSoft,
-
-              borderRadius:
-                  BorderRadius
-                      .circular(
-                20,
-              ),
-
-              border:
-                  Border.all(
-                color:
-                    const Color(
-                  0xFFFDE3B0,
-                ),
-              ),
-            ),
-
-            child: Text(
-              pendingProperties.length
-                  .toString(),
-
-              textAlign:
-                  TextAlign.center,
-
-              style:
-                  const TextStyle(
-                fontSize: 12,
-
-                fontWeight:
-                    FontWeight
-                        .w800,
-
-                color:
-                    orangeAccent,
-              ),
             ),
           ),
         ],
@@ -522,137 +337,75 @@ class _PendingVerificationScreenState
   // Search
   Widget buildSearchField() {
     return TextField(
-      controller:
-          searchController,
+      controller: searchController,
 
-      decoration:
-          InputDecoration(
-        hintText:
-            "Search property, owner or location",
+      decoration: InputDecoration(
+        hintText: "Search property, owner or location",
 
-        hintStyle:
-            const TextStyle(
-          color:
-              Color(0xFF9CA3AF),
+        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
 
-          fontSize: 13,
-        ),
-
-        prefixIcon:
-            const Icon(
+        prefixIcon: const Icon(
           Icons.search_rounded,
 
-          color:
-              secondaryTextColor,
+          color: secondaryTextColor,
 
           size: 21,
         ),
 
-        suffixIcon:
-            searchController
-                    .text
-                    .isNotEmpty
-                ? IconButton(
-                    onPressed: () {
-                      searchController
-                          .clear();
-                    },
+        suffixIcon: searchController.text.isNotEmpty
+            ? IconButton(
+                onPressed: () {
+                  searchController.clear();
+                },
 
-                    icon:
-                        const Icon(
-                      Icons
-                          .close_rounded,
+                icon: const Icon(
+                  Icons.close_rounded,
 
-                      color:
-                          secondaryTextColor,
+                  color: secondaryTextColor,
 
-                      size: 20,
-                    ),
-                  )
-                : Container(
-                    margin:
-                        const EdgeInsets
-                            .all(
-                      8,
-                    ),
+                  size: 20,
+                ),
+              )
+            : Container(
+                margin: const EdgeInsets.all(8),
 
-                    decoration:
-                        BoxDecoration(
-                      color:
-                          blueSoft,
+                decoration: BoxDecoration(
+                  color: blueSoft,
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        9,
-                      ),
-                    ),
+                  borderRadius: BorderRadius.circular(9),
+                ),
 
-                    child:
-                        const Icon(
-                      Icons
-                          .tune_rounded,
+                child: const Icon(
+                  Icons.tune_rounded,
 
-                      color:
-                          blueAccent,
+                  color: blueAccent,
 
-                      size: 19,
-                    ),
-                  ),
+                  size: 19,
+                ),
+              ),
 
         filled: true,
 
-        fillColor:
-            cardColor,
+        fillColor: cardColor,
 
-        contentPadding:
-            const EdgeInsets
-                .symmetric(
-          vertical: 14,
+        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+
+          borderSide: const BorderSide(color: borderColor),
         ),
 
-        border:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
 
-          borderSide:
-              const BorderSide(
-            color:
-                borderColor,
-          ),
+          borderSide: const BorderSide(color: borderColor),
         ),
 
-        enabledBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
 
-          borderSide:
-              const BorderSide(
-            color:
-                borderColor,
-          ),
-        ),
-
-        focusedBorder:
-            OutlineInputBorder(
-          borderRadius:
-              BorderRadius.circular(
-            14,
-          ),
-
-          borderSide:
-              const BorderSide(
-            color:
-                primaryColor,
-
-            width: 1.4,
-          ),
+          borderSide: const BorderSide(color: primaryColor, width: 1.4),
         ),
       ),
     );
@@ -662,11 +415,7 @@ class _PendingVerificationScreenState
   Widget buildContent() {
     if (isLoading) {
       return const Center(
-        child:
-            CircularProgressIndicator(
-          color:
-              primaryColor,
-        ),
+        child: CircularProgressIndicator(color: primaryColor),
       );
     }
 
@@ -681,41 +430,19 @@ class _PendingVerificationScreenState
     return RefreshIndicator(
       color: primaryColor,
 
-      onRefresh:
-          loadPendingProperties,
+      onRefresh: loadPendingProperties,
 
-      child:
-          ListView.separated(
-        padding:
-            const EdgeInsets.fromLTRB(
-          18,
-          10,
-          18,
-          25,
-        ),
+      child: ListView.separated(
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 25),
 
-        itemCount:
-            filteredProperties
-                .length,
+        itemCount: filteredProperties.length,
 
-        separatorBuilder:
-            (
-          context,
-          index,
-        ) {
-          return const SizedBox(
-            height: 14,
-          );
+        separatorBuilder: (context, index) {
+          return const SizedBox(height: 14);
         },
 
-        itemBuilder:
-            (
-          context,
-          index,
-        ) {
-          return buildPropertyCard(
-            filteredProperties[index],
-          );
+        itemBuilder: (context, index) {
+          return buildPropertyCard(filteredProperties[index]);
         },
       ),
     );
@@ -725,119 +452,75 @@ class _PendingVerificationScreenState
   Widget buildErrorState() {
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets.all(
-          25,
-        ),
+        padding: const EdgeInsets.all(25),
 
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
 
           children: [
             Container(
               width: 70,
               height: 70,
 
-              decoration:
-                  const BoxDecoration(
+              decoration: const BoxDecoration(
                 color: redSoft,
 
-                shape:
-                    BoxShape.circle,
+                shape: BoxShape.circle,
               ),
 
-              child:
-                  const Icon(
-                Icons
-                    .error_outline_rounded,
+              child: const Icon(
+                Icons.error_outline_rounded,
 
                 size: 34,
 
-                color:
-                    redAccent,
+                color: redAccent,
               ),
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             const Text(
               "Unable to load pending properties",
 
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
 
-              style:
-                  TextStyle(
+              style: TextStyle(
                 fontSize: 16,
 
-                fontWeight:
-                    FontWeight
-                        .w700,
+                fontWeight: FontWeight.w700,
 
-                color:
-                    textColor,
+                color: textColor,
               ),
             ),
 
-            const SizedBox(
-              height: 7,
-            ),
+            const SizedBox(height: 7),
 
             Text(
               errorMessage ?? "",
 
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
 
-              style:
-                  const TextStyle(
-                fontSize: 13,
-
-                color:
-                    secondaryTextColor,
-              ),
+              style: const TextStyle(fontSize: 13, color: secondaryTextColor),
             ),
 
-            const SizedBox(
-              height: 18,
-            ),
+            const SizedBox(height: 18),
 
             ElevatedButton.icon(
-              onPressed:
-                  loadPendingProperties,
+              onPressed: loadPendingProperties,
 
-              icon:
-                  const Icon(
-                Icons
-                    .refresh_rounded,
-              ),
+              icon: const Icon(Icons.refresh_rounded),
 
-              label:
-                  const Text(
-                "Try Again",
-              ),
+              label: const Text("Try Again"),
 
-              style:
-                  ElevatedButton
-                      .styleFrom(
-                backgroundColor:
-                    primaryColor,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
 
-                foregroundColor:
-                    Colors.white,
+                foregroundColor: Colors.white,
 
                 elevation: 0,
 
-                shape:
-                    RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    12,
-                  ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
@@ -849,96 +532,61 @@ class _PendingVerificationScreenState
 
   // Empty
   Widget buildEmptyState() {
-    final bool searching =
-        searchController
-            .text
-            .isNotEmpty;
+    final bool searching = searchController.text.isNotEmpty;
 
     return Center(
       child: Padding(
-        padding:
-            const EdgeInsets.symmetric(
-          horizontal: 30,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 30),
 
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
 
           children: [
             Container(
               width: 72,
               height: 72,
 
-              decoration:
-                  BoxDecoration(
-                color: searching
-                    ? blueSoft
-                    : greenSoft,
+              decoration: BoxDecoration(
+                color: searching ? blueSoft : greenSoft,
 
-                borderRadius:
-                    BorderRadius
-                        .circular(
-                  22,
-                ),
+                borderRadius: BorderRadius.circular(22),
               ),
 
               child: Icon(
                 searching
-                    ? Icons
-                        .search_off_rounded
-                    : Icons
-                        .verified_user_outlined,
+                    ? Icons.search_off_rounded
+                    : Icons.verified_user_outlined,
 
                 size: 34,
 
-                color: searching
-                    ? blueAccent
-                    : greenAccent,
+                color: searching ? blueAccent : greenAccent,
               ),
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             Text(
-              searching
-                  ? "No results found"
-                  : "No pending submissions",
+              searching ? "No results found" : "No pending submissions",
 
-              style:
-                  const TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
 
-                fontWeight:
-                    FontWeight
-                        .w700,
+                fontWeight: FontWeight.w700,
 
-                color:
-                    textColor,
+                color: textColor,
               ),
             ),
 
-            const SizedBox(
-              height: 5,
-            ),
+            const SizedBox(height: 5),
 
             Text(
               searching
                   ? "Try another property, owner or location."
                   : "New property submissions will appear here.",
 
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
 
-              style:
-                  const TextStyle(
-                fontSize: 12,
-
-                color:
-                    secondaryTextColor,
-              ),
+              style: const TextStyle(fontSize: 12, color: secondaryTextColor),
             ),
           ],
         ),
@@ -947,63 +595,33 @@ class _PendingVerificationScreenState
   }
 
   // Property Card
-  Widget buildPropertyCard(
-    Map<String, dynamic> property,
-  ) {
-    final String imageUrl =
-        getImageUrl(
-      property["image"],
-    );
+  Widget buildPropertyCard(Map<String, dynamic> property) {
+    final String imageUrl = getImageUrl(property["image"]);
 
     return InkWell(
       onTap: () {
-        openReview(
-          property,
-        );
+        openReview(property);
       },
 
-      borderRadius:
-          BorderRadius.circular(
-        18,
-      ),
+      borderRadius: BorderRadius.circular(18),
 
       child: Container(
-        padding:
-            const EdgeInsets.all(
-          12,
-        ),
+        padding: const EdgeInsets.all(12),
 
-        decoration:
-            BoxDecoration(
-          color:
-              cardColor,
+        decoration: BoxDecoration(
+          color: cardColor,
 
-          borderRadius:
-              BorderRadius.circular(
-            18,
-          ),
+          borderRadius: BorderRadius.circular(18),
 
-          border:
-              Border.all(
-            color:
-                borderColor,
-          ),
+          border: Border.all(color: borderColor),
 
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black
-                      .withOpacity(
-                0.025,
-              ),
+              color: Colors.black.withOpacity(0.025),
 
               blurRadius: 12,
 
-              offset:
-                  const Offset(
-                0,
-                4,
-              ),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -1011,211 +629,140 @@ class _PendingVerificationScreenState
         child: Column(
           children: [
             Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 // Image
                 ClipRRect(
-                  borderRadius:
-                      BorderRadius
-                          .circular(
-                    13,
-                  ),
+                  borderRadius: BorderRadius.circular(13),
 
-                  child:
-                      imageUrl.isEmpty
-                          ? buildImagePlaceholder()
-                          : Image.network(
-                              imageUrl,
+                  child: imageUrl.isEmpty
+                      ? buildImagePlaceholder()
+                      : Image.network(
+                          imageUrl,
 
-                              width: 105,
-                              height: 105,
+                          width: 105,
+                          height: 105,
 
-                              fit:
-                                  BoxFit.cover,
+                          fit: BoxFit.cover,
 
-                              errorBuilder:
-                                  (
-                                context,
-                                error,
-                                stackTrace,
-                              ) {
-                                return buildImagePlaceholder();
-                              },
-                            ),
+                          errorBuilder: (context, error, stackTrace) {
+                            return buildImagePlaceholder();
+                          },
+                        ),
                 ),
 
-                const SizedBox(
-                  width: 13,
-                ),
+                const SizedBox(width: 13),
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
                       // Pending
                       Container(
-                        padding:
-                            const EdgeInsets
-                                .symmetric(
-                          horizontal:
-                              9,
-                          vertical:
-                              5,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 5,
                         ),
 
-                        decoration:
-                            BoxDecoration(
-                          color:
-                              orangeSoft,
+                        decoration: BoxDecoration(
+                          color: orangeSoft,
 
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            20,
-                          ),
+                          borderRadius: BorderRadius.circular(20),
                         ),
 
-                        child:
-                            const Row(
-                          mainAxisSize:
-                              MainAxisSize
-                                  .min,
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
 
                           children: [
                             Icon(
-                              Icons
-                                  .schedule_rounded,
+                              Icons.schedule_rounded,
 
-                              size:
-                                  13,
+                              size: 13,
 
-                              color:
-                                  orangeAccent,
+                              color: orangeAccent,
                             ),
 
-                            SizedBox(
-                              width:
-                                  4,
-                            ),
+                            SizedBox(width: 4),
 
                             Text(
                               "Pending Verification",
 
-                              style:
-                                  TextStyle(
-                                fontSize:
-                                    9.5,
+                              style: TextStyle(
+                                fontSize: 9.5,
 
-                                fontWeight:
-                                    FontWeight.w600,
+                                fontWeight: FontWeight.w600,
 
-                                color:
-                                    orangeAccent,
+                                color: orangeAccent,
                               ),
                             ),
                           ],
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 8,
-                      ),
+                      const SizedBox(height: 8),
 
                       Text(
-                        property["title"]
-                                ?.toString() ??
-                            property["name"]
-                                ?.toString() ??
+                        property["title"]?.toString() ??
+                            property["name"]?.toString() ??
                             "Property",
 
                         maxLines: 2,
 
-                        overflow:
-                            TextOverflow
-                                .ellipsis,
+                        overflow: TextOverflow.ellipsis,
 
-                        style:
-                            const TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
 
-                          fontWeight:
-                              FontWeight
-                                  .w700,
+                          fontWeight: FontWeight.w700,
 
-                          color:
-                              textColor,
+                          color: textColor,
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 7,
-                      ),
+                      const SizedBox(height: 7),
 
                       Text(
-                        property["price"]
-                                ?.toString() ??
-                            "-",
+                        property["price"]?.toString() ?? "-",
 
-                        style:
-                            const TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
 
-                          fontWeight:
-                              FontWeight
-                                  .w800,
+                          fontWeight: FontWeight.w800,
 
-                          color:
-                              primaryColor,
+                          color: primaryColor,
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 7,
-                      ),
+                      const SizedBox(height: 7),
 
                       Row(
                         children: [
                           const Icon(
-                            Icons
-                                .location_on_outlined,
+                            Icons.location_on_outlined,
 
                             size: 15,
 
-                            color:
-                                secondaryTextColor,
+                            color: secondaryTextColor,
                           ),
 
-                          const SizedBox(
-                            width: 4,
-                          ),
+                          const SizedBox(width: 4),
 
                           Expanded(
                             child: Text(
-                              property["location"]
-                                      ?.toString() ??
-                                  property["address"]
-                                      ?.toString() ??
+                              property["location"]?.toString() ??
+                                  property["address"]?.toString() ??
                                   "-",
 
                               maxLines: 1,
 
-                              overflow:
-                                  TextOverflow
-                                      .ellipsis,
+                              overflow: TextOverflow.ellipsis,
 
-                              style:
-                                  const TextStyle(
-                                fontSize:
-                                    12,
+                              style: const TextStyle(
+                                fontSize: 12,
 
-                                color:
-                                    secondaryTextColor,
+                                color: secondaryTextColor,
                               ),
                             ),
                           ),
@@ -1227,18 +774,11 @@ class _PendingVerificationScreenState
               ],
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
-            const Divider(
-              color: borderColor,
-              height: 1,
-            ),
+            const Divider(color: borderColor, height: 1),
 
-            const SizedBox(
-              height: 13,
-            ),
+            const SizedBox(height: 13),
 
             // Owner
             Row(
@@ -1247,70 +787,47 @@ class _PendingVerificationScreenState
                   width: 40,
                   height: 40,
 
-                  decoration:
-                      const BoxDecoration(
-                    color:
-                        blueSoft,
+                  decoration: const BoxDecoration(
+                    color: blueSoft,
 
-                    shape:
-                        BoxShape.circle,
+                    shape: BoxShape.circle,
                   ),
 
-                  child:
-                      const Icon(
-                    Icons
-                        .person_outline_rounded,
+                  child: const Icon(
+                    Icons.person_outline_rounded,
 
-                    color:
-                        blueAccent,
+                    color: blueAccent,
 
                     size: 20,
                   ),
                 ),
 
-                const SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
                       const Text(
                         "House Owner",
 
-                        style:
-                            TextStyle(
-                          color:
-                              Color(
-                            0xFF9CA3AF,
-                          ),
+                        style: TextStyle(
+                          color: Color(0xFF9CA3AF),
 
-                          fontSize:
-                              10.5,
+                          fontSize: 10.5,
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 2,
-                      ),
+                      const SizedBox(height: 2),
 
                       Text(
-                        property["owner"]
-                                ?.toString() ??
-                            "Unknown Owner",
+                        property["owner"]?.toString() ?? "Unknown Owner",
 
-                        style:
-                            const TextStyle(
-                          color:
-                              textColor,
+                        style: const TextStyle(
+                          color: textColor,
 
-                          fontWeight:
-                              FontWeight
-                                  .w600,
+                          fontWeight: FontWeight.w600,
 
                           fontSize: 13,
                         ),
@@ -1320,44 +837,30 @@ class _PendingVerificationScreenState
                 ),
 
                 Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
 
                   children: [
                     const Text(
                       "Submitted",
 
-                      style:
-                          TextStyle(
-                        color:
-                            Color(
-                          0xFF9CA3AF,
-                        ),
+                      style: TextStyle(
+                        color: Color(0xFF9CA3AF),
 
-                        fontSize:
-                            10.5,
+                        fontSize: 10.5,
                       ),
                     ),
 
-                    const SizedBox(
-                      height: 2,
-                    ),
+                    const SizedBox(height: 2),
 
                     Text(
-                      property["submitted"]
-                              ?.toString() ??
-                          "-",
+                      property["submitted"]?.toString() ?? "-",
 
-                      style:
-                          const TextStyle(
-                        color:
-                            secondaryTextColor,
+                      style: const TextStyle(
+                        color: secondaryTextColor,
 
                         fontSize: 12,
 
-                        fontWeight:
-                            FontWeight
-                                .w500,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -1365,71 +868,42 @@ class _PendingVerificationScreenState
               ],
             ),
 
-            const SizedBox(
-              height: 14,
-            ),
+            const SizedBox(height: 14),
 
             // Review
             SizedBox(
               width: double.infinity,
               height: 46,
 
-              child:
-                  ElevatedButton(
+              child: ElevatedButton(
                 onPressed: () {
-                  openReview(
-                    property,
-                  );
+                  openReview(property);
                 },
 
-                style:
-                    ElevatedButton
-                        .styleFrom(
-                  backgroundColor:
-                      primaryColor,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
 
-                  foregroundColor:
-                      Colors.white,
+                  foregroundColor: Colors.white,
 
                   elevation: 0,
 
-                  shape:
-                      RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius
-                            .circular(
-                      13,
-                    ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(13),
                   ),
                 ),
 
-                child:
-                    const Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment
-                          .center,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    Icon(
-                      Icons
-                          .fact_check_outlined,
+                    Icon(Icons.fact_check_outlined, size: 19),
 
-                      size: 19,
-                    ),
-
-                    SizedBox(
-                      width: 8,
-                    ),
+                    SizedBox(width: 8),
 
                     Text(
                       "Review Submission",
 
-                      style:
-                          TextStyle(
-                        fontWeight:
-                            FontWeight
-                                .w700,
-                      ),
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -1447,24 +921,16 @@ class _PendingVerificationScreenState
       width: 105,
       height: 105,
 
-      decoration:
-          BoxDecoration(
-        color:
-            purpleSoft,
+      decoration: BoxDecoration(
+        color: purpleSoft,
 
-        borderRadius:
-            BorderRadius.circular(
-          13,
-        ),
+        borderRadius: BorderRadius.circular(13),
       ),
 
-      child:
-          const Icon(
-        Icons
-            .home_work_outlined,
+      child: const Icon(
+        Icons.home_work_outlined,
 
-        color:
-            purpleAccent,
+        color: purpleAccent,
 
         size: 34,
       ),

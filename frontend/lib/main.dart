@@ -9,22 +9,14 @@ void main() async {
   // Keep Firebase because Google Login still uses it
   await Firebase.initializeApp();
 
-  runApp(
-    MyApp(),
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({
-    super.key,
-  });
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-
-      home: AuthGate(),
-    );
+    return GetMaterialApp(debugShowCheckedModeBanner: false, home: AuthGate());
   }
 }

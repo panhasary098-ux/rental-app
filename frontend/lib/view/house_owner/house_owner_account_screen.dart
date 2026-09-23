@@ -1,64 +1,57 @@
+import 'dart:convert';
+
 import 'package:final_project/controller/owner_account_controller.dart';
 import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
+import 'package:final_project/view/house_owner/owner_requests_screen.dart';
+import 'package:final_project/view/house_owner/owner_notifications_screen.dart';
+import 'package:final_project/view/house_owner/owner_property_detail_screen.dart';
+import 'package:final_project/view/house_owner/owner_request_detail_screen.dart';
+import 'package:final_project/view/house_owner/post_property/PostPropertyScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:final_project/view/house_owner/send_owner_request_screen.dart';
 
 class OwnerAccountScreen extends StatelessWidget {
-  OwnerAccountScreen({
-    super.key,
-  });
+  OwnerAccountScreen({super.key});
 
-  final OwnerAccountController controller =
-      Get.put(OwnerAccountController());
+  final OwnerAccountController controller = Get.put(OwnerAccountController());
 
   final AuthService authService = AuthService();
 
+  final PropertyService propertyService = PropertyService();
+
   // Colors
-  static const Color primaryColor =
-      Color(0xFF03045E);
+  static const Color primaryColor = Color(0xFF03045E);
 
-  static const Color backgroundColor =
-      Color(0xFFF8FAFC);
+  static const Color backgroundColor = Color(0xFFF8FAFC);
 
-  static const Color textColor =
-      Color(0xFF111827);
+  static const Color textColor = Color(0xFF111827);
 
-  static const Color secondaryTextColor =
-      Color(0xFF6B7280);
+  static const Color secondaryTextColor = Color(0xFF6B7280);
 
-  static const Color borderColor =
-      Color(0xFFE5E7EB);
+  static const Color borderColor = Color(0xFFE5E7EB);
 
-  static const Color blueAccent =
-      Color(0xFF2563EB);
+  static const Color blueAccent = Color(0xFF2563EB);
 
-  static const Color blueSoft =
-      Color(0xFFEFF6FF);
+  static const Color blueSoft = Color(0xFFEFF6FF);
 
-  static const Color purpleAccent =
-      Color(0xFF7C3AED);
+  static const Color purpleAccent = Color(0xFF7C3AED);
 
-  static const Color purpleSoft =
-      Color(0xFFF3E8FF);
+  static const Color purpleSoft = Color(0xFFF3E8FF);
 
-  static const Color orangeAccent =
-      Color(0xFFD97706);
+  static const Color orangeAccent = Color(0xFFD97706);
 
-  static const Color orangeSoft =
-      Color(0xFFFFF7E6);
+  static const Color orangeSoft = Color(0xFFFFF7E6);
 
-  static const Color greenAccent =
-      Color(0xFF16A34A);
+  static const Color greenAccent = Color(0xFF16A34A);
 
-  static const Color greenSoft =
-      Color(0xFFECFDF3);
+  static const Color greenSoft = Color(0xFFECFDF3);
 
-  static const Color redAccent =
-      Color(0xFFDC2626);
+  static const Color redAccent = Color(0xFFDC2626);
 
-  static const Color redSoft =
-      Color(0xFFFEF2F2);
+  static const Color redSoft = Color(0xFFFEF2F2);
 
   // Success
   void showSuccessNotification({
@@ -71,10 +64,7 @@ class OwnerAccountScreen extends StatelessWidget {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: borderColor,
       borderWidth: 1,
@@ -97,11 +87,7 @@ class OwnerAccountScreen extends StatelessWidget {
           shape: BoxShape.circle,
         ),
 
-        child: const Icon(
-          Icons.check_rounded,
-          color: greenAccent,
-          size: 20,
-        ),
+        child: const Icon(Icons.check_rounded, color: greenAccent, size: 20),
       ),
 
       titleText: Text(
@@ -127,20 +113,14 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Error
-  void showErrorNotification({
-    required String title,
-    required String message,
-  }) {
+  void showErrorNotification({required String title, required String message}) {
     Get.snackbar(
       '',
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: const Color(0xFFFECACA),
       borderWidth: 1,
@@ -158,10 +138,7 @@ class OwnerAccountScreen extends StatelessWidget {
         width: 36,
         height: 36,
 
-        decoration: const BoxDecoration(
-          color: redSoft,
-          shape: BoxShape.circle,
-        ),
+        decoration: const BoxDecoration(color: redSoft, shape: BoxShape.circle),
 
         child: const Icon(
           Icons.priority_high_rounded,
@@ -217,16 +194,12 @@ class OwnerAccountScreen extends StatelessWidget {
 
         actions: [
           Container(
-            margin: const EdgeInsets.only(
-              right: 14,
-            ),
+            margin: const EdgeInsets.only(right: 14),
 
             child: InkWell(
               onTap: showSettingsSheet,
 
-              borderRadius: BorderRadius.circular(
-                12,
-              ),
+              borderRadius: BorderRadius.circular(12),
 
               child: Container(
                 width: 42,
@@ -235,13 +208,9 @@ class OwnerAccountScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
 
-                  borderRadius: BorderRadius.circular(
-                    12,
-                  ),
+                  borderRadius: BorderRadius.circular(12),
 
-                  border: Border.all(
-                    color: borderColor,
-                  ),
+                  border: Border.all(color: borderColor),
                 ),
 
                 child: const Icon(
@@ -255,159 +224,146 @@ class OwnerAccountScreen extends StatelessWidget {
         ],
       ),
 
-      body: Obx(
-        () {
-          if (controller.isLoading.value) {
-            return const Center(
-              child: CircularProgressIndicator(
-                color: primaryColor,
-              ),
-            );
-          }
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(color: primaryColor),
+          );
+        }
 
-          return SafeArea(
-            top: false,
+        return SafeArea(
+          top: false,
 
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                18,
-                6,
-                18,
-                28,
-              ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(18, 6, 18, 28),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-                children: [
-                  // Profile
-                  buildProfileCard(),
+              children: [
+                // Profile
+                buildProfileCard(),
 
-                  const SizedBox(
-                    height: 26,
-                  ),
+                const SizedBox(height: 26),
 
-                  // Account
-                  buildSectionTitle(
-                    "Account",
-                  ),
+                // Account
+                buildSectionTitle("Account"),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                const SizedBox(height: 10),
 
-                  buildMenuCard(
-                    children: [
-                      buildMenuItem(
-                        icon: Icons.person_outline_rounded,
-                        iconColor: blueAccent,
-                        // iconBackground: blueSoft,
-                        title: "Personal Information",
-                        subtitle:
-                            "View and edit your account details",
-                        onTap: showPersonalInformation,
-                      ),
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.person_outline_rounded,
+                      iconColor: blueAccent,
+                      // iconBackground: blueSoft,
+                      title: "Personal Information",
+                      subtitle: "View and edit your account details",
+                      onTap: showPersonalInformation,
+                    ),
 
-                      buildDivider(),
+                    buildDivider(),
 
-                      buildMenuItem(
-                        icon: Icons.notifications_none_rounded,
-                        iconColor: orangeAccent,
-                        // iconBackground: orangeSoft,
-                        title: "Notifications",
-                        subtitle:
-                            "Property and account updates",
-                        onTap: showNotificationsSheet,
-                      ),
-                    ],
-                  ),
+                    buildMenuItem(
+                      icon: Icons.notifications_none_rounded,
+                      iconColor: orangeAccent,
+                      // iconBackground: orangeSoft,
+                      title: "Notifications",
+                      subtitle: "Property and account updates",
+                      onTap: openNotifications,
+                    ),
+                  ],
+                ),
 
-                  const SizedBox(
-                    height: 24,
-                  ),
+                const SizedBox(height: 24),
 
-                  // Support
-                  buildSectionTitle(
-                    "Support",
-                  ),
+                // Support
+                buildSectionTitle("Support"),
 
-                  const SizedBox(
-                    height: 10,
-                  ),
+                const SizedBox(height: 10),
 
-                  buildMenuCard(
-                    children: [
-                      buildMenuItem(
-                        icon: Icons.help_outline_rounded,
-                        iconColor: greenAccent,
-                        // iconBackground: greenSoft,
-                        title: "Help Center",
-                        subtitle:
-                            "Answers and owner guidance",
-                        onTap: showHelpCenter,
-                      ),
+                buildMenuCard(
+                  children: [
+                    buildMenuItem(
+                      icon: Icons.help_outline_rounded,
+                      iconColor: greenAccent,
+                      // iconBackground: greenSoft,
+                      title: "Help Center",
+                      subtitle: "Answers and owner guidance",
+                      onTap: showHelpCenter,
+                    ),
 
-                      buildDivider(),
+                    buildDivider(),
 
-                      buildMenuItem(
-                        icon: Icons.info_outline_rounded,
-                        iconColor: purpleAccent,
-                        // iconBackground: purpleSoft,
-                        title: "About Rental App",
-                        subtitle:
-                            "Information about the platform",
-                        onTap: showAboutSheet,
-                      ),
-                    ],
-                  ),
+                    buildMenuItem(
+                      icon: Icons.support_agent_rounded,
+                      iconColor: blueAccent,
+                      title: "Send a Request",
+                      subtitle: "Contact admin for assistance",
+                      onTap: () {
+                        Get.to(() => const SendOwnerRequestScreen());
+                      },
+                    ),
+                    buildDivider(),
 
-                  const SizedBox(
-                    height: 26,
-                  ),
+                    buildMenuItem(
+                      icon: Icons.inbox_outlined,
+                      iconColor: orangeAccent,
+                      title: "My Requests",
+                      subtitle: "View your submitted requests",
+                      onTap: () {
+                        Get.to(() => const OwnerRequestsScreen());
+                      },
+                    ),
 
-                  // Logout
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
+                    buildDivider(),
 
-                    child: OutlinedButton.icon(
-                      onPressed: showLogoutDialog,
+                    buildMenuItem(
+                      icon: Icons.info_outline_rounded,
+                      iconColor: purpleAccent,
+                      // iconBackground: purpleSoft,
+                      title: "About Rental App",
+                      subtitle: "Information about the platform",
+                      onTap: showAboutSheet,
+                    ),
+                  ],
+                ),
 
-                      icon: const Icon(
-                        Icons.logout_rounded,
-                        size: 19,
-                      ),
+                const SizedBox(height: 26),
 
-                      label: const Text(
-                        "Log out",
+                // Logout
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
 
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                  child: OutlinedButton.icon(
+                    onPressed: showLogoutDialog,
 
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: redAccent,
-                        backgroundColor: Colors.white,
+                    icon: const Icon(Icons.logout_rounded, size: 19),
 
-                        side: const BorderSide(
-                          color: Color(0xFFFECACA),
-                        ),
+                    label: const Text(
+                      "Log out",
 
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            14,
-                          ),
-                        ),
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: redAccent,
+                      backgroundColor: Colors.white,
+
+                      side: const BorderSide(color: Color(0xFFFECACA)),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      }),
     );
   }
 
@@ -419,22 +375,15 @@ class OwnerAccountScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: primaryColor,
 
-        borderRadius: BorderRadius.circular(
-          24,
-        ),
+        borderRadius: BorderRadius.circular(24),
 
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(
-              0.18,
-            ),
+            color: primaryColor.withOpacity(0.18),
 
             blurRadius: 22,
 
-            offset: const Offset(
-              0,
-              8,
-            ),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -450,9 +399,7 @@ class OwnerAccountScreen extends StatelessWidget {
               height: 150,
 
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(
-                  0.06,
-                ),
+                color: Colors.white.withOpacity(0.06),
 
                 shape: BoxShape.circle,
               ),
@@ -468,9 +415,7 @@ class OwnerAccountScreen extends StatelessWidget {
               height: 130,
 
               decoration: BoxDecoration(
-                color: purpleAccent.withOpacity(
-                  0.14,
-                ),
+                color: purpleAccent.withOpacity(0.14),
 
                 shape: BoxShape.circle,
               ),
@@ -478,9 +423,7 @@ class OwnerAccountScreen extends StatelessWidget {
           ),
 
           Padding(
-            padding: const EdgeInsets.all(
-              20,
-            ),
+            padding: const EdgeInsets.all(20),
 
             child: Column(
               children: [
@@ -499,32 +442,20 @@ class OwnerAccountScreen extends StatelessWidget {
 
                               shape: BoxShape.circle,
 
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4,
-                              ),
+                              border: Border.all(color: Colors.white, width: 4),
                             ),
 
                             clipBehavior: Clip.antiAlias,
 
-                            child: controller
-                                    .profileImage
-                                    .value
-                                    .isNotEmpty
+                            child: controller.profileImage.value.isNotEmpty
                                 ? Image.network(
                                     getProfileImageUrl(
-                                      controller
-                                          .profileImage
-                                          .value,
+                                      controller.profileImage.value,
                                     ),
 
                                     fit: BoxFit.cover,
 
-                                    errorBuilder: (
-                                      context,
-                                      error,
-                                      stackTrace,
-                                    ) {
+                                    errorBuilder: (context, error, stackTrace) {
                                       return buildInitialsAvatar();
                                     },
                                   )
@@ -557,17 +488,11 @@ class OwnerAccountScreen extends StatelessWidget {
                               ),
 
                               child: Obx(
-                                () => controller
-                                        .isUploadingImage
-                                        .value
+                                () => controller.isUploadingImage.value
                                     ? const Padding(
-                                        padding:
-                                            EdgeInsets.all(
-                                          7,
-                                        ),
+                                        padding: EdgeInsets.all(7),
 
-                                        child:
-                                            CircularProgressIndicator(
+                                        child: CircularProgressIndicator(
                                           strokeWidth: 2,
                                           color: Colors.white,
                                         ),
@@ -584,15 +509,12 @@ class OwnerAccountScreen extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(
-                      width: 16,
-                    ),
+                    const SizedBox(width: 16),
 
                     // Info
                     Expanded(
                       child: Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
 
                         children: [
                           Obx(
@@ -611,9 +533,7 @@ class OwnerAccountScreen extends StatelessWidget {
                             ),
                           ),
 
-                          const SizedBox(
-                            height: 5,
-                          ),
+                          const SizedBox(height: 5),
 
                           Obx(
                             () => Text(
@@ -626,16 +546,12 @@ class OwnerAccountScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 12,
 
-                                color: Colors.white.withOpacity(
-                                  0.72,
-                                ),
+                                color: Colors.white.withOpacity(0.72),
                               ),
                             ),
                           ),
 
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          const SizedBox(height: 10),
 
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -644,13 +560,9 @@ class OwnerAccountScreen extends StatelessWidget {
                             ),
 
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(
-                                0.12,
-                              ),
+                              color: Colors.white.withOpacity(0.12),
 
-                              borderRadius: BorderRadius.circular(
-                                20,
-                              ),
+                              borderRadius: BorderRadius.circular(20),
                             ),
 
                             child: const Row(
@@ -663,9 +575,7 @@ class OwnerAccountScreen extends StatelessWidget {
                                   color: Colors.white,
                                 ),
 
-                                SizedBox(
-                                  width: 5,
-                                ),
+                                SizedBox(width: 5),
 
                                 Text(
                                   "House Owner",
@@ -674,8 +584,7 @@ class OwnerAccountScreen extends StatelessWidget {
                                     fontSize: 10.5,
                                     color: Colors.white,
 
-                                    fontWeight:
-                                        FontWeight.w700,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ],
@@ -687,21 +596,11 @@ class OwnerAccountScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(
-                  height: 18,
-                ),
+                const SizedBox(height: 18),
 
-                Container(
-                  height: 1,
+                Container(height: 1, color: Colors.white.withOpacity(0.12)),
 
-                  color: Colors.white.withOpacity(
-                    0.12,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: 14,
-                ),
+                const SizedBox(height: 14),
 
                 SizedBox(
                   width: double.infinity,
@@ -746,28 +645,18 @@ class OwnerAccountScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(
-        12,
-      ),
+      borderRadius: BorderRadius.circular(12),
 
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 7,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 7),
 
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: Colors.white,
-            ),
+            Icon(icon, size: 16, color: Colors.white),
 
-            const SizedBox(
-              width: 6,
-            ),
+            const SizedBox(width: 6),
 
             Text(
               title,
@@ -785,9 +674,7 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Section
-  Widget buildSectionTitle(
-    String title,
-  ) {
+  Widget buildSectionTitle(String title) {
     return Text(
       title,
 
@@ -800,42 +687,29 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Menu Card
-  Widget buildMenuCard({
-    required List<Widget> children,
-  }) {
+  Widget buildMenuCard({required List<Widget> children}) {
     return Container(
       width: double.infinity,
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.circular(
-          18,
-        ),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
 
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              0.025,
-            ),
+            color: Colors.black.withOpacity(0.025),
 
             blurRadius: 12,
 
-            offset: const Offset(
-              0,
-              4,
-            ),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
 
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -852,10 +726,7 @@ class OwnerAccountScreen extends StatelessWidget {
       onTap: onTap,
 
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 13,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
         child: Row(
           children: [
@@ -865,27 +736,17 @@ class OwnerAccountScreen extends StatelessWidget {
 
               decoration: BoxDecoration(
                 // color: iconBackground,
-
-                borderRadius: BorderRadius.circular(
-                  12,
-                ),
+                borderRadius: BorderRadius.circular(12),
               ),
 
-              child: Icon(
-                icon,
-                size: 21,
-                color: iconColor,
-              ),
+              child: Icon(icon, size: 21, color: iconColor),
             ),
 
-            const SizedBox(
-              width: 13,
-            ),
+            const SizedBox(width: 13),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Text(
@@ -898,9 +759,7 @@ class OwnerAccountScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 3,
-                  ),
+                  const SizedBox(height: 3),
 
                   Text(
                     subtitle,
@@ -928,15 +787,9 @@ class OwnerAccountScreen extends StatelessWidget {
   // Divider
   Widget buildDivider() {
     return const Padding(
-      padding: EdgeInsets.only(
-        left: 69,
-        right: 14,
-      ),
+      padding: EdgeInsets.only(left: 69, right: 14),
 
-      child: Divider(
-        height: 1,
-        color: borderColor,
-      ),
+      child: Divider(height: 1, color: borderColor),
     );
   }
 
@@ -953,15 +806,9 @@ class OwnerAccountScreen extends StatelessWidget {
 
         child: Column(
           children: [
-            buildInfoRow(
-              "Full Name",
-              controller.name.value,
-            ),
+            buildInfoRow("Full Name", controller.name.value),
 
-            buildInfoRow(
-              "Email",
-              controller.email.value,
-            ),
+            buildInfoRow("Email", controller.email.value),
 
             buildInfoRow(
               "Phone",
@@ -970,14 +817,9 @@ class OwnerAccountScreen extends StatelessWidget {
                   : controller.phone.value,
             ),
 
-            buildInfoRow(
-              "Account Type",
-              "House Owner",
-            ),
+            buildInfoRow("Account Type", "House Owner"),
 
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
 
             SizedBox(
               width: double.infinity,
@@ -990,14 +832,9 @@ class OwnerAccountScreen extends StatelessWidget {
                   showEditProfileSheet();
                 },
 
-                icon: const Icon(
-                  Icons.edit_outlined,
-                  size: 18,
-                ),
+                icon: const Icon(Icons.edit_outlined, size: 18),
 
-                label: const Text(
-                  "Edit Information",
-                ),
+                label: const Text("Edit Information"),
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
@@ -1005,9 +842,7 @@ class OwnerAccountScreen extends StatelessWidget {
                   elevation: 0,
 
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      13,
-                    ),
+                    borderRadius: BorderRadius.circular(13),
                   ),
                 ),
               ),
@@ -1022,13 +857,11 @@ class OwnerAccountScreen extends StatelessWidget {
 
   // Edit Profile
   void showEditProfileSheet() {
-    final TextEditingController nameController =
-        TextEditingController(
+    final TextEditingController nameController = TextEditingController(
       text: controller.name.value,
     );
 
-    final TextEditingController phoneController =
-        TextEditingController(
+    final TextEditingController phoneController = TextEditingController(
       text: controller.phone.value,
     );
 
@@ -1036,10 +869,7 @@ class OwnerAccountScreen extends StatelessWidget {
 
     Get.bottomSheet(
       StatefulBuilder(
-        builder: (
-          context,
-          setModalState,
-        ) {
+        builder: (context, setModalState) {
           return buildSheet(
             title: "Edit Profile",
 
@@ -1049,17 +879,12 @@ class OwnerAccountScreen extends StatelessWidget {
             iconBackground: purpleSoft,
 
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                buildFieldLabel(
-                  "Full Name",
-                ),
+                buildFieldLabel("Full Name"),
 
-                const SizedBox(
-                  height: 7,
-                ),
+                const SizedBox(height: 7),
 
                 buildTextField(
                   controller: nameController,
@@ -1067,29 +892,20 @@ class OwnerAccountScreen extends StatelessWidget {
                   icon: Icons.person_outline,
                 ),
 
-                const SizedBox(
-                  height: 15,
-                ),
+                const SizedBox(height: 15),
 
-                buildFieldLabel(
-                  "Phone Number",
-                ),
+                buildFieldLabel("Phone Number"),
 
-                const SizedBox(
-                  height: 7,
-                ),
+                const SizedBox(height: 7),
 
                 buildTextField(
                   controller: phoneController,
                   hint: "Enter your phone number",
                   icon: Icons.phone_outlined,
-                  keyboardType:
-                      TextInputType.phone,
+                  keyboardType: TextInputType.phone,
                 ),
 
-                const SizedBox(
-                  height: 20,
-                ),
+                const SizedBox(height: 20),
 
                 SizedBox(
                   width: double.infinity,
@@ -1099,35 +915,25 @@ class OwnerAccountScreen extends StatelessWidget {
                     onPressed: isSaving
                         ? null
                         : () async {
-                            final String name =
-                                nameController
-                                    .text
-                                    .trim();
+                            final String name = nameController.text.trim();
 
-                            final String phone =
-                                phoneController
-                                    .text
-                                    .trim();
+                            final String phone = phoneController.text.trim();
 
                             if (name.isEmpty) {
                               showErrorNotification(
                                 title: "Name Required",
-                                message:
-                                    "Please enter your name.",
+                                message: "Please enter your name.",
                               );
 
                               return;
                             }
 
                             try {
-                              setModalState(
-                                () {
-                                  isSaving = true;
-                                },
-                              );
+                              setModalState(() {
+                                isSaving = true;
+                              });
 
-                              await authService
-                                  .updateCurrentUser(
+                              await authService.updateCurrentUser(
                                 name: name,
                                 phone: phone,
                               );
@@ -1137,27 +943,22 @@ class OwnerAccountScreen extends StatelessWidget {
                               Get.back();
 
                               showSuccessNotification(
-                                title:
-                                    "Profile Updated",
+                                title: "Profile Updated",
                                 message:
                                     "Your profile information was updated successfully.",
                               );
                             } catch (e) {
                               showErrorNotification(
                                 title: "Update Failed",
-                                message: e
-                                    .toString()
-                                    .replaceFirst(
-                                      "Exception: ",
-                                      "",
-                                    ),
+                                message: e.toString().replaceFirst(
+                                  "Exception: ",
+                                  "",
+                                ),
                               );
                             } finally {
-                              setModalState(
-                                () {
-                                  isSaving = false;
-                                },
-                              );
+                              setModalState(() {
+                                isSaving = false;
+                              });
                             }
                           },
 
@@ -1167,10 +968,7 @@ class OwnerAccountScreen extends StatelessWidget {
                       elevation: 0,
 
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(
-                          13,
-                        ),
+                        borderRadius: BorderRadius.circular(13),
                       ),
                     ),
 
@@ -1179,8 +977,7 @@ class OwnerAccountScreen extends StatelessWidget {
                             width: 21,
                             height: 21,
 
-                            child:
-                                CircularProgressIndicator(
+                            child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color: Colors.white,
                             ),
@@ -1188,10 +985,7 @@ class OwnerAccountScreen extends StatelessWidget {
                         : const Text(
                             "Save Changes",
 
-                            style: TextStyle(
-                              fontWeight:
-                                  FontWeight.w700,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                   ),
                 ),
@@ -1221,8 +1015,7 @@ class OwnerAccountScreen extends StatelessWidget {
             buildSimpleAction(
               icon: Icons.edit_outlined,
               title: "Edit Profile",
-              subtitle:
-                  "Update your account information",
+              subtitle: "Update your account information",
 
               onTap: () {
                 Get.back();
@@ -1231,15 +1024,12 @@ class OwnerAccountScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
 
             buildSimpleAction(
               icon: Icons.image_outlined,
               title: "Profile Photo",
-              subtitle:
-                  "Change your profile picture",
+              subtitle: "Change your profile picture",
 
               onTap: () {
                 Get.back();
@@ -1248,15 +1038,12 @@ class OwnerAccountScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
 
             buildSimpleAction(
               icon: Icons.refresh_rounded,
               title: "Refresh Account",
-              subtitle:
-                  "Reload your latest information",
+              subtitle: "Reload your latest information",
 
               onTap: () async {
                 Get.back();
@@ -1265,8 +1052,7 @@ class OwnerAccountScreen extends StatelessWidget {
 
                 showSuccessNotification(
                   title: "Refreshed",
-                  message:
-                      "Your account information is up to date.",
+                  message: "Your account information is up to date.",
                 );
               },
             ),
@@ -1279,59 +1065,339 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Notifications
-  void showNotificationsSheet() {
-    Get.bottomSheet(
-      buildSheet(
-        title: "Notifications",
+  // This uses the same notification flow as the Owner Home bell:
+  // property approval/rejection feedback + replies to Owner Requests.
+  Future<List<Map<String, dynamic>>> loadPropertiesForNotifications() async {
+    try {
+      final response = await propertyService.getMyProperties();
 
-        icon: Icons.notifications_none_rounded,
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        debugPrint(
+          "ACCOUNT NOTIFICATION PROPERTY LOAD FAILED: "
+          "${response.statusCode} ${response.body}",
+        );
 
-        iconColor: orangeAccent,
-        iconBackground: orangeSoft,
+        return [];
+      }
 
-        child: const Column(
-          children: [
-            Icon(
-              Icons.notifications_none_rounded,
-              size: 44,
-              color: orangeAccent,
-            ),
+      final dynamic decoded = jsonDecode(response.body);
 
-            SizedBox(
-              height: 12,
-            ),
+      if (decoded is! Map<String, dynamic>) {
+        return [];
+      }
 
-            Text(
-              "No notifications yet",
+      final dynamic rawProperties = decoded["properties"];
 
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-              ),
-            ),
+      if (rawProperties is! List) {
+        return [];
+      }
 
-            SizedBox(
-              height: 5,
-            ),
+      return rawProperties
+          .whereType<Map>()
+          .map((item) => Map<String, dynamic>.from(item))
+          .toList();
+    } catch (e) {
+      debugPrint("ACCOUNT NOTIFICATION PROPERTY LOAD ERROR: $e");
+      return [];
+    }
+  }
 
-            Text(
-              "Property approval and account updates will appear here.",
+  String buildNotificationStorageUrl(String path) {
+    if (path.trim().isEmpty) {
+      return "";
+    }
 
-              textAlign: TextAlign.center,
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+      return path
+          .replaceFirst("http://localhost:8000", "http://10.0.2.2:8000")
+          .replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
+    }
 
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.4,
-                color: secondaryTextColor,
-              ),
-            ),
-          ],
-        ),
-      ),
+    String cleanPath = path;
 
-      isScrollControlled: true,
+    if (cleanPath.startsWith("/")) {
+      cleanPath = cleanPath.substring(1);
+    }
+
+    if (cleanPath.startsWith("storage/")) {
+      return "http://10.0.2.2:8000/$cleanPath";
+    }
+
+    return "http://10.0.2.2:8000/storage/$cleanPath";
+  }
+
+  Future<List<OwnerAdminFeedback>> loadCombinedNotifications() async {
+    final List<OwnerAdminFeedback> items = [];
+
+    // 1. Property submission notifications.
+    try {
+      final response = await propertyService.getOwnerNotifications();
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final dynamic decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          final dynamic rawNotifications = decoded["notifications"];
+
+          if (rawNotifications is List) {
+            for (final dynamic rawItem in rawNotifications) {
+              if (rawItem is! Map) {
+                continue;
+              }
+
+              final Map<String, dynamic> data = Map<String, dynamic>.from(
+                rawItem,
+              );
+
+              final String rawImage = data["property_image"]?.toString() ?? "";
+
+              final bool isNew =
+                  data["is_new"] == true || data["is_new"]?.toString() == "1";
+
+              items.add(
+                OwnerAdminFeedback(
+                  id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+                  propertyId:
+                      int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+                  propertyName: data["property_name"]?.toString() ?? "Property",
+                  propertyImage: rawImage.isEmpty
+                      ? ""
+                      : buildNotificationStorageUrl(rawImage),
+                  location: data["location"]?.toString() ?? "-",
+                  type: data["type"]?.toString() ?? "",
+                  notificationKind: "property",
+                  reason: data["reason"]?.toString(),
+                  note: data["note"]?.toString(),
+                  createdAt:
+                      DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                      DateTime.now(),
+                  isNew: isNew,
+                ),
+              );
+            }
+          }
+        }
+      } else {
+        debugPrint(
+          "ACCOUNT PROPERTY NOTIFICATION LOAD FAILED: "
+          "${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      debugPrint("ACCOUNT PROPERTY NOTIFICATION ERROR: $e");
+    }
+
+    // 2. Admin replies to Owner Requests.
+    try {
+      final response = await propertyService.getOwnerRequests();
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final dynamic decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          final dynamic rawRequests = decoded["requests"];
+
+          if (rawRequests is List) {
+            for (final dynamic rawItem in rawRequests) {
+              if (rawItem is! Map) {
+                continue;
+              }
+
+              final Map<String, dynamic> data = Map<String, dynamic>.from(
+                rawItem,
+              );
+
+              final String adminReply =
+                  data["admin_reply"]?.toString().trim() ?? "";
+
+              final String repliedAtText =
+                  data["replied_at"]?.toString().trim() ?? "";
+
+              // A pending request is not a notification yet.
+              if (adminReply.isEmpty || repliedAtText.isEmpty) {
+                continue;
+              }
+
+              final String ownerSeenAt =
+                  data["owner_seen_at"]?.toString().trim() ?? "";
+
+              final int requestId =
+                  int.tryParse(data["id"]?.toString() ?? "") ?? 0;
+
+              items.add(
+                OwnerAdminFeedback(
+                  id: requestId,
+                  propertyId: 0,
+                  propertyName: "",
+                  propertyImage: "",
+                  location: "",
+                  type: "request_reply",
+                  notificationKind: "request",
+                  requestId: requestId,
+                  requestSubject:
+                      data["subject"]?.toString() ?? "Owner Request",
+                  requestMessage: data["message"]?.toString() ?? "",
+                  adminReply: adminReply,
+                  createdAt: DateTime.tryParse(repliedAtText) ?? DateTime.now(),
+                  isNew: ownerSeenAt.isEmpty,
+                ),
+              );
+            }
+          }
+        }
+      } else {
+        debugPrint(
+          "ACCOUNT REQUEST NOTIFICATION LOAD FAILED: "
+          "${response.statusCode} ${response.body}",
+        );
+      }
+    } catch (e) {
+      debugPrint("ACCOUNT REQUEST NOTIFICATION ERROR: $e");
+    }
+
+    items.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    return items;
+  }
+
+  Map<String, dynamic>? findPropertyForNotification(
+    List<Map<String, dynamic>> properties,
+    int propertyId,
+  ) {
+    for (final Map<String, dynamic> property in properties) {
+      if (property["id"]?.toString() == propertyId.toString()) {
+        return property;
+      }
+    }
+
+    return null;
+  }
+
+  Future<void> openNotifications() async {
+    // Show a small loader because Account does not keep the notification
+    // list in memory like Home does.
+    Get.dialog(
+      const Center(child: CircularProgressIndicator(color: primaryColor)),
+      barrierDismissible: false,
     );
+
+    try {
+      final List<OwnerAdminFeedback> notifications =
+          await loadCombinedNotifications();
+
+      final List<Map<String, dynamic>> properties =
+          await loadPropertiesForNotifications();
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      final bool hadNewPropertyNotifications = notifications.any(
+        (item) => item.isPropertyFeedback && item.isNew,
+      );
+
+      final bool hadNewRequestNotifications = notifications.any(
+        (item) => item.isRequestReply && item.isNew,
+      );
+
+      await Get.to(
+        () => OwnerNotificationsScreen(
+          notifications: notifications,
+          onNotificationsSeen: () {},
+
+          onViewProperty: (notification) {
+            final Map<String, dynamic>? property = findPropertyForNotification(
+              properties,
+              notification.propertyId,
+            );
+
+            if (property == null) {
+              showErrorNotification(
+                title: "Property Not Found",
+                message: "This property could not be loaded.",
+              );
+              return;
+            }
+
+            // Close Notifications first, then open the selected property.
+            Get.back();
+
+            Get.to(() => OwnerPropertyDetailScreen(property: property));
+          },
+
+          onEditAndResubmit: (notification) async {
+            final Map<String, dynamic>? property = findPropertyForNotification(
+              properties,
+              notification.propertyId,
+            );
+
+            if (property == null) {
+              showErrorNotification(
+                title: "Property Not Found",
+                message: "This property could not be loaded for editing.",
+              );
+              return;
+            }
+
+            await Get.to(() => Postpropertyscreen(propertyToEdit: property));
+          },
+
+          onViewRequest: (notification) {
+            Get.to(
+              () => OwnerRequestDetailScreen(
+                requestId: notification.requestId ?? notification.id,
+                subject: notification.requestSubject ?? "Owner Request",
+                message: notification.requestMessage ?? "",
+                adminReply: notification.adminReply ?? "",
+                repliedAt: notification.createdAt,
+              ),
+            );
+          },
+        ),
+      );
+
+      // Same behavior as Home: once the owner leaves the main notification
+      // screen, mark the notifications that were New as seen.
+      if (hadNewPropertyNotifications) {
+        try {
+          final response = await propertyService.markOwnerNotificationsSeen();
+
+          if (response.statusCode < 200 || response.statusCode >= 300) {
+            debugPrint(
+              "ACCOUNT MARK PROPERTY NOTIFICATIONS SEEN FAILED: "
+              "${response.statusCode} ${response.body}",
+            );
+          }
+        } catch (e) {
+          debugPrint("ACCOUNT MARK PROPERTY NOTIFICATIONS SEEN ERROR: $e");
+        }
+      }
+
+      if (hadNewRequestNotifications) {
+        try {
+          final response = await propertyService
+              .markOwnerRequestNotificationsSeen();
+
+          if (response.statusCode < 200 || response.statusCode >= 300) {
+            debugPrint(
+              "ACCOUNT MARK REQUEST NOTIFICATIONS SEEN FAILED: "
+              "${response.statusCode} ${response.body}",
+            );
+          }
+        } catch (e) {
+          debugPrint("ACCOUNT MARK REQUEST NOTIFICATIONS SEEN ERROR: $e");
+        }
+      }
+    } catch (e) {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      showErrorNotification(
+        title: "Unable to Load Notifications",
+        message: e.toString().replaceFirst("Exception: ", ""),
+      );
+    }
   }
 
   // Help
@@ -1399,9 +1465,7 @@ class OwnerAccountScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(
-              height: 18,
-            ),
+            SizedBox(height: 18),
 
             Text(
               "Version 1.0",
@@ -1429,25 +1493,14 @@ class OwnerAccountScreen extends StatelessWidget {
     required Widget child,
   }) {
     return Container(
-      constraints: BoxConstraints(
-        maxHeight: Get.height * 0.85,
-      ),
+      constraints: BoxConstraints(maxHeight: Get.height * 0.85),
 
-      padding: const EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        28,
-      ),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
 
       decoration: const BoxDecoration(
         color: Colors.white,
 
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(
-            26,
-          ),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
 
       child: SingleChildScrollView(
@@ -1462,15 +1515,11 @@ class OwnerAccountScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: borderColor,
 
-                borderRadius: BorderRadius.circular(
-                  20,
-                ),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
 
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
 
             Row(
               children: [
@@ -1481,22 +1530,13 @@ class OwnerAccountScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: iconBackground,
 
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                    borderRadius: BorderRadius.circular(12),
                   ),
 
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 21,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 21),
                 ),
 
-                const SizedBox(
-                  width: 12,
-                ),
+                const SizedBox(width: 12),
 
                 Expanded(
                   child: Text(
@@ -1521,9 +1561,7 @@ class OwnerAccountScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
 
             child,
           ],
@@ -1533,50 +1571,33 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Info Row
-  Widget buildInfoRow(
-    String title,
-    String value,
-  ) {
+  Widget buildInfoRow(String title, String value) {
     return Container(
       width: double.infinity,
 
-      margin: const EdgeInsets.only(
-        bottom: 10,
-      ),
+      margin: const EdgeInsets.only(bottom: 10),
 
-      padding: const EdgeInsets.all(
-        14,
-      ),
+      padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
         color: backgroundColor,
 
-        borderRadius: BorderRadius.circular(
-          13,
-        ),
+        borderRadius: BorderRadius.circular(13),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
 
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           Text(
             title,
 
-            style: const TextStyle(
-              fontSize: 10.5,
-              color: secondaryTextColor,
-            ),
+            style: const TextStyle(fontSize: 10.5, color: secondaryTextColor),
           ),
 
-          const SizedBox(
-            height: 4,
-          ),
+          const SizedBox(height: 4),
 
           Text(
             value,
@@ -1593,9 +1614,7 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Label
-  Widget buildFieldLabel(
-    String text,
-  ) {
+  Widget buildFieldLabel(String text) {
     return Text(
       text,
 
@@ -1612,8 +1631,7 @@ class OwnerAccountScreen extends StatelessWidget {
     required TextEditingController controller,
     required String hint,
     required IconData icon,
-    TextInputType keyboardType =
-        TextInputType.text,
+    TextInputType keyboardType = TextInputType.text,
   }) {
     return TextField(
       controller: controller,
@@ -1622,39 +1640,23 @@ class OwnerAccountScreen extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
 
-        prefixIcon: Icon(
-          icon,
-          color: secondaryTextColor,
-        ),
+        prefixIcon: Icon(icon, color: secondaryTextColor),
 
         filled: true,
         fillColor: backgroundColor,
 
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            13,
-          ),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
 
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            13,
-          ),
+          borderRadius: BorderRadius.circular(13),
 
-          borderSide: const BorderSide(
-            color: borderColor,
-          ),
+          borderSide: const BorderSide(color: borderColor),
         ),
 
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(
-            13,
-          ),
+          borderRadius: BorderRadius.circular(13),
 
-          borderSide: const BorderSide(
-            color: primaryColor,
-            width: 1.4,
-          ),
+          borderSide: const BorderSide(color: primaryColor, width: 1.4),
         ),
       ),
     );
@@ -1670,42 +1672,28 @@ class OwnerAccountScreen extends StatelessWidget {
     return InkWell(
       onTap: onTap,
 
-      borderRadius: BorderRadius.circular(
-        14,
-      ),
+      borderRadius: BorderRadius.circular(14),
 
       child: Container(
-        padding: const EdgeInsets.all(
-          14,
-        ),
+        padding: const EdgeInsets.all(14),
 
         decoration: BoxDecoration(
           color: backgroundColor,
 
-          borderRadius: BorderRadius.circular(
-            14,
-          ),
+          borderRadius: BorderRadius.circular(14),
 
-          border: Border.all(
-            color: borderColor,
-          ),
+          border: Border.all(color: borderColor),
         ),
 
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: primaryColor,
-            ),
+            Icon(icon, color: primaryColor),
 
-            const SizedBox(
-              width: 12,
-            ),
+            const SizedBox(width: 12),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
                   Text(
@@ -1718,9 +1706,7 @@ class OwnerAccountScreen extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(
-                    height: 2,
-                  ),
+                  const SizedBox(height: 2),
 
                   Text(
                     subtitle,
@@ -1734,10 +1720,7 @@ class OwnerAccountScreen extends StatelessWidget {
               ),
             ),
 
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Color(0xFF9CA3AF),
-            ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF)),
           ],
         ),
       ),
@@ -1745,17 +1728,11 @@ class OwnerAccountScreen extends StatelessWidget {
   }
 
   // Help
-  Widget buildHelpItem(
-    String question,
-    String answer,
-  ) {
+  Widget buildHelpItem(String question, String answer) {
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
 
-      childrenPadding:
-          const EdgeInsets.only(
-        bottom: 12,
-      ),
+      childrenPadding: const EdgeInsets.only(bottom: 12),
 
       title: Text(
         question,
@@ -1787,19 +1764,9 @@ class OwnerAccountScreen extends StatelessWidget {
       AlertDialog(
         backgroundColor: Colors.white,
 
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(
-            20,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
 
-        contentPadding:
-            const EdgeInsets.fromLTRB(
-          24,
-          25,
-          24,
-          18,
-        ),
+        contentPadding: const EdgeInsets.fromLTRB(24, 25, 24, 18),
 
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1821,9 +1788,7 @@ class OwnerAccountScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(
-              height: 16,
-            ),
+            const SizedBox(height: 16),
 
             const Text(
               "Log out?",
@@ -1835,9 +1800,7 @@ class OwnerAccountScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(
-              height: 8,
-            ),
+            const SizedBox(height: 8),
 
             const Text(
               "Are you sure you want to log out of your account?",
@@ -1853,13 +1816,7 @@ class OwnerAccountScreen extends StatelessWidget {
           ],
         ),
 
-        actionsPadding:
-            const EdgeInsets.fromLTRB(
-          20,
-          0,
-          20,
-          20,
-        ),
+        actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
 
         actions: [
           Row(
@@ -1870,15 +1827,11 @@ class OwnerAccountScreen extends StatelessWidget {
                     Get.back();
                   },
 
-                  child: const Text(
-                    "Cancel",
-                  ),
+                  child: const Text("Cancel"),
                 ),
               ),
 
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
 
               Expanded(
                 child: ElevatedButton(
@@ -1888,14 +1841,11 @@ class OwnerAccountScreen extends StatelessWidget {
                     try {
                       await authService.logout();
 
-                      Get.offAll(
-                        () => LoginScreen(),
-                      );
+                      Get.offAll(() => LoginScreen());
                     } catch (e) {
                       showErrorNotification(
                         title: "Logout Failed",
-                        message:
-                            "Something went wrong. Please try again.",
+                        message: "Something went wrong. Please try again.",
                       );
                     }
                   },
@@ -1906,9 +1856,7 @@ class OwnerAccountScreen extends StatelessWidget {
                     elevation: 0,
                   ),
 
-                  child: const Text(
-                    "Log out",
-                  ),
+                  child: const Text("Log out"),
                 ),
               ),
             ],
@@ -1920,34 +1868,20 @@ class OwnerAccountScreen extends StatelessWidget {
 }
 
 // Profile Image URL
-String getProfileImageUrl(
-  String image,
-) {
+String getProfileImageUrl(String image) {
   if (image.isEmpty) {
     return "";
   }
 
-  if (image.startsWith(
-    "http://127.0.0.1:8000",
-  )) {
-    return image.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+  if (image.startsWith("http://127.0.0.1:8000")) {
+    return image.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
   }
 
-  if (image.startsWith(
-    "http://localhost:8000",
-  )) {
-    return image.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+  if (image.startsWith("http://localhost:8000")) {
+    return image.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
   }
 
-  if (image.startsWith(
-    "http",
-  )) {
+  if (image.startsWith("http")) {
     return image;
   }
 
