@@ -457,15 +457,29 @@ class _MapScreenState extends State<MapScreen> {
 
           buildReferenceLocationButton(),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 18),
 
-          const SizedBox(height: 10),
+          // The map and property panel share the remaining space.
+          // The property panel can now be dragged up and down.
+          Expanded(
+            child: Stack(
+              children: [
+                Positioned.fill(child: buildMap()),
 
-          // Map now takes all remaining space
-          Expanded(child: buildMap()),
-
-          // Smaller fixed-height property panel
-          SizedBox(height: 200, child: buildPropertyList(filteredProperties)),
+                DraggableScrollableSheet(
+                  initialChildSize: 0.28,
+                  minChildSize: 0.20,
+                  maxChildSize: 0.88,
+                  builder: (context, scrollController) {
+                    return buildPropertyList(
+                      filteredProperties,
+                      scrollController,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -817,11 +831,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   // Bottom property panel
-  Widget buildPropertyList(List<Property> properties) {
+  Widget buildPropertyList(
+    List<Property> properties,
+    ScrollController scrollController,
+  ) {
     return Container(
       width: double.infinity,
-
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
 
       decoration: BoxDecoration(
         color: Colors.white,
@@ -839,72 +854,120 @@ class _MapScreenState extends State<MapScreen> {
         ],
       ),
 
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // Keep a permanent gap at the top of the white panel.
+      // Because this Padding is OUTSIDE the scroll view, the gap stays
+      // visible even when the property list is scrolled.
+      child: Padding(
+        padding: const EdgeInsets.only(top: 14),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
 
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  "${properties.length} ${properties.length == 1 ? "Property" : "Properties"} Found",
+          child: CustomScrollView(
+            controller: scrollController,
 
-                  style: const TextStyle(
-                    color: primaryColor,
+            physics: const ClampingScrollPhysics(),
 
-                    fontSize: 16,
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 9, 16, 6),
 
-                    fontWeight: FontWeight.w800,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      // Drag handle
+                      Center(
+                        child: Container(
+                          width: 42,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD1D5DB),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "${properties.length} ${properties.length == 1 ? "Property" : "Properties"} Found",
+
+                              style: const TextStyle(
+                                color: primaryColor,
+
+                                fontSize: 16,
+
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+
+                          const Icon(
+                            Icons.location_on_outlined,
+
+                            size: 17,
+
+                            color: primaryColor,
+                          ),
+
+                          const SizedBox(width: 3),
+
+                          const Text(
+                            "Map",
+
+                            style: TextStyle(
+                              color: primaryColor,
+
+                              fontSize: 11,
+
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 2),
+                    ],
                   ),
                 ),
               ),
 
-              const Icon(
-                Icons.location_on_outlined,
+              if (properties.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: buildEmptyState(),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final bool isLast = index == properties.length - 1;
 
-                size: 17,
+                      return Column(
+                        children: [
+                          propertyItem(properties[index]),
 
-                color: primaryColor,
-              ),
-
-              const SizedBox(width: 3),
-
-              const Text(
-                "Map",
-
-                style: TextStyle(
-                  color: primaryColor,
-
-                  fontSize: 11,
-
-                  fontWeight: FontWeight.w600,
+                          if (!isLast)
+                            Divider(
+                              height: 1,
+                              color: primaryColor.withOpacity(0.08),
+                            ),
+                        ],
+                      );
+                    }, childCount: properties.length),
+                  ),
                 ),
-              ),
             ],
           ),
-
-          const SizedBox(height: 2),
-
-          Expanded(
-            child: properties.isEmpty
-                ? buildEmptyState()
-                : ListView.separated(
-                    itemCount: properties.length,
-
-                    separatorBuilder: (context, index) {
-                      return Divider(
-                        height: 1,
-
-                        color: primaryColor.withOpacity(0.08),
-                      );
-                    },
-
-                    itemBuilder: (context, index) {
-                      return propertyItem(properties[index]);
-                    },
-                  ),
-          ),
-        ],
+        ),
       ),
     );
   }

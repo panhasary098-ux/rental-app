@@ -1332,40 +1332,45 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
+          SizedBox(
+            width: 140,
+            height: 140,
 
-                child: image.isEmpty
-                    ? buildPropertyImagePlaceholder()
-                    : Image.network(
-                        image,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
 
-                        width: 115,
-                        height: 120,
+                    child: image.isEmpty
+                        ? buildPropertyImagePlaceholder()
+                        : Image.network(
+                            image,
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
 
-                        fit: BoxFit.cover,
-
-                        errorBuilder: (context, error, stackTrace) {
-                          return buildPropertyImagePlaceholder();
-                        },
-                      ),
-              ),
-
-              Positioned(
-                left: 7,
-                top: 7,
-
-                child: buildBadge(
-                  rentalStatus,
-
-                  rentalStatus == "Available"
-                      ? const Color(0xFF16A34A)
-                      : const Color(0xFFDC2626),
+                            errorBuilder: (context, error, stackTrace) {
+                              return buildPropertyImagePlaceholder();
+                            },
+                          ),
+                  ),
                 ),
-              ),
-            ],
+
+                Positioned(
+                  left: 7,
+                  top: 7,
+
+                  child: buildBadge(
+                    rentalStatus,
+
+                    rentalStatus == "Available"
+                        ? const Color(0xFF16A34A)
+                        : const Color(0xFFDC2626),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(width: 12),
@@ -1384,9 +1389,8 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                         maxLines: 1,
 
                         overflow: TextOverflow.ellipsis,
-
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 15,
 
                           fontWeight: FontWeight.bold,
 
@@ -1442,8 +1446,6 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 5),
-
                 Row(
                   children: [
                     const Icon(
@@ -1474,7 +1476,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 7),
+                const SizedBox(height: 10),
 
                 Text(
                   price,
@@ -1572,10 +1574,12 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
 
   Widget buildPropertyImagePlaceholder() {
     return Container(
-      width: 115,
-      height: 120,
+      width: double.infinity,
+      height: double.infinity,
 
       color: ownerLightSecondaryColor,
+
+      alignment: Alignment.center,
 
       child: const Icon(
         Icons.home_work_outlined,
@@ -1594,7 +1598,7 @@ class _OwnerHomeScreenState extends State<OwnerHomeScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: isAvailable ? Colors.white : color.withOpacity(0.10),
+        color: Colors.white,
 
         borderRadius: BorderRadius.circular(20),
 

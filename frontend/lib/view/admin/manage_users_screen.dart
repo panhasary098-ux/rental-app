@@ -274,7 +274,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         decoration: BoxDecoration(
           color: primaryColor,
 
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
 
           boxShadow: [
             BoxShadow(
@@ -298,8 +298,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     Text(
                       "Manage Users",
                       style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                         letterSpacing: -0.4,
                       ),
@@ -311,7 +311,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       "Review and manage platform accounts",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.68),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -367,19 +367,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF0F1FA),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Icon(
-                  Icons.groups_2_outlined,
-                  color: primaryColor,
-                  size: 19,
-                ),
-              ),
+              // Container(
+              //   width: 36,
+              //   height: 36,
+              //   decoration: BoxDecoration(
+              //     // color: Color(0xFFF0F1FA),
+              //     borderRadius: BorderRadius.circular(11),
+              //   ),
+              // ),
               SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -404,40 +399,40 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Color(0xFFF0FDF4),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: greenColor,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      "Live",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: greenColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              //   decoration: BoxDecoration(
+              //     color: Color(0xFFF0FDF4),
+              //     borderRadius: BorderRadius.circular(20),
+              //   ),
+              //   child: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       Container(
+              //         width: 6,
+              //         height: 6,
+              //         decoration: BoxDecoration(
+              //           color: greenColor,
+              //           shape: BoxShape.circle,
+              //         ),
+              //       ),
+              //       SizedBox(width: 5),
+              //       Text(
+              //         "Live",
+              //         style: TextStyle(
+              //           fontSize: 10,
+              //           fontWeight: FontWeight.w700,
+              //           color: greenColor,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              //),
             ],
           ),
-          SizedBox(height: 18),
+          SizedBox(height: 10),
           Container(height: 1, color: borderColor),
-          SizedBox(height: 17),
+          SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -445,8 +440,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   value: getRoleCount("Renter").toString(),
                   label: "Renters",
                   icon: Icons.person_outline_rounded,
-                  iconBackground: Color(0xFFF0F1FA),
-                  iconColor: primaryColor,
+
+                  iconColor: Colors.blueAccent,
                 ),
               ),
               buildVerticalDivider(),
@@ -455,7 +450,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   value: getRoleCount("House Owner").toString(),
                   label: "Owners",
                   icon: Icons.home_work_outlined,
-                  iconBackground: Color(0xFFF5F3FF),
+
                   iconColor: Color(0xFF5B21B6),
                 ),
               ),
@@ -465,7 +460,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   value: getSuspendedCount().toString(),
                   label: "Suspended",
                   icon: Icons.block_rounded,
-                  iconBackground: redSoft,
+
                   iconColor: redColor,
                 ),
               ),
@@ -480,7 +475,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     required String value,
     required String label,
     required IconData icon,
-    required Color iconBackground,
+    //required Color iconBackground,
     required Color iconColor,
   }) {
     return Column(
@@ -489,21 +484,15 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           width: 36,
           height: 36,
 
-          decoration: BoxDecoration(
-            color: iconBackground,
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(11)),
 
-            borderRadius: BorderRadius.circular(11),
-          ),
-
-          child: Icon(icon, size: 18, color: iconColor),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
-
-        SizedBox(height: 8),
 
         Text(
           value,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w800,
             color: textColor,
           ),

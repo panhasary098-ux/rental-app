@@ -64,10 +64,6 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
   String? errorMessage;
 
-  // =========================================================
-  // INIT
-  // =========================================================
-
   @override
   void initState() {
     super.initState();
@@ -77,10 +73,6 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
     searchController.addListener(filterProperties);
   }
 
-  // =========================================================
-  // DISPOSE
-  // =========================================================
-
   @override
   void dispose() {
     searchController.removeListener(filterProperties);
@@ -89,10 +81,6 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
     super.dispose();
   }
-
-  // =========================================================
-  // LOAD PENDING PROPERTIES
-  // =========================================================
 
   Future<void> loadPendingProperties() async {
     try {
@@ -308,7 +296,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
       decoration: BoxDecoration(
         color: primaryColor,
 
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
@@ -323,18 +311,18 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Text(
+                const Text(
                   "Property Verification",
 
                   style: TextStyle(
-                    fontSize: 23,
+                    fontSize: 20,
 
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w600,
 
                     color: Colors.white,
 
@@ -342,12 +330,15 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
                   ),
                 ),
 
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
 
                 Text(
                   "Review and verify submitted properties",
 
-                  style: TextStyle(fontSize: 12, color: Color(0xFFB8B9DD)),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.9),
+                  ),
                 ),
               ],
             ),
@@ -419,21 +410,20 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
             height: 50,
 
             decoration: BoxDecoration(
-              color: orangeSoft,
-
+              //color: orangeSoft,
               borderRadius: BorderRadius.circular(14),
             ),
 
             child: const Icon(
               Icons.pending_actions_rounded,
 
-              color: orangeAccent,
+              color: Color.fromARGB(255, 253, 150, 15),
 
-              size: 25,
+              size: 30,
             ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 5),
 
           Expanded(
             child: Column(
@@ -499,40 +489,31 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
             size: 21,
           ),
 
-          suffixIcon: searchController.text.isNotEmpty
-              ? IconButton(
-                  onPressed: () {
-                    searchController.clear();
-                  },
+          // suffixIcon: searchController.text.isNotEmpty
+          //     ? IconButton(
+          //         onPressed: () {
+          //           searchController.clear();
+          //         },
 
-                  icon: const Icon(
-                    Icons.close_rounded,
+          //         icon: const Icon(
+          //           Icons.close_rounded,
 
-                    color: secondaryTextColor,
+          //           color: secondaryTextColor,
 
-                    size: 20,
-                  ),
-                )
-              : Container(
-                  width: 38,
+          //           size: 20,
+          //         ),
+          //       )
+          //     : Container(
+          //         width: 38,
 
-                  margin: const EdgeInsets.all(8),
+          //         margin: const EdgeInsets.all(8),
 
-                  decoration: BoxDecoration(
-                    color: blueSoft,
+          //         decoration: BoxDecoration(
+          //           color: blueSoft,
 
-                    borderRadius: BorderRadius.circular(9),
-                  ),
-
-                  child: const Icon(
-                    Icons.tune_rounded,
-
-                    color: blueAccent,
-
-                    size: 19,
-                  ),
-                ),
-
+          //           borderRadius: BorderRadius.circular(9),
+          //         ),
+          //       ),
           filled: true,
 
           fillColor: cardColor,
@@ -554,7 +535,7 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
 
-            borderSide: const BorderSide(color: primaryColor, width: 1.4),
+            borderSide: const BorderSide(color: Colors.black12, width: 1.4),
           ),
         ),
       ),

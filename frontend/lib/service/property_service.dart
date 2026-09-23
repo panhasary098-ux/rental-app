@@ -230,6 +230,38 @@ class PropertyService {
     return response;
   }
 
+  // Get Renter Notifications
+  Future<http.Response> getRenterNotifications() async {
+    final String token = await _getToken();
+
+    final response = await http.get(
+      Uri.parse("$baseUrl/renter/notifications"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("RENTER NOTIFICATIONS STATUS: ${response.statusCode}");
+
+    print("RENTER NOTIFICATIONS RESPONSE: ${response.body}");
+
+    return response;
+  }
+
+  // Mark Renter Notifications As Seen
+  Future<http.Response> markRenterNotificationsSeen() async {
+    final String token = await _getToken();
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/renter/notifications/mark-seen"),
+      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+    );
+
+    print("MARK RENTER NOTIFICATIONS SEEN STATUS: ${response.statusCode}");
+
+    print("MARK RENTER NOTIFICATIONS SEEN RESPONSE: ${response.body}");
+
+    return response;
+  }
+
   // Get Favorites
   Future<http.Response> getFavorites() async {
     final String token = await _getToken();
@@ -504,9 +536,7 @@ class PropertyService {
   }
 
   // Get Public Owner Profile
-  Future<http.Response> getOwnerProfile({
-    required int ownerId,
-  }) async {
+  Future<http.Response> getOwnerProfile({required int ownerId}) async {
     final String token = await _getToken();
 
     final response = await http.get(
@@ -522,9 +552,7 @@ class PropertyService {
   }
 
   // Get Public Owner Properties
-  Future<http.Response> getOwnerProperties({
-    required int ownerId,
-  }) async {
+  Future<http.Response> getOwnerProperties({required int ownerId}) async {
     final String token = await _getToken();
 
     final response = await http.get(
@@ -538,5 +566,4 @@ class PropertyService {
 
     return response;
   }
-
 }
