@@ -782,6 +782,9 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
   Widget buildPropertyCard(Map<String, dynamic> property) {
     final String imageUrl = getImageUrl(property["image"]);
 
+    final String ownerProfileImageUrl =
+        getImageUrl(property["owner_profile_image"]);
+
     return InkWell(
       onTap: () {
         openReview(property);
@@ -994,18 +997,40 @@ class _PendingVerificationScreenState extends State<PendingVerificationScreen> {
 
                   height: 40,
 
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: blueSoft,
 
                     shape: BoxShape.circle,
                   ),
 
-                  child: const Icon(
-                    Icons.person_outline_rounded,
+                  child: ClipOval(
+                    child: ownerProfileImageUrl.isEmpty
+                        ? Icon(
+                            Icons.person_outline_rounded,
 
-                    color: blueAccent,
+                            color: blueAccent,
 
-                    size: 20,
+                            size: 20,
+                          )
+                        : Image.network(
+                            ownerProfileImageUrl,
+
+                            width: 40,
+
+                            height: 40,
+
+                            fit: BoxFit.cover,
+
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.person_outline_rounded,
+
+                                color: blueAccent,
+
+                                size: 20,
+                              );
+                            },
+                          ),
                   ),
                 ),
 

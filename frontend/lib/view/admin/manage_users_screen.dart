@@ -1,4 +1,5 @@
 import 'package:final_project/service/admin_service.dart';
+import 'package:final_project/view/admin/admin_user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -187,6 +188,31 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     return "${parts.first.substring(0, 1)}${parts.last.substring(0, 1)}"
         .toUpperCase();
+  }
+
+  // Profile Image
+  String getProfileImageUrl(dynamic value) {
+    if (value == null) {
+      return "";
+    }
+
+    String url = value.toString().trim();
+
+    if (url.isEmpty) {
+      return "";
+    }
+
+    url = url.replaceFirst(
+      "http://localhost:8000",
+      "http://10.0.2.2:8000",
+    );
+
+    url = url.replaceFirst(
+      "http://127.0.0.1:8000",
+      "http://10.0.2.2:8000",
+    );
+
+    return url;
   }
 
   @override
@@ -804,12 +830,28 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     final String name = user["name"]?.toString() ?? "User";
 
+    final String profileImageUrl =
+        getProfileImageUrl(user["profile_image"]);
+
     return Material(
       color: Colors.transparent,
 
       child: InkWell(
-        onTap: () {
-          showUserDetails(user);
+        onTap: () async {
+          final int? userId =
+              int.tryParse(user["id"].toString());
+
+          if (userId == null) {
+            return;
+          }
+
+          await Get.to(
+            () => AdminUserProfileScreen(
+              userId: userId,
+            ),
+          );
+
+          await loadUsers();
         },
 
         borderRadius: BorderRadius.circular(18),
@@ -871,14 +913,44 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                               borderRadius: BorderRadius.circular(15),
                             ),
 
-                            child: Text(
-                              getInitials(name),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
 
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                color: isSuspended ? redColor : primaryColor,
-                              ),
+                              child: profileImageUrl.isEmpty
+                                  ? Center(
+                                      child: Text(
+                                        getInitials(name),
+
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w800,
+                                          color: isSuspended
+                                              ? redColor
+                                              : primaryColor,
+                                        ),
+                                      ),
+                                    )
+                                  : Image.network(
+                                      profileImageUrl,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Center(
+                                          child: Text(
+                                            getInitials(name),
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w800,
+                                              color: isSuspended
+                                                  ? redColor
+                                                  : primaryColor,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
                             ),
                           ),
 
@@ -1087,6 +1159,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     final String name = user["name"]?.toString() ?? "User";
 
+    final String profileImageUrl =
+        getProfileImageUrl(user["profile_image"]);
+
     Get.bottomSheet(
       Container(
         constraints: BoxConstraints(maxHeight: Get.height * 0.88),
@@ -1144,14 +1219,44 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                           borderRadius: BorderRadius.circular(22),
                         ),
 
-                        child: Text(
-                          getInitials(name),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
 
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: isSuspended ? redColor : primaryColor,
-                          ),
+                          child: profileImageUrl.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    getInitials(name),
+
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w900,
+                                      color: isSuspended
+                                          ? redColor
+                                          : primaryColor,
+                                    ),
+                                  ),
+                                )
+                              : Image.network(
+                                  profileImageUrl,
+                                  width: 72,
+                                  height: 72,
+                                  fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child: Text(
+                                        getInitials(name),
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w900,
+                                          color: isSuspended
+                                              ? redColor
+                                              : primaryColor,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                         ),
                       ),
 

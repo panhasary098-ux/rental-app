@@ -264,6 +264,40 @@ class AdminService {
     );
   }
 
+  // Get User Profile
+  Future<Map<String, dynamic>>
+      getAdminUserProfile(
+    int userId,
+  ) async {
+    final String token =
+        await _getToken();
+
+    final response =
+        await http.get(
+      Uri.parse(
+        "$baseUrl/admin/users/$userId",
+      ),
+      headers: {
+        "Accept": "application/json",
+        "Authorization":
+            "Bearer $token",
+      },
+    );
+
+    final Map<String, dynamic> data =
+        jsonDecode(response.body);
+
+    if (response.statusCode == 200 &&
+        data["success"] == true) {
+      return data;
+    }
+
+    throw Exception(
+      data["message"] ??
+          "Unable to load user profile",
+    );
+  }
+
   // Update User Status
   Future<bool> updateUserStatus({
     required int userId,
@@ -336,34 +370,34 @@ class AdminService {
   }
 
   // Get private National ID image
-Future<Uint8List> getNationalId(int userId) async {
-  final String token = await _getToken();
+  Future<Uint8List> getNationalId(int userId) async {
+    final String token = await _getToken();
 
-  final response = await http.get(
-    Uri.parse(
-      "$baseUrl/admin/users/$userId/national-id",
-    ),
-    headers: {
-      "Accept": "image/*",
-      "Authorization": "Bearer $token",
-    },
-  );
+    final response = await http.get(
+      Uri.parse(
+        "$baseUrl/admin/users/$userId/national-id",
+      ),
+      headers: {
+        "Accept": "image/*",
+        "Authorization": "Bearer $token",
+      },
+    );
 
-  if (response.statusCode == 200) {
-    return response.bodyBytes;
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    }
+
+    String message = "Unable to load National ID";
+
+    try {
+      final Map<String, dynamic> data =
+          jsonDecode(response.body);
+
+      message = data["message"] ?? message;
+    } catch (_) {}
+
+    throw Exception(message);
   }
-
-  String message = "Unable to load National ID";
-
-  try {
-    final Map<String, dynamic> data =
-        jsonDecode(response.body);
-
-    message = data["message"] ?? message;
-  } catch (_) {}
-
-  throw Exception(message);
-}
 
   // Ownership Document
   Future<Uint8List> getOwnershipDocument(

@@ -852,6 +852,20 @@ class AdminPropertyController extends Controller
                 )
                 ->values();
 
+        // Owner Profile Image
+        $ownerProfileImage = null;
+
+        if (
+            $owner &&
+            !empty($owner->profile_image)
+        ) {
+            $ownerProfileImage =
+                asset(
+                    'storage/' .
+                    $owner->profile_image
+                );
+        }
+
         return [
             'id' =>
                 $property->id,
@@ -871,6 +885,9 @@ class AdminPropertyController extends Controller
             'owner' =>
                 $owner?->name
                 ?? 'Unknown Owner',
+
+            'owner_profile_image' =>
+                $ownerProfileImage,
 
             'email' =>
                 $owner?->email,

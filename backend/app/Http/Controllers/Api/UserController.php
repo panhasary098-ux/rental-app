@@ -714,6 +714,226 @@ class UserController extends Controller
     }
 
 
+    // Admin User Profile
+    public function adminUserProfile(
+        Request $request,
+        User $user
+    ) {
+        $admin =
+            $request->user();
+
+        if (
+            !$admin ||
+            $admin->role !==
+            'admin'
+        ) {
+            return response()->json([
+                'success' => false,
+
+                'message' =>
+                'Only admin can view user profiles',
+            ], 403);
+        }
+
+        if (
+            !in_array(
+                $user->role,
+                [
+                    'renter',
+                    'house_owner',
+                ]
+            )
+        ) {
+            return response()->json([
+                'success' => false,
+
+                'message' =>
+                'User profile not found',
+            ], 404);
+        }
+
+        $profileImageUrl = null;
+
+        if (!empty($user->profile_image)) {
+            $profileImageUrl =
+                asset(
+                    'storage/' .
+                    $user->profile_image
+                );
+        }
+
+        $userData = [
+            'id' =>
+                $user->id,
+
+            'name' =>
+                $user->name,
+
+            'email' =>
+                $user->email,
+
+            'phone' =>
+                $user->phone,
+
+            'role' =>
+                $user->role,
+
+            'status' =>
+                $user->status,
+
+            'profile_image' =>
+                $profileImageUrl,
+
+            'member_since' =>
+                $user->created_at
+                    ? $user->created_at
+                        ->format('d M Y')
+                    : null,
+        ];
+
+        if ($user->role === 'house_owner') {
+            $properties =
+                $user->properties()
+                    ->with([
+                        'images' => function ($query) {
+                            $query->orderBy(
+                                'sort_order'
+                            );
+                        },
+                    ])
+                    ->latest()
+                    ->get();
+
+            $formattedProperties =
+                $properties->map(
+                    function ($property) {
+                        $coverImage =
+                            $property->images
+                                ->firstWhere(
+                                    'is_cover',
+                                    true
+                                );
+
+                        if (!$coverImage) {
+                            $coverImage =
+                                $property->images
+                                    ->first();
+                        }
+
+                        $coverImageUrl = null;
+
+                        if (
+                            $coverImage &&
+                            $coverImage->image_path
+                        ) {
+                            $coverImageUrl =
+                                asset(
+                                    'storage/' .
+                                    $coverImage->image_path
+                                );
+                        }
+
+                        return [
+                            'id' =>
+                                $property->id,
+
+                            'name' =>
+                                $property->name,
+
+                            'property_type' =>
+                                $property->property_type,
+
+                            'price' =>
+                                (float) $property->price,
+
+                            'address' =>
+                                $property->address,
+
+                            'verification_status' =>
+                                $property->verification_status,
+
+                            'rental_status' =>
+                                $property->rental_status,
+
+                            'post_status' =>
+                                $property->post_status,
+
+                            'cover_image' =>
+                                $coverImageUrl,
+
+                            'created_at' =>
+                                $property->created_at
+                                    ? $property->created_at
+                                        ->format('d M Y')
+                                    : null,
+                        ];
+                    }
+                )
+                ->values();
+
+            $userData['owner_details'] = [
+                'has_national_id' =>
+                    !empty(
+                        $user->national_id_path
+                    ),
+
+                'total_properties' =>
+                    $properties->count(),
+
+                'pending_properties' =>
+                    $properties
+                        ->where(
+                            'verification_status',
+                            'pending'
+                        )
+                        ->count(),
+
+                'approved_properties' =>
+                    $properties
+                        ->where(
+                            'verification_status',
+                            'approved'
+                        )
+                        ->count(),
+
+                'rejected_properties' =>
+                    $properties
+                        ->where(
+                            'verification_status',
+                            'rejected'
+                        )
+                        ->count(),
+
+                'available_properties' =>
+                    $properties
+                        ->where(
+                            'rental_status',
+                            'available'
+                        )
+                        ->count(),
+
+                'rented_properties' =>
+                    $properties
+                        ->where(
+                            'rental_status',
+                            'rented'
+                        )
+                        ->count(),
+
+                'properties' =>
+                    $formattedProperties,
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+
+            'user' =>
+                $userData,
+        ], 200);
+    }
+
+
     // Public owner profile
     public function publicOwnerProfile(
         Request $request,

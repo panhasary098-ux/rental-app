@@ -266,6 +266,12 @@ Route::middleware('auth:sanctum')->group(function () {
         [UserController::class, 'adminUsers']
     );
 
+    // Admin User Profile
+    Route::get(
+        '/admin/users/{user}',
+        [UserController::class, 'adminUserProfile']
+    );
+
     // Update User Status
     Route::patch(
         '/admin/users/{user}/status',
