@@ -589,7 +589,7 @@ class _AdminUserProfileScreenState
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius:
-                  BorderRadius.circular(24),
+                  BorderRadius.circular(50),
               border: Border.all(
                 color: Colors.white,
                 width: 3,
@@ -597,7 +597,7 @@ class _AdminUserProfileScreenState
             ),
             child: ClipRRect(
               borderRadius:
-                  BorderRadius.circular(21),
+                  BorderRadius.circular(50),
               child: profileImageUrl.isEmpty
                   ? Center(
                       child: Text(
