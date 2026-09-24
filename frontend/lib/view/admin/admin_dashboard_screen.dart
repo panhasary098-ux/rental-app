@@ -450,7 +450,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       padding: EdgeInsets.fromLTRB(18, 16, 16, 17),
       decoration: BoxDecoration(
         color: primaryColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: primaryColor.withValues(alpha: 0.15),
@@ -488,7 +488,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       "JoulNow Admin",
                       style: TextStyle(
                         fontSize: 17,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: Colors.white,
                         letterSpacing: -0.3,
                       ),
@@ -553,15 +553,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 TextSpan(
                   text: "Welcome back, ",
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.72),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.80),
                   ),
                 ),
                 TextSpan(
                   text: "JoulNow Team",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 1,
                     fontWeight: FontWeight.w800,
                     color: Colors.white,
                   ),
@@ -578,7 +578,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget buildStats() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 18),
+      padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -596,20 +596,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF0F1FA),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Icon(
-                  Icons.dashboard_outlined,
-                  color: primaryColor,
-                  size: 19,
-                ),
-              ),
-              SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -633,40 +619,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: greenSoft,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        color: greenAccent,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      "Live",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        color: greenAccent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              //   decoration: BoxDecoration(
+              //     color: greenSoft,
+              //     borderRadius: BorderRadius.circular(20),
+              //   ),
+              //   child: Row(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: [
+              //       Container(
+              //         width: 6,
+              //         height: 6,
+              //         decoration: BoxDecoration(
+              //           color: greenAccent,
+              //           shape: BoxShape.circle,
+              //         ),
+              //       ),
+              //       SizedBox(width: 5),
+              //       Text(
+              //         "Live",
+              //         style: TextStyle(
+              //           fontSize: 10,
+              //           fontWeight: FontWeight.w700,
+              //           color: greenAccent,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
-          SizedBox(height: 18),
+          SizedBox(height: 10),
           Container(height: 1, color: borderColor),
-          SizedBox(height: 17),
+          SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -674,6 +660,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   value: totalUsers.toString(),
                   label: "Users",
                   icon: Icons.people_alt_outlined,
+                  color: const Color.fromARGB(255, 6, 79, 206),
                 ),
               ),
               buildDashboardDivider(),
@@ -682,6 +669,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   value: totalProperties.toString(),
                   label: "Properties",
                   icon: Icons.home_work_outlined,
+                  color: primaryColor,
                 ),
               ),
               buildDashboardDivider(),
@@ -690,6 +678,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   value: pendingProperties.toString(),
                   label: "Pending",
                   icon: Icons.schedule_rounded,
+                  color: Colors.orangeAccent,
                 ),
               ),
               buildDashboardDivider(),
@@ -698,6 +687,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   value: suspendedUsers.toString(),
                   label: "Suspended",
                   icon: Icons.person_off_outlined,
+                  color: Colors.red,
                 ),
               ),
             ],
@@ -711,6 +701,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required String value,
     required String label,
     required IconData icon,
+    required Color color,
   }) {
     return Column(
       children: [
@@ -718,12 +709,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            color: Color(0xFFF5F6F8),
+            //color: Color(0xFFF5F6F8),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 17, color: primaryColor),
+          child: Icon(icon, size: 20, color: color),
         ),
-        SizedBox(height: 8),
+        // SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
@@ -732,7 +723,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             color: textColor,
           ),
         ),
-        SizedBox(height: 1),
+        // SizedBox(height: 4),
         Text(
           label,
           maxLines: 1,
@@ -759,7 +750,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: goToOwnerRequests,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 15),
@@ -781,17 +772,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Color(0xFFF1F3F8),
+                  //color: Color(0xFFF1F3F8),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
-                  Icons.chat_bubble_outline_rounded,
-                  color: primaryColor,
-                  size: 22,
+                  Icons.message_rounded,
+                  color: Colors.blue[900],
+                  size: 32,
                 ),
               ),
 
-              SizedBox(width: 14),
+              SizedBox(width: 7),
 
               Expanded(
                 child: Column(

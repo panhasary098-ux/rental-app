@@ -285,7 +285,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
         width: double.infinity,
         decoration: BoxDecoration(
           color: _primaryColor,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
               color: _primaryColor.withValues(alpha: 0.18),
@@ -305,8 +305,9 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                     Text(
                       "Manage Properties",
                       style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
+
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
                         letterSpacing: -0.4,
                       ),
@@ -316,7 +317,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                       "Control your marketplace listings",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white.withValues(alpha: 0.68),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -367,19 +368,19 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
         children: [
           Row(
             children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Color(0xFFF0F1FA),
-                  borderRadius: BorderRadius.circular(11),
-                ),
-                child: Icon(
-                  Icons.apartment_rounded,
-                  color: _primaryColor,
-                  size: 19,
-                ),
-              ),
+              // Container(
+              //   width: 36,
+              //   height: 36,
+              //   decoration: BoxDecoration(
+              //     //color: Color(0xFFF0F1FA),
+              //     borderRadius: BorderRadius.circular(11),
+              //   ),
+              //   child: Icon(
+              //     Icons.apartment_rounded,
+              //     color: _primaryColor,
+              //     size: ,
+              //   ),
+              // ),
               SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -435,9 +436,9 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
               ),
             ],
           ),
-          SizedBox(height: 18),
+          SizedBox(height: 10),
           Container(height: 1, color: _borderColor),
-          SizedBox(height: 17),
+          SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -445,7 +446,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                   value: properties.length.toString(),
                   label: "Total",
                   icon: Icons.home_work_outlined,
-                  iconBackground: Color(0xFFF0F1FA),
+                  //iconBackground: Color(0xFFF0F1FA),
                   iconColor: _primaryColor,
                 ),
               ),
@@ -455,7 +456,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                   value: getActiveCount().toString(),
                   label: "Active",
                   icon: Icons.visibility_outlined,
-                  iconBackground: _greenSoft,
+                  //iconBackground: _greenSoft,
                   iconColor: _greenColor,
                 ),
               ),
@@ -465,7 +466,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                   value: getRentedCount().toString(),
                   label: "Rented",
                   icon: Icons.key_outlined,
-                  iconBackground: Color(0xFFFFF7E6),
+                  //iconBackground: Color(0xFFFFF7E6),
                   iconColor: Color(0xFFD97706),
                 ),
               ),
@@ -475,7 +476,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                   value: getRemovedCount().toString(),
                   label: "Removed",
                   icon: Icons.visibility_off_outlined,
-                  iconBackground: _redSoft,
+                  //iconBackground: _redSoft,
                   iconColor: _redColor,
                 ),
               ),
@@ -490,7 +491,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
     required String value,
     required String label,
     required IconData icon,
-    required Color iconBackground,
+    // required Color iconBackground,
     required Color iconColor,
   }) {
     return Column(
@@ -499,12 +500,12 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            color: iconBackground,
+            //color: iconBackground,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 17, color: iconColor),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
-        SizedBox(height: 8),
+        //SizedBox(height: 8),
         Text(
           value,
           style: TextStyle(
@@ -513,7 +514,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
             color: _textColor,
           ),
         ),
-        SizedBox(height: 1),
+        //SizedBox(height: 1),
         Text(
           label,
           maxLines: 1,

@@ -341,3 +341,15 @@ Route::middleware('auth:sanctum')->group(function () {
         [OwnerRequestController::class, 'reply']
     );
 });
+
+    // Renter Notifications
+    Route::get(
+        '/renter/notifications',
+        [PropertyController::class, 'renterNotifications']
+    );
+
+    // Mark renter notifications as seen
+    Route::post(
+        '/renter/notifications/mark-seen',
+        [PropertyController::class, 'markRenterNotificationsSeen']
+    );

@@ -1,16 +1,30 @@
+import 'dart:convert';
+
 import 'package:final_project/controller/renter_account_controller.dart';
 import 'package:final_project/service/auth_service.dart';
+import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/authentication/login_screen.dart';
+import 'package:final_project/view/renter/renter_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RenterAccountScreen extends StatelessWidget {
   final VoidCallback onSavedPropertiesTap;
 
-  RenterAccountScreen({super.key, required this.onSavedPropertiesTap});
+  // Optional callback if the parent screen can open a specific property.
+  final void Function(int propertyId)? onNotificationPropertyTap;
+
+  RenterAccountScreen({
+    super.key,
+    required this.onSavedPropertiesTap,
+    this.onNotificationPropertyTap,
+  });
+
   final RenterAccountController controller = Get.put(RenterAccountController());
 
   final AuthService authService = AuthService();
+
+  final PropertyService propertyService = PropertyService();
 
   // Colors
   static const Color primaryColor = Color(0xFF03045E);
@@ -227,7 +241,7 @@ class RenterAccountScreen extends StatelessWidget {
                       // iconBackground: orangeSoft,
                       title: "Notifications",
                       subtitle: "Saved property and account updates",
-                      onTap: showNotificationsSheet,
+                      onTap: openNotifications,
                     ),
                   ],
                 ),
@@ -898,48 +912,160 @@ class RenterAccountScreen extends StatelessWidget {
   }
 
   // Notifications
-  void showNotificationsSheet() {
-    Get.bottomSheet(
-      buildSheet(
-        title: "Notifications",
-        icon: Icons.notifications_none_rounded,
-        iconColor: orangeAccent,
-        iconBackground: orangeSoft,
-        child: Column(
-          children: [
-            Icon(
-              Icons.notifications_none_rounded,
-              size: 44,
-              color: orangeAccent,
-            ),
+  Future<void> openNotifications() async {
+    try {
+      Get.dialog(
+        const Center(child: CircularProgressIndicator(color: primaryColor)),
+        barrierDismissible: false,
+      );
 
-            SizedBox(height: 12),
+      final response = await propertyService.getRenterNotifications();
 
-            Text(
-              "No notifications yet",
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: textColor,
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        String message = "Unable to load notifications.";
+
+        try {
+          final dynamic decoded = jsonDecode(response.body);
+
+          if (decoded is Map && decoded["message"] != null) {
+            message = decoded["message"].toString();
+          }
+        } catch (_) {}
+
+        showErrorNotification(title: "Unable to Load", message: message);
+
+        return;
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (decoded is! Map<String, dynamic>) {
+        showErrorNotification(
+          title: "Unable to Load",
+          message: "Invalid notification response.",
+        );
+
+        return;
+      }
+
+      final dynamic rawNotifications = decoded["notifications"];
+
+      final List<RenterPropertyNotification> notifications = [];
+
+      if (rawNotifications is List) {
+        for (final dynamic item in rawNotifications) {
+          if (item is! Map) {
+            continue;
+          }
+
+          final Map<String, dynamic> data = Map<String, dynamic>.from(item);
+
+          notifications.add(
+            RenterPropertyNotification(
+              id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+
+              propertyId:
+                  int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+
+              propertyName: data["property_name"]?.toString() ?? "Property",
+
+              propertyImage: getLaravelImageUrl(
+                data["property_image"]?.toString() ?? "",
               ),
-            ),
 
-            SizedBox(height: 5),
+              location: data["location"]?.toString() ?? "-",
 
-            Text(
-              "Saved property and account updates will appear here.",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                height: 1.4,
-                color: secondaryTextColor,
-              ),
+              type: data["type"]?.toString() ?? "",
+
+              title: data["title"]?.toString() ?? "Property Status Updated",
+
+              message: data["message"]?.toString() ?? "",
+
+              oldStatus: data["old_status"]?.toString() ?? "",
+
+              newStatus: data["new_status"]?.toString() ?? "",
+
+              createdAt:
+                  DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                  DateTime.now(),
+
+              isNew:
+                  data["is_new"] == true || data["is_new"]?.toString() == "1",
             ),
-          ],
+          );
+        }
+      }
+
+      notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      final bool hadNewNotifications = notifications.any((item) => item.isNew);
+
+      await Get.to(
+        () => RenterNotificationsScreen(
+          notifications: notifications,
+
+          onViewProperty: (notification) {
+            // Close notification screen first.
+            Get.back();
+
+            // If the parent knows how to open a specific
+            // property, use it.
+            if (onNotificationPropertyTap != null) {
+              onNotificationPropertyTap!(notification.propertyId);
+
+              return;
+            }
+
+            // Fallback: notification properties are
+            // saved/favorited properties, so open the
+            // Saved Properties section.
+            onSavedPropertiesTap();
+          },
         ),
-      ),
-      isScrollControlled: true,
-    );
+      );
+
+      if (hadNewNotifications) {
+        try {
+          final seenResponse = await propertyService
+              .markRenterNotificationsSeen();
+
+          if (seenResponse.statusCode < 200 || seenResponse.statusCode >= 300) {
+            print(
+              "MARK RENTER NOTIFICATIONS SEEN FAILED: "
+              "${seenResponse.statusCode} "
+              "${seenResponse.body}",
+            );
+          }
+        } catch (e) {
+          print("MARK RENTER NOTIFICATIONS SEEN ERROR: $e");
+        }
+      }
+    } catch (e) {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      showErrorNotification(
+        title: "Unable to Load",
+        message: "Unable to load notifications. Please try again.",
+      );
+
+      print("RENTER ACCOUNT NOTIFICATION ERROR: $e");
+    }
+  }
+
+  String getLaravelImageUrl(String image) {
+    if (image.trim().isEmpty) {
+      return "";
+    }
+
+    return image
+        .replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000")
+        .replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
   }
 
   // Help Center

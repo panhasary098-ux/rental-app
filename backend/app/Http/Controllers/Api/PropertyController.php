@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\VerificationReview;
+use App\Models\Favorite;
+use App\Models\RenterNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -667,11 +668,9 @@ class PropertyController extends Controller
                         'latitude' =>
                             (float) $property->latitude,
 
-                        'longitude' =>
-                            (float) $property->longitude,
+                        'longitude' =>(float) $property->longitude,
 
-                        'bedrooms' =>
-                            $property->bedrooms,
+                        'bedrooms' =>$property->bedrooms,
 
                         'bathrooms' =>
                             $property->bathrooms,
@@ -715,59 +714,127 @@ class PropertyController extends Controller
     }
 
     // Update rental status
-    public function updateRentalStatus(
-        Request $request,
-        Property $property
+    // Update rental status
+public function updateRentalStatus(
+    Request $request,
+    Property $property
+) {
+    $user = $request->user();
+
+    // Only house owner
+    if (
+        !$user ||
+        $user->role !== 'house_owner'
     ) {
-        $user = $request->user();
+        return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized',
+        ], 403);
+    }
 
-        // Only house owner
-        if (
-            !$user ||
-            $user->role !== 'house_owner'
+    // Owner check
+    if (
+        $property->owner_id
+        !== $user->id
+    ) {
+        return response()->json([
+            'success' => false,
+            'message' =>
+                'You do not own this property',
+        ], 403);
+    }
+
+    $validated = $request->validate([
+        'rental_status' =>
+            'required|in:available,rented',
+    ]);
+
+    // Save the old status before updating
+    $oldStatus = $property->rental_status;
+
+    $newStatus = $validated['rental_status'];
+
+    // Only continue with notifications if the status really changed
+    if ($oldStatus !== $newStatus) {
+
+        DB::transaction(function () use (
+            $property,
+            $oldStatus,
+            $newStatus
         ) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-            ], 403);
-        }
-
-        // Owner check
-        if (
-            $property->owner_id
-            !== $user->id
-        ) {
-            return response()->json([
-                'success' => false,
-                'message' =>
-                    'You do not own this property',
-            ], 403);
-        }
-
-        $validated =
-            $request->validate([
-                'rental_status' =>
-                    'required|in:available,rented',
+            // Update property status
+            $property->update([
+                'rental_status' => $newStatus,
             ]);
 
-        $property->update([
-            'rental_status' =>
-                $validated['rental_status'],
-        ]);
+            // Find every renter who favorited this property
+            $renterIds = Favorite::where(
+                'property_id',
+                $property->id
+            )
+                ->pluck('user_id');
 
-        $property->owner_phone =
-            $user->phone;
+            // Create one notification for each renter
+            foreach ($renterIds as $renterId) {
 
-        return response()->json([
-            'success' => true,
+                if ($newStatus === 'available') {
+                    $title = 'Property Available Again';
 
-            'message' =>
-                'Rental status updated successfully',
+                    $message =
+                        $property->name .
+                        ' is now available.';
+                } else {
+                    $title = 'Property Status Updated';
 
-            'property' =>
-                $property,
-        ]);
+                    $message =
+                        $property->name .
+                        ' is now rented.';
+                }
+
+                RenterNotification::create([
+                    'renter_id' => $renterId,
+
+                    'property_id' =>
+                        $property->id,
+
+                    'type' =>
+                        'favorite_status_changed',
+
+                    'title' =>
+                        $title,
+
+                    'message' =>
+                        $message,
+
+                    'old_status' =>
+                        $oldStatus,
+
+                    'new_status' =>
+                        $newStatus,
+
+                    'seen_at' =>
+                        null,
+                ]);
+            }
+        });
     }
+
+    // Make sure property has the newest database values
+    $property->refresh();
+
+    $property->owner_phone =
+        $user->phone;
+
+    return response()->json([
+        'success' => true,
+
+        'message' =>
+            'Rental status updated successfully',
+
+        'property' =>
+            $property,
+    ]);
+}
 
     // Update property
     public function updateProperty(
@@ -1240,8 +1307,7 @@ class PropertyController extends Controller
                     return null;
                 }
 
-                $coverImage =
-                    $property
+                $coverImage =$property
                         ->images
                         ->firstWhere(
                             'is_cover',
@@ -1366,6 +1432,160 @@ class PropertyController extends Controller
 
             'message' =>
                 'Notifications marked as seen',
+        ], 200);
+    }
+
+    // Get renter notifications
+    public function renterNotifications(Request $request)
+    {
+        $user = $request->user();
+
+        // Only renter
+        if (
+            !$user ||
+            $user->role !== 'renter'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only renters can view notifications',
+            ], 403);
+        }
+
+        $notifications = RenterNotification::where(
+            'renter_id',
+            $user->id
+        )
+            ->with([
+                'property.images' => function ($query) {
+                    $query->orderBy('sort_order');
+                },
+            ])
+            ->latest()
+            ->get()
+            ->map(function ($notification) {
+
+                $property = $notification->property;
+
+                if (!$property) {
+                    return null;
+                }
+
+                // Find property cover image
+                $coverImage = $property
+                    ->images
+                    ->firstWhere(
+                        'is_cover',
+                        true
+                    );
+
+                if (!$coverImage) {
+                    $coverImage = $property
+                        ->images
+                        ->first();
+                }
+
+                $imageUrl = null;
+
+                if (
+                    $coverImage &&
+                    $coverImage->image_path
+                ) {
+                    $imageUrl = asset(
+                        'storage/' .
+                        $coverImage->image_path
+                    );
+                }
+
+                return [
+                    'id' =>
+                        $notification->id,
+
+                    'property_id' =>
+                        $property->id,
+
+                    'property_name' =>
+                        $property->name,
+
+                    'property_image' =>
+                        $imageUrl,
+
+                    'location' =>
+                        $property->address,
+
+                    'type' =>
+                        $notification->type,
+
+                    'title' =>
+                        $notification->title,
+
+                    'message' =>
+                        $notification->message,
+
+                    'old_status' =>
+                        $notification->old_status,
+
+                    'new_status' =>
+                        $notification->new_status,
+
+                    'is_new' =>
+                        $notification->seen_at === null,
+
+                    'seen_at' =>
+                        $notification->seen_at,
+
+                    'created_at' =>
+                        $notification->created_at,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $newCount = $notifications
+            ->where(
+                'is_new',
+                true
+            )
+            ->count();
+
+        return response()->json([
+            'success' => true,
+
+            'new_count' =>
+                $newCount,
+
+            'notifications' =>
+                $notifications,
+        ], 200);
+    }
+
+
+        // Mark renter notifications as seen
+    public function markRenterNotificationsSeen(Request $request)
+    {
+        $user = $request->user();
+
+        if (
+            !$user ||
+            $user->role !== 'renter'
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Only renters can update notifications',
+            ], 403);
+        }
+
+        RenterNotification::where(
+            'renter_id',
+            $user->id
+        )
+            ->whereNull('seen_at')
+            ->update([
+                'seen_at' => now(),
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Notifications marked as seen',
         ], 200);
     }
 }
