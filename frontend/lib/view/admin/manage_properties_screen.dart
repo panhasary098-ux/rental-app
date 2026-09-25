@@ -647,7 +647,7 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
             ),
             SizedBox(width: 7),
             Container(
-              width: 21,
+              width: 25,
               height: 21,
               padding: EdgeInsets.symmetric(horizontal: 5),
               alignment: Alignment.center,
