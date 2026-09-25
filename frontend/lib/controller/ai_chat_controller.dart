@@ -1,14 +1,18 @@
 import 'package:final_project/model/chat_message.dart';
+import 'package:final_project/model/property.dart';
 import 'package:final_project/service/ai_chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AiChatController extends GetxController {
-  TextEditingController messageController = TextEditingController();
+  TextEditingController messageController =
+      TextEditingController();
 
-  AiChatService aiChatService = AiChatService();
+  AiChatService aiChatService =
+      AiChatService();
 
-  RxList<ChatMessage> messages = <ChatMessage>[].obs;
+  RxList<ChatMessage> messages =
+      <ChatMessage>[].obs;
 
   RxList<Map<String, dynamic>> conversations =
       <Map<String, dynamic>>[].obs;
@@ -17,9 +21,11 @@ class AiChatController extends GetxController {
   RxBool isLoadingHistory = false.obs;
   RxBool isLoadingConversations = false.obs;
 
-  RxnInt currentConversationId = RxnInt();
+  RxnInt currentConversationId =
+      RxnInt();
 
-  RxString currentConversationTitle = "New Chat".obs;
+  RxString currentConversationTitle =
+      "New Chat".obs;
 
   @override
   void onInit() {
@@ -50,7 +56,8 @@ class AiChatController extends GetxController {
       Map<String, dynamic> latestConversation =
           conversationList.first;
 
-      int? conversationId = parseConversationId(
+      int? conversationId =
+          parseConversationId(
         latestConversation["id"],
       );
 
@@ -141,7 +148,8 @@ class AiChatController extends GetxController {
       Map<String, dynamic> conversation =
           await aiChatService.createConversation();
 
-      int? conversationId = parseConversationId(
+      int? conversationId =
+          parseConversationId(
         conversation["id"],
       );
 
@@ -178,7 +186,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to create a new chat.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
     } finally {
       isLoadingHistory.value = false;
@@ -286,7 +295,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to open this conversation.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
     } finally {
       isLoadingHistory.value = false;
@@ -322,7 +332,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to start a conversation.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
 
       return;
@@ -371,7 +382,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to start a conversation.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
 
       return;
@@ -449,23 +461,73 @@ class AiChatController extends GetxController {
     try {
       isLoading.value = true;
 
-      String reply =
+      Map<String, dynamic> response =
           await aiChatService.sendMessage(
-        conversationId: conversationId,
-        message: userMessage,
-        history: history,
+        conversationId:
+            conversationId,
+        message:
+            userMessage,
+        history:
+            history,
+      );
+
+      String reply =
+          response["reply"]?.toString() ??
+              "";
+
+      if (reply.trim().isEmpty) {
+        throw Exception(
+          "AI did not return a response.",
+        );
+      }
+
+      List<Property> properties = [];
+
+      dynamic propertyData =
+          response["properties"];
+
+      if (propertyData is List) {
+        for (
+          dynamic item
+          in propertyData
+        ) {
+          if (item is Map) {
+            try {
+              Property property =
+                  Property.fromJson(
+                Map<String, dynamic>.from(
+                  item,
+                ),
+              );
+
+              properties.add(
+                property,
+              );
+            } catch (e) {
+              print(
+                "AI PROPERTY PARSE ERROR: $e",
+              );
+            }
+          }
+        }
+      }
+
+      print(
+        "AI PROPERTY COUNT: ${properties.length}",
       );
 
       messages.add(
         ChatMessage(
           message: reply,
           isUser: false,
+          properties: properties,
         ),
       );
 
       await loadConversations();
 
-      Map<String, dynamic>? currentConversation;
+      Map<String, dynamic>?
+          currentConversation;
 
       for (
         Map<String, dynamic> conversation
@@ -584,7 +646,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to clear chat.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
     } finally {
       isLoadingHistory.value = false;
@@ -656,7 +719,8 @@ class AiChatController extends GetxController {
       Get.snackbar(
         "Error",
         "Unable to delete conversation.",
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition:
+            SnackPosition.BOTTOM,
       );
     }
   }

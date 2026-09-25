@@ -66,10 +66,16 @@ class AiChatController extends Controller
             $request->history ?? [];
 
         // Search Real Properties
-        $propertyContext =
-            $this->getPropertyContext(
+        $propertySearch =
+            $this->getPropertySearch(
                 $userMessage
             );
+
+        $propertyContext =
+            $propertySearch['context'];
+
+        $matchedProperties =
+            $propertySearch['properties'];
 
         $systemPrompt = <<<PROMPT
 Identity:
@@ -113,7 +119,8 @@ Property search rules:
 5. If no matching JoulNow property is provided, clearly tell the user that no matching property was found.
 6. Do not claim that a property matches a requirement unless the provided property information supports it.
 7. Keep property recommendations concise and easy to read on a mobile screen.
-8. When recommending properties, include useful information such as property name, type, price, address, furnished status, bedrooms, and bathrooms when available.
+8. When recommending properties, do not repeat every property detail because JoulNow will display property cards below your response.
+9. When matching properties are available, briefly tell the user that matching properties were found and that they can view them below.
 
 General rules:
 1. Give clear and simple answers.
@@ -420,6 +427,9 @@ PROMPT;
                 'reply' =>
                     $reply,
 
+                'properties' =>
+                    $matchedProperties,
+
                 'conversation_id' =>
                     $conversation->id,
 
@@ -598,10 +608,10 @@ PROMPT;
             . '...';
     }
 
-    // Get Property Context
-    private function getPropertyContext(
+    // Get Property Search
+    private function getPropertySearch(
         string $userMessage
-    ): string {
+    ): array {
         $message =
             strtolower(
                 $userMessage
@@ -646,13 +656,23 @@ PROMPT;
         }
 
         if (!$isPropertySearch) {
-            return
-                'No property database search was required for this question.';
+            return [
+                'context' =>
+                    'No property database search was required for this question.',
+
+                'properties' =>
+                    [],
+            ];
         }
 
         // Public Properties
         $query =
             Property::query()
+                ->with([
+                    'images',
+                    'facilities',
+                    'owner',
+                ])
                 ->where(
                     'rental_status',
                     'available'
@@ -797,8 +817,13 @@ PROMPT;
                 ->get();
 
         if ($properties->isEmpty()) {
-            return
-                'A real JoulNow property database search was performed, but no matching available properties were found.';
+            return [
+                'context' =>
+                    'A real JoulNow property database search was performed, but no matching available properties were found.',
+
+                'properties' =>
+                    [],
+            ];
         }
 
         $propertyLines = [];
@@ -853,12 +878,198 @@ PROMPT;
                 . $property->rental_status;
         }
 
-        return
-            "The following properties were retrieved from the real JoulNow database:\n\n"
-            . implode(
-                "\n\n",
-                $propertyLines
-            );
+        $formattedProperties = [];
+
+        foreach (
+            $properties
+            as $property
+        ) {
+            $images = [];
+
+            foreach (
+                $property->images
+                as $image
+            ) {
+                $imagePath =
+                    $image->image_path
+                    ?? null;
+
+                if (
+                    $imagePath != null &&
+                    trim($imagePath) != ''
+                ) {
+                    $images[] = [
+                        'image_path' =>
+                            $imagePath,
+
+                        'image_url' =>
+                            asset(
+                                'storage/' .
+                                ltrim(
+                                    $imagePath,
+                                    '/'
+                                )
+                            ),
+                    ];
+                }
+            }
+
+            $facilities = null;
+
+            if ($property->facilities) {
+                $facilities = [
+                    'wifi' =>
+                        (bool) $property->facilities->wifi,
+
+                    'parking' =>
+                        (bool) $property->facilities->parking,
+
+                    'air_conditioning' =>
+                        (bool) $property->facilities->air_conditioning,
+
+                    'pet_allowed' =>
+                        (bool) $property->facilities->pet_allowed,
+
+                    'balcony' =>
+                        (bool) $property->facilities->balcony,
+
+                    'kitchen' =>
+                        (bool) $property->facilities->kitchen,
+
+                    'swimming_pool' =>
+                        (bool) $property->facilities->swimming_pool,
+
+                    'elevator' =>
+                        (bool) $property->facilities->elevator,
+                ];
+            }
+
+            $owner = null;
+
+            if ($property->owner) {
+                $profileImage =
+                    $property->owner->profile_image
+                    ?? '';
+
+                if (
+                    $profileImage != null &&
+                    trim($profileImage) != ''
+                ) {
+                    $profileImage =
+                        asset(
+                            'storage/' .
+                            ltrim(
+                                $profileImage,
+                                '/'
+                            )
+                        );
+                } else {
+                    $profileImage = '';
+                }
+
+                $owner = [
+                    'id' =>
+                        $property->owner->id,
+
+                    'name' =>
+                        $property->owner->name,
+
+                    'profile_image' =>
+                        $profileImage,
+
+                    'member_since' =>
+                        optional(
+                            $property->owner->created_at
+                        )->format(
+                            'M Y'
+                        ),
+                ];
+            }
+
+            $formattedProperties[] = [
+                'id' =>
+                    $property->id,
+
+                'name' =>
+                    $property->name,
+
+                'property_type' =>
+                    $property->property_type,
+
+                'size' =>
+                    (float) $property->size,
+
+                'price' =>
+                    (float) $property->price,
+
+                'description' =>
+                    $property->description
+                    ?? '',
+
+                'contact' =>
+                    $property->contact
+                    ?? '',
+
+                'owner_phone' =>
+                    $property->owner->phone
+                    ?? '',
+
+                'owner' =>
+                    $owner,
+
+                'address' =>
+                    $property->address,
+
+                'latitude' =>
+                    $property->latitude,
+
+                'longitude' =>
+                    $property->longitude,
+
+                'furnished' =>
+                    (bool) $property->furnished,
+
+                'bedrooms' =>
+                    $property->bedrooms,
+
+                'bathrooms' =>
+                    $property->bathrooms,
+
+                'total_floor' =>
+                    $property->total_floor,
+
+                'available_floors' =>
+                    $property->available_floors
+                    ?? [],
+
+                'rental_status' =>
+                    $property->rental_status,
+
+                'verification_status' =>
+                    $property->verification_status,
+
+                'post_status' =>
+                    $property->post_status,
+
+                'images' =>
+                    $images,
+
+                'facilities' =>
+                    $facilities,
+            ];
+        }
+
+        return [
+            'context' =>
+                "The following properties were retrieved from the real JoulNow database:\n\n"
+                . implode(
+                    "\n\n",
+                    $propertyLines
+                ),
+
+            'properties' =>
+                $formattedProperties,
+        ];
     }
 
     // Extract Price Range

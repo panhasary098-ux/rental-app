@@ -1,16 +1,15 @@
 import 'package:final_project/controller/ai_chat_controller.dart';
+import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:final_project/model/property.dart';
 
 class AiChatScreen extends StatelessWidget {
   AiChatScreen({super.key});
 
-  final AiChatController controller = Get.put(
-    AiChatController(),
-  );
+  final AiChatController controller = Get.put(AiChatController());
 
-  final GlobalKey<ScaffoldState> scaffoldKey =
-      GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   final Color primaryColor = Color(0xFF03045E);
   final Color backgroundColor = Color(0xFFF5F6F8);
@@ -47,12 +46,8 @@ class AiChatScreen extends StatelessWidget {
 
               decoration: BoxDecoration(
                 color: Color(0xFFF5F6F8),
-                borderRadius: BorderRadius.circular(
-                  12,
-                ),
-                border: Border.all(
-                  color: borderColor,
-                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor),
               ),
 
               child: Icon(
@@ -75,20 +70,13 @@ class AiChatScreen extends StatelessWidget {
 
               decoration: BoxDecoration(
                 color: primaryColor,
-                borderRadius: BorderRadius.circular(
-                  14,
-                ),
+                borderRadius: BorderRadius.circular(14),
 
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withOpacity(
-                      0.18,
-                    ),
+                    color: primaryColor.withOpacity(0.18),
                     blurRadius: 12,
-                    offset: Offset(
-                      0,
-                      4,
-                    ),
+                    offset: Offset(0, 4),
                   ),
                 ],
               ),
@@ -100,14 +88,11 @@ class AiChatScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(
-              width: 11,
-            ),
+            SizedBox(width: 11),
 
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
 
                 mainAxisSize: MainAxisSize.min,
 
@@ -123,9 +108,7 @@ class AiChatScreen extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(
-                    height: 3,
-                  ),
+                  SizedBox(height: 3),
 
                   Row(
                     children: [
@@ -139,9 +122,7 @@ class AiChatScreen extends StatelessWidget {
                         ),
                       ),
 
-                      SizedBox(
-                        width: 6,
-                      ),
+                      SizedBox(width: 6),
 
                       Text(
                         "Rental Assistant",
@@ -168,8 +149,7 @@ class AiChatScreen extends StatelessWidget {
               onTap: () async {
                 await controller.loadConversations();
 
-                scaffoldKey.currentState
-                    ?.openEndDrawer();
+                scaffoldKey.currentState?.openEndDrawer();
               },
 
               child: Container(
@@ -179,14 +159,9 @@ class AiChatScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Color(0xFFF5F6F8),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    12,
-                  ),
+                  borderRadius: BorderRadius.circular(12),
 
-                  border: Border.all(
-                    color: borderColor,
-                  ),
+                  border: Border.all(color: borderColor),
                 ),
 
                 child: Icon(
@@ -198,15 +173,11 @@ class AiChatScreen extends StatelessWidget {
             ),
           ),
 
-          SizedBox(
-            width: 8,
-          ),
+          SizedBox(width: 8),
 
           // Clear Chat
           Padding(
-            padding: EdgeInsets.only(
-              right: 12,
-            ),
+            padding: EdgeInsets.only(right: 12),
 
             child: Center(
               child: GestureDetector(
@@ -221,14 +192,9 @@ class AiChatScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Color(0xFFF5F6F8),
 
-                    borderRadius:
-                        BorderRadius.circular(
-                      12,
-                    ),
+                    borderRadius: BorderRadius.circular(12),
 
-                    border: Border.all(
-                      color: borderColor,
-                    ),
+                    border: Border.all(color: borderColor),
                   ),
 
                   child: Icon(
@@ -243,14 +209,9 @@ class AiChatScreen extends StatelessWidget {
         ],
 
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(
-            1,
-          ),
+          preferredSize: Size.fromHeight(1),
 
-          child: Container(
-            height: 1,
-            color: Color(0xFFEEEFF2),
-          ),
+          child: Container(height: 1, color: Color(0xFFEEEFF2)),
         ),
       ),
 
@@ -261,62 +222,48 @@ class AiChatScreen extends StatelessWidget {
           children: [
             // Messages
             Expanded(
-              child: Obx(
-                () {
-                  if (controller.isLoadingHistory.value) {
-                    return Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
+              child: Obx(() {
+                if (controller.isLoadingHistory.value) {
+                  return Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
 
-                        child:
-                            CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: primaryColor,
-                        ),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: primaryColor,
                       ),
-                    );
-                  }
-
-                  if (controller.messages.isEmpty &&
-                      !controller.isLoading.value) {
-                    return buildEmptyState();
-                  }
-
-                  return ListView.builder(
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      18,
-                      16,
-                      18,
                     ),
-
-                    itemCount:
-                        controller.messages.length +
-                        (controller.isLoading.value
-                            ? 1
-                            : 0),
-
-                    itemBuilder: (
-                      context,
-                      index,
-                    ) {
-                      if (index ==
-                          controller.messages.length) {
-                        return buildTypingIndicator();
-                      }
-
-                      var message =
-                          controller.messages[index];
-
-                      return buildMessageBubble(
-                        message.message,
-                        message.isUser,
-                      );
-                    },
                   );
-                },
-              ),
+                }
+
+                if (controller.messages.isEmpty &&
+                    !controller.isLoading.value) {
+                  return buildEmptyState();
+                }
+
+                return ListView.builder(
+                  padding: EdgeInsets.fromLTRB(16, 18, 16, 18),
+
+                  itemCount:
+                      controller.messages.length +
+                      (controller.isLoading.value ? 1 : 0),
+
+                  itemBuilder: (context, index) {
+                    if (index == controller.messages.length) {
+                      return buildTypingIndicator();
+                    }
+
+                    var message = controller.messages[index];
+
+                    return buildMessageBubble(
+                      message.message,
+                      message.isUser,
+                      message.properties,
+                    );
+                  },
+                );
+              }),
             ),
 
             // Composer Area
@@ -324,11 +271,7 @@ class AiChatScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
 
-                border: Border(
-                  top: BorderSide(
-                    color: Color(0xFFEEEFF2),
-                  ),
-                ),
+                border: Border(top: BorderSide(color: Color(0xFFEEEFF2))),
               ),
 
               child: Column(
@@ -337,44 +280,31 @@ class AiChatScreen extends StatelessWidget {
                   Container(
                     width: double.infinity,
 
-                    padding: EdgeInsets.only(
-                      left: 16,
-                      right: 16,
-                      top: 13,
-                    ),
+                    padding: EdgeInsets.only(left: 16, right: 16, top: 13),
 
                     child: SingleChildScrollView(
-                      scrollDirection:
-                          Axis.horizontal,
+                      scrollDirection: Axis.horizontal,
 
                       child: Row(
                         children: [
                           buildQuickQuestion(
-                            icon: Icons
-                                .description_outlined,
-                            title:
-                                "Rental Documents",
+                            icon: Icons.description_outlined,
+                            title: "Rental Documents",
                           ),
 
                           buildQuickQuestion(
-                            icon: Icons
-                                .home_outlined,
-                            title:
-                                "Before Renting",
+                            icon: Icons.home_outlined,
+                            title: "Before Renting",
                           ),
 
                           buildQuickQuestion(
-                            icon: Icons
-                                .payments_outlined,
-                            title:
-                                "Security Deposit",
+                            icon: Icons.payments_outlined,
+                            title: "Security Deposit",
                           ),
 
                           buildQuickQuestion(
-                            icon: Icons
-                                .edit_document,
-                            title:
-                                "Rental Contract",
+                            icon: Icons.edit_document,
+                            title: "Rental Contract",
                           ),
                         ],
                       ),
@@ -383,16 +313,10 @@ class AiChatScreen extends StatelessWidget {
 
                   // Message Input
                   Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      12,
-                      16,
-                      12,
-                    ),
+                    padding: EdgeInsets.fromLTRB(16, 12, 16, 12),
 
                     child: Row(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
 
                       children: [
                         Expanded(
@@ -403,120 +327,81 @@ class AiChatScreen extends StatelessWidget {
                             ),
 
                             decoration: BoxDecoration(
-                              color: Color(
-                                0xFFF6F7F9,
-                              ),
+                              color: Color(0xFFF6F7F9),
 
-                              borderRadius:
-                                  BorderRadius.circular(
-                                18,
-                              ),
+                              borderRadius: BorderRadius.circular(18),
 
-                              border: Border.all(
-                                color: borderColor,
-                              ),
+                              border: Border.all(color: borderColor),
                             ),
 
                             child: TextField(
-                              controller: controller
-                                  .messageController,
+                              controller: controller.messageController,
 
                               minLines: 1,
                               maxLines: 4,
 
-                              textInputAction:
-                                  TextInputAction.send,
+                              textInputAction: TextInputAction.send,
 
-                              onSubmitted: (
-                                value,
-                              ) {
-                                controller
-                                    .sendMessage();
+                              onSubmitted: (value) {
+                                controller.sendMessage();
                               },
 
                               style: TextStyle(
-                                color: Color(
-                                  0xFF1E1F2B,
-                                ),
+                                color: Color(0xFF1E1F2B),
                                 fontSize: 14,
                                 height: 1.35,
                               ),
 
-                              decoration:
-                                  InputDecoration(
-                                hintText:
-                                    "Ask JoulNow AI...",
+                              decoration: InputDecoration(
+                                hintText: "Ask JoulNow AI...",
 
-                                hintStyle:
-                                    TextStyle(
-                                  color: Color(
-                                    0xFF999CA8,
-                                  ),
+                                hintStyle: TextStyle(
+                                  color: Color(0xFF999CA8),
                                   fontSize: 14,
                                 ),
 
-                                contentPadding:
-                                    EdgeInsets
-                                        .symmetric(
+                                contentPadding: EdgeInsets.symmetric(
                                   horizontal: 17,
                                   vertical: 15,
                                 ),
 
-                                border:
-                                    InputBorder.none,
+                                border: InputBorder.none,
                               ),
                             ),
                           ),
                         ),
 
-                        SizedBox(
-                          width: 10,
-                        ),
+                        SizedBox(width: 10),
 
                         // Send Button
                         GestureDetector(
                           onTap: () {
-                            controller
-                                .sendMessage();
+                            controller.sendMessage();
                           },
 
                           child: Container(
                             width: 52,
                             height: 52,
 
-                            decoration:
-                                BoxDecoration(
-                              color:
-                                  primaryColor,
+                            decoration: BoxDecoration(
+                              color: primaryColor,
 
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(
-                                17,
-                              ),
+                              borderRadius: BorderRadius.circular(17),
 
                               boxShadow: [
                                 BoxShadow(
-                                  color: primaryColor
-                                      .withOpacity(
-                                    0.20,
-                                  ),
+                                  color: primaryColor.withOpacity(0.20),
 
                                   blurRadius: 12,
 
-                                  offset: Offset(
-                                    0,
-                                    4,
-                                  ),
+                                  offset: Offset(0, 4),
                                 ),
                               ],
                             ),
 
                             child: Icon(
-                              Icons
-                                  .arrow_upward_rounded,
-                              color:
-                                  Colors.white,
+                              Icons.arrow_upward_rounded,
+                              color: Colors.white,
                               size: 23,
                             ),
                           ),
@@ -527,20 +412,15 @@ class AiChatScreen extends StatelessWidget {
 
                   // Disclaimer
                   Padding(
-                    padding: EdgeInsets.only(
-                      bottom: 8,
-                    ),
+                    padding: EdgeInsets.only(bottom: 8),
 
                     child: Text(
                       "AI responses may not always be accurate.",
 
                       style: TextStyle(
-                        color: Color(
-                          0xFFA0A2AB,
-                        ),
+                        color: Color(0xFFA0A2AB),
                         fontSize: 9.5,
-                        fontWeight:
-                            FontWeight.w400,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),
@@ -561,12 +441,8 @@ class AiChatScreen extends StatelessWidget {
 
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(
-            24,
-          ),
-          bottomLeft: Radius.circular(
-            24,
-          ),
+          topLeft: Radius.circular(24),
+          bottomLeft: Radius.circular(24),
         ),
       ),
 
@@ -575,12 +451,7 @@ class AiChatScreen extends StatelessWidget {
           children: [
             // Header
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                18,
-                16,
-                14,
-              ),
+              padding: EdgeInsets.fromLTRB(20, 18, 16, 14),
 
               child: Row(
                 children: [
@@ -591,55 +462,40 @@ class AiChatScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: primaryColor,
 
-                      borderRadius:
-                          BorderRadius.circular(
-                        13,
-                      ),
+                      borderRadius: BorderRadius.circular(13),
                     ),
 
                     child: Icon(
-                      Icons
-                          .forum_outlined,
+                      Icons.forum_outlined,
                       color: Colors.white,
                       size: 21,
                     ),
                   ),
 
-                  SizedBox(
-                    width: 11,
-                  ),
+                  SizedBox(width: 11),
 
                   Expanded(
                     child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
                         Text(
                           "Chat History",
 
                           style: TextStyle(
-                            color: Color(
-                              0xFF171823,
-                            ),
+                            color: Color(0xFF171823),
                             fontSize: 18,
-                            fontWeight:
-                                FontWeight
-                                    .w800,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
 
-                        SizedBox(
-                          height: 2,
-                        ),
+                        SizedBox(height: 2),
 
                         Text(
                           "Your JoulNow AI conversations",
 
                           style: TextStyle(
-                            color:
-                                mutedTextColor,
+                            color: mutedTextColor,
                             fontSize: 11.5,
                           ),
                         ),
@@ -656,30 +512,17 @@ class AiChatScreen extends StatelessWidget {
                       width: 36,
                       height: 36,
 
-                      decoration:
-                          BoxDecoration(
-                        color: Color(
-                          0xFFF5F6F8,
-                        ),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF5F6F8),
 
-                        borderRadius:
-                            BorderRadius
-                                .circular(
-                          11,
-                        ),
+                        borderRadius: BorderRadius.circular(11),
 
-                        border:
-                            Border.all(
-                          color:
-                              borderColor,
-                        ),
+                        border: Border.all(color: borderColor),
                       ),
 
                       child: Icon(
                         Icons.close_rounded,
-                        color: Color(
-                          0xFF666975,
-                        ),
+                        color: Color(0xFF666975),
                         size: 20,
                       ),
                     ),
@@ -688,88 +531,57 @@ class AiChatScreen extends StatelessWidget {
               ),
             ),
 
-            Divider(
-              height: 1,
-              color: Color(
-                0xFFEEEFF2,
-              ),
-            ),
+            Divider(height: 1, color: Color(0xFFEEEFF2)),
 
             // New Chat
             Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                16,
-                16,
-                12,
-              ),
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 12),
 
               child: GestureDetector(
                 onTap: () async {
                   Get.back();
 
-                  await controller
-                      .createNewChat();
+                  await controller.createNewChat();
                 },
 
                 child: Container(
                   width: double.infinity,
 
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
 
                   decoration: BoxDecoration(
                     color: primaryColor,
 
-                    borderRadius:
-                        BorderRadius.circular(
-                      15,
-                    ),
+                    borderRadius: BorderRadius.circular(15),
 
                     boxShadow: [
                       BoxShadow(
-                        color: primaryColor
-                            .withOpacity(
-                          0.14,
-                        ),
+                        color: primaryColor.withOpacity(0.14),
                         blurRadius: 12,
-                        offset: Offset(
-                          0,
-                          4,
-                        ),
+                        offset: Offset(0, 4),
                       ),
                     ],
                   ),
 
                   child: Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment
-                            .center,
+                    mainAxisAlignment: MainAxisAlignment.center,
 
                     children: [
                       Icon(
-                        Icons
-                            .add_comment_outlined,
+                        Icons.add_comment_outlined,
                         color: Colors.white,
                         size: 19,
                       ),
 
-                      SizedBox(
-                        width: 8,
-                      ),
+                      SizedBox(width: 8),
 
                       Text(
                         "New Chat",
 
                         style: TextStyle(
-                          color:
-                              Colors.white,
+                          color: Colors.white,
                           fontSize: 13.5,
-                          fontWeight:
-                              FontWeight
-                                  .w700,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -780,63 +592,38 @@ class AiChatScreen extends StatelessWidget {
 
             // Conversations
             Expanded(
-              child: Obx(
-                () {
-                  if (controller
-                      .isLoadingConversations
-                      .value) {
-                    return Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
+              child: Obx(() {
+                if (controller.isLoadingConversations.value) {
+                  return Center(
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
 
-                        child:
-                            CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color:
-                              primaryColor,
-                        ),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: primaryColor,
                       ),
-                    );
-                  }
-
-                  if (controller
-                      .conversations
-                      .isEmpty) {
-                    return buildEmptyHistory();
-                  }
-
-                  return ListView.builder(
-                    padding: EdgeInsets.fromLTRB(
-                      12,
-                      2,
-                      12,
-                      20,
                     ),
-
-                    itemCount:
-                        controller
-                            .conversations
-                            .length,
-
-                    itemBuilder: (
-                      context,
-                      index,
-                    ) {
-                      Map<String, dynamic>
-                          conversation =
-                          controller
-                              .conversations[
-                            index
-                          ];
-
-                      return buildConversationItem(
-                        conversation,
-                      );
-                    },
                   );
-                },
-              ),
+                }
+
+                if (controller.conversations.isEmpty) {
+                  return buildEmptyHistory();
+                }
+
+                return ListView.builder(
+                  padding: EdgeInsets.fromLTRB(12, 2, 12, 20),
+
+                  itemCount: controller.conversations.length,
+
+                  itemBuilder: (context, index) {
+                    Map<String, dynamic> conversation =
+                        controller.conversations[index];
+
+                    return buildConversationItem(conversation);
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -845,261 +632,165 @@ class AiChatScreen extends StatelessWidget {
   }
 
   // Conversation Item
-  Widget buildConversationItem(
-    Map<String, dynamic> conversation,
-  ) {
-    int? conversationId =
-        controller.parseConversationId(
-      conversation["id"],
-    );
+  Widget buildConversationItem(Map<String, dynamic> conversation) {
+    int? conversationId = controller.parseConversationId(conversation["id"]);
 
-    String title =
-        conversation["title"]
-                ?.toString()
-                .trim() ??
-            "";
+    String title = conversation["title"]?.toString().trim() ?? "";
 
     if (title.isEmpty) {
       title = "New Chat";
     }
 
     int messageCount =
-        int.tryParse(
-          conversation["messages_count"]
-                  ?.toString() ??
-              "0",
-        ) ??
-        0;
+        int.tryParse(conversation["messages_count"]?.toString() ?? "0") ?? 0;
 
-    return Obx(
-      () {
-        bool isSelected =
-            conversationId != null &&
-            controller
-                    .currentConversationId
-                    .value ==
-                conversationId;
+    return Obx(() {
+      bool isSelected =
+          conversationId != null &&
+          controller.currentConversationId.value == conversationId;
 
-        return Container(
-          margin: EdgeInsets.only(
-            bottom: 7,
-          ),
+      return Container(
+        margin: EdgeInsets.only(bottom: 7),
 
-          decoration: BoxDecoration(
+        decoration: BoxDecoration(
+          color: isSelected ? Color(0xFFF2F3F8) : Colors.white,
+
+          borderRadius: BorderRadius.circular(14),
+
+          border: Border.all(
             color: isSelected
-                ? Color(0xFFF2F3F8)
-                : Colors.white,
-
-            borderRadius:
-                BorderRadius.circular(
-              14,
-            ),
-
-            border: Border.all(
-              color: isSelected
-                  ? primaryColor
-                      .withOpacity(
-                      0.15,
-                    )
-                  : Colors.transparent,
-            ),
+                ? primaryColor.withOpacity(0.15)
+                : Colors.transparent,
           ),
+        ),
 
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  behavior:
-                      HitTestBehavior
-                          .opaque,
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
 
-                  onTap: () async {
-                    if (
-                        conversationId ==
-                        null
-                    ) {
-                      return;
-                    }
-
-                    Get.back();
-
-                    await controller
-                        .openConversation(
-                      conversationId,
-                    );
-                  },
-
-                  child: Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(
-                      13,
-                      12,
-                      8,
-                      12,
-                    ),
-
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-
-                          decoration:
-                              BoxDecoration(
-                            color: isSelected
-                                ? primaryColor
-                                : Color(
-                                    0xFFF5F6F8,
-                                  ),
-
-                            borderRadius:
-                                BorderRadius
-                                    .circular(
-                              12,
-                            ),
-                          ),
-
-                          child: Icon(
-                            Icons
-                                .chat_bubble_outline_rounded,
-                            color: isSelected
-                                ? Colors.white
-                                : primaryColor,
-                            size: 18,
-                          ),
-                        ),
-
-                        SizedBox(
-                          width: 11,
-                        ),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-
-                            children: [
-                              Text(
-                                title,
-
-                                maxLines: 1,
-
-                                overflow:
-                                    TextOverflow
-                                        .ellipsis,
-
-                                style:
-                                    TextStyle(
-                                  color: Color(
-                                    0xFF272833,
-                                  ),
-                                  fontSize:
-                                      13,
-                                  fontWeight:
-                                      isSelected
-                                          ? FontWeight
-                                              .w700
-                                          : FontWeight
-                                              .w600,
-                                ),
-                              ),
-
-                              SizedBox(
-                                height: 4,
-                              ),
-
-                              Text(
-                                messageCount ==
-                                        1
-                                    ? "1 message"
-                                    : "$messageCount messages",
-
-                                style:
-                                    TextStyle(
-                                  color:
-                                      mutedTextColor,
-                                  fontSize:
-                                      10.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // Delete Conversation
-              GestureDetector(
-                onTap: () {
-                  if (
-                      conversationId ==
-                      null
-                  ) {
+                onTap: () async {
+                  if (conversationId == null) {
                     return;
                   }
 
-                  showDeleteConversationDialog(
-                    conversationId,
-                    title,
-                  );
+                  Get.back();
+
+                  await controller.openConversation(conversationId);
                 },
 
                 child: Padding(
-                  padding:
-                      EdgeInsets.only(
-                    right: 12,
-                  ),
+                  padding: EdgeInsets.fromLTRB(13, 12, 8, 12),
 
-                  child: Container(
-                    width: 34,
-                    height: 34,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 38,
+                        height: 38,
 
-                    decoration:
-                        BoxDecoration(
-                      color: Color(
-                        0xFFF7F7F9,
+                        decoration: BoxDecoration(
+                          color: isSelected ? primaryColor : Color(0xFFF5F6F8),
+
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+
+                        child: Icon(
+                          Icons.chat_bubble_outline_rounded,
+                          color: isSelected ? Colors.white : primaryColor,
+                          size: 18,
+                        ),
                       ),
 
-                      borderRadius:
-                          BorderRadius
-                              .circular(
-                        10,
-                      ),
-                    ),
+                      SizedBox(width: 11),
 
-                    child: Icon(
-                      Icons
-                          .delete_outline_rounded,
-                      color: Color(
-                        0xFF8A8D98,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            Text(
+                              title,
+
+                              maxLines: 1,
+
+                              overflow: TextOverflow.ellipsis,
+
+                              style: TextStyle(
+                                color: Color(0xFF272833),
+                                fontSize: 13,
+                                fontWeight: isSelected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                              ),
+                            ),
+
+                            SizedBox(height: 4),
+
+                            Text(
+                              messageCount == 1
+                                  ? "1 message"
+                                  : "$messageCount messages",
+
+                              style: TextStyle(
+                                color: mutedTextColor,
+                                fontSize: 10.5,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      size: 18,
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
-        );
-      },
-    );
+            ),
+
+            // Delete Conversation
+            GestureDetector(
+              onTap: () {
+                if (conversationId == null) {
+                  return;
+                }
+
+                showDeleteConversationDialog(conversationId, title);
+              },
+
+              child: Padding(
+                padding: EdgeInsets.only(right: 12),
+
+                child: Container(
+                  width: 34,
+                  height: 34,
+
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF7F7F9),
+
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+
+                  child: Icon(
+                    Icons.delete_outline_rounded,
+                    color: Color(0xFF8A8D98),
+                    size: 18,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   // Empty History
   Widget buildEmptyHistory() {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: 30,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 30),
 
         child: Column(
-          mainAxisSize:
-              MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
 
           children: [
             Container(
@@ -1107,56 +798,38 @@ class AiChatScreen extends StatelessWidget {
               height: 58,
 
               decoration: BoxDecoration(
-                color: Color(
-                  0xFFF3F4F7,
-                ),
+                color: Color(0xFFF3F4F7),
 
-                borderRadius:
-                    BorderRadius.circular(
-                  18,
-                ),
+                borderRadius: BorderRadius.circular(18),
               ),
 
               child: Icon(
-                Icons
-                    .chat_bubble_outline_rounded,
+                Icons.chat_bubble_outline_rounded,
                 color: primaryColor,
                 size: 25,
               ),
             ),
 
-            SizedBox(
-              height: 15,
-            ),
+            SizedBox(height: 15),
 
             Text(
               "No conversations yet",
 
               style: TextStyle(
-                color: Color(
-                  0xFF252631,
-                ),
+                color: Color(0xFF252631),
                 fontSize: 15,
-                fontWeight:
-                    FontWeight.w700,
+                fontWeight: FontWeight.w700,
               ),
             ),
 
-            SizedBox(
-              height: 6,
-            ),
+            SizedBox(height: 6),
 
             Text(
               "Start a new chat with JoulNow AI.",
 
-              textAlign:
-                  TextAlign.center,
+              textAlign: TextAlign.center,
 
-              style: TextStyle(
-                color:
-                    mutedTextColor,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: mutedTextColor, fontSize: 12),
             ),
           ],
         ),
@@ -1168,54 +841,34 @@ class AiChatScreen extends StatelessWidget {
   Widget buildMessageBubble(
     String message,
     bool isUser,
+    List<Property> properties,
   ) {
     if (isUser) {
       return Align(
         alignment: Alignment.centerRight,
 
         child: Container(
-          constraints: BoxConstraints(
-            maxWidth: Get.width * 0.76,
-          ),
+          constraints: BoxConstraints(maxWidth: Get.width * 0.76),
 
-          margin: EdgeInsets.only(
-            left: 55,
-            bottom: 16,
-          ),
+          margin: EdgeInsets.only(left: 55, bottom: 16),
 
-          padding: EdgeInsets.symmetric(
-            horizontal: 17,
-            vertical: 13,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: 17, vertical: 13),
 
           decoration: BoxDecoration(
             color: primaryColor,
 
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(
-                19,
-              ),
-              topRight: Radius.circular(
-                19,
-              ),
-              bottomLeft: Radius.circular(
-                19,
-              ),
-              bottomRight: Radius.circular(
-                6,
-              ),
+              topLeft: Radius.circular(19),
+              topRight: Radius.circular(19),
+              bottomLeft: Radius.circular(19),
+              bottomRight: Radius.circular(6),
             ),
 
             boxShadow: [
               BoxShadow(
-                color: primaryColor.withOpacity(
-                  0.12,
-                ),
+                color: primaryColor.withOpacity(0.12),
                 blurRadius: 10,
-                offset: Offset(
-                  0,
-                  4,
-                ),
+                offset: Offset(0, 4),
               ),
             ],
           ),
@@ -1235,14 +888,10 @@ class AiChatScreen extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: 17,
-        right: 35,
-      ),
+      padding: EdgeInsets.only(bottom: 17),
 
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           // Robot
@@ -1253,83 +902,73 @@ class AiChatScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: primaryColor,
 
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+              borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(
-              Icons.smart_toy_rounded,
-              color: Colors.white,
-              size: 18,
-            ),
+            child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 18),
           ),
 
-          SizedBox(
-            width: 9,
-          ),
+          SizedBox(width: 9),
 
-          Flexible(
-            child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 13,
-              ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-              decoration: BoxDecoration(
-                color: Colors.white,
+              children: [
+                // Message
+                Container(
+                  constraints: BoxConstraints(maxWidth: Get.width * 0.76),
 
-                borderRadius:
-                    BorderRadius.only(
-                  topLeft: Radius.circular(
-                    6,
-                  ),
-                  topRight: Radius.circular(
-                    19,
-                  ),
-                  bottomLeft:
-                      Radius.circular(
-                    19,
-                  ),
-                  bottomRight:
-                      Radius.circular(
-                    19,
-                  ),
-                ),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 13),
 
-                border: Border.all(
-                  color: borderColor,
-                ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
 
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black
-                        .withOpacity(
-                      0.035,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(6),
+                      topRight: Radius.circular(19),
+                      bottomLeft: Radius.circular(19),
+                      bottomRight: Radius.circular(19),
                     ),
-                    blurRadius: 12,
-                    offset: Offset(
-                      0,
-                      4,
+
+                    border: Border.all(color: borderColor),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.035),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: Text(
+                    message,
+
+                    style: TextStyle(
+                      color: Color(0xFF292A35),
+                      fontSize: 14,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                ],
-              ),
-
-              child: Text(
-                message,
-
-                style: TextStyle(
-                  color: Color(
-                    0xFF292A35,
-                  ),
-                  fontSize: 14,
-                  height: 1.5,
-                  fontWeight:
-                      FontWeight.w400,
                 ),
-              ),
+
+                if (properties.isNotEmpty) SizedBox(height: 12),
+
+                if (properties.isNotEmpty)
+                  Column(
+                    children: List.generate(properties.length, (index) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: index == properties.length - 1 ? 0 : 10,
+                        ),
+
+                        child: buildPropertyCard(properties[index]),
+                      );
+                    }),
+                  ),
+              ],
             ),
           ),
         ],
@@ -1337,63 +976,319 @@ class AiChatScreen extends StatelessWidget {
     );
   }
 
-  // Quick Question
-  Widget buildQuickQuestion({
-    required IconData icon,
-    required String title,
-  }) {
+  // Property Card
+  Widget buildPropertyCard(Property property) {
+    String imageUrl = "";
+
+    if (property.images.isNotEmpty) {
+      imageUrl = property.images.first;
+    }
+
+    String location = getPropertyShortLocation(property);
+
     return GestureDetector(
       onTap: () {
-        controller.sendQuickQuestion(
-          title,
-        );
+        Get.to(() => PropertyDetailScreen(property: property));
       },
 
       child: Container(
-        margin: EdgeInsets.only(
-          right: 9,
-        ),
+        width: double.infinity,
 
-        padding: EdgeInsets.symmetric(
-          horizontal: 13,
-          vertical: 9,
-        ),
+        padding: EdgeInsets.all(9),
 
         decoration: BoxDecoration(
           color: Colors.white,
 
-          borderRadius:
-              BorderRadius.circular(
-            13,
-          ),
+          borderRadius: BorderRadius.circular(16),
 
-          border: Border.all(
-            color: borderColor,
-          ),
+          border: Border.all(color: borderColor),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.035),
+              blurRadius: 12,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+
+          children: [
+            // Property Image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+
+              child: SizedBox(
+                width: 92,
+                height: 92,
+
+                child: imageUrl.isNotEmpty
+                    ? Image.network(
+                        imageUrl,
+                        fit: BoxFit.cover,
+
+                        errorBuilder: (context, error, stackTrace) {
+                          return buildPropertyImagePlaceholder();
+                        },
+                      )
+                    : buildPropertyImagePlaceholder(),
+              ),
+            ),
+
+            SizedBox(width: 12),
+
+            // Property Information
+            Expanded(
+              child: SizedBox(
+                height: 88,
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    // Name And Verified
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            property.name,
+
+                            maxLines: 1,
+
+                            overflow: TextOverflow.ellipsis,
+
+                            style: TextStyle(
+                              color: Color(0xFF171823),
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 5),
+
+                        Container(
+                          width: 20,
+                          height: 20,
+
+                          decoration: BoxDecoration(
+                            color: Color(0xFFEAF7F1),
+
+                            shape: BoxShape.circle,
+                          ),
+
+                          child: Icon(
+                            Icons.verified_rounded,
+                            color: Color(0xFF22A06B),
+                            size: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 6),
+
+                    // Location
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(top: 1),
+
+                          child: Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: mutedTextColor,
+                          ),
+                        ),
+
+                        SizedBox(width: 4),
+
+                        Expanded(
+                          child: Text(
+                            location,
+
+                            maxLines: 1,
+
+                            overflow: TextOverflow.ellipsis,
+
+                            style: TextStyle(
+                              color: mutedTextColor,
+                              fontSize: 10.5,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Spacer(),
+
+                    // Price And Open
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      "\$${formatPropertyPrice(property.price)}",
+
+                                  style: TextStyle(
+                                    color: primaryColor,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+
+                                TextSpan(
+                                  text: " / month",
+
+                                  style: TextStyle(
+                                    color: mutedTextColor,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        Container(
+                          width: 31,
+                          height: 31,
+
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Property Image Placeholder
+  Widget buildPropertyImagePlaceholder() {
+    return Container(
+      color: Color(0xFFF1F2F5),
+
+      child: Center(
+        child: Icon(
+          Icons.home_work_outlined,
+          color: Color(0xFF9A9CA6),
+          size: 28,
+        ),
+      ),
+    );
+  }
+
+  // Property Price
+  String formatPropertyPrice(dynamic price) {
+    double parsedPrice = double.tryParse(price.toString()) ?? 0;
+
+    if (parsedPrice == parsedPrice.roundToDouble()) {
+      return parsedPrice.toInt().toString();
+    }
+
+    return parsedPrice.toStringAsFixed(2);
+  }
+
+  // Property Location
+  String getPropertyShortLocation(Property property) {
+    String address = property.location.address ?? "";
+
+    if (address.trim().isEmpty) {
+      return "Location not available";
+    }
+
+    List<String> parts = address
+        .split(",")
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
+
+    List<String> cleaned = [];
+
+    for (String part in parts) {
+      String lower = part.toLowerCase();
+
+      if (lower == "cambodia" || part.contains("+")) {
+        continue;
+      }
+
+      bool alreadyExists = cleaned.any((item) => item.toLowerCase() == lower);
+
+      if (!alreadyExists) {
+        cleaned.add(part);
+      }
+    }
+
+    if (cleaned.isEmpty) {
+      return address;
+    }
+
+    if (cleaned.length == 1) {
+      return cleaned.first;
+    }
+
+    return cleaned.take(2).join(", ");
+  }
+
+  // Quick Question
+  Widget buildQuickQuestion({required IconData icon, required String title}) {
+    return GestureDetector(
+      onTap: () {
+        controller.sendQuickQuestion(title);
+      },
+
+      child: Container(
+        margin: EdgeInsets.only(right: 9),
+
+        padding: EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+
+        decoration: BoxDecoration(
+          color: Colors.white,
+
+          borderRadius: BorderRadius.circular(13),
+
+          border: Border.all(color: borderColor),
         ),
 
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: primaryColor,
-              size: 16,
-            ),
+            Icon(icon, color: primaryColor, size: 16),
 
-            SizedBox(
-              width: 7,
-            ),
+            SizedBox(width: 7),
 
             Text(
               title,
 
               style: TextStyle(
-                color: Color(
-                  0xFF40414D,
-                ),
+                color: Color(0xFF40414D),
                 fontSize: 11.5,
-                fontWeight:
-                    FontWeight.w600,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
@@ -1405,14 +1300,10 @@ class AiChatScreen extends StatelessWidget {
   // Typing Indicator
   Widget buildTypingIndicator() {
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: 17,
-        right: 80,
-      ),
+      padding: EdgeInsets.only(bottom: 17, right: 80),
 
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
           Container(
@@ -1422,71 +1313,48 @@ class AiChatScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: primaryColor,
 
-              borderRadius:
-                  BorderRadius.circular(
-                11,
-              ),
+              borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(
-              Icons.smart_toy_rounded,
-              color: Colors.white,
-              size: 18,
-            ),
+            child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 18),
           ),
 
-          SizedBox(
-            width: 9,
-          ),
+          SizedBox(width: 9),
 
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 12,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
 
             decoration: BoxDecoration(
               color: Colors.white,
 
-              borderRadius:
-                  BorderRadius.circular(
-                16,
-              ),
+              borderRadius: BorderRadius.circular(16),
 
-              border: Border.all(
-                color: borderColor,
-              ),
+              border: Border.all(color: borderColor),
             ),
 
             child: Row(
-              mainAxisSize:
-                  MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min,
 
               children: [
                 SizedBox(
                   width: 14,
                   height: 14,
 
-                  child:
-                      CircularProgressIndicator(
+                  child: CircularProgressIndicator(
                     strokeWidth: 1.8,
                     color: primaryColor,
                   ),
                 ),
 
-                SizedBox(
-                  width: 9,
-                ),
+                SizedBox(width: 9),
 
                 Text(
                   "Thinking",
 
                   style: TextStyle(
-                    color:
-                        mutedTextColor,
+                    color: mutedTextColor,
                     fontSize: 12,
-                    fontWeight:
-                        FontWeight.w500,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -1501,13 +1369,10 @@ class AiChatScreen extends StatelessWidget {
   Widget buildEmptyState() {
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: 32,
-        ),
+        padding: EdgeInsets.symmetric(horizontal: 32),
 
         child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
             Container(
@@ -1517,22 +1382,13 @@ class AiChatScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: primaryColor,
 
-                borderRadius:
-                    BorderRadius.circular(
-                  24,
-                ),
+                borderRadius: BorderRadius.circular(24),
 
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor
-                        .withOpacity(
-                      0.18,
-                    ),
+                    color: primaryColor.withOpacity(0.18),
                     blurRadius: 22,
-                    offset: Offset(
-                      0,
-                      8,
-                    ),
+                    offset: Offset(0, 8),
                   ),
                 ],
               ),
@@ -1544,27 +1400,20 @@ class AiChatScreen extends StatelessWidget {
               ),
             ),
 
-            SizedBox(
-              height: 22,
-            ),
+            SizedBox(height: 22),
 
             Text(
               "How can I help?",
 
               style: TextStyle(
-                color: Color(
-                  0xFF171823,
-                ),
+                color: Color(0xFF171823),
                 fontSize: 24,
-                fontWeight:
-                    FontWeight.w800,
+                fontWeight: FontWeight.w800,
                 letterSpacing: -0.5,
               ),
             ),
 
-            SizedBox(
-              height: 9,
-            ),
+            SizedBox(height: 9),
 
             Text(
               "Ask about renting, deposits, documents,\ncontracts, or finding the right place.",
@@ -1587,182 +1436,117 @@ class AiChatScreen extends StatelessWidget {
   void showClearChatDialog() {
     Get.dialog(
       Dialog(
-        backgroundColor:
-            Colors.transparent,
+        backgroundColor: Colors.transparent,
 
-        insetPadding:
-            EdgeInsets.symmetric(
-          horizontal: 28,
-        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 28),
 
         child: Container(
-          padding: EdgeInsets.all(
-            22,
-          ),
+          padding: EdgeInsets.all(22),
 
           decoration: BoxDecoration(
             color: Colors.white,
 
-            borderRadius:
-                BorderRadius.circular(
-              22,
-            ),
+            borderRadius: BorderRadius.circular(22),
           ),
 
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
               Container(
                 width: 52,
                 height: 52,
 
-                decoration:
-                    BoxDecoration(
-                  color: Color(
-                    0xFFF4F4F7,
-                  ),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF4F4F7),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    16,
-                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
 
                 child: Icon(
-                  Icons
-                      .delete_outline_rounded,
+                  Icons.delete_outline_rounded,
                   color: primaryColor,
                   size: 25,
                 ),
               ),
 
-              SizedBox(
-                height: 17,
-              ),
+              SizedBox(height: 17),
 
               Text(
                 "Clear conversation?",
 
                 style: TextStyle(
-                  color: Color(
-                    0xFF171823,
-                  ),
+                  color: Color(0xFF171823),
                   fontSize: 18,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
 
-              SizedBox(
-                height: 8,
-              ),
+              SizedBox(height: 8),
 
               Text(
                 "This will permanently delete your current conversation.",
 
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
 
                 style: TextStyle(
-                  color:
-                      mutedTextColor,
+                  color: mutedTextColor,
                   fontSize: 13,
                   height: 1.4,
                 ),
               ),
 
-              SizedBox(
-                height: 22,
-              ),
+              SizedBox(height: 22),
 
               Row(
                 children: [
                   Expanded(
-                    child:
-                        OutlinedButton(
+                    child: OutlinedButton(
                       onPressed: () {
                         Get.back();
                       },
 
-                      style:
-                          OutlinedButton
-                              .styleFrom(
-                        foregroundColor:
-                            primaryColor,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primaryColor,
 
-                        side: BorderSide(
-                          color:
-                              borderColor,
-                        ),
+                        side: BorderSide(color: borderColor),
 
-                        padding:
-                            EdgeInsets
-                                .symmetric(
-                          vertical: 13,
-                        ),
+                        padding: EdgeInsets.symmetric(vertical: 13),
 
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
                         ),
                       ),
 
-                      child: Text(
-                        "Cancel",
-                      ),
+                      child: Text("Cancel"),
                     ),
                   ),
 
-                  SizedBox(
-                    width: 10,
-                  ),
+                  SizedBox(width: 10),
 
                   Expanded(
-                    child:
-                        ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () {
                         Get.back();
 
-                        controller
-                            .clearChat();
+                        controller.clearChat();
                       },
 
-                      style:
-                          ElevatedButton
-                              .styleFrom(
-                        backgroundColor:
-                            primaryColor,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
 
-                        foregroundColor:
-                            Colors.white,
+                        foregroundColor: Colors.white,
 
                         elevation: 0,
 
-                        padding:
-                            EdgeInsets
-                                .symmetric(
-                          vertical: 13,
-                        ),
+                        padding: EdgeInsets.symmetric(vertical: 13),
 
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
                         ),
                       ),
 
-                      child: Text(
-                        "Clear",
-                      ),
+                      child: Text("Clear"),
                     ),
                   ),
                 ],
@@ -1775,195 +1559,124 @@ class AiChatScreen extends StatelessWidget {
   }
 
   // Delete Conversation Dialog
-  void showDeleteConversationDialog(
-    int conversationId,
-    String title,
-  ) {
+  void showDeleteConversationDialog(int conversationId, String title) {
     Get.dialog(
       Dialog(
-        backgroundColor:
-            Colors.transparent,
+        backgroundColor: Colors.transparent,
 
-        insetPadding:
-            EdgeInsets.symmetric(
-          horizontal: 28,
-        ),
+        insetPadding: EdgeInsets.symmetric(horizontal: 28),
 
         child: Container(
-          padding: EdgeInsets.all(
-            22,
-          ),
+          padding: EdgeInsets.all(22),
 
           decoration: BoxDecoration(
             color: Colors.white,
 
-            borderRadius:
-                BorderRadius.circular(
-              22,
-            ),
+            borderRadius: BorderRadius.circular(22),
           ),
 
           child: Column(
-            mainAxisSize:
-                MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
               Container(
                 width: 52,
                 height: 52,
 
-                decoration:
-                    BoxDecoration(
-                  color: Color(
-                    0xFFF4F4F7,
-                  ),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF4F4F7),
 
-                  borderRadius:
-                      BorderRadius.circular(
-                    16,
-                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
 
                 child: Icon(
-                  Icons
-                      .delete_outline_rounded,
+                  Icons.delete_outline_rounded,
                   color: primaryColor,
                   size: 25,
                 ),
               ),
 
-              SizedBox(
-                height: 17,
-              ),
+              SizedBox(height: 17),
 
               Text(
                 "Delete conversation?",
 
                 style: TextStyle(
-                  color: Color(
-                    0xFF171823,
-                  ),
+                  color: Color(0xFF171823),
                   fontSize: 18,
-                  fontWeight:
-                      FontWeight.w800,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
 
-              SizedBox(
-                height: 8,
-              ),
+              SizedBox(height: 8),
 
               Text(
                 "\"$title\" will be permanently deleted.",
 
-                textAlign:
-                    TextAlign.center,
+                textAlign: TextAlign.center,
 
                 maxLines: 2,
 
-                overflow:
-                    TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
 
                 style: TextStyle(
-                  color:
-                      mutedTextColor,
+                  color: mutedTextColor,
                   fontSize: 13,
                   height: 1.4,
                 ),
               ),
 
-              SizedBox(
-                height: 22,
-              ),
+              SizedBox(height: 22),
 
               Row(
                 children: [
                   Expanded(
-                    child:
-                        OutlinedButton(
+                    child: OutlinedButton(
                       onPressed: () {
                         Get.back();
                       },
 
-                      style:
-                          OutlinedButton
-                              .styleFrom(
-                        foregroundColor:
-                            primaryColor,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: primaryColor,
 
-                        side: BorderSide(
-                          color:
-                              borderColor,
-                        ),
+                        side: BorderSide(color: borderColor),
 
-                        padding:
-                            EdgeInsets
-                                .symmetric(
-                          vertical: 13,
-                        ),
+                        padding: EdgeInsets.symmetric(vertical: 13),
 
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
                         ),
                       ),
 
-                      child: Text(
-                        "Cancel",
-                      ),
+                      child: Text("Cancel"),
                     ),
                   ),
 
-                  SizedBox(
-                    width: 10,
-                  ),
+                  SizedBox(width: 10),
 
                   Expanded(
-                    child:
-                        ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () async {
                         Get.back();
 
-                        await controller
-                            .deleteConversation(
-                          conversationId,
-                        );
+                        await controller.deleteConversation(conversationId);
                       },
 
-                      style:
-                          ElevatedButton
-                              .styleFrom(
-                        backgroundColor:
-                            primaryColor,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
 
-                        foregroundColor:
-                            Colors.white,
+                        foregroundColor: Colors.white,
 
                         elevation: 0,
 
-                        padding:
-                            EdgeInsets
-                                .symmetric(
-                          vertical: 13,
-                        ),
+                        padding: EdgeInsets.symmetric(vertical: 13),
 
-                        shape:
-                            RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius
-                                  .circular(
-                            13,
-                          ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(13),
                         ),
                       ),
 
-                      child: Text(
-                        "Delete",
-                      ),
+                      child: Text("Delete"),
                     ),
                   ),
                 ],

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 
 const Color primaryColor = Color(0xFF03045E);
 const Color secondaryColor = Colors.grey;
-const Color backgroundColor = Color.fromARGB(255, 240, 240, 240);
+const Color backgroundColor = Color(0xFFF8FAFC);
 const Color lightSecondaryColor = Colors.white;
 
 class PropertyReviewScreen extends StatefulWidget {
