@@ -8,6 +8,7 @@ import 'package:final_project/view/renter/filter_screen.dart';
 import 'package:final_project/view/renter/propertiesFound_screen.dart';
 import 'package:final_project/view/renter/property_detail_screen.dart';
 import 'package:final_project/view/renter/owner_profile_screen.dart';
+import 'package:final_project/view/renter/renter_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -39,11 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final Set<int> favoriteLoadingIds = {};
 
+  int unreadNotificationCount = 0;
+
   @override
   void initState() {
     super.initState();
 
     loadFavorites();
+    loadNotificationCount();
   }
 
   // Load Favorites
@@ -79,6 +83,196 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print("HOME FAVORITES LOAD ERROR: $e");
     }
+  }
+
+  // Load unread renter notification count
+  Future<void> loadNotificationCount() async {
+    try {
+      final response = await propertyService.getRenterNotifications();
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (response.statusCode == 200 &&
+          decoded is Map<String, dynamic> &&
+          decoded["success"] == true) {
+        final int count =
+            int.tryParse(decoded["new_count"]?.toString() ?? "0") ?? 0;
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          unreadNotificationCount = count;
+        });
+      }
+    } catch (e) {
+      print("HOME NOTIFICATION COUNT ERROR: $e");
+    }
+  }
+
+  // Open renter notifications
+  Future<void> openNotifications() async {
+    try {
+      Get.dialog(
+        const Center(child: CircularProgressIndicator(color: primaryColor)),
+        barrierDismissible: false,
+      );
+
+      final response = await propertyService.getRenterNotifications();
+
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        String message = "Unable to load notifications.";
+
+        try {
+          final dynamic decoded = jsonDecode(response.body);
+
+          if (decoded is Map && decoded["message"] != null) {
+            message = decoded["message"].toString();
+          }
+        } catch (_) {}
+
+        Get.snackbar(
+          "Unable to Load",
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        return;
+      }
+
+      final dynamic decoded = jsonDecode(response.body);
+
+      if (decoded is! Map<String, dynamic>) {
+        Get.snackbar(
+          "Unable to Load",
+          "Invalid notification response.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        return;
+      }
+
+      final dynamic rawNotifications = decoded["notifications"];
+
+      final List<RenterPropertyNotification> notifications = [];
+
+      if (rawNotifications is List) {
+        for (final dynamic item in rawNotifications) {
+          if (item is! Map) {
+            continue;
+          }
+
+          final Map<String, dynamic> data = Map<String, dynamic>.from(item);
+
+          notifications.add(
+            RenterPropertyNotification(
+              id: int.tryParse(data["id"]?.toString() ?? "") ?? 0,
+              propertyId:
+                  int.tryParse(data["property_id"]?.toString() ?? "") ?? 0,
+              propertyName: data["property_name"]?.toString() ?? "Property",
+              propertyImage: getLaravelImageUrl(
+                data["property_image"]?.toString() ?? "",
+              ),
+              location: data["location"]?.toString() ?? "-",
+              type: data["type"]?.toString() ?? "",
+              title: data["title"]?.toString() ?? "Property Status Updated",
+              message: data["message"]?.toString() ?? "",
+              oldStatus: data["old_status"]?.toString() ?? "",
+              newStatus: data["new_status"]?.toString() ?? "",
+              createdAt:
+                  DateTime.tryParse(data["created_at"]?.toString() ?? "") ??
+                  DateTime.now(),
+              isNew:
+                  data["is_new"] == true || data["is_new"]?.toString() == "1",
+            ),
+          );
+        }
+      }
+
+      notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      final bool hadNewNotifications = notifications.any((item) => item.isNew);
+
+      await Get.to(
+        () => RenterNotificationsScreen(
+          notifications: notifications,
+          onViewProperty: (notification) {
+            Property? selectedProperty;
+
+            for (final property in widget.properties) {
+              if (property.id == notification.propertyId) {
+                selectedProperty = property;
+                break;
+              }
+            }
+
+            Get.back();
+
+            if (selectedProperty != null) {
+              Get.to(
+                () => PropertyDetailScreen(
+                  property: selectedProperty!,
+                  allProperties: widget.properties,
+                ),
+              );
+
+              return;
+            }
+
+            Get.snackbar(
+              "Property unavailable",
+              "This property is no longer available in your current list.",
+              snackPosition: SnackPosition.BOTTOM,
+            );
+          },
+        ),
+      );
+
+      if (hadNewNotifications) {
+        try {
+          final seenResponse = await propertyService
+              .markRenterNotificationsSeen();
+
+          if (seenResponse.statusCode < 200 || seenResponse.statusCode >= 300) {
+            print(
+              "MARK RENTER NOTIFICATIONS SEEN FAILED: "
+              "${seenResponse.statusCode} ${seenResponse.body}",
+            );
+          }
+        } catch (e) {
+          print("MARK RENTER NOTIFICATIONS SEEN ERROR: $e");
+        }
+      }
+
+      await loadNotificationCount();
+    } catch (e) {
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
+
+      Get.snackbar(
+        "Unable to Load",
+        "Unable to load notifications. Please try again.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      print("HOME RENTER NOTIFICATION ERROR: $e");
+    }
+  }
+
+  String getLaravelImageUrl(String image) {
+    if (image.trim().isEmpty) {
+      return "";
+    }
+
+    return image
+        .replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000")
+        .replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
   }
 
   // Toggle Favorite
@@ -225,14 +419,52 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   appName(),
 
-                  IconButton(
-                    onPressed: () {},
-
-                    icon: const Icon(
-                      Icons.notifications_none_rounded,
-                      size: 28,
-                      color: primaryColor,
-                    ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      IconButton(
+                        onPressed: openNotifications,
+                        icon: const Icon(
+                          Icons.notifications_none_rounded,
+                          size: 28,
+                          color: primaryColor,
+                        ),
+                      ),
+                      if (unreadNotificationCount > 0)
+                        Positioned(
+                          top: 2,
+                          right: 0,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 18,
+                              minHeight: 18,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDC2626),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: backgroundColor,
+                                width: 2,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              unreadNotificationCount > 9
+                                  ? "9+"
+                                  : unreadNotificationCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),

@@ -340,7 +340,6 @@ Route::middleware('auth:sanctum')->group(function () {
         '/admin/owner-requests/{id}/reply',
         [OwnerRequestController::class, 'reply']
     );
-});
 
     // Renter Notifications
     Route::get(
@@ -353,3 +352,6 @@ Route::middleware('auth:sanctum')->group(function () {
         '/renter/notifications/mark-seen',
         [PropertyController::class, 'markRenterNotificationsSeen']
     );
+});
+
+    
