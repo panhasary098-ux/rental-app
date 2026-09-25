@@ -5,18 +5,13 @@ import 'package:get/get.dart';
 class AdminUserProfileScreen extends StatefulWidget {
   final int userId;
 
-  AdminUserProfileScreen({
-    super.key,
-    required this.userId,
-  });
+  AdminUserProfileScreen({super.key, required this.userId});
 
   @override
-  State<AdminUserProfileScreen> createState() =>
-      _AdminUserProfileScreenState();
+  State<AdminUserProfileScreen> createState() => _AdminUserProfileScreenState();
 }
 
-class _AdminUserProfileScreenState
-    extends State<AdminUserProfileScreen> {
+class _AdminUserProfileScreenState extends State<AdminUserProfileScreen> {
   final AdminService adminService = AdminService();
 
   Color primaryColor = Color(0xFF03045E);
@@ -54,19 +49,15 @@ class _AdminUserProfileScreenState
         errorMessage = null;
       });
 
-      final Map<String, dynamic> result =
-          await adminService.getAdminUserProfile(
-        widget.userId,
-      );
+      final Map<String, dynamic> result = await adminService
+          .getAdminUserProfile(widget.userId);
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        user = Map<String, dynamic>.from(
-          result["user"] ?? {},
-        );
+        user = Map<String, dynamic>.from(result["user"] ?? {});
 
         isLoading = false;
       });
@@ -78,10 +69,7 @@ class _AdminUserProfileScreenState
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
       setState(() {
@@ -92,8 +80,7 @@ class _AdminUserProfileScreenState
   }
 
   String formatRole(dynamic value) {
-    String role =
-        value?.toString().toLowerCase() ?? "";
+    String role = value?.toString().toLowerCase() ?? "";
 
     if (role == "house_owner") {
       return "House Owner";
@@ -107,8 +94,7 @@ class _AdminUserProfileScreenState
   }
 
   String formatStatus(dynamic value) {
-    String status =
-        value?.toString().toLowerCase() ?? "";
+    String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "active") {
       return "Active";
@@ -121,11 +107,8 @@ class _AdminUserProfileScreenState
     return status.isEmpty ? "-" : status;
   }
 
-  String formatVerificationStatus(
-    dynamic value,
-  ) {
-    String status =
-        value?.toString().toLowerCase() ?? "";
+  String formatVerificationStatus(dynamic value) {
+    String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "approved") {
       return "Approved";
@@ -143,8 +126,7 @@ class _AdminUserProfileScreenState
   }
 
   String formatRentalStatus(dynamic value) {
-    String status =
-        value?.toString().toLowerCase() ?? "";
+    String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "available") {
       return "Available";
@@ -158,8 +140,7 @@ class _AdminUserProfileScreenState
   }
 
   String formatPostStatus(dynamic value) {
-    String status =
-        value?.toString().toLowerCase() ?? "";
+    String status = value?.toString().toLowerCase() ?? "";
 
     if (status == "active") {
       return "Active";
@@ -183,15 +164,9 @@ class _AdminUserProfileScreenState
       return "";
     }
 
-    url = url.replaceFirst(
-      "http://localhost:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://localhost:8000", "http://10.0.2.2:8000");
 
-    url = url.replaceFirst(
-      "http://127.0.0.1:8000",
-      "http://10.0.2.2:8000",
-    );
+    url = url.replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
 
     return url;
   }
@@ -205,14 +180,10 @@ class _AdminUserProfileScreenState
 
     List<String> parts = cleanName.split(" ");
 
-    parts.removeWhere(
-      (element) => element.trim().isEmpty,
-    );
+    parts.removeWhere((element) => element.trim().isEmpty);
 
     if (parts.length == 1) {
-      return parts.first
-          .substring(0, 1)
-          .toUpperCase();
+      return parts.first.substring(0, 1).toUpperCase();
     }
 
     return "${parts.first.substring(0, 1)}"
@@ -222,29 +193,20 @@ class _AdminUserProfileScreenState
 
   Map<String, dynamic> get ownerDetails {
     if (user?["owner_details"] is Map) {
-      return Map<String, dynamic>.from(
-        user!["owner_details"],
-      );
+      return Map<String, dynamic>.from(user!["owner_details"]);
     }
 
     return {};
   }
 
   List<Map<String, dynamic>> get properties {
-    final dynamic value =
-        ownerDetails["properties"];
+    final dynamic value = ownerDetails["properties"];
 
     if (value is! List) {
       return [];
     }
 
-    return value
-        .map(
-          (item) => Map<String, dynamic>.from(
-            item,
-          ),
-        )
-        .toList();
+    return value.map((item) => Map<String, dynamic>.from(item)).toList();
   }
 
   // Update Status
@@ -253,20 +215,16 @@ class _AdminUserProfileScreenState
       return;
     }
 
-    final bool isSuspended =
-        formatStatus(user!["status"]) ==
-            "Suspended";
+    final bool isSuspended = formatStatus(user!["status"]) == "Suspended";
 
-    final String newStatus =
-        isSuspended ? "active" : "suspended";
+    final String newStatus = isSuspended ? "active" : "suspended";
 
     try {
       setState(() {
         isUpdatingStatus = true;
       });
 
-      final bool success =
-          await adminService.updateUserStatus(
+      final bool success = await adminService.updateUserStatus(
         userId: widget.userId,
         status: newStatus,
       );
@@ -282,17 +240,12 @@ class _AdminUserProfileScreenState
         });
 
         Get.snackbar(
-          newStatus == "suspended"
-              ? "Account Suspended"
-              : "Account Restored",
+          newStatus == "suspended" ? "Account Suspended" : "Account Restored",
           newStatus == "suspended"
               ? "This account has been suspended."
               : "This account is active again.",
           snackPosition: SnackPosition.TOP,
-          backgroundColor:
-              newStatus == "suspended"
-                  ? redColor
-                  : primaryColor,
+          backgroundColor: newStatus == "suspended" ? redColor : primaryColor,
           colorText: Colors.white,
           duration: Duration(seconds: 2),
         );
@@ -305,10 +258,7 @@ class _AdminUserProfileScreenState
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
       setState(() {
@@ -331,21 +281,14 @@ class _AdminUserProfileScreenState
       return;
     }
 
-    final bool isSuspended =
-        formatStatus(user!["status"]) ==
-            "Suspended";
+    final bool isSuspended = formatStatus(user!["status"]) == "Suspended";
 
     Get.dialog(
       AlertDialog(
         backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(22),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: Text(
-          isSuspended
-              ? "Restore Account?"
-              : "Suspend Account?",
+          isSuspended ? "Restore Account?" : "Suspend Account?",
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w800,
@@ -381,22 +324,14 @@ class _AdminUserProfileScreenState
               updateStatus();
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isSuspended
-                      ? primaryColor
-                      : redColor,
+              backgroundColor: isSuspended ? primaryColor : redColor,
               foregroundColor: Colors.white,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: Text(
-              isSuspended
-                  ? "Restore"
-                  : "Suspend",
-            ),
+            child: Text(isSuspended ? "Restore" : "Suspend"),
           ),
         ],
       ),
@@ -436,6 +371,28 @@ class _AdminUserProfileScreenState
         onRefresh: loadProfile,
         child: buildBody(),
       ),
+
+      // Keep the account action always visible at the bottom.
+      // It only appears after the user profile has loaded successfully.
+      bottomNavigationBar: !isLoading && errorMessage == null && user != null
+          ? SafeArea(
+              top: false,
+              child: Container(
+                margin: EdgeInsets.fromLTRB(18, 8, 18, 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 18,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: buildAccountAction(),
+              ),
+            )
+          : null,
     );
   }
 
@@ -447,9 +404,7 @@ class _AdminUserProfileScreenState
           SizedBox(
             height: 500,
             child: Center(
-              child: CircularProgressIndicator(
-                color: primaryColor,
-              ),
+              child: CircularProgressIndicator(color: primaryColor),
             ),
           ),
         ],
@@ -465,15 +420,8 @@ class _AdminUserProfileScreenState
           Container(
             width: 70,
             height: 70,
-            decoration: BoxDecoration(
-              color: redSoft,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.error_outline_rounded,
-              color: redColor,
-              size: 32,
-            ),
+            decoration: BoxDecoration(color: redSoft, shape: BoxShape.circle),
+            child: Icon(Icons.error_outline_rounded, color: redColor, size: 32),
           ),
           SizedBox(height: 16),
           Text(
@@ -489,18 +437,13 @@ class _AdminUserProfileScreenState
           Text(
             errorMessage ?? "",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: secondaryTextColor,
-            ),
+            style: TextStyle(fontSize: 13, color: secondaryTextColor),
           ),
           SizedBox(height: 18),
           Center(
             child: ElevatedButton.icon(
               onPressed: loadProfile,
-              icon: Icon(
-                Icons.refresh_rounded,
-              ),
+              icon: Icon(Icons.refresh_rounded),
               label: Text("Try Again"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -512,20 +455,13 @@ class _AdminUserProfileScreenState
       );
     }
 
-    final String role =
-        formatRole(user!["role"]);
+    final String role = formatRole(user!["role"]);
 
-    final bool isOwner =
-        role == "House Owner";
+    final bool isOwner = role == "House Owner";
 
     return ListView(
       physics: AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(
-        18,
-        18,
-        18,
-        30,
-      ),
+      padding: EdgeInsets.fromLTRB(18, 18, 18, 30),
       children: [
         buildProfileHeader(),
 
@@ -539,30 +475,21 @@ class _AdminUserProfileScreenState
           SizedBox(height: 18),
           buildPropertyHistory(),
         ],
-
-        SizedBox(height: 20),
-
-        buildAccountAction(),
       ],
     );
   }
 
   // Profile Header
   Widget buildProfileHeader() {
-    final String name =
-        user!["name"]?.toString() ?? "User";
+    final String name = user!["name"]?.toString() ?? "User";
 
-    final String role =
-        formatRole(user!["role"]);
+    final String role = formatRole(user!["role"]);
 
-    final String status =
-        formatStatus(user!["status"]);
+    final String status = formatStatus(user!["status"]);
 
-    final bool isSuspended =
-        status == "Suspended";
+    final bool isSuspended = status == "Suspended";
 
-    final String profileImageUrl =
-        getImageUrl(user!["profile_image"]);
+    final String profileImageUrl = getImageUrl(user!["profile_image"]);
 
     return Container(
       width: double.infinity,
@@ -572,10 +499,7 @@ class _AdminUserProfileScreenState
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color:
-                primaryColor.withValues(
-              alpha: 0.16,
-            ),
+            color: primaryColor.withValues(alpha: 0.16),
             blurRadius: 20,
             offset: Offset(0, 7),
           ),
@@ -588,27 +512,19 @@ class _AdminUserProfileScreenState
             height: 84,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(50),
-              border: Border.all(
-                color: Colors.white,
-                width: 3,
-              ),
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: Colors.white, width: 3),
             ),
             child: ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(50),
+              borderRadius: BorderRadius.circular(50),
               child: profileImageUrl.isEmpty
                   ? Center(
                       child: Text(
                         getInitials(name),
                         style: TextStyle(
                           fontSize: 25,
-                          fontWeight:
-                              FontWeight.w900,
-                          color: isSuspended
-                              ? redColor
-                              : primaryColor,
+                          fontWeight: FontWeight.w900,
+                          color: isSuspended ? redColor : primaryColor,
                         ),
                       ),
                     )
@@ -617,21 +533,14 @@ class _AdminUserProfileScreenState
                       width: 84,
                       height: 84,
                       fit: BoxFit.cover,
-                      errorBuilder:
-                          (
-                            context,
-                            error,
-                            stackTrace,
-                          ) {
+                      errorBuilder: (context, error, stackTrace) {
                         return Center(
                           child: Text(
                             getInitials(name),
                             style: TextStyle(
                               fontSize: 25,
-                              fontWeight:
-                                  FontWeight.w900,
-                              color:
-                                  primaryColor,
+                              fontWeight: FontWeight.w900,
+                              color: primaryColor,
                             ),
                           ),
                         );
@@ -651,14 +560,12 @@ class _AdminUserProfileScreenState
           ),
           SizedBox(height: 7),
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 role,
                 style: TextStyle(
-                  color: Colors.white
-                      .withValues(alpha: 0.72),
+                  color: Colors.white.withValues(alpha: 0.72),
                   fontSize: 12,
                 ),
               ),
@@ -667,8 +574,7 @@ class _AdminUserProfileScreenState
                 width: 4,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white
-                      .withValues(alpha: 0.45),
+                  color: Colors.white.withValues(alpha: 0.45),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -676,9 +582,7 @@ class _AdminUserProfileScreenState
               Text(
                 status,
                 style: TextStyle(
-                  color: isSuspended
-                      ? Color(0xFFFCA5A5)
-                      : Color(0xFF86EFAC),
+                  color: isSuspended ? Color(0xFFFCA5A5) : Color(0xFF86EFAC),
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
@@ -705,19 +609,12 @@ class _AdminUserProfileScreenState
           buildInfoRow(
             Icons.phone_outlined,
             "Phone",
-            user!["phone"]
-                        ?.toString()
-                        .isNotEmpty ==
-                    true
+            user!["phone"]?.toString().isNotEmpty == true
                 ? user!["phone"].toString()
                 : "No phone number",
           ),
           buildDivider(),
-          buildInfoRow(
-            Icons.badge_outlined,
-            "Role",
-            formatRole(user!["role"]),
-          ),
+          buildInfoRow(Icons.badge_outlined, "Role", formatRole(user!["role"])),
           buildDivider(),
           buildInfoRow(
             Icons.shield_outlined,
@@ -728,9 +625,7 @@ class _AdminUserProfileScreenState
           buildInfoRow(
             Icons.calendar_today_outlined,
             "Member Since",
-            user!["member_since"]
-                    ?.toString() ??
-                "-",
+            user!["member_since"]?.toString() ?? "-",
           ),
         ],
       ),
@@ -739,12 +634,10 @@ class _AdminUserProfileScreenState
 
   // Owner Overview
   Widget buildOwnerOverview() {
-    final bool hasNationalId =
-        ownerDetails["has_national_id"] == true;
+    final bool hasNationalId = ownerDetails["has_national_id"] == true;
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           "Owner Overview",
@@ -759,10 +652,8 @@ class _AdminUserProfileScreenState
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius:
-                BorderRadius.circular(18),
-            border:
-                Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
           ),
           child: Column(
             children: [
@@ -770,52 +661,36 @@ class _AdminUserProfileScreenState
                 children: [
                   Expanded(
                     child: buildStat(
-                      ownerDetails[
-                                  "total_properties"]
-                              ?.toString() ??
-                          "0",
+                      ownerDetails["total_properties"]?.toString() ?? "0",
                       "Total",
                     ),
                   ),
                   buildVerticalDivider(),
                   Expanded(
                     child: buildStat(
-                      ownerDetails[
-                                  "approved_properties"]
-                              ?.toString() ??
-                          "0",
+                      ownerDetails["approved_properties"]?.toString() ?? "0",
                       "Approved",
                     ),
                   ),
                   buildVerticalDivider(),
                   Expanded(
                     child: buildStat(
-                      ownerDetails[
-                                  "pending_properties"]
-                              ?.toString() ??
-                          "0",
+                      ownerDetails["pending_properties"]?.toString() ?? "0",
                       "Pending",
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 16),
-              Container(
-                height: 1,
-                color: borderColor,
-              ),
+              Container(height: 1, color: borderColor),
               SizedBox(height: 14),
               Row(
                 children: [
                   Icon(
                     hasNationalId
-                        ? Icons
-                            .verified_user_outlined
-                        : Icons
-                            .gpp_maybe_outlined,
-                    color: hasNationalId
-                        ? greenColor
-                        : orangeColor,
+                        ? Icons.verified_user_outlined
+                        : Icons.gpp_maybe_outlined,
+                    color: hasNationalId ? greenColor : orangeColor,
                     size: 20,
                   ),
                   SizedBox(width: 9),
@@ -824,38 +699,23 @@ class _AdminUserProfileScreenState
                       "National ID",
                       style: TextStyle(
                         fontSize: 12,
-                        fontWeight:
-                            FontWeight.w600,
+                        fontWeight: FontWeight.w600,
                         color: textColor,
                       ),
                     ),
                   ),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     decoration: BoxDecoration(
-                      color: hasNationalId
-                          ? greenSoft
-                          : orangeSoft,
-                      borderRadius:
-                          BorderRadius.circular(
-                        20,
-                      ),
+                      color: hasNationalId ? greenSoft : orangeSoft,
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      hasNationalId
-                          ? "Uploaded"
-                          : "Not Uploaded",
+                      hasNationalId ? "Uploaded" : "Not Uploaded",
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight:
-                            FontWeight.w700,
-                        color: hasNationalId
-                            ? greenColor
-                            : orangeColor,
+                        fontWeight: FontWeight.w700,
+                        color: hasNationalId ? greenColor : orangeColor,
                       ),
                     ),
                   ),
@@ -868,10 +728,7 @@ class _AdminUserProfileScreenState
     );
   }
 
-  Widget buildStat(
-    String value,
-    String label,
-  ) {
+  Widget buildStat(String value, String label) {
     return Column(
       children: [
         Text(
@@ -885,31 +742,22 @@ class _AdminUserProfileScreenState
         SizedBox(height: 3),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 10.5,
-            color: secondaryTextColor,
-          ),
+          style: TextStyle(fontSize: 10.5, color: secondaryTextColor),
         ),
       ],
     );
   }
 
   Widget buildVerticalDivider() {
-    return Container(
-      width: 1,
-      height: 42,
-      color: borderColor,
-    );
+    return Container(width: 1, height: 42, color: borderColor);
   }
 
   // Property History
   Widget buildPropertyHistory() {
-    final List<Map<String, dynamic>>
-        ownerProperties = properties;
+    final List<Map<String, dynamic>> ownerProperties = properties;
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
@@ -925,10 +773,7 @@ class _AdminUserProfileScreenState
             ),
             Text(
               "${ownerProperties.length} posts",
-              style: TextStyle(
-                fontSize: 11,
-                color: secondaryTextColor,
-              ),
+              style: TextStyle(fontSize: 11, color: secondaryTextColor),
             ),
           ],
         ),
@@ -936,24 +781,15 @@ class _AdminUserProfileScreenState
         if (ownerProperties.isEmpty)
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(
-              vertical: 30,
-              horizontal: 20,
-            ),
+            padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius:
-                  BorderRadius.circular(18),
-              border:
-                  Border.all(color: borderColor),
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: borderColor),
             ),
             child: Column(
               children: [
-                Icon(
-                  Icons.home_work_outlined,
-                  color: primaryColor,
-                  size: 30,
-                ),
+                Icon(Icons.home_work_outlined, color: primaryColor, size: 30),
                 SizedBox(height: 10),
                 Text(
                   "No property history",
@@ -966,76 +802,46 @@ class _AdminUserProfileScreenState
                 Text(
                   "This owner has not submitted any properties.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 11.5,
-                    color: secondaryTextColor,
-                  ),
+                  style: TextStyle(fontSize: 11.5, color: secondaryTextColor),
                 ),
               ],
             ),
           )
         else
           Column(
-            children: List.generate(
-              ownerProperties.length,
-              (index) {
-                return Padding(
-                  padding: EdgeInsets.only(
-                    bottom:
-                        index ==
-                                ownerProperties
-                                        .length -
-                                    1
-                            ? 0
-                            : 10,
-                  ),
-                  child: buildPropertyCard(
-                    ownerProperties[index],
-                  ),
-                );
-              },
-            ),
+            children: List.generate(ownerProperties.length, (index) {
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == ownerProperties.length - 1 ? 0 : 10,
+                ),
+                child: buildPropertyCard(ownerProperties[index]),
+              );
+            }),
           ),
       ],
     );
   }
 
-  Widget buildPropertyCard(
-    Map<String, dynamic> property,
-  ) {
-    final String imageUrl =
-        getImageUrl(
-      property["cover_image"],
-    );
+  Widget buildPropertyCard(Map<String, dynamic> property) {
+    final String imageUrl = getImageUrl(property["cover_image"]);
 
-    final String verificationStatus =
-        formatVerificationStatus(
+    final String verificationStatus = formatVerificationStatus(
       property["verification_status"],
     );
 
-    final String rentalStatus =
-        formatRentalStatus(
-      property["rental_status"],
-    );
+    final String rentalStatus = formatRentalStatus(property["rental_status"]);
 
-    final String postStatus =
-        formatPostStatus(
-      property["post_status"],
-    );
+    final String postStatus = formatPostStatus(property["post_status"]);
 
-    Color verificationColor =
-        orangeColor;
-    Color verificationBackground =
-        orangeSoft;
+    Color verificationColor = orangeColor;
+    Color verificationBackground = orangeSoft;
 
-    if (verificationStatus ==
-        "Approved") {
+    if (verificationStatus == "Approved") {
       verificationColor = greenColor;
       verificationBackground = greenSoft;
     }
 
-    if (verificationStatus ==
-        "Rejected") {
+    if (verificationStatus == "Rejected") {
       verificationColor = redColor;
       verificationBackground = redSoft;
     }
@@ -1044,20 +850,16 @@ class _AdminUserProfileScreenState
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius:
-            BorderRadius.circular(18),
-        border:
-            Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(13),
+                borderRadius: BorderRadius.circular(13),
                 child: imageUrl.isEmpty
                     ? buildPropertyPlaceholder()
                     : Image.network(
@@ -1065,12 +867,7 @@ class _AdminUserProfileScreenState
                         width: 92,
                         height: 92,
                         fit: BoxFit.cover,
-                        errorBuilder:
-                            (
-                              context,
-                              error,
-                              stackTrace,
-                            ) {
+                        errorBuilder: (context, error, stackTrace) {
                           return buildPropertyPlaceholder();
                         },
                       ),
@@ -1078,20 +875,15 @@ class _AdminUserProfileScreenState
               SizedBox(width: 12),
               Expanded(
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      property["name"]
-                              ?.toString() ??
-                          "Property",
+                      property["name"]?.toString() ?? "Property",
                       maxLines: 2,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight:
-                            FontWeight.w800,
+                        fontWeight: FontWeight.w800,
                         color: textColor,
                       ),
                     ),
@@ -1100,8 +892,7 @@ class _AdminUserProfileScreenState
                       "\$${property["price"] ?? 0} / month",
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight:
-                            FontWeight.w800,
+                        fontWeight: FontWeight.w800,
                         color: primaryColor,
                       ),
                     ),
@@ -1109,26 +900,19 @@ class _AdminUserProfileScreenState
                     Row(
                       children: [
                         Icon(
-                          Icons
-                              .location_on_outlined,
+                          Icons.location_on_outlined,
                           size: 14,
-                          color:
-                              secondaryTextColor,
+                          color: secondaryTextColor,
                         ),
                         SizedBox(width: 3),
                         Expanded(
                           child: Text(
-                            property["address"]
-                                    ?.toString() ??
-                                "-",
+                            property["address"]?.toString() ?? "-",
                             maxLines: 1,
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 10.5,
-                              color:
-                                  secondaryTextColor,
+                              color: secondaryTextColor,
                             ),
                           ),
                         ),
@@ -1136,15 +920,8 @@ class _AdminUserProfileScreenState
                     ),
                     SizedBox(height: 6),
                     Text(
-                      property["created_at"]
-                              ?.toString() ??
-                          "-",
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Color(
-                          0xFF9CA3AF,
-                        ),
-                      ),
+                      property["created_at"]?.toString() ?? "-",
+                      style: TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
                     ),
                   ],
                 ),
@@ -1152,10 +929,7 @@ class _AdminUserProfileScreenState
             ],
           ),
           SizedBox(height: 11),
-          Container(
-            height: 1,
-            color: borderColor,
-          ),
+          Container(height: 1, color: borderColor),
           SizedBox(height: 10),
           Row(
             children: [
@@ -1165,11 +939,7 @@ class _AdminUserProfileScreenState
                 verificationColor,
               ),
               SizedBox(width: 6),
-              buildSmallBadge(
-                rentalStatus,
-                softGrey,
-                primaryColor,
-              ),
+              buildSmallBadge(rentalStatus, softGrey, primaryColor),
               Spacer(),
               Text(
                 postStatus,
@@ -1193,28 +963,16 @@ class _AdminUserProfileScreenState
       width: 92,
       height: 92,
       color: softGrey,
-      child: Icon(
-        Icons.home_work_outlined,
-        color: primaryColor,
-        size: 28,
-      ),
+      child: Icon(Icons.home_work_outlined, color: primaryColor, size: 28),
     );
   }
 
-  Widget buildSmallBadge(
-    String text,
-    Color background,
-    Color foreground,
-  ) {
+  Widget buildSmallBadge(String text, Color background, Color foreground) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 5,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: background,
-        borderRadius:
-            BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
@@ -1228,72 +986,52 @@ class _AdminUserProfileScreenState
   }
 
   Widget buildAccountAction() {
-    final bool isSuspended =
-        formatStatus(user!["status"]) ==
-            "Suspended";
+    final bool isSuspended = formatStatus(user!["status"]) == "Suspended";
 
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: ElevatedButton.icon(
-        onPressed: isUpdatingStatus
-            ? null
-            : confirmStatusChange,
+        onPressed: isUpdatingStatus ? null : confirmStatusChange,
         icon: isUpdatingStatus
             ? SizedBox(
                 width: 18,
                 height: 18,
-                child:
-                    CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 2,
                   color: Colors.white,
                 ),
               )
             : Icon(
-                isSuspended
-                    ? Icons.restart_alt_rounded
-                    : Icons.block_rounded,
+                isSuspended ? Icons.restart_alt_rounded : Icons.block_rounded,
                 size: 19,
               ),
         label: Text(
           isUpdatingStatus
               ? "Updating..."
               : isSuspended
-                  ? "Restore Account"
-                  : "Suspend Account",
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
-          ),
+              ? "Restore Account"
+              : "Suspend Account",
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: isSuspended
-              ? primaryColor
-              : redColor,
+          backgroundColor: isSuspended ? primaryColor : redColor,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              isSuspended
-                  ? primaryColor
-                      .withValues(alpha: 0.65)
-                  : redColor
-                      .withValues(alpha: 0.65),
+          disabledBackgroundColor: isSuspended
+              ? primaryColor.withValues(alpha: 0.65)
+              : redColor.withValues(alpha: 0.65),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
       ),
     );
   }
 
-  Widget buildSection({
-    required String title,
-    required Widget child,
-  }) {
+  Widget buildSection({required String title, required Widget child}) {
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
@@ -1308,10 +1046,8 @@ class _AdminUserProfileScreenState
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius:
-                BorderRadius.circular(18),
-            border:
-                Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
           ),
           child: child,
         ),
@@ -1319,16 +1055,9 @@ class _AdminUserProfileScreenState
     );
   }
 
-  Widget buildInfoRow(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+  Widget buildInfoRow(IconData icon, String title, String value) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 15,
-        vertical: 14,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 14),
       child: Row(
         children: [
           Container(
@@ -1336,36 +1065,25 @@ class _AdminUserProfileScreenState
             height: 38,
             decoration: BoxDecoration(
               color: softGrey,
-              borderRadius:
-                  BorderRadius.circular(11),
+              borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(
-              icon,
-              size: 18,
-              color: primaryColor,
-            ),
+            child: Icon(icon, size: 18, color: primaryColor),
           ),
           SizedBox(width: 12),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    color:
-                        secondaryTextColor,
-                  ),
+                  style: TextStyle(fontSize: 10.5, color: secondaryTextColor),
                 ),
                 SizedBox(height: 3),
                 Text(
                   value,
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight:
-                        FontWeight.w600,
+                    fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
                 ),
@@ -1380,10 +1098,7 @@ class _AdminUserProfileScreenState
   Widget buildDivider() {
     return Padding(
       padding: EdgeInsets.only(left: 65),
-      child: Container(
-        height: 1,
-        color: borderColor,
-      ),
+      child: Container(height: 1, color: borderColor),
     );
   }
 }

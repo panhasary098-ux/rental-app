@@ -689,10 +689,34 @@ class UserController extends Controller
                 'required|in:active,suspended',
             ]);
 
-        $user->status =
-            $validated['status'];
+        DB::transaction(
+            function () use (
+                $user,
+                $validated
+            ) {
+                $user->status =
+                    $validated['status'];
 
-        $user->save();
+                $user->save();
+
+                // Keep a house owner's property posts
+                // synchronized with the account status.
+                if (
+                    $user->role ===
+                    'house_owner'
+                ) {
+                    $user
+                        ->properties()
+                        ->update([
+                            'post_status' =>
+                                $validated['status'] ===
+                                    'suspended'
+                                    ? 'removed'
+                                    : 'active',
+                        ]);
+                }
+            }
+        );
 
         return response()->json([
             'success' => true,
@@ -700,8 +724,8 @@ class UserController extends Controller
             'message' =>
             $user->status ===
                 'suspended'
-                ? 'User account suspended successfully.'
-                : 'User account restored successfully.',
+                ? 'User account suspended successfully. Owner properties were removed from public listings.'
+                : 'User account restored successfully. Owner properties are active again.',
 
             'user' => [
                 'id' =>
