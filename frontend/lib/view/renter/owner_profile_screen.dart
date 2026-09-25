@@ -29,22 +29,16 @@ class OwnerProfileScreen extends StatefulWidget {
   }
 }
 
-class _OwnerProfileScreenState
-    extends State<OwnerProfileScreen> {
-  final PropertyService propertyService =
-      PropertyService();
+class _OwnerProfileScreenState extends State<OwnerProfileScreen> {
+  final PropertyService propertyService = PropertyService();
 
-  final Color primaryColor =
-      Color(0xFF080B78);
+  final Color primaryColor = Color(0xFF080B78);
 
-  final Color backgroundColor =
-      Color(0xFFF8FAFC);
+  final Color backgroundColor = Color(0xFFF8FAFC);
 
-  final Color borderColor =
-      Color(0xFFF0F1F5);
+  final Color borderColor = Color(0xFFF0F1F5);
 
-  final Color mutedTextColor =
-      Color(0xFF85899B);
+  final Color mutedTextColor = Color(0xFF85899B);
 
   bool isLoading = true;
 
@@ -66,11 +60,9 @@ class _OwnerProfileScreenState
 
     ownerName = widget.ownerName;
 
-    ownerProfileImage =
-        widget.ownerProfileImage;
+    ownerProfileImage = widget.ownerProfileImage;
 
-    properties =
-        widget.ownerProperties;
+    properties = widget.ownerProperties;
 
     loadOwnerProfile();
   }
@@ -84,114 +76,67 @@ class _OwnerProfileScreenState
     }
 
     try {
-      final profileResponse =
-          await propertyService
-              .getOwnerProfile(
+      final profileResponse = await propertyService.getOwnerProfile(
         ownerId: widget.ownerId,
       );
 
-      String newOwnerName =
-          ownerName;
+      String newOwnerName = ownerName;
 
-      String newOwnerProfileImage =
-          ownerProfileImage;
+      String newOwnerProfileImage = ownerProfileImage;
 
-      String newMemberSince =
-          memberSince;
+      String newMemberSince = memberSince;
 
-      int newTotalProperties =
-          totalProperties;
+      int newTotalProperties = totalProperties;
 
-      int newAvailableProperties =
-          availableProperties;
+      int newAvailableProperties = availableProperties;
 
-      final dynamic profileDecoded =
-          jsonDecode(
-        profileResponse.body,
-      );
+      final dynamic profileDecoded = jsonDecode(profileResponse.body);
 
-      if (profileResponse.statusCode ==
-              200 &&
-          profileDecoded["success"] ==
-              true) {
-        final dynamic owner =
-            profileDecoded["owner"];
+      if (profileResponse.statusCode == 200 &&
+          profileDecoded["success"] == true) {
+        final dynamic owner = profileDecoded["owner"];
 
         if (owner is Map) {
-          newOwnerName =
-              owner["name"]
-                      ?.toString() ??
-                  newOwnerName;
+          newOwnerName = owner["name"]?.toString() ?? newOwnerName;
 
-          newOwnerProfileImage =
-              fixLaravelUrl(
-            owner["profile_image"]
-                    ?.toString() ??
-                newOwnerProfileImage,
+          newOwnerProfileImage = fixLaravelUrl(
+            owner["profile_image"]?.toString() ?? newOwnerProfileImage,
           );
 
-          newMemberSince =
-              owner["member_since"]
-                      ?.toString() ??
-                  newMemberSince;
+          newMemberSince = owner["member_since"]?.toString() ?? newMemberSince;
 
           newTotalProperties =
-              int.tryParse(
-                    owner["total_properties"]
-                            ?.toString() ??
-                        "0",
-                  ) ??
-                  newTotalProperties;
+              int.tryParse(owner["total_properties"]?.toString() ?? "0") ??
+              newTotalProperties;
 
           newAvailableProperties =
-              int.tryParse(
-                    owner["available_properties"]
-                            ?.toString() ??
-                        "0",
-                  ) ??
-                  newAvailableProperties;
+              int.tryParse(owner["available_properties"]?.toString() ?? "0") ??
+              newAvailableProperties;
         }
       }
 
       // Load owner post history from API.
       // The current renter Property objects are reused
       // so property details keep all existing fields.
-      final historyResponse =
-          await propertyService
-              .getOwnerProperties(
+      final historyResponse = await propertyService.getOwnerProperties(
         ownerId: widget.ownerId,
       );
 
-      final dynamic historyDecoded =
-          jsonDecode(
-        historyResponse.body,
-      );
+      final dynamic historyDecoded = jsonDecode(historyResponse.body);
 
-      List<Property> newProperties =
-          List<Property>.from(
+      List<Property> newProperties = List<Property>.from(
         widget.ownerProperties,
       );
 
-      if (historyResponse.statusCode ==
-              200 &&
-          historyDecoded["success"] ==
-              true) {
-        final List<dynamic> history =
-            historyDecoded["properties"] ??
-                [];
+      if (historyResponse.statusCode == 200 &&
+          historyDecoded["success"] == true) {
+        final List<dynamic> history = historyDecoded["properties"] ?? [];
 
-        final List<int> historyIds =
-            [];
+        final List<int> historyIds = [];
 
-        for (final dynamic item
-            in history) {
+        for (final dynamic item in history) {
           if (item is Map) {
-            final int? id =
-                int.tryParse(
-              item["id"]
-                      ?.toString() ??
-                  "",
-            );
+            final int? id = int.tryParse(item["id"]?.toString() ?? "");
 
             if (id != null) {
               historyIds.add(id);
@@ -200,35 +145,20 @@ class _OwnerProfileScreenState
         }
 
         if (historyIds.isNotEmpty) {
-          newProperties =
-              widget.ownerProperties
-                  .where(
-                    (property) =>
-                        property.id !=
-                            null &&
-                        historyIds.contains(
-                          property.id!,
-                        ),
-                  )
-                  .toList();
+          newProperties = widget.ownerProperties
+              .where(
+                (property) =>
+                    property.id != null && historyIds.contains(property.id!),
+              )
+              .toList();
 
-          newProperties.sort(
-            (a, b) {
-              final int aIndex =
-                  historyIds.indexOf(
-                a.id!,
-              );
+          newProperties.sort((a, b) {
+            final int aIndex = historyIds.indexOf(a.id!);
 
-              final int bIndex =
-                  historyIds.indexOf(
-                b.id!,
-              );
+            final int bIndex = historyIds.indexOf(b.id!);
 
-              return aIndex.compareTo(
-                bIndex,
-              );
-            },
-          );
+            return aIndex.compareTo(bIndex);
+          });
         }
       }
 
@@ -239,27 +169,20 @@ class _OwnerProfileScreenState
       setState(() {
         ownerName = newOwnerName;
 
-        ownerProfileImage =
-            newOwnerProfileImage;
+        ownerProfileImage = newOwnerProfileImage;
 
-        memberSince =
-            newMemberSince;
+        memberSince = newMemberSince;
 
-        totalProperties =
-            newTotalProperties;
+        totalProperties = newTotalProperties;
 
-        availableProperties =
-            newAvailableProperties;
+        availableProperties = newAvailableProperties;
 
-        properties =
-            newProperties;
+        properties = newProperties;
 
         isLoading = false;
       });
     } catch (e) {
-      print(
-        "OWNER PROFILE LOAD ERROR: $e",
-      );
+      print("OWNER PROFILE LOAD ERROR: $e");
 
       if (!mounted) {
         return;
@@ -272,54 +195,39 @@ class _OwnerProfileScreenState
       Get.snackbar(
         "Error",
         "Unable to load owner profile",
-        snackPosition:
-            SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.BOTTOM,
       );
     }
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          backgroundColor,
+      backgroundColor: backgroundColor,
 
       body: SafeArea(
         child: RefreshIndicator(
           color: primaryColor,
 
-          onRefresh:
-              loadOwnerProfile,
+          onRefresh: loadOwnerProfile,
 
           child: CustomScrollView(
-            physics:
-                AlwaysScrollableScrollPhysics(),
+            physics: AlwaysScrollableScrollPhysics(),
 
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(
-                    20,
-                    12,
-                    20,
-                    28,
-                  ),
+                  padding: EdgeInsets.fromLTRB(20, 12, 20, 28),
 
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
 
                     children: [
                       // Header
                       Row(
                         children: [
                           buildHeaderButton(
-                            icon: Icons
-                                .arrow_back_rounded,
+                            icon: Icons.arrow_back_rounded,
                             onTap: () {
                               Get.back();
                             },
@@ -328,25 +236,17 @@ class _OwnerProfileScreenState
                           Expanded(
                             child: Text(
                               "Owner Profile",
-                              textAlign:
-                                  TextAlign
-                                      .center,
-                              style:
-                                  TextStyle(
-                                color:
-                                    primaryColor,
-                                fontSize:
-                                    18,
-                                fontWeight:
-                                    FontWeight
-                                        .w800,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
 
                           buildHeaderButton(
-                            icon: Icons
-                                .refresh_rounded,
+                            icon: Icons.refresh_rounded,
                             onTap: () {
                               loadOwnerProfile();
                             },
@@ -354,69 +254,48 @@ class _OwnerProfileScreenState
                         ],
                       ),
 
-                      SizedBox(
-                        height: 22,
-                      ),
+                      SizedBox(height: 22),
 
                       // Owner Card
                       buildOwnerCard(),
 
-                      SizedBox(
-                        height: 26,
-                      ),
+                      SizedBox(height: 26),
 
                       Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment
-                                .spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                         children: [
                           Text(
                             "Property History",
-                            style:
-                                TextStyle(
-                              color:
-                                  primaryColor,
+                            style: TextStyle(
+                              color: primaryColor,
                               fontSize: 18,
-                              fontWeight:
-                                  FontWeight
-                                      .w800,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
 
                           if (!isLoading)
                             Text(
                               "${properties.length} posts",
-                              style:
-                                  TextStyle(
-                                color:
-                                    mutedTextColor,
+                              style: TextStyle(
+                                color: mutedTextColor,
                                 fontSize: 12,
-                                fontWeight:
-                                    FontWeight
-                                        .w600,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                         ],
                       ),
 
-                      SizedBox(
-                        height: 12,
-                      ),
+                      SizedBox(height: 12),
 
                       if (isLoading)
                         buildLoadingState()
-                      else if (properties
-                          .isEmpty)
+                      else if (properties.isEmpty)
                         buildEmptyState()
                       else
-                        ...properties.map(
-                          (property) {
-                            return buildPropertyCard(
-                              property,
-                            );
-                          },
-                        ),
+                        ...properties.map((property) {
+                          return buildPropertyCard(property);
+                        }),
                     ],
                   ),
                 ),
@@ -439,10 +318,7 @@ class _OwnerProfileScreenState
       child: InkWell(
         onTap: onTap,
 
-        borderRadius:
-            BorderRadius.circular(
-          14,
-        ),
+        borderRadius: BorderRadius.circular(14),
 
         child: Container(
           width: 44,
@@ -451,21 +327,12 @@ class _OwnerProfileScreenState
           decoration: BoxDecoration(
             color: Colors.white,
 
-            borderRadius:
-                BorderRadius.circular(
-              14,
-            ),
+            borderRadius: BorderRadius.circular(14),
 
-            border: Border.all(
-              color: borderColor,
-            ),
+            border: Border.all(color: borderColor),
           ),
 
-          child: Icon(
-            icon,
-            color: primaryColor,
-            size: 22,
-          ),
+          child: Icon(icon, color: primaryColor, size: 22),
         ),
       ),
     );
@@ -476,86 +343,51 @@ class _OwnerProfileScreenState
     return Container(
       width: double.infinity,
 
-      padding:
-          EdgeInsets.fromLTRB(
-        20,
-        24,
-        20,
-        20,
-      ),
+      padding: EdgeInsets.fromLTRB(20, 24, 20, 20),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          24,
-        ),
+        borderRadius: BorderRadius.circular(24),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
 
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.045,
-            ),
+            color: Colors.black.withOpacity(0.045),
             blurRadius: 18,
-            offset: Offset(
-              0,
-              6,
-            ),
+            offset: Offset(0, 6),
           ),
         ],
       ),
 
       child: Column(
         children: [
-          buildOwnerAvatar(
-            size: 88,
-          ),
+          buildOwnerAvatar(size: 88),
 
-          SizedBox(
-            height: 14,
-          ),
+          SizedBox(height: 14),
 
           Text(
-            ownerName.trim().isNotEmpty
-                ? ownerName
-                : "House Owner",
+            ownerName.trim().isNotEmpty ? ownerName : "House Owner",
 
-            textAlign:
-                TextAlign.center,
+            textAlign: TextAlign.center,
 
             style: TextStyle(
               color: primaryColor,
               fontSize: 21,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
 
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5),
 
           Container(
-            padding:
-                EdgeInsets.symmetric(
-              horizontal: 11,
-              vertical: 5,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 11, vertical: 5),
 
             decoration: BoxDecoration(
-              color:
-                  Color(0xFFF0F1F8),
+              color: Color(0xFFF0F1F8),
 
-              borderRadius:
-                  BorderRadius.circular(
-                20,
-              ),
+              borderRadius: BorderRadius.circular(20),
             ),
 
             child: Text(
@@ -563,59 +395,39 @@ class _OwnerProfileScreenState
               style: TextStyle(
                 color: primaryColor,
                 fontSize: 11,
-                fontWeight:
-                    FontWeight.w700,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
 
-          if (memberSince
-              .isNotEmpty) ...[
-            SizedBox(
-              height: 9,
-            ),
+          if (memberSince.isNotEmpty) ...[
+            SizedBox(height: 9),
 
             Text(
               "Member since ${formatMemberSince(memberSince)}",
-              style: TextStyle(
-                color:
-                    mutedTextColor,
-                fontSize: 11,
-              ),
+              style: TextStyle(color: mutedTextColor, fontSize: 11),
             ),
           ],
 
-          SizedBox(
-            height: 22,
-          ),
+          SizedBox(height: 22),
 
           Row(
             children: [
               Expanded(
                 child: buildStatCard(
-                  value:
-                      totalProperties
-                          .toString(),
-                  label:
-                      "Public Listings",
-                  icon: Icons
-                      .home_work_outlined,
+                  value: totalProperties.toString(),
+                  label: "Public Listings",
+                  icon: Icons.home_work_outlined,
                 ),
               ),
 
-              SizedBox(
-                width: 12,
-              ),
+              SizedBox(width: 12),
 
               Expanded(
                 child: buildStatCard(
-                  value:
-                      availableProperties
-                          .toString(),
-                  label:
-                      "Available",
-                  icon: Icons
-                      .check_circle_outline_rounded,
+                  value: availableProperties.toString(),
+                  label: "Available",
+                  icon: Icons.check_circle_outline_rounded,
                 ),
               ),
             ],
@@ -626,22 +438,14 @@ class _OwnerProfileScreenState
   }
 
   // Owner Avatar
-  Widget buildOwnerAvatar({
-    required double size,
-  }) {
-    final String cleanName =
-        ownerName.trim();
+  Widget buildOwnerAvatar({required double size}) {
+    final String cleanName = ownerName.trim();
 
-    final String initial =
-        cleanName.isNotEmpty
-            ? cleanName[0]
-                .toUpperCase()
-            : "O";
+    final String initial = cleanName.isNotEmpty
+        ? cleanName[0].toUpperCase()
+        : "O";
 
-    final String cleanImage =
-        fixLaravelUrl(
-      ownerProfileImage,
-    );
+    final String cleanImage = fixLaravelUrl(ownerProfileImage);
 
     return Container(
       width: size,
@@ -651,11 +455,7 @@ class _OwnerProfileScreenState
         color: Color(0xFFF0F1F8),
         shape: BoxShape.circle,
 
-        border: Border.all(
-          color:
-              Color(0xFFE5E7F0),
-          width: 2,
-        ),
+        border: Border.all(color: Color(0xFFE5E7F0), width: 2),
       ),
 
       child: ClipOval(
@@ -666,36 +466,22 @@ class _OwnerProfileScreenState
                 height: size,
                 fit: BoxFit.cover,
 
-                errorBuilder: (
-                  context,
-                  error,
-                  stackTrace,
-                ) {
-                  return buildInitial(
-                    initial,
-                    size,
-                  );
+                errorBuilder: (context, error, stackTrace) {
+                  return buildInitial(initial, size);
                 },
               )
-            : buildInitial(
-                initial,
-                size,
-              ),
+            : buildInitial(initial, size),
       ),
     );
   }
 
   // Owner Initial
-  Widget buildInitial(
-    String initial,
-    double size,
-  ) {
+  Widget buildInitial(String initial, double size) {
     return Container(
       width: size,
       height: size,
 
-      alignment:
-          Alignment.center,
+      alignment: Alignment.center,
 
       color: Color(0xFFF0F1F8),
 
@@ -705,8 +491,7 @@ class _OwnerProfileScreenState
         style: TextStyle(
           color: primaryColor,
           fontSize: size * 0.36,
-          fontWeight:
-              FontWeight.w800,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
@@ -719,36 +504,21 @@ class _OwnerProfileScreenState
     required IconData icon,
   }) {
     return Container(
-      padding:
-          EdgeInsets.symmetric(
-        vertical: 15,
-        horizontal: 12,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
 
       decoration: BoxDecoration(
         color: Color(0xFFF8F9FC),
 
-        borderRadius:
-            BorderRadius.circular(
-          17,
-        ),
+        borderRadius: BorderRadius.circular(17),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
 
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: primaryColor,
-            size: 21,
-          ),
+          Icon(icon, color: primaryColor, size: 21),
 
-          SizedBox(
-            height: 7,
-          ),
+          SizedBox(height: 7),
 
           Text(
             value,
@@ -756,27 +526,21 @@ class _OwnerProfileScreenState
             style: TextStyle(
               color: primaryColor,
               fontSize: 19,
-              fontWeight:
-                  FontWeight.w800,
+              fontWeight: FontWeight.w800,
             ),
           ),
 
-          SizedBox(
-            height: 2,
-          ),
+          SizedBox(height: 2),
 
           Text(
             label,
 
-            textAlign:
-                TextAlign.center,
+            textAlign: TextAlign.center,
 
             style: TextStyle(
-              color:
-                  mutedTextColor,
+              color: mutedTextColor,
               fontSize: 10,
-              fontWeight:
-                  FontWeight.w600,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -785,303 +549,239 @@ class _OwnerProfileScreenState
   }
 
   // Property Card
-  Widget buildPropertyCard(
-    Property property,
-  ) {
-    return Container(
-      margin:
-          EdgeInsets.only(
-        bottom: 14,
-      ),
-
-      decoration: BoxDecoration(
-        color: Colors.white,
-
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
-
-        border: Border.all(
-          color: borderColor,
-        ),
-
-        boxShadow: [
-          BoxShadow(
-            color:
-                Colors.black.withOpacity(
-              0.04,
-            ),
-            blurRadius: 14,
-            offset: Offset(
-              0,
-              4,
-            ),
-          ),
-        ],
-      ),
-
+  Widget buildPropertyCard(Property property) {
+    return Material(
+      color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          Get.to(
-            () =>
-                PropertyDetailScreen(
-              property: property,
-            ),
-          );
+          Get.to(() => PropertyDetailScreen(property: property));
         },
-
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
-
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius:
-                  BorderRadius.horizontal(
-                left: Radius.circular(
-                  20,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          height: 145,
+          margin: const EdgeInsets.only(bottom: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withOpacity(0.07),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              // Property image
+              Padding(
+                padding: const EdgeInsets.all(9),
+                child: SizedBox(
+                  width: 125,
+                  height: double.infinity,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: buildPropertyImage(property),
+                      ),
+                      Positioned(
+                        top: 7,
+                        left: 7,
+                        child: buildStatusBadge(property.status),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
-              child: buildPropertyImage(
-                property,
-              ),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding:
-                    EdgeInsets.fromLTRB(
-                  14,
-                  13,
-                  12,
-                  13,
-                ),
-
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            property.name,
-
-                            maxLines: 1,
-
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
-
-                            style:
-                                TextStyle(
-                              color:
-                                  primaryColor,
-                              fontSize: 15,
-                              fontWeight:
-                                  FontWeight
-                                      .w800,
+              // Property information
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 11, 10, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              property.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: primaryColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
-                        ),
 
-                        Icon(
-                          Icons
-                              .chevron_right_rounded,
-                          color:
-                              Color(
-                            0xFFB5B8C4,
-                          ),
-                          size: 20,
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(
-                      height: 7,
-                    ),
-
-                    Row(
-                      children: [
-                        Icon(
-                          Icons
-                              .location_on_outlined,
-                          size: 14,
-                          color:
-                              mutedTextColor,
-                        ),
-
-                        SizedBox(
-                          width: 3,
-                        ),
-
-                        Expanded(
-                          child: Text(
-                            property.location
-                                    .address ??
-                                "Unknown location",
-
-                            maxLines: 1,
-
-                            overflow:
-                                TextOverflow
-                                    .ellipsis,
-
-                            style:
-                                TextStyle(
-                              color:
-                                  mutedTextColor,
-                              fontSize: 10,
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFF4F5F9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.chevron_right_rounded,
+                              color: primaryColor,
+                              size: 20,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
 
-                    SizedBox(
-                      height: 10,
-                    ),
+                      const SizedBox(height: 5),
 
-                    Row(
-                      children: [
-                        Text(
-                          "\$${property.price.toInt()}",
-
-                          style:
-                              TextStyle(
-                            color:
-                                primaryColor,
-                            fontSize: 15,
-                            fontWeight:
-                                FontWeight
-                                    .w800,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 1),
+                            child: Icon(
+                              Icons.location_on_outlined,
+                              size: 16,
+                              color: primaryColor,
+                            ),
                           ),
-                        ),
 
-                        Text(
-                          " / month",
+                          const SizedBox(width: 3),
 
-                          style:
-                              TextStyle(
-                            color:
-                                mutedTextColor,
-                            fontSize: 10,
+                          Expanded(
+                            child: Text(
+                              property.location.address ?? "Unknown location",
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: mutedTextColor,
+                                fontSize: 12,
+                                height: 1.3,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
 
-                        Spacer(),
+                      const Spacer(),
 
-                        buildStatusBadge(
-                          property.status,
-                        ),
-                      ],
-                    ),
-                  ],
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "\$${property.price.toStringAsFixed(0)}",
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                            ),
+                          ),
+
+                          const SizedBox(width: 3),
+
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              "/ month",
+                              style: TextStyle(
+                                color: mutedTextColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   // Property Image
-  Widget buildPropertyImage(
-    Property property,
-  ) {
+  Widget buildPropertyImage(Property property) {
     if (property.images.isEmpty) {
       return Container(
-        width: 112,
-        height: 118,
-
-        color: Color(0xFFF1F2F6),
-
-        child: Icon(
-          Icons.home_work_outlined,
-          color: primaryColor,
-          size: 32,
-        ),
+        width: double.infinity,
+        height: double.infinity,
+        color: Color(0xFFE6F9FC),
+        child: Icon(Icons.home_work_outlined, size: 35, color: primaryColor),
       );
     }
 
     return Image.network(
       property.images.first,
-
-      width: 112,
-      height: 118,
+      width: double.infinity,
+      height: double.infinity,
       fit: BoxFit.cover,
-
-      errorBuilder: (
-        context,
-        error,
-        stackTrace,
-      ) {
+      errorBuilder: (context, error, stackTrace) {
         return Container(
-          width: 112,
-          height: 118,
-
-          color: Color(0xFFF1F2F6),
-
-          child: Icon(
-            Icons.home_work_outlined,
-            color: primaryColor,
-            size: 32,
-          ),
+          width: double.infinity,
+          height: double.infinity,
+          color: Color(0xFFE6F9FC),
+          child: Icon(Icons.home_work_outlined, size: 35, color: primaryColor),
         );
       },
     );
   }
 
   // Status Badge
-  Widget buildStatusBadge(
-    String status,
-  ) {
-    final bool isAvailable =
-        status.toLowerCase() ==
-                "available" ||
-            status.toLowerCase() ==
-                "available now";
+  Widget buildStatusBadge(String status) {
+    final String value = status.toLowerCase();
 
-    final Color statusColor =
-        isAvailable
-            ? Color(0xFF168A4B)
-            : Color(0xFFB45309);
+    Color statusColor;
+
+    if (value == "available" || value == "available now") {
+      statusColor = Color(0xFF16A34A);
+    } else if (value == "rented") {
+      statusColor = Color(0xFFDC2626);
+    } else {
+      statusColor = Color(0xFFF59E0B);
+    }
 
     return Container(
-      padding:
-          EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 4,
-      ),
-
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: statusColor
-            .withOpacity(
-          0.08,
-        ),
-
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: statusColor,
+              shape: BoxShape.circle,
+            ),
+          ),
 
-      child: Text(
-        status,
+          const SizedBox(width: 4),
 
-        style: TextStyle(
-          color: statusColor,
-          fontSize: 9,
-          fontWeight:
-              FontWeight.w700,
-        ),
+          Text(
+            status,
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1095,22 +795,12 @@ class _OwnerProfileScreenState
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
 
-      child: Center(
-        child:
-            CircularProgressIndicator(
-          color: primaryColor,
-        ),
-      ),
+      child: Center(child: CircularProgressIndicator(color: primaryColor)),
     );
   }
 
@@ -1119,37 +809,21 @@ class _OwnerProfileScreenState
     return Container(
       width: double.infinity,
 
-      padding:
-          EdgeInsets.symmetric(
-        vertical: 35,
-        horizontal: 20,
-      ),
+      padding: EdgeInsets.symmetric(vertical: 35, horizontal: 20),
 
       decoration: BoxDecoration(
         color: Colors.white,
 
-        borderRadius:
-            BorderRadius.circular(
-          20,
-        ),
+        borderRadius: BorderRadius.circular(20),
 
-        border: Border.all(
-          color: borderColor,
-        ),
+        border: Border.all(color: borderColor),
       ),
 
       child: Column(
         children: [
-          Icon(
-            Icons
-                .home_work_outlined,
-            size: 40,
-            color: primaryColor,
-          ),
+          Icon(Icons.home_work_outlined, size: 40, color: primaryColor),
 
-          SizedBox(
-            height: 10,
-          ),
+          SizedBox(height: 10),
 
           Text(
             "No public properties",
@@ -1157,26 +831,18 @@ class _OwnerProfileScreenState
             style: TextStyle(
               color: primaryColor,
               fontSize: 15,
-              fontWeight:
-                  FontWeight.w700,
+              fontWeight: FontWeight.w700,
             ),
           ),
 
-          SizedBox(
-            height: 4,
-          ),
+          SizedBox(height: 4),
 
           Text(
             "This owner does not have any public property posts yet.",
 
-            textAlign:
-                TextAlign.center,
+            textAlign: TextAlign.center,
 
-            style: TextStyle(
-              color:
-                  mutedTextColor,
-              fontSize: 11,
-            ),
+            style: TextStyle(color: mutedTextColor, fontSize: 11),
           ),
         ],
       ),
@@ -1184,30 +850,19 @@ class _OwnerProfileScreenState
   }
 
   // Laravel URL
-  String fixLaravelUrl(
-    String url,
-  ) {
+  String fixLaravelUrl(String url) {
     if (url.isEmpty) {
       return "";
     }
 
     return url
-        .replaceFirst(
-          "http://localhost:8000",
-          "http://10.0.2.2:8000",
-        )
-        .replaceFirst(
-          "http://127.0.0.1:8000",
-          "http://10.0.2.2:8000",
-        );
+        .replaceFirst("http://localhost:8000", "http://10.0.2.2:8000")
+        .replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
   }
 
   // Member Since
-  String formatMemberSince(
-    String value,
-  ) {
-    final DateTime? date =
-        DateTime.tryParse(value);
+  String formatMemberSince(String value) {
+    final DateTime? date = DateTime.tryParse(value);
 
     if (date == null) {
       return value;

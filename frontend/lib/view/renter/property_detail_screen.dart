@@ -6,6 +6,7 @@ import 'package:final_project/model/property.dart';
 import 'package:final_project/model/room.dart';
 import 'package:final_project/service/property_service.dart';
 import 'package:final_project/view/renter/map_screen.dart';
+import 'package:final_project/view/renter/owner_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_slideshow/flutter_image_slideshow.dart';
@@ -19,8 +20,13 @@ const Color lightSecondaryColor = Color(0xFFE6F9FC);
 
 class PropertyDetailScreen extends StatefulWidget {
   final Property property;
+  final List<Property>? allProperties;
 
-  const PropertyDetailScreen({super.key, required this.property});
+  const PropertyDetailScreen({
+    super.key,
+    required this.property,
+    this.allProperties,
+  });
 
   @override
   State<PropertyDetailScreen> createState() => _PropertyDetailScreenState();
@@ -443,8 +449,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-
+            padding: const EdgeInsets.only(bottom: 3),
             child: Stack(
               children: [
                 SizedBox(
@@ -602,7 +607,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: Colors.black12
+                      color: Colors.black12,
                     ),
 
                     Padding(
@@ -639,15 +644,32 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     Container(
                       height: 1,
                       width: double.infinity,
-                      color: Colors.black12
+                      color: Colors.black12,
                     ),
+
+                    const SizedBox(height: 12),
+
+                    buildOwnerSection(),
+
+                    const SizedBox(height: 12),
+
+                    Container(
+                      height: 0.8,
+                      width: double.infinity,
+                      color: Colors.black12,
+                    ),
+
+                    //const SizedBox(height: 10),
+                    buildFloorSection(),
 
                     const SizedBox(height: 10),
 
-                    buildFloorSection(),
-
-                    const SizedBox(height: 15),
-
+                    // Container(
+                    //   height: 1,
+                    //   width: double.infinity,
+                    //   color: Colors.black12,
+                    // ),
+                    //const SizedBox(height: 10),
                     const Text(
                       "About this place",
                       style: TextStyle(
@@ -867,11 +889,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 itemCount: totalFloor,
 
                 separatorBuilder: (context, index) {
-                  return Container(
-                    height: 1,
-
-                    color: Colors.black12
-                  );
+                  return Container(height: 1, color: Colors.black12);
                 },
 
                 itemBuilder: (context, index) {
@@ -959,6 +977,411 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         ),
       ],
     );
+  }
+
+  // Open Owner Summary
+  Future<void> openOwnerSummary() async {
+    final Property property = widget.property;
+
+    final int? ownerId = property.ownerId;
+
+    if (ownerId == null || ownerId <= 0) {
+      Get.snackbar(
+        "Owner unavailable",
+        "Owner information is not available for this property.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      return;
+    }
+
+    Get.bottomSheet(
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: FutureBuilder(
+            future: propertyService.getOwnerProfile(ownerId: ownerId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(
+                  height: 230,
+                  child: Center(
+                    child: CircularProgressIndicator(color: primaryColor),
+                  ),
+                );
+              }
+
+              String ownerName = property.ownerName;
+
+              String profileImage = property.ownerProfileImage;
+
+              String memberSince = property.ownerMemberSince;
+
+              int totalProperties = 0;
+              int availableProperties = 0;
+
+              if (snapshot.hasData) {
+                try {
+                  final dynamic decoded = jsonDecode(snapshot.data!.body);
+
+                  if (snapshot.data!.statusCode == 200 &&
+                      decoded["success"] == true) {
+                    final dynamic owner = decoded["owner"];
+
+                    if (owner is Map) {
+                      ownerName = owner["name"]?.toString() ?? ownerName;
+
+                      profileImage = fixOwnerImageUrl(
+                        owner["profile_image"]?.toString() ?? profileImage,
+                      );
+
+                      memberSince =
+                          owner["member_since"]?.toString() ?? memberSince;
+
+                      totalProperties =
+                          int.tryParse(
+                            owner["total_properties"]?.toString() ?? "0",
+                          ) ??
+                          0;
+
+                      availableProperties =
+                          int.tryParse(
+                            owner["available_properties"]?.toString() ?? "0",
+                          ) ??
+                          0;
+                    }
+                  }
+                } catch (e) {
+                  print("OWNER PROFILE PARSE ERROR: $e");
+                }
+              }
+
+              if (ownerName.trim().isEmpty) {
+                ownerName = "House Owner";
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E4EA),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+
+                  const SizedBox(height: 22),
+
+                  buildOwnerAvatar(
+                    ownerName: ownerName,
+                    profileImage: profileImage,
+                    size: 76,
+                    fontSize: 28,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    ownerName,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  const Text(
+                    "House Owner",
+                    style: TextStyle(
+                      color: Color(0xFF85899B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+
+                  if (memberSince.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+
+                    Text(
+                      "Member since ${formatMemberSince(memberSince)}",
+                      style: const TextStyle(
+                        color: Color(0xFF85899B),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 20),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: buildOwnerStat(
+                          value: totalProperties.toString(),
+                          label: "Listings",
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: buildOwnerStat(
+                          value: availableProperties.toString(),
+                          label: "Available",
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final List<Property> sourceProperties =
+                            widget.allProperties ?? <Property>[widget.property];
+
+                        final List<Property> ownerProperties = sourceProperties
+                            .where((item) => item.ownerId == ownerId)
+                            .toList();
+
+                        Get.back();
+
+                        Get.to(
+                          () => OwnerProfileScreen(
+                            ownerId: ownerId,
+                            ownerName: ownerName,
+                            ownerProfileImage: profileImage,
+                            ownerProperties: ownerProperties,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Text(
+                        "View Owner Profile",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+    );
+  }
+
+  // Owner row - same design/interaction as HomeScreen
+  Widget buildOwnerSection() {
+    final Property property = widget.property;
+
+    final String ownerName = property.ownerName.trim().isNotEmpty
+        ? property.ownerName
+        : "House Owner";
+
+    return InkWell(
+      onTap: openOwnerSummary,
+      borderRadius: BorderRadius.circular(14),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            buildOwnerAvatar(
+              ownerName: ownerName,
+              profileImage: property.ownerProfileImage,
+            ),
+
+            const SizedBox(width: 10),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ownerName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: primaryColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+
+                  const SizedBox(height: 2),
+
+                  const Text(
+                    "House Owner",
+                    style: TextStyle(
+                      color: Color(0xFF85899B),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: Color(0xFFB3B6C2),
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildOwnerAvatar({
+    required String ownerName,
+    required String profileImage,
+    double size = 42,
+    double fontSize = 16,
+  }) {
+    final String cleanName = ownerName.trim();
+
+    final String initial = cleanName.isNotEmpty
+        ? cleanName[0].toUpperCase()
+        : "O";
+
+    final String cleanImage = fixOwnerImageUrl(profileImage);
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F1F8),
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFE7E8F0)),
+      ),
+      child: ClipOval(
+        child: cleanImage.isNotEmpty
+            ? Image.network(
+                cleanImage,
+                width: size,
+                height: size,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Center(
+                    child: Text(
+                      initial,
+                      style: TextStyle(
+                        color: primaryColor,
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  );
+                },
+              )
+            : Center(
+                child: Text(
+                  initial,
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget buildOwnerStat({required String value, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FB),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF0F1F5)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            value,
+            style: const TextStyle(
+              color: primaryColor,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+
+          const SizedBox(height: 3),
+
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFF85899B),
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String fixOwnerImageUrl(String url) {
+    if (url.isEmpty) {
+      return "";
+    }
+
+    return url
+        .replaceFirst("http://localhost:8000", "http://10.0.2.2:8000")
+        .replaceFirst("http://127.0.0.1:8000", "http://10.0.2.2:8000");
+  }
+
+  String formatMemberSince(String value) {
+    final DateTime? date = DateTime.tryParse(value);
+
+    if (date == null) {
+      return value;
+    }
+
+    const List<String> months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    return "${months[date.month - 1]} ${date.year}";
   }
 
   Widget buildFacilities() {

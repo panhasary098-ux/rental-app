@@ -798,6 +798,10 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
   Widget buildPropertyCard(Map<String, dynamic> property) {
     final String imageUrl = getImageUrl(property["image"]);
 
+    final String ownerProfileImageUrl = getImageUrl(
+      property["owner_profile_image"],
+    );
+
     final String postStatus = formatPostStatus(property["post_status"]);
 
     final String rentalStatus = formatRentalStatus(property["rental_status"]);
@@ -896,28 +900,6 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
                     Row(
                       children: [
                         const Icon(
-                          Icons.person_outline_rounded,
-                          size: 16,
-                          color: Color(0xFF68756D),
-                        ),
-                        const SizedBox(width: 5),
-                        Expanded(
-                          child: Text(
-                            property["owner"]?.toString() ?? "Unknown Owner",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF68756D),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const Icon(
                           Icons.location_on_outlined,
                           size: 16,
                           color: Color(0xFF68756D),
@@ -941,9 +923,106 @@ class _ManagePropertiesScreenState extends State<ManagePropertiesScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 14),
+
+          Divider(color: _borderColor, height: 1),
+
+          const SizedBox(height: 13),
+
+          // =================================================
+          // OWNER
+          // Same style as PendingVerificationScreen
+          // =================================================
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFEFF6FF),
+                  shape: BoxShape.circle,
+                ),
+                child: ClipOval(
+                  child: ownerProfileImageUrl.isEmpty
+                      ? const Icon(
+                          Icons.person_outline_rounded,
+                          color: Color(0xFF2563EB),
+                          size: 20,
+                        )
+                      : Image.network(
+                          ownerProfileImageUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person_outline_rounded,
+                              color: Color(0xFF2563EB),
+                              size: 20,
+                            );
+                          },
+                        ),
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "House Owner",
+                      style: TextStyle(
+                        color: Color(0xFF9CA3AF),
+                        fontSize: 10.5,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      property["owner"]?.toString() ?? "Unknown Owner",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: _textColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  const Text(
+                    "Submitted",
+                    style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 10.5),
+                  ),
+
+                  const SizedBox(height: 2),
+
+                  Text(
+                    property["submitted"]?.toString() ?? "-",
+                    style: TextStyle(
+                      color: _secondaryTextColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          //Divider(height: 1, color: Colors.grey.withOpacity(0.25)),
           const SizedBox(height: 16),
-          Divider(height: 1, color: Colors.grey.withOpacity(0.25)),
-          const SizedBox(height: 16),
+
           Row(
             children: [
               Expanded(
