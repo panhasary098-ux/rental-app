@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Keep Firebase because Google Login still uses it
   await Firebase.initializeApp();
 
   runApp(MyApp());
@@ -17,6 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(debugShowCheckedModeBanner: false, home: AuthGate());
+    return GetMaterialApp(debugShowCheckedModeBanner: false, 
+    home: AuthGate()
+    );
   }
 }

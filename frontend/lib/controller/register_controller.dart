@@ -5,20 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RegisterController extends GetxController {
-  final TextEditingController nameController =
-      TextEditingController();
+  TextEditingController nameController = TextEditingController(
+    
+  );
 
-  final TextEditingController emailController =
-      TextEditingController();
+  TextEditingController emailController = TextEditingController(
+    
+  );
 
-  final TextEditingController phoneController =
-      TextEditingController();
+  TextEditingController phoneController = TextEditingController(
+    
+  );
 
-  final TextEditingController passwordController =
-      TextEditingController();
+  TextEditingController passwordController = TextEditingController(
+  
+  );
 
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController(
+  
+  );
 
   final RxString selectedRole = "Renter".obs;
 
@@ -40,8 +45,7 @@ class RegisterController extends GetxController {
 
   // Confirm Password
   void toggleConfirmPassword() {
-    hideConfirmPassword.value =
-        !hideConfirmPassword.value;
+    hideConfirmPassword.value = !hideConfirmPassword.value;
   }
 
   // Success Notification
@@ -55,10 +59,7 @@ class RegisterController extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: const Color(0xFFE5E7EB),
       borderWidth: 1,
@@ -123,20 +124,14 @@ class RegisterController extends GetxController {
   }
 
   // Error Notification
-  void showErrorNotification({
-    required String title,
-    required String message,
-  }) {
+  void showErrorNotification({required String title, required String message}) {
     Get.snackbar(
       '',
       '',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.white,
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 14,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       borderRadius: 18,
       borderColor: const Color(0xFFF3D2D2),
       borderWidth: 1,
@@ -206,20 +201,15 @@ class RegisterController extends GetxController {
       return;
     }
 
-    final String name =
-        nameController.text.trim();
+    final String name = nameController.text.trim();
 
-    final String email =
-        emailController.text.trim();
+    final String email = emailController.text.trim();
 
-    final String phone =
-        phoneController.text.trim();
+    final String phone = phoneController.text.trim();
 
-    final String password =
-        passwordController.text.trim();
+    final String password = passwordController.text.trim();
 
-    final String confirmPassword =
-        confirmPasswordController.text.trim();
+    final String confirmPassword = confirmPasswordController.text.trim();
 
     // Validation
     if (name.isEmpty ||
@@ -256,24 +246,21 @@ class RegisterController extends GetxController {
     if (password.length < 6) {
       showErrorNotification(
         title: "Password Error",
-        message:
-            "Password must contain at least 6 characters.",
+        message: "Password must contain at least 6 characters.",
       );
 
       return;
     }
 
-    final String role =
-        selectedRole.value == "Renter"
-            ? "renter"
-            : "house_owner";
+    final String role = selectedRole.value == "Renter"
+        ? "renter"
+        : "house_owner";
 
     try {
       isLoading.value = true;
 
       // Laravel Register
-      final Map<String, dynamic> userData =
-          await authService.registerWithEmail(
+      final Map<String, dynamic> userData = await authService.registerWithEmail(
         name: name,
         email: email,
         phone: phone,
@@ -282,11 +269,9 @@ class RegisterController extends GetxController {
         role: role,
       );
 
-      final String userRole =
-          userData["role"]?.toString() ?? role;
+      final String userRole = userData["role"]?.toString() ?? role;
 
-      final String status =
-          userData["status"]?.toString() ?? "active";
+      final String status = userData["status"]?.toString() ?? "active";
 
       print("Laravel user ID: ${userData["id"]}");
       print("Name: ${userData["name"]}");
@@ -296,19 +281,14 @@ class RegisterController extends GetxController {
 
       showSuccessNotification(
         title: "Account Created",
-        message:
-            "Your account was created successfully.",
+        message: "Your account was created successfully.",
       );
 
       // Role Routing
       if (userRole == "renter") {
-        Get.offAll(
-          () => BottomNav(),
-        );
+        Get.offAll(() => BottomNav());
       } else if (userRole == "house_owner") {
-        Get.offAll(
-          () => OwnerBottomNav(),
-        );
+        Get.offAll(() => OwnerBottomNav());
       } else {
         await authService.logout();
 
@@ -321,16 +301,10 @@ class RegisterController extends GetxController {
       String message = e.toString();
 
       if (message.startsWith("Exception: ")) {
-        message = message.replaceFirst(
-          "Exception: ",
-          "",
-        );
+        message = message.replaceFirst("Exception: ", "");
       }
 
-      showErrorNotification(
-        title: "Registration Failed",
-        message: message,
-      );
+      showErrorNotification(title: "Registration Failed", message: message);
     } finally {
       isLoading.value = false;
     }

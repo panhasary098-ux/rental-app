@@ -35,23 +35,38 @@ class LoginController extends GetxController {
     Get.snackbar(
       '',
       '',
+
       snackPosition: SnackPosition.BOTTOM,
+
       backgroundColor: Colors.white,
+
       margin: EdgeInsets.all(16),
+
       padding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
+
       borderRadius: 18,
+
       borderColor: Color(0xFFE5E7EB),
+
       borderWidth: 1,
-      duration: Duration(seconds: 3),
+
+      duration: Duration(
+        seconds: 3,
+      ),
 
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.10),
+          color: Colors.black.withOpacity(
+            0.10,
+          ),
           blurRadius: 18,
-          offset: Offset(0, 6),
+          offset: Offset(
+            0,
+            6,
+          ),
         ),
       ],
 
@@ -113,23 +128,38 @@ class LoginController extends GetxController {
     Get.snackbar(
       '',
       '',
+
       snackPosition: SnackPosition.BOTTOM,
+
       backgroundColor: Colors.white,
+
       margin: EdgeInsets.all(16),
+
       padding: EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
       ),
+
       borderRadius: 18,
+
       borderColor: Color(0xFFF3D2D2),
+
       borderWidth: 1,
-      duration: Duration(seconds: 3),
+
+      duration: Duration(
+        seconds: 3,
+      ),
 
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.10),
+          color: Colors.black.withOpacity(
+            0.10,
+          ),
           blurRadius: 18,
-          offset: Offset(0, 6),
+          offset: Offset(
+            0,
+            6,
+          ),
         ),
       ],
 
@@ -196,8 +226,10 @@ class LoginController extends GetxController {
         passwordController.text.trim();
 
     // Validation
-    if (email.isEmpty ||
-        password.isEmpty) {
+    if (
+        email.isEmpty ||
+        password.isEmpty
+    ) {
       showErrorNotification(
         title: "Missing Information",
         message:
@@ -233,9 +265,17 @@ class LoginController extends GetxController {
       final String status =
           userData["status"]?.toString() ?? "";
 
-      print("Laravel user ID: ${userData["id"]}");
-      print("Role: $role");
-      print("Status: $status");
+      print(
+        "Laravel user ID: ${userData["id"]}",
+      );
+
+      print(
+        "Role: $role",
+      );
+
+      print(
+        "Status: $status",
+      );
 
       // Status
       if (status == "suspended") {
@@ -256,15 +296,20 @@ class LoginController extends GetxController {
             "You have successfully logged in.",
       );
 
+      // Clear Login
+      clearLoginFields();
+
       // Role Routing
       routeUser(role);
     } catch (e) {
-      String message = e.toString();
+      String message =
+          e.toString();
 
       if (message.startsWith(
         "Exception: ",
       )) {
-        message = message.replaceFirst(
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -280,7 +325,9 @@ class LoginController extends GetxController {
   }
 
   // Role Routing
-  void routeUser(String role) {
+  void routeUser(
+    String role,
+  ) {
     if (role == "admin") {
       Get.offAll(
         () => AdminBottomNav(),
@@ -324,10 +371,12 @@ class LoginController extends GetxController {
       isLoading.value = true;
 
       final Map<String, dynamic> result =
-          await authService.loginWithGoogle();
+          await authService
+              .loginWithGoogle();
 
       final bool needsRegistration =
-          result["needs_registration"] == true;
+          result["needs_registration"] ==
+              true;
 
       // New Google User
       if (needsRegistration) {
@@ -335,8 +384,10 @@ class LoginController extends GetxController {
             result["google_access_token"]
                 ?.toString();
 
-        if (googleAccessToken == null ||
-            googleAccessToken!.isEmpty) {
+        if (
+            googleAccessToken == null ||
+            googleAccessToken!.isEmpty
+        ) {
           throw Exception(
             "Google access token not found",
           );
@@ -373,9 +424,17 @@ class LoginController extends GetxController {
         "Laravel user ID: ${userData["id"]}",
       );
 
-      print("Google Login");
-      print("Role: $role");
-      print("Status: $status");
+      print(
+        "Google Login",
+      );
+
+      print(
+        "Role: $role",
+      );
+
+      print(
+        "Status: $status",
+      );
 
       if (status == "suspended") {
         await authService.logout();
@@ -395,14 +454,19 @@ class LoginController extends GetxController {
             "You have successfully logged in.",
       );
 
+      // Clear Login
+      clearLoginFields();
+
       routeUser(role);
     } catch (e) {
-      String message = e.toString();
+      String message =
+          e.toString();
 
       if (message.startsWith(
         "Exception: ",
       )) {
-        message = message.replaceFirst(
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -464,8 +528,13 @@ class LoginController extends GetxController {
           "Firebase UID: ${firebaseUser.uid}",
         );
 
-        print("Role: $role");
-        print("Status: $status");
+        print(
+          "Role: $role",
+        );
+
+        print(
+          "Status: $status",
+        );
 
         if (status == "suspended") {
           await authService.logout();
@@ -485,6 +554,9 @@ class LoginController extends GetxController {
               "You have successfully logged in.",
         );
 
+        // Clear Login
+        clearLoginFields();
+
         routeUser(role);
 
         return;
@@ -502,12 +574,14 @@ class LoginController extends GetxController {
                 "Unable to login with Facebook.",
       );
     } catch (e) {
-      String message = e.toString();
+      String message =
+          e.toString();
 
       if (message.startsWith(
         "Exception: ",
       )) {
-        message = message.replaceFirst(
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -542,7 +616,9 @@ class LoginController extends GetxController {
               textAlign: TextAlign.center,
             ),
 
-            SizedBox(height: 20),
+            SizedBox(
+              height: 20,
+            ),
 
             // Renter
             InkWell(
@@ -562,13 +638,11 @@ class LoginController extends GetxController {
               child: Container(
                 width: double.infinity,
 
-                padding:
-                    EdgeInsets.all(
+                padding: EdgeInsets.all(
                   16,
                 ),
 
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border.all(
                     color:
                         Colors.grey.shade300,
@@ -588,7 +662,9 @@ class LoginController extends GetxController {
                           Color(0xFF03045E),
                     ),
 
-                    SizedBox(width: 14),
+                    SizedBox(
+                      width: 14,
+                    ),
 
                     Expanded(
                       child: Column(
@@ -624,7 +700,9 @@ class LoginController extends GetxController {
               ),
             ),
 
-            SizedBox(height: 12),
+            SizedBox(
+              height: 12,
+            ),
 
             // House Owner
             InkWell(
@@ -644,13 +722,11 @@ class LoginController extends GetxController {
               child: Container(
                 width: double.infinity,
 
-                padding:
-                    EdgeInsets.all(
+                padding: EdgeInsets.all(
                   16,
                 ),
 
-                decoration:
-                    BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border.all(
                     color:
                         Colors.grey.shade300,
@@ -671,7 +747,9 @@ class LoginController extends GetxController {
                           Color(0xFF03045E),
                     ),
 
-                    SizedBox(width: 14),
+                    SizedBox(
+                      width: 14,
+                    ),
 
                     Expanded(
                       child: Column(
@@ -747,8 +825,10 @@ class LoginController extends GetxController {
 
       // Google Registration
       if (socialProvider == "google") {
-        if (googleAccessToken == null ||
-            googleAccessToken!.isEmpty) {
+        if (
+            googleAccessToken == null ||
+            googleAccessToken!.isEmpty
+        ) {
           throw Exception(
             "Google access token not found",
           );
@@ -793,19 +873,26 @@ class LoginController extends GetxController {
             "Your account was created successfully.",
       );
 
-      routeUser(userRole);
+      // Clear Login
+      clearLoginFields();
+
+      routeUser(
+        userRole,
+      );
     } catch (e) {
       googleAccessToken = null;
       socialProvider = "";
 
       await authService.logout();
 
-      String message = e.toString();
+      String message =
+          e.toString();
 
       if (message.startsWith(
         "Exception: ",
       )) {
-        message = message.replaceFirst(
+        message =
+            message.replaceFirst(
           "Exception: ",
           "",
         );
@@ -819,6 +906,17 @@ class LoginController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  // Clear Login
+  void clearLoginFields() {
+    emailController.clear();
+    passwordController.clear();
+
+    hidePassword.value = true;
+
+    googleAccessToken = null;
+    socialProvider = "";
   }
 
   // Forgot Password

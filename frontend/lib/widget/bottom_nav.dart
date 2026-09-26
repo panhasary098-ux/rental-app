@@ -13,7 +13,7 @@ import 'package:get/get.dart';
 // Colors
 const Color primaryColor = Color(0xFF03045E);
 const Color backgroundColor = Colors.white;
-const Color inactiveColor = Color(0xFF9698B8);
+const Color inactiveColor = Color(0xFF8D90A0);
 
 class BottomNav extends StatefulWidget {
   const BottomNav({super.key});
@@ -52,16 +52,29 @@ class _BottomNavState extends State<BottomNav> {
     }
 
     try {
-      final response = await propertyService.getRenterProperties();
+      final response =
+          await propertyService.getRenterProperties();
 
-      final dynamic decoded = jsonDecode(response.body);
+      final dynamic decoded =
+          jsonDecode(response.body);
 
-      if (response.statusCode == 200 && decoded["success"] == true) {
-        final List<dynamic> propertyData = decoded["properties"] ?? [];
+      if (
+          response.statusCode == 200 &&
+          decoded["success"] == true
+      ) {
+        final List<dynamic> propertyData =
+            decoded["properties"] ?? [];
 
-        final List<Property> loadedProperties = propertyData.map((item) {
-          return Property.fromJson(Map<String, dynamic>.from(item));
-        }).toList();
+        final List<Property> loadedProperties =
+            propertyData.map(
+          (item) {
+            return Property.fromJson(
+              Map<String, dynamic>.from(
+                item,
+              ),
+            );
+          },
+        ).toList();
 
         if (!mounted) {
           return;
@@ -78,7 +91,9 @@ class _BottomNavState extends State<BottomNav> {
         }
 
         setState(() {
-          errorMessage = decoded["message"] ?? "Failed to load properties";
+          errorMessage =
+              decoded["message"] ??
+                  "Failed to load properties";
 
           isLoading = false;
         });
@@ -89,12 +104,15 @@ class _BottomNavState extends State<BottomNav> {
       }
 
       setState(() {
-        errorMessage = "Unable to load properties";
+        errorMessage =
+            "Unable to load properties";
 
         isLoading = false;
       });
 
-      print("RENTER PROPERTY LOAD ERROR: $e");
+      print(
+        "RENTER PROPERTY LOAD ERROR: $e",
+      );
     }
   }
 
@@ -107,7 +125,9 @@ class _BottomNavState extends State<BottomNav> {
 
   // Open AI
   void openAi() {
-    Get.to(() => AiChatScreen());
+    Get.to(
+      () => AiChatScreen(),
+    );
   }
 
   @override
@@ -130,61 +150,120 @@ class _BottomNavState extends State<BottomNav> {
     ];
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: Color(
+        0xFFF7F7F9,
+      ),
 
-      body: IndexedStack(index: selectedIndex, children: screens),
+      body: IndexedStack(
+        index: selectedIndex,
+        children: screens,
+      ),
 
-      bottomNavigationBar: buildBottomNavigation(),
+      bottomNavigationBar:
+          buildBottomNavigation(),
     );
   }
 
   // Bottom Navigation
   Widget buildBottomNavigation() {
-    return SafeArea(
-      top: false,
+    return Container(
+      color: Colors.white,
 
-      child: SizedBox(
-        height: 62,
+      child: SafeArea(
+        top: false,
 
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+        child: Container(
+          height: 72,
 
-          children: [
-            // Home
-            buildNavItem(
-              index: 0,
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home_rounded,
-              label: "Home",
+          margin: EdgeInsets.fromLTRB(
+            12,
+            7,
+            12,
+            8,
+          ),
+
+          padding: EdgeInsets.symmetric(
+            horizontal: 5,
+          ),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius:
+                BorderRadius.circular(
+              22,
             ),
 
-            // Map
-            buildNavItem(
-              index: 1,
-              icon: Icons.map_outlined,
-              selectedIcon: Icons.map_rounded,
-              label: "Map",
+            border: Border.all(
+              color: Color(
+                0xFFE9E9EF,
+              ),
             ),
 
-            // AI
-            buildAiNavItem(),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    Colors.black.withOpacity(
+                  0.06,
+                ),
+                blurRadius: 20,
+                offset: Offset(
+                  0,
+                  5,
+                ),
+              ),
+            ],
+          ),
 
-            // Saved
-            buildNavItem(
-              index: 3,
-              icon: Icons.favorite_border_rounded,
-              selectedIcon: Icons.favorite_rounded,
-              label: "Saved",
-            ),
+          child: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.spaceAround,
 
-            // Account
-            buildNavItem(
-              index: 4,
-              icon: Icons.person_outline_rounded,
-              selectedIcon: Icons.person_rounded,
-              label: "Account",
-            ),
-          ],
+            children: [
+              // Home
+              buildNavItem(
+                index: 0,
+                icon:
+                    Icons.home_outlined,
+                selectedIcon:
+                    Icons.home_rounded,
+                label: "Home",
+              ),
+
+              // Map
+              buildNavItem(
+                index: 1,
+                icon:
+                    Icons.map_outlined,
+                selectedIcon:
+                    Icons.map_rounded,
+                label: "Map",
+              ),
+
+              // AI
+              buildAiNavItem(),
+
+              // Saved
+              buildNavItem(
+                index: 3,
+                icon: Icons
+                    .favorite_border_rounded,
+                selectedIcon:
+                    Icons.favorite_rounded,
+                label: "Saved",
+              ),
+
+              // Account
+              buildNavItem(
+                index: 4,
+                icon: Icons
+                    .person_outline_rounded,
+                selectedIcon:
+                    Icons.person_rounded,
+                label: "Account",
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -197,7 +276,8 @@ class _BottomNavState extends State<BottomNav> {
     required IconData selectedIcon,
     required String label,
   }) {
-    final bool isSelected = selectedIndex == index;
+    final bool isSelected =
+        selectedIndex == index;
 
     return Expanded(
       child: InkWell(
@@ -205,40 +285,76 @@ class _BottomNavState extends State<BottomNav> {
           changePage(index);
         },
 
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(
+          16,
+        ),
 
-        child: Container(
-          height: 56,
-
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFF1F2FA) : Colors.transparent,
-
-            borderRadius: BorderRadius.circular(16),
-          ),
+        child: SizedBox(
+          height: 62,
 
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment:
+                MainAxisAlignment.center,
 
             children: [
-              Icon(
-                isSelected ? selectedIcon : icon,
+              AnimatedContainer(
+                duration:
+                    Duration(
+                  milliseconds: 180,
+                ),
 
-                color: isSelected ? primaryColor : inactiveColor,
+                width: isSelected
+                    ? 42
+                    : 34,
 
-                size: 24,
+                height: 31,
+
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Color(
+                          0xFFF0F0F8,
+                        )
+                      : Colors.transparent,
+
+                  borderRadius:
+                      BorderRadius.circular(
+                    11,
+                  ),
+                ),
+
+                child: Icon(
+                  isSelected
+                      ? selectedIcon
+                      : icon,
+
+                  color: isSelected
+                      ? primaryColor
+                      : inactiveColor,
+
+                  size: isSelected
+                      ? 22
+                      : 21,
+                ),
               ),
 
-              const SizedBox(height: 4),
+              SizedBox(
+                height: 3,
+              ),
 
               Text(
                 label,
 
                 style: TextStyle(
-                  color: isSelected ? primaryColor : inactiveColor,
+                  color: isSelected
+                      ? primaryColor
+                      : inactiveColor,
 
-                  fontSize: 11,
+                  fontSize: 10,
 
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isSelected
+                      ? FontWeight.w700
+                      : FontWeight.w500,
                 ),
               ),
             ],
@@ -254,51 +370,84 @@ class _BottomNavState extends State<BottomNav> {
       child: InkWell(
         onTap: openAi,
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+            BorderRadius.circular(
+          20,
+        ),
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: SizedBox(
+          height: 70,
 
-          children: [
-            Container(
-              width: 42,
-              height: 42,
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
 
-              decoration: BoxDecoration(
-                color: primaryColor,
+            children: [
+              Transform.translate(
+                offset: Offset(
+                  0,
+                  -5,
+                ),
 
-                shape: BoxShape.circle,
+                child: Container(
+                  width: 47,
+                  height: 47,
 
-                boxShadow: [
-                  BoxShadow(
-                    color: primaryColor.withOpacity(0.25),
+                  decoration: BoxDecoration(
+                    color: primaryColor,
 
-                    blurRadius: 10,
+                    borderRadius:
+                        BorderRadius.circular(
+                      16,
+                    ),
 
-                    offset: const Offset(0, 4),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
+                    ),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor
+                            .withOpacity(
+                          0.22,
+                        ),
+                        blurRadius: 13,
+                        offset: Offset(
+                          0,
+                          5,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+
+                  child: Icon(
+                    Icons.smart_toy_rounded,
+                    color: Colors.white,
+                    size: 23,
+                  ),
+                ),
               ),
 
-              child: const Icon(
-                Icons.smart_toy_rounded,
-                color: Colors.white,
-                size: 23,
+              Transform.translate(
+                offset: Offset(
+                  0,
+                  -4,
+                ),
+
+                child: Text(
+                  "AI",
+
+                  style: TextStyle(
+                    color: primaryColor,
+                    fontSize: 10,
+                    fontWeight:
+                        FontWeight.w700,
+                  ),
+                ),
               ),
-            ),
-
-            const SizedBox(height: 2),
-
-            const Text(
-              "AI",
-
-              style: TextStyle(
-                color: primaryColor,
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -307,81 +456,151 @@ class _BottomNavState extends State<BottomNav> {
   // Home Screen
   Widget buildHomeScreen() {
     if (isLoading) {
-      return const Scaffold(
-        backgroundColor: backgroundColor,
+      return Scaffold(
+        backgroundColor:
+            backgroundColor,
 
         body: SafeArea(
-          child: Center(child: CircularProgressIndicator(color: primaryColor)),
+          child: Center(
+            child:
+                CircularProgressIndicator(
+              color: primaryColor,
+              strokeWidth: 2.5,
+            ),
+          ),
         ),
       );
     }
 
     if (errorMessage != null) {
       return Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor:
+            backgroundColor,
 
         body: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(25),
+              padding:
+                  EdgeInsets.all(
+                25,
+              ),
 
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize:
+                    MainAxisSize.min,
 
                 children: [
-                  const Icon(
-                    Icons.error_outline_rounded,
-                    color: primaryColor,
-                    size: 50,
-                  ),
+                  Container(
+                    width: 64,
+                    height: 64,
 
-                  const SizedBox(height: 15),
+                    decoration:
+                        BoxDecoration(
+                      color: Color(
+                        0xFFF1F1F7,
+                      ),
 
-                  const Text(
-                    "Unable to load properties",
+                      borderRadius:
+                          BorderRadius.circular(
+                        20,
+                      ),
+                    ),
 
-                    style: TextStyle(
+                    child: Icon(
+                      Icons
+                          .wifi_off_rounded,
                       color: primaryColor,
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                      size: 28,
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 18,
+                  ),
+
+                  Text(
+                    "Unable to load properties",
+
+                    textAlign:
+                        TextAlign.center,
+
+                    style: TextStyle(
+                      color: Color(
+                        0xFF181820,
+                      ),
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.w700,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: 7,
+                  ),
 
                   Text(
                     errorMessage!,
 
-                    textAlign: TextAlign.center,
+                    textAlign:
+                        TextAlign.center,
 
-                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    style: TextStyle(
+                      color: Color(
+                        0xFF8B8D99,
+                      ),
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
 
-                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 22,
+                  ),
 
                   ElevatedButton.icon(
-                    onPressed: loadProperties,
+                    onPressed:
+                        loadProperties,
 
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
+                    style:
+                        ElevatedButton
+                            .styleFrom(
+                      backgroundColor:
+                          primaryColor,
 
-                      foregroundColor: Colors.white,
+                      foregroundColor:
+                          Colors.white,
 
                       elevation: 0,
 
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                      padding:
+                          EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 13,
                       ),
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      shape:
+                          RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(
+                          14,
+                        ),
                       ),
                     ),
 
-                    icon: const Icon(Icons.refresh_rounded),
+                    icon: Icon(
+                      Icons
+                          .refresh_rounded,
+                      size: 19,
+                    ),
 
-                    label: const Text("Try Again"),
+                    label: Text(
+                      "Try Again",
+
+                      style: TextStyle(
+                        fontWeight:
+                            FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -391,6 +610,8 @@ class _BottomNavState extends State<BottomNav> {
       );
     }
 
-    return HomeScreen(properties: properties);
+    return HomeScreen(
+      properties: properties,
+    );
   }
 }
