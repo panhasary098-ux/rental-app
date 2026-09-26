@@ -119,7 +119,7 @@ class PostPropertyController extends GetxController {
     contactController.text = "@panharyyy";
 
     // Apartment selected by default
-    selectIndex.value = 1;
+    //selectIndex.value = 1;
 
     // Rental information
     status.value = "available";

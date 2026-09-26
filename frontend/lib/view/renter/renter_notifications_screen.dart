@@ -164,6 +164,34 @@ class RenterNotificationsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  _getStatusMessage(notification),
+                  style: const TextStyle(
+                    color: renterNotificationPrimaryColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              if (notification.isNew) ...[
+                const SizedBox(width: 8),
+                Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFDC2626),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildPropertyImage(notification.propertyImage),
@@ -172,47 +200,21 @@ class RenterNotificationsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            notification.title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: renterNotificationPrimaryColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        if (notification.isNew) ...[
-                          const SizedBox(width: 7),
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFDC2626),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 5),
                     Text(
                       notification.propertyName,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFF111827),
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 6),
                     Text(
-                      notification.message,
+                      notification.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: renterNotificationMutedTextColor,
                         fontSize: 11.5,
@@ -389,6 +391,33 @@ class RenterNotificationsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getStatusMessage(RenterPropertyNotification notification) {
+    final String newStatus = notification.newStatus.trim().toLowerCase();
+    final String oldStatus = notification.oldStatus.trim().toLowerCase();
+
+    if (oldStatus == "rented" && newStatus == "available") {
+      return "This property is available now.";
+    }
+
+    if (oldStatus == "available" && newStatus == "rented") {
+      return "This property is rented now.";
+    }
+
+    if (newStatus == "available") {
+      return "This property is available now.";
+    }
+
+    if (newStatus == "rented") {
+      return "This property is rented now.";
+    }
+
+    if (notification.message.trim().isNotEmpty) {
+      return notification.message;
+    }
+
+    return "The status of this property has been updated.";
   }
 
   String _capitalize(String value) {
