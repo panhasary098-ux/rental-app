@@ -219,18 +219,15 @@ class PostApartStep2 extends StatelessWidget {
                   // ==================================================
                   // CONTACT
                   // ==================================================
-                  customInputTitle(title: "Contact"),
+                  customInputTitle(title: "Telegram contect"),
 
                   const SizedBox(height: 5),
 
                   CustomTextFormField(
-                    hintText: "Enter contact number",
-
+                    hintText: "Enter telegram username",
                     controller: controller.contactController,
-
                     keyboardType: TextInputType.phone,
-
-                    prefixIcon: Icons.phone_outlined,
+                    prefixIcon: Icons.send_rounded,
                   ),
 
                   const SizedBox(height: 15),
@@ -374,11 +371,11 @@ class PostApartStep2 extends StatelessWidget {
                                             }
                                           },
 
-                                          selectedColor: secondaryColor,
-
+                                          selectedColor: Colors.white,
                                           backgroundColor: Colors.white,
 
                                           side: BorderSide(
+                                            width: 1.5,
                                             color: isSelected
                                                 ? primaryColor
                                                 : secondaryColor.withOpacity(
